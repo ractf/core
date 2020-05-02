@@ -1,0 +1,18 @@
+[run]
+source = .
+branch = True
+omit =
+    */venv/*
+    backend/asgi.py
+    backend/wsgi.py
+    backend/exception_handler.py
+    manage.py
+    websockets/routing.py
+[report]
+fail_under = 100
+show_missing = True
+skip_covered = True
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError
+    pass
