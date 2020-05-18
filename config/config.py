@@ -14,6 +14,8 @@ DEFAULT_CONFIG = {
     'team_size': -1,
     'email_regex': '',
     'email_domain': '',
+    'login_provider': 'basic_auth',
+    'registration_provider': 'basic_auth',
     'enable_ctftime': True,
     'enable_flag_submission': True,
     'enable_flag_submission_after_competition': True,

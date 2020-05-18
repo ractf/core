@@ -2,6 +2,7 @@ import abc
 import time
 
 from django.db.models import Sum, F
+from django.utils import timezone
 
 from challenge.models import Score, Solve
 from config import config
@@ -44,6 +45,8 @@ class PointsPlugin(abc.ABC):
             user.leaderboard_points += (points - deducted)
             if team is not None:
                 team.leaderboard_points += (points - deducted)
+            user.last_score = timezone.now()
+            team.last_score = timezone.now()
         return solve
 
     def register_incorrect_attempt(self, user, team, flag, solves, *args, **kwargs):

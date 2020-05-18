@@ -11,3 +11,13 @@ class NameValidator(validators.RegexValidator):
         'numbers, spaces, and ./+/-/_ characters.'
     )
     flags = 0
+
+
+@deconstructible
+class LenientNameValidator(validators.RegexValidator):
+    regex = r'^[]+\Z'
+    message = _(
+        'Enter a valid name. This value may contain only letters, '
+        'numbers, spaces, and ./+/-/_ characters.'
+    )
+    flags = 0

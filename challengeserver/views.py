@@ -30,7 +30,7 @@ def disconnect_user(user_id):
 
 def get_new_instance(challenge_id, user_id):
     response = requests.post(settings.CHALLENGE_SERVER_URL, json={
-        "user": user_id,
+        "user": str(user_id),
         "challenge": challenge_id
     }, headers={"Authorization": settings.CHALLENGE_SERVER_API_KEY})
     if response.status_code == HTTP_200_OK:
@@ -51,14 +51,11 @@ def return_instance_or_create_new(challenge_id, user_id):
 
 def request_reset(user_id, challenge_id):
     current_instance = get_current_instance(user_id)
-    if current_instance is None:
-        return return_instance_or_create_new(challenge_id, user_id)
-    elif current_instance["challenge"] != challenge_id:
+    if current_instance is None or current_instance["challenge"] != challenge_id:
         return return_instance_or_create_new(challenge_id, user_id)
 
-    response = requests.post(f"{settings.CHALLENGE_SERVER_URL}/reset/{current_instance['container_id']}",
-                             headers={"Authorization": settings.CHALLENGE_SERVER_API_KEY},
-                             json={"user": str(user_id)})
+    response = requests.post(f"{settings.CHALLENGE_SERVER_URL}/reset/{user_id}",
+                             headers={"Authorization": settings.CHALLENGE_SERVER_API_KEY})
 
     if response.status_code in [HTTP_404_NOT_FOUND, HTTP_403_FORBIDDEN]:
         return return_instance_or_create_new(challenge_id, user_id)
@@ -66,7 +63,7 @@ def request_reset(user_id, challenge_id):
 
 
 def get_json_from_response(response):
-    return loads(re.sub(replace_objects_regex, '"[Object]"', response.text.replace("'", '"'))[1:-1])
+    return loads(response.text)
 
 
 def format_json(json):

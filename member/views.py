@@ -14,7 +14,11 @@ class SelfView(RetrieveUpdateAPIView):
     throttle_scope = 'self'
 
     def get_object(self):
-        return self.request.user
+        return get_user_model().objects.prefetch_related('team', 'team__solves', 'team__solves__score',
+                                                         'team__hints_used', 'team__solves__challenge',
+                                                         'team__solves__solved_by', 'solves',
+                                                         'solves__score', 'hints_used', 'solves__challenge',
+                                                         'solves__team', 'solves__score__team').get(id=self.request.user.id)
 
 
 class MemberViewSet(AdminListModelViewSet):

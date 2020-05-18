@@ -8,8 +8,7 @@ class AdminCreateModelViewSet(ModelViewSet):
         if self.request.user.is_staff and not self.request.user.should_deny_admin():
             if self.request.method in permissions.SAFE_METHODS:
                 return self.admin_serializer_class
-            else:
-                return self.create_serializer_class
+            return self.create_serializer_class
         return self.serializer_class
 
 

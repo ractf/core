@@ -23,15 +23,13 @@ class HintSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'penalty', 'challenge', 'text', 'used']
 
     def get_text(self, instance):
-        if (self.context['request'].user.is_staff and not self.context['request'].user.should_deny_admin()) or (
-                self.context['request'].user.team is not None and self.context['request'].user.team.hints_used.filter(
-                hint=instance).exists()):
+        if (self.context['request'].user.is_staff and not self.context['request'].user.should_deny_admin()) or instance.used:
             return instance.text
         else:
             return ''
 
     def get_used(self, instance):
-        return is_used(self.context, instance)
+        return instance.used
 
 
 class CreateHintSerializer(serializers.ModelSerializer):

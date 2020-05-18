@@ -25,7 +25,11 @@ class SelfView(RetrieveUpdateAPIView):
     def get_object(self):
         if self.request.user.team is None:
             raise Http404()
-        return self.request.user.team
+        return Team.objects.filter(is_visible=True).order_by('id').prefetch_related('solves', 'members', 'hints_used',
+                                                                                    'solves__challenge',
+                                                                                    'solves__score',
+                                                                                    'solves__solved_by')\
+            .get(id=self.request.user.team.id)
 
 
 class TeamViewSet(AdminListModelViewSet):

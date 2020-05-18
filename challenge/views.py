@@ -2,7 +2,7 @@ import time
 
 from django.contrib.auth import get_user_model
 from django.db import transaction, models
-from django.db.models import Prefetch, Case, When, Value, Count
+from django.db.models import Prefetch, Case, When, Value, Count, Subquery, Q
 from django.utils import timezone
 from rest_framework import permissions
 from rest_framework.generics import get_object_or_404
@@ -11,8 +11,8 @@ from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from backend.response import FormattedResponse
 from backend.permissions import AdminOrReadOnly
+from backend.response import FormattedResponse
 from backend.signals import flag_submit, flag_reject, flag_score
 from backend.viewsets import AdminCreateModelViewSet
 from challenge.models import Challenge, Category, Solve, File
@@ -20,7 +20,7 @@ from challenge.permissions import CompetitionOpen
 from challenge.serializers import ChallengeSerializer, CategorySerializer, AdminCategorySerializer, \
     AdminChallengeSerializer, FileSerializer, CreateCategorySerializer, CreateChallengeSerializer
 from config import config
-from hint.models import Hint
+from hint.models import Hint, HintUse
 from plugins import plugins
 from team.models import Team
 from team.permissions import HasTeam
@@ -46,21 +46,19 @@ class CategoryViewset(AdminCreateModelViewSet):
             else:
                 solves = Solve.objects.filter(solved_by=self.request.user)
             solved_challenges = solves.values_list('challenge')
-            challenges = (
-                Challenge.objects.filter(release_time__lte=timezone.now()).annotate(
-                    unlocked=Case(
-                        When(auto_unlock=True, then=Value(True)),
-                        When(unlocked_by__in=solved_challenges, then=Value(True)),
-                        default=Value(False),
-                        output_field=models.BooleanField()
-                    ),
-                    solved=Case(
-                        When(id__in=solved_challenges, then=Value(True)),
-                        default=Value(False),
-                        output_field=models.BooleanField()
-                    ),
-                    solve_count=Count('solves')
-                )
+            challenges = Challenge.objects.filter(release_time__lte=timezone.now()).annotate(
+                unlocked=Case(
+                    When(auto_unlock=True, then=Value(True)),
+                    When(Q(unlocked_by__in=Subquery(solved_challenges)), then=Value(True)),
+                    default=Value(False),
+                    output_field=models.BooleanField()
+                ),
+                solved=Case(
+                    When(Q(id__in=Subquery(solved_challenges)), then=Value(True)),
+                    default=Value(False),
+                    output_field=models.BooleanField()
+                ),
+                solve_count=Count('solves')
             )
         else:
             challenges = (
@@ -74,9 +72,15 @@ class CategoryViewset(AdminCreateModelViewSet):
                     solve_count=Count('solves')
                 )
             )
-        x = challenges.prefetch_related(Prefetch('hint_set', queryset=Hint.objects.all(), to_attr='hints'),
-                                        Prefetch('file_set', queryset=File.objects.all(), to_attr='files'),
-                                        'unlocks', 'first_blood')
+        x = challenges.prefetch_related(
+            Prefetch('hint_set', queryset=Hint.objects.annotate(
+                used=Case(
+                    When(id__in=HintUse.objects.filter(team=team).values_list('hint_id'), then=Value(True)),
+                    default=Value(False),
+                    output_field=models.BooleanField()
+                )), to_attr='hints'),
+            Prefetch('file_set', queryset=File.objects.all(), to_attr='files'),
+            'unlocks', 'first_blood', 'hint_set__uses')
         if self.request.user.is_staff:
             categories = Category.objects
         else:
@@ -85,6 +89,22 @@ class CategoryViewset(AdminCreateModelViewSet):
             Prefetch('category_challenges', queryset=x, to_attr='challenges')
         )
         return qs
+
+    def list(self, request, *args, **kwargs):
+        # This is to fix an issue with django duplicating challenges on .annotate.
+        # If you want to clean this up, good luck.
+        categories = super(CategoryViewset, self).list(request, *args, **kwargs).data
+        for category in categories:
+            unlocked = set()
+            for challenge in category['challenges']:
+                if 'unlocked' in challenge and challenge['unlocked']:
+                    unlocked.add(challenge['id'])
+            new_challenges = []
+            for challenge in category['challenges']:
+                if not(('unlocked' not in challenge or not challenge['unlocked']) and challenge['id'] in unlocked):
+                    new_challenges.append(challenge)
+            category['challenges'] = new_challenges
+        return FormattedResponse(categories)
 
 
 class ChallengeViewset(AdminCreateModelViewSet):
@@ -132,7 +152,7 @@ class FlagSubmitView(APIView):
                         or not challenge.is_unlocked(user):
                     return FormattedResponse(m='already_solved_challenge', status=HTTP_403_FORBIDDEN)
 
-            if 'attempt_limit' in challenge.challenge_metadata:
+            if challenge.challenge_metadata.get("attempt_limit"):
                 if using_teams:
                     count = solve_set.filter(team=team).count()
                 else:

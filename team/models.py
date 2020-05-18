@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import CICharField
 from django.db import models
 from django.db.models import CASCADE
+from django.utils import timezone
 
 from backend.validators import NameValidator
 
@@ -14,3 +15,4 @@ class Team(models.Model):
     description = models.TextField(blank=True, max_length=400)
     points = models.IntegerField(default=0)
     leaderboard_points = models.IntegerField(default=0)
+    last_score = models.DateTimeField(default=timezone.now)

@@ -74,7 +74,7 @@ class RedisBackend(ConfigBackend):
         return config
 
     def set_if_not_exists(self, key, value):
-        if not self.redis.exists(key):
+        if not self.redis.exists('config_' + key):
             self.set(key, value)
 
     def load(self, defaults):
@@ -85,10 +85,10 @@ class RedisBackend(ConfigBackend):
                 for key, value in defaults.items():
                     self.set(key, value)
                 return
-            for key, value in config.items():
-                self.set(key, value)
             for key, value in defaults.items():
                 self.set_if_not_exists(key, value)
+            for key, value in config.items():
+                self.set(key, value)
         else:
             Config(key='config', value=defaults).save()
             for key, value in defaults.items():

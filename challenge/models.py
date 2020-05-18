@@ -2,9 +2,8 @@ from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import BrinIndex
 from django.db import models
-from django.db.models import SET_NULL, CASCADE, PROTECT, Case, When, Value, UniqueConstraint, Q
+from django.db.models import SET_NULL, CASCADE, PROTECT, Case, When, Value, UniqueConstraint, Q, Subquery
 from django.utils import timezone
-from rest_framework.exceptions import AuthenticationFailed
 
 from team.models import Team
 
@@ -68,12 +67,12 @@ class Challenge(models.Model):
             challenges = base.annotate(
                     unlocked=Case(
                         When(auto_unlock=True, then=Value(True)),
-                        When(unlocked_by__in=solved_challenges, then=Value(True)),
+                        When(unlocked_by__in=Subquery(solved_challenges), then=Value(True)),
                         default=Value(False),
                         output_field=models.BooleanField()
                     ),
                     solved=Case(
-                        When(id__in=solved_challenges, then=Value(True)),
+                        When(id__in=Subquery(solved_challenges), then=Value(True)),
                         default=Value(False),
                         output_field=models.BooleanField()
                     )

@@ -6,6 +6,7 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.contrib.postgres.fields import CICharField
 from django.db import models
 from django.db.models import SET_NULL
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
 
@@ -48,6 +49,7 @@ class Member(AbstractUser):
     password_reset_token = models.CharField(max_length=64, default=secrets.token_hex)
     points = models.IntegerField(default=0)
     leaderboard_points = models.IntegerField(default=0)
+    last_score = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.username
