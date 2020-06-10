@@ -31,6 +31,7 @@ urlpatterns = [
     path('scorerecalculator/', include('scorerecalculator.urls')),
     path('stats/', include('stats.urls')),
     path('team/', include('team.urls')),
+    path('status/', include('status.urls'))
 ]
 
 if settings.DEBUG:
