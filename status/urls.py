@@ -3,5 +3,5 @@ from django.urls import path
 from status import views
 
 urlpatterns = [
-    path('', views.status, name='status')
+    path('', views.StatusView.as_view(), name='status')
 ]
