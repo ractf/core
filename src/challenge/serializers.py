@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from challenge.models import Challenge, Category, File, Solve, ChallengeVote
+from challenge.models import Challenge, Category, File, Solve, ChallengeVote, ChallengeFeedback
 from hint.serializers import HintSerializer
 
 
@@ -65,6 +65,12 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name', 'display_order', 'contained_type', 'description', 'metadata', 'challenges']
+
+
+class ChallengeFeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChallengeFeedback
+        fields = ['id', 'challenge', 'feedback', 'user']
 
 
 class CreateCategorySerializer(serializers.ModelSerializer):

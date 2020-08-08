@@ -12,14 +12,15 @@ from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from backend.permissions import AdminOrReadOnly
+from backend.permissions import AdminOrReadOnly, AdminOrPostOnly
 from backend.response import FormattedResponse
 from backend.signals import flag_submit, flag_reject, flag_score
 from backend.viewsets import AdminCreateModelViewSet
-from challenge.models import Challenge, Category, Solve, File, ChallengeVote
+from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback
 from challenge.permissions import CompetitionOpen
 from challenge.serializers import ChallengeSerializer, CategorySerializer, AdminCategorySerializer, \
-    AdminChallengeSerializer, FileSerializer, CreateCategorySerializer, CreateChallengeSerializer
+    AdminChallengeSerializer, FileSerializer, CreateCategorySerializer, CreateChallengeSerializer, \
+    ChallengeFeedbackSerializer
 from config import config
 from hint.models import Hint, HintUse
 from plugins import plugins
@@ -122,6 +123,29 @@ class ChallengeViewset(AdminCreateModelViewSet):
         if self.request.method not in permissions.SAFE_METHODS:
             return self.queryset
         return Challenge.get_unlocked_annotated_queryset(self.request.user)
+
+
+class ChallengeFeedbackView(APIView):
+    permission_classes = (AdminOrPostOnly & HasTeam,)
+
+    def get(self, request):
+        challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
+        feedback = ChallengeFeedback.objects.filter(challenge=challenge)
+        return FormattedResponse(ChallengeFeedbackSerializer(feedback, many=True).data)
+
+    def post(self, request):
+        challenge = get_object_or_404(Challenge, id=request.data.get('challenge'))
+        solve_set = Solve.objects.filter(challenge=challenge)
+
+        if not solve_set.filter(team=request.user.team, correct=True).exists():
+            return FormattedResponse(m='challenge_not_solved', status=HTTP_403_FORBIDDEN)
+
+        current_feedback = ChallengeFeedback.objects.filter(user=request.user, challenge=challenge)
+        if current_feedback.exists():
+            current_feedback.delete()
+
+        ChallengeFeedback(user=request.user, challenge=challenge, feedback=request.data.get("feedback")).save()
+        return FormattedResponse(m='feedback_recorded')
 
 
 class ChallengeVoteView(APIView):

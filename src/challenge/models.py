@@ -111,6 +111,12 @@ class ChallengeVote(models.Model):
     positive = models.BooleanField()
 
 
+class ChallengeFeedback(models.Model):
+    challenge = models.ForeignKey(Challenge, on_delete=CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=CASCADE)
+    feedback = models.TextField()
+
+
 @receiver(post_save, sender=Challenge)
 def on_challenge_update(sender, instance, created, **kwargs):
     if not created:
