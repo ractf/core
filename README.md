@@ -1,2 +1,2 @@
 # RACTF Backend
-Good luck.
+The backend API for the RACTF platform.
