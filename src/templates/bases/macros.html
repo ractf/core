@@ -1,0 +1,24 @@
+{% macro button(text, url) -%}
+    <!--[if mso]>
+            <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ url }}" style="margin-top:24px;margin-bottom:8px;height:56px;v-text-anchor:middle;width:300px;padding:0 64px;" arcsize="50%" stroke="f" fillcolor="#161422">
+                <w:anchorlock/>
+                <center style="color:#ffffff;font-family:sans-serif;font-size:16px;font-weight:bold;">
+                    {{ text }}
+            </center>
+        </v:roundrect>
+    <![endif]-->
+    <!--[if !mso]> <!-->
+        <a href="{{ url }}"><div style="display:inline-block;line-height:56px;height:56px;border-radius:28px;padding:0 64px;background-color:#161422;color:#fff;text-decoration:none;" href="{{URL}}">
+            {{ text }}
+    </div></a><!-- <![endif]-->
+{%- endmacro %}
+
+{% macro space(height) -%}
+    <tr><td height="{{ height }}"></td></tr>
+{%- endmacro %}
+
+{% macro center(pad=0) -%}
+    <tr><td align="center" cellpadding="{{ pad }}">
+        {{ caller() }}
+    </td></tr>
+{%- endmacro %}

@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+
+  db:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_EXTENSIONS=citext
+      - POSTGRES_HOST_AUTH_METHOD=trust
+
+  web:
+    build: .
+    command: /app/entrypoint.sh ./manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+    environment:
+      - PYTHONPYCACHEPREFIX=/root
+      - SECRET_KEY=CorrectHorseBatteryStaple
+      - DJANGO_SETTINGS_MODULE=backend.settings.local
+
+      - REDIS_PORT=6379
+      - REDIS_HOST=redis
+
+      - SQL_HOST=db
+      - SQL_PORT=5432
+      - SQL_USER=postgres
+      - SQL_DATABASE=postgres
+
+  redis:
+    image: redis:5

@@ -1,0 +1,4 @@
+Thank you for signing up to RACTF.
+Before you can login, you need to verify your account!
+
+Please visit {{ url }} to verify your account.
