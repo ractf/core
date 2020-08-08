@@ -31,6 +31,19 @@ urlpatterns = [
     path('scorerecalculator/', include('scorerecalculator.urls')),
     path('stats/', include('stats.urls')),
     path('team/', include('team.urls')),
+
+    path('api/v2/admin/', admin.site.urls),
+    path('api/v2/announcements/', include('announcements.urls')),
+    path('api/v2/auth/', include('authentication.urls')),
+    path('api/v2/challenges/', include('challenge.urls')),
+    path('api/v2/challengeserver/', include('challengeserver.urls')),
+    path('api/v2/config/', include('config.urls')),
+    path('api/v2/hints/', include('hint.urls')),
+    path('api/v2/leaderboard/', include('leaderboard.urls')),
+    path('api/v2/member/', include('member.urls')),
+    path('api/v2/scorerecalculator/', include('scorerecalculator.urls')),
+    path('api/v2/stats/', include('stats.urls')),
+    path('api/v2/team/', include('team.urls')),
 ]
 
 if "silk" in settings.INSTALLED_APPS:
