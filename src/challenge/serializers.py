@@ -95,7 +95,8 @@ class AdminChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerial
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
                   'author', 'auto_unlock', 'score', 'unlocks', 'flag_metadata', 'hints', 'files', 'solved',
-                  'unlocked', 'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'release_time', 'votes']
+                  'unlocked', 'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'release_time', 'votes',
+                  'post_score_explanation']
 
 
 class CreateChallengeSerializer(serializers.ModelSerializer):
