@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model, password_validation
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_401_UNAUTHORIZED
 
-from authentication.models import InviteCode
+from authentication.models import InviteCode, PasswordResetToken
 from backend.exceptions import FormattedException
-from config import config
 from plugins import providers
 
 
@@ -45,9 +45,11 @@ class PasswordResetSerializer(serializers.Serializer):
         uid = data.get('uid')
         token = data.get('token')
         password = data.get('password')
-        user = get_object_or_404(get_user_model(), id=uid, password_reset_token=token)
-        password_validation.validate_password(password, user)
+        user = get_object_or_404(get_user_model(), id=uid)
+        reset_token = get_object_or_404(PasswordResetToken, token=token, user_id=uid, expires__lt=timezone.now())
+        password_validation.validate_password(password, reset_token)
         data['user'] = user
+        data['reset_token'] = reset_token
         return data
 
 

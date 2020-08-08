@@ -1,0 +1,3 @@
+2FA has been disabled on your account.
+If this was you, you can safely ignore this email.
+If this wasn't you, request a password reset or raise a support ticket.

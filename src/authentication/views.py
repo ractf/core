@@ -23,11 +23,11 @@ from backend import renderers
 from backend.mail import send_email
 from backend.response import FormattedResponse
 from backend.signals import logout, add_2fa, verify_2fa, password_reset_start, password_reset_start_reject, \
-    email_verified, change_password, password_reset
+    email_verified, change_password, password_reset, remove_2fa
 from backend.viewsets import AdminListModelViewSet
 from member.models import TOTPStatus
 from team.models import Team
-from authentication.models import InviteCode
+from authentication.models import InviteCode, PasswordResetToken
 from plugins import providers
 
 hide_password = method_decorator(sensitive_post_parameters("password",))
@@ -101,6 +101,22 @@ class VerifyTwoFactorView(APIView):
         return FormattedResponse({"valid": valid})
 
 
+class RemoveTwoFactorView(APIView):
+    permission_classes = (permissions.IsAuthenticated & HasTwoFactor,)
+    throttle_scope = "2fa"
+
+    def post(self, request):
+        request.user.totp_status = TOTPStatus.DISABLED
+        request.user.save()
+        remove_2fa.send(sender=self.__class__, user=request.user)
+        send_email(
+            request.user.email,
+            "RACTF - 2FA Has Been Disabled",
+            "2fa_removed"
+        )
+        return FormattedResponse()
+
+
 class RequestPasswordResetView(APIView):
     permission_classes = (~permissions.IsAuthenticated,)
     throttle_scope = "request_password_reset"
@@ -112,8 +128,10 @@ class RequestPasswordResetView(APIView):
         # prevent timing attack - is this necessary?
         try:
             user = get_user_model().objects.get(email=email)
+            token = PasswordResetToken(user=user, token=secrets.token_hex(64))
+            token.save()
             uid = user.id
-            token = user.password_reset_token
+            token = token.token
             password_reset_start.send(sender=self.__class__, user=user)
         except get_user_model().DoesNotExist:
             password_reset_start_reject.send(sender=self.__class__, email=email)
@@ -150,8 +168,9 @@ class DoPasswordResetView(GenericAPIView):
         user = data["user"]
         password = data["password"]
         user.set_password(password)
-        user.password_reset_token = secrets.token_hex()
         user.save()
+
+        data['reset_token'].delete()
         password_reset.send(sender=self.__class__, user=user)
         if user.can_login():
             return FormattedResponse({"token": user.issue_token()})
