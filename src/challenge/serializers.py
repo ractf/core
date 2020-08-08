@@ -103,7 +103,8 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
-                  'author', 'auto_unlock', 'score', 'unlocks', 'flag_metadata', 'hidden', 'release_time']
+                  'author', 'auto_unlock', 'score', 'unlocks', 'flag_metadata', 'hidden', 'release_time',
+                  'post_score_explanation']
         read_only_fields = ['id']
 
 

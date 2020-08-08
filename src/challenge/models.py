@@ -27,6 +27,7 @@ class Challenge(models.Model):
     description = models.TextField()
     challenge_type = models.CharField(max_length=64)
     challenge_metadata = JSONField()
+    post_score_explanation = models.TextField(blank=True)
     flag_type = models.CharField(max_length=64, default="plaintext")
     flag_metadata = JSONField()
     author = models.CharField(max_length=36)

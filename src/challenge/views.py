@@ -1,3 +1,4 @@
+
 import time
 
 from django.contrib.auth import get_user_model
@@ -202,7 +203,10 @@ class FlagSubmitView(APIView):
                 team.save()
             flag_score.send(sender=self.__class__, user=user, team=team if using_teams else None, challenge=challenge,
                             flag=flag, solve=solve)
-            return FormattedResponse(d={'correct': True}, m='correct_flag')
+            ret = {'correct': True}
+            if challenge.post_score_explanation:
+                ret["explanation"] = challenge.post_score_explanation
+            return FormattedResponse(d=ret, m='correct_flag')
 
 
 class FileViewSet(ModelViewSet):
