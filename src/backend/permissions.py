@@ -23,13 +23,6 @@ class AdminOrReadOnly(permissions.BasePermission):
         return request.user.is_authenticated
 
 
-class AdminOrPostOnly(permissions.BasePermission):
-    def has_permission(self, request, view):
-        if request.method != "POST":
-            return request.user.is_staff and not request.user.should_deny_admin()
-        return request.user.is_authenticated
-
-
 class AdminOrAnonymousReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method not in permissions.SAFE_METHODS:

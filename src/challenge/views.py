@@ -12,7 +12,7 @@ from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from backend.permissions import AdminOrReadOnly, AdminOrPostOnly
+from backend.permissions import AdminOrReadOnly
 from backend.response import FormattedResponse
 from backend.signals import flag_submit, flag_reject, flag_score
 from backend.viewsets import AdminCreateModelViewSet
@@ -126,12 +126,14 @@ class ChallengeViewset(AdminCreateModelViewSet):
 
 
 class ChallengeFeedbackView(APIView):
-    permission_classes = (AdminOrPostOnly & HasTeam,)
+    permission_classes = (IsAuthenticated & HasTeam,)
 
     def get(self, request):
         challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
         feedback = ChallengeFeedback.objects.filter(challenge=challenge)
-        return FormattedResponse(ChallengeFeedbackSerializer(feedback, many=True).data)
+        if request.user.is_staff:
+            return FormattedResponse(ChallengeFeedbackSerializer(feedback, many=True).data)
+        return FormattedResponse(ChallengeFeedbackSerializer(feedback.filter(user=request.user).first()).data)
 
     def post(self, request):
         challenge = get_object_or_404(Challenge, id=request.data.get('challenge'))
