@@ -18,12 +18,12 @@ from rest_framework.views import APIView
 from authentication import serializers
 from authentication.permissions import HasTwoFactor, VerifyingTwoFactor
 from authentication.serializers import RegistrationSerializer, EmailVerificationSerializer, ChangePasswordSerializer, \
-    GenerateInvitesSerializer, InviteCodeSerializer
+    GenerateInvitesSerializer, InviteCodeSerializer, EmailSerializer
 from backend import renderers
 from backend.mail import send_email
 from backend.response import FormattedResponse
 from backend.signals import logout, add_2fa, verify_2fa, password_reset_start, password_reset_start_reject, \
-    verify_email, change_password, password_reset
+    email_verified, change_password, password_reset
 from backend.viewsets import AdminListModelViewSet
 from member.models import TOTPStatus
 from team.models import Team
@@ -178,11 +178,38 @@ class VerifyEmailView(GenericAPIView):
         user.email_verified = True
         user.is_visible = True
         user.save()
-        verify_email.send(sender=self.__class__, user=user)
+        email_verified.send(sender=self.__class__, user=user)
         if user.can_login():
             return FormattedResponse({"token": user.issue_token()})
         else:
             return FormattedResponse()
+
+
+class ResendEmailView(GenericAPIView):
+    permission_classes = (~permissions.IsAuthenticated,)
+    throttle_scope = "resend_verify_email"
+    serializer_class = EmailSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
+        if not serializer.is_valid():
+            return FormattedResponse(
+                m="invalid_token_or_uid",
+                d=serializer.errors,
+                status=HTTP_400_BAD_REQUEST,
+            )
+        user = serializer.validated_data["user"]
+        if user.email_verified:
+            return FormattedResponse(
+                m="invalid_token_or_uid",
+                d=serializer.errors,
+                status=HTTP_400_BAD_REQUEST,
+            )
+        send_email(user.email, 'RACTF - Verify your email', 'verify',
+                   url='verify?id={}&secret={}'.format(user.id, user.email_token))
+        return FormattedResponse('email_resent')
 
 
 class ChangePasswordView(APIView):

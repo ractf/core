@@ -15,6 +15,7 @@ urlpatterns = [
     path('request_password_reset/', views.RequestPasswordResetView.as_view(), name='request-password-reset'),
     path('password_reset/', views.DoPasswordResetView.as_view(), name='do-password-reset'),
     path('verify_email/', views.VerifyEmailView.as_view(), name='verify-email'),
+    path('resend_email/', views.ResendEmailView.as_view(), name='resend-email'),
     path('change_password/', views.ChangePasswordView.as_view(), name='change-password'),
     path('generate_invites/', views.GenerateInvitesView.as_view(), name='generate-invites'),
     path('invites/', include(router.urls), name='invites')

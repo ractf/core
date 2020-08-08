@@ -65,6 +65,17 @@ class EmailVerificationSerializer(serializers.Serializer):
         return data
 
 
+class EmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate(self, data):
+        user = get_object_or_404(get_user_model(), email=data.get('email'))
+        if user.email_verified:
+            raise FormattedException(m='email_already_verified', status_code=HTTP_403_FORBIDDEN)
+        data['user'] = user
+        return data
+
+
 class ChangePasswordSerializer(serializers.Serializer):
     password = serializers.CharField()
 
