@@ -104,11 +104,16 @@ class Challenge(models.Model):
         return challenges
 
 
+class ChallengeVote(models.Model):
+    challenge = models.ForeignKey(Challenge, on_delete=CASCADE)
+    user = models.ForeignKey(get_user_model(), on_delete=CASCADE)
+    positive = models.BooleanField()
+
+
 @receiver(post_save, sender=Challenge)
 def on_challenge_update(sender, instance, created, **kwargs):
     if not created:
         new_score = instance.score
-
 
 
 class Score(models.Model):

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from challenge.models import Challenge, Category, File, Solve
+from challenge.models import Challenge, Category, File, Solve, ChallengeVote
 from hint.serializers import HintSerializer
 
 
@@ -26,12 +26,24 @@ class ChallengeSerializerMixin:
     def get_solve_count(self, instance):
         return instance.solve_count
 
+    def get_votes(self, instance):
+        votes = ChallengeVote.objects.filter(challenge=instance)
+        positive = votes.filter(positive=True).count()
+        negative = votes.filter(positive=False).count()
+        self_vote = votes.filter(user=self.context['request'].user).first()
+        return {
+            "positive": positive,
+            "negative": negative,
+            "self": self_vote.positive if self_vote else None
+        }
+
 
 class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
     hints = HintSerializer(many=True, read_only=True)
     files = FileSerializer(many=True, read_only=True)
     solved = serializers.SerializerMethodField()
     unlocked = serializers.SerializerMethodField()
+    votes = serializers.SerializerMethodField()
     first_blood_name = serializers.ReadOnlyField(source='first_blood.username')
     solve_count = serializers.SerializerMethodField()
 
@@ -39,7 +51,7 @@ class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer)
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
                   'author', 'auto_unlock', 'score', 'unlocks', 'hints', 'files', 'solved', 'unlocked', 'first_blood',
-                  'first_blood_name', 'solve_count', 'hidden']
+                  'first_blood_name', 'solve_count', 'hidden', 'votes']
 
     def to_representation(self, instance):
         if instance.unlocked and not instance.hidden:
@@ -75,6 +87,7 @@ class AdminChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerial
     files = FileSerializer(many=True, read_only=True)
     solved = serializers.SerializerMethodField()
     unlocked = serializers.SerializerMethodField()
+    votes = serializers.SerializerMethodField()
     first_blood_name = serializers.ReadOnlyField(source='first_blood.team.name')
     solve_count = serializers.SerializerMethodField()
 
@@ -82,7 +95,7 @@ class AdminChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerial
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
                   'author', 'auto_unlock', 'score', 'unlocks', 'flag_metadata', 'hints', 'files', 'solved',
-                  'unlocked', 'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'release_time']
+                  'unlocked', 'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'release_time', 'votes']
 
 
 class CreateChallengeSerializer(serializers.ModelSerializer):

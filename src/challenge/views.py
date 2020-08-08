@@ -15,7 +15,7 @@ from backend.permissions import AdminOrReadOnly
 from backend.response import FormattedResponse
 from backend.signals import flag_submit, flag_reject, flag_score
 from backend.viewsets import AdminCreateModelViewSet
-from challenge.models import Challenge, Category, Solve, File
+from challenge.models import Challenge, Category, Solve, File, ChallengeVote
 from challenge.permissions import CompetitionOpen
 from challenge.serializers import ChallengeSerializer, CategorySerializer, AdminCategorySerializer, \
     AdminChallengeSerializer, FileSerializer, CreateCategorySerializer, CreateChallengeSerializer
@@ -121,6 +121,24 @@ class ChallengeViewset(AdminCreateModelViewSet):
         if self.request.method not in permissions.SAFE_METHODS:
             return self.queryset
         return Challenge.get_unlocked_annotated_queryset(self.request.user)
+
+
+class ChallengeVoteView(APIView):
+    permission_classes = (IsAuthenticated & HasTeam,)
+
+    def post(self, request):
+        challenge = get_object_or_404(Challenge, id=request.data.get('challenge'))
+        solve_set = Solve.objects.filter(challenge=challenge)
+
+        if not solve_set.filter(team=request.user.team, correct=True).exists():
+            return FormattedResponse(m='challenge_not_solved', status=HTTP_403_FORBIDDEN)
+
+        current_vote = ChallengeVote.objects.filter(user=request.user, challenge=challenge)
+        if current_vote.exists():
+            current_vote.delete()
+
+        ChallengeVote(user=request.user, challenge=challenge, positive=request.data.get("positive")).save()
+        return FormattedResponse(m='vote_recorded')
 
 
 class FlagSubmitView(APIView):
