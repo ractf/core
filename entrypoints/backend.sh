@@ -12,7 +12,7 @@ echo "Running migrations... "
 /app/src/manage.py migrate
 echo "Done."
 
-if [[ "$LOAD_FIXTURES" ]]
+if [ "$TEST_FIXTURES" ]
 then
   /app/src/manage.py flush
   /app/src/manage.py loaddata test_fixtures
