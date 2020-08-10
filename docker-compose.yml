@@ -1,34 +1,68 @@
-version: '3'
+version: "3"
 
 services:
 
-  db:
+  redis:
+    image: redis:5
+
+  database:
     image: postgres:12-alpine
     environment:
       - POSTGRES_EXTENSIONS=citext
       - POSTGRES_HOST_AUTH_METHOD=trust
 
-  web:
-    build: .
-    command: /app/entrypoint.sh ./manage.py runserver 0.0.0.0:8000
+  shell:
+    image: index.docker.io/ractf/shell:latest
     ports:
       - "8000:8000"
+    environment:
+      - RACTF_API_BASE=/api/v2
+      - RACTF_USE_HEAD_NAV=true
+      - RACTF_SITE_NAME="CS:Awesome"
+      - RACTF_API_DOMAIN=https://localhost:8000
+      - RACTF_WSS_URL=wss://localhost:8000/api/v2/ws/
+    depends_on:
+      - backend
+      - sockets
+
+  backend: &backend
+    build: .
+    entrypoint: /app/entrypoints/backend.sh
+    command: ./manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
-    depends_on:
-      - db
     environment:
-      - PYTHONPYCACHEPREFIX=/root
+      - LOAD_FIXTURES=1
+      - FRONTEND_URL=https://localhost:8000/
       - SECRET_KEY=CorrectHorseBatteryStaple
       - DJANGO_SETTINGS_MODULE=backend.settings.local
 
+      - ANDROMEDA_IP=andromeda
+      - ANDROMEDA_URL=http://andromeda:6000
+
       - REDIS_PORT=6379
       - REDIS_HOST=redis
+      - REDIS_CONFIG_DB=3
+      - REDIS_CACHE_DB=10
 
-      - SQL_HOST=db
       - SQL_PORT=5432
+      - SQL_HOST=database
       - SQL_USER=postgres
       - SQL_DATABASE=postgres
 
-  redis:
-    image: redis:5
+    depends_on:
+      - database
+
+  sockets:
+    <<: *backend
+    entrypoint: /app/entrypoints/sockets.sh
+    command: daphne -b 0.0.0.0 -p 8000 backend.asgi:application
+    depends_on:
+      - backend
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    command: --interval 5
