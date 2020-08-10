@@ -64,12 +64,7 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
 class BasicAuthLoginProvider(LoginProvider):
     name = 'basic_auth'
 
-    #TODO: These fields don't do anything yet, but they will eventually correlate to the kwargs in login_user
-    username = serializers.CharField(max_length=50)
-    password = serializers.CharField(max_length=50)
-    otp = serializers.CharField(max_length=6)
-
-    def login_user(self, username, password, otp, context, **kwargs):
+    def login_user(self, username, password, context, **kwargs):
         user = authenticate(request=context.get('request'),
                             username=username, password=password)
         if not user:
@@ -87,16 +82,6 @@ class BasicAuthLoginProvider(LoginProvider):
             raise FormattedException(m='login_not_open', d={'reason': 'login_not_open'},
                                      status_code=HTTP_401_UNAUTHORIZED)
 
-        if user.totp_status == TOTPStatus.ENABLED:
-            if not otp or otp == '':
-                login_reject.send(sender=self.__class__, username=username, reason='no_2fa')
-                raise FormattedException(m='2fa_required', d={'reason': '2fa_required'},
-                                         status_code=HTTP_401_UNAUTHORIZED)
-            totp = pyotp.TOTP(user.totp_secret)
-            if not totp.verify(otp, valid_window=1):
-                login_reject.send(sender=self.__class__, username=username, reason='incorrect_2fa')
-                raise FormattedException(m='incorrect_2fa', d={'reason': 'incorrect_2fa'},
-                                         status_code=HTTP_401_UNAUTHORIZED)
         login.send(sender=self.__class__, user=user)
         return user
 

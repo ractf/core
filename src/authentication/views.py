@@ -1,8 +1,7 @@
 import random
-import string
 import secrets
+import string
 
-import pyotp
 from django.contrib.auth import get_user_model
 from django.core.validators import EmailValidator
 from django.db import transaction
@@ -10,34 +9,31 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions
-from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.generics import CreateAPIView, GenericAPIView, get_object_or_404
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
 from rest_framework.views import APIView
 
 from authentication import serializers
+from authentication.models import InviteCode, PasswordResetToken, TOTPDevice, BackupCode
 from authentication.permissions import HasTwoFactor, VerifyingTwoFactor
 from authentication.serializers import RegistrationSerializer, EmailVerificationSerializer, ChangePasswordSerializer, \
     GenerateInvitesSerializer, InviteCodeSerializer, EmailSerializer
-from backend import renderers
 from backend.mail import send_email
 from backend.response import FormattedResponse
 from backend.signals import logout, add_2fa, verify_2fa, password_reset_start, password_reset_start_reject, \
     email_verified, change_password, password_reset, remove_2fa
 from backend.viewsets import AdminListModelViewSet
 from member.models import TOTPStatus
-from team.models import Team
-from authentication.models import InviteCode, PasswordResetToken
 from plugins import providers
+from team.models import Team
 
-hide_password = method_decorator(sensitive_post_parameters("password",))
+hide_password = method_decorator(sensitive_post_parameters("password", ))
 
 
 class LoginView(APIView):
     permission_classes = (~permissions.IsAuthenticated,)
     serializer_class = serializers.LoginSerializer
     throttle_scope = "login"
-    renderer_classes = (renderers.RACTFJSONRenderer,)
 
     @hide_password
     def dispatch(self, *args, **kwargs):
@@ -49,6 +45,9 @@ class LoginView(APIView):
         user = serializer.validated_data['user']
         if user is None:
             return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': 'login_failed'}, m='login_failed')
+
+        if user.has_2fa():
+            return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': '2fa_required'}, m='2fa_required')
 
         token = providers.get_provider('token').issue_token(user)
         return FormattedResponse({'token': token})
@@ -79,12 +78,10 @@ class AddTwoFactorView(APIView):
     throttle_scope = "2fa"
 
     def post(self, request):
-        totp_secret = pyotp.random_base32()
-        request.user.totp_secret = totp_secret
-        request.user.totp_status = TOTPStatus.VERIFYING
-        request.user.save()
+        totp_device = TOTPDevice(user=request.user)
+        totp_device.save()
         add_2fa.send(sender=self.__class__, user=request.user)
-        return FormattedResponse({"totp_secret": totp_secret})
+        return FormattedResponse({"totp_secret": totp_device.totp_secret})
 
 
 class VerifyTwoFactorView(APIView):
@@ -92,13 +89,13 @@ class VerifyTwoFactorView(APIView):
     throttle_scope = "2fa"
 
     def post(self, request):
-        totp = pyotp.TOTP(request.user.totp_secret)
-        valid = totp.verify(request.data["otp"], valid_window=1)
-        if valid:
-            request.user.totp_status = TOTPStatus.ENABLED
-            request.user.save()
+        if request.user.totp_device is not None and request.user.totp_device.validate_token(request.data["otp"]):
+            request.user.totp_device.verified = True
+            request.user.totp_device.save()
+            backup_codes = BackupCode.generate(request.user)
             verify_2fa.send(sender=self.__class__, user=request.user)
-        return FormattedResponse({"valid": valid})
+            return FormattedResponse({"valid": True, "backup_codes": backup_codes})
+        return FormattedResponse({"valid": False})
 
 
 class RemoveTwoFactorView(APIView):
@@ -106,7 +103,7 @@ class RemoveTwoFactorView(APIView):
     throttle_scope = "2fa"
 
     def post(self, request):
-        request.user.totp_status = TOTPStatus.DISABLED
+        request.user.totp_device.delete()
         request.user.save()
         remove_2fa.send(sender=self.__class__, user=request.user)
         send_email(
@@ -115,6 +112,54 @@ class RemoveTwoFactorView(APIView):
             "2fa_removed"
         )
         return FormattedResponse()
+
+
+class LoginTwoFactorView(APIView):
+    permission_classes = (~permissions.IsAuthenticated,)
+    serializer_class = serializers.LoginTwoFactorSerializer
+    throttle_scope = "login"
+
+    @hide_password
+    def dispatch(self, *args, **kwargs):
+        return super(LoginTwoFactorView, self).dispatch(*args, **kwargs)
+
+    def issue_token(self, user):
+        token = providers.get_provider('token').issue_token(user)
+        return FormattedResponse({'token': token})
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        if user is None:
+            return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': 'login_failed'}, m='login_failed')
+
+        if user.totp_status != TOTPStatus.ENABLED:
+            return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': '2fa_not_enabled'}, m='2fa_not_enabled')
+
+        token = serializer.data['tfa']
+
+        if len(token) == 6:
+            for device in user.totp_devices:
+                if device.validate_token(token):
+                    return self.issue_token(user)
+        elif len(token) == 8:
+            for code in user.backup_codes:
+                if token == code.code:
+                    code.delete()
+                    return self.issue_token(user)
+
+        return self.issue_token(user)
+
+
+class RegenerateBackupCodesView(APIView):
+    permission_classes = (permissions.IsAuthenticated & HasTwoFactor,)
+    serializer_class = serializers.LoginTwoFactorSerializer
+    throttle_scope = "2fa"
+
+    def post(self, request, *args, **kwargs):
+        backup_codes = BackupCode.generate(request.user)
+        return FormattedResponse({"backup_codes": backup_codes})
 
 
 class RequestPasswordResetView(APIView):
@@ -265,8 +310,8 @@ class GenerateInvitesView(APIView):
         if serializer.validated_data["auto_team"]:
             team = get_object_or_404(Team, id=serializer.validated_data["auto_team"])
         with transaction.atomic():
-            for i in range(active_codes, serializer.validated_data["amount"]+active_codes):
-                code = f"{''.join([random.choice(string.ascii_letters+string.digits) for _ in range(8)])}{hex(i)[2:]}"
+            for i in range(active_codes, serializer.validated_data["amount"] + active_codes):
+                code = f"{''.join([random.choice(string.ascii_letters + string.digits) for _ in range(8)])}{hex(i)[2:]}"
                 codes.append(code)
                 invite = InviteCode(code=code, max_uses=serializer.validated_data["max_uses"])
                 if serializer.validated_data["auto_team"]:

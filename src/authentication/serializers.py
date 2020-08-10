@@ -12,12 +12,21 @@ from plugins import providers
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(trim_whitespace=False)
-    otp = serializers.CharField(max_length=6, allow_null=True, allow_blank=True)
 
     def validate(self, data):
         user = providers.get_provider('login').login_user(**data, context=self.context)
-        if user is not None:
-            data['user'] = user
+        data['user'] = user
+        return data
+
+
+class LoginTwoFactorSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(trim_whitespace=False)
+    tfa = serializers.CharField(max_length=255, allow_null=True, allow_blank=True)
+
+    def validate(self, data):
+        user = providers.get_provider('login').login_user(**data, context=self.context)
+        data['user'] = user
         return data
 
 

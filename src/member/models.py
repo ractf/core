@@ -1,3 +1,4 @@
+import random
 import secrets
 import time
 from enum import IntEnum
@@ -32,14 +33,10 @@ class Member(AbstractUser):
             "Required. 36 characters or fewer. Letters, digits and @/./+/-/_ only."
         ),
         validators=[username_validator],
-        error_messages={"unique": _("A user with that username already exists."),},
+        error_messages={"unique": _("A user with that username already exists.")},
     )
     email = models.EmailField(_("email address"), blank=True, unique=True)
-    totp_secret = models.CharField(null=True, max_length=16)
-    totp_status = models.IntegerField(
-        choices=[(status, status.value) for status in TOTPStatus],
-        default=TOTPStatus.DISABLED,
-    )
+    state_actor = models.BooleanField(default=False)
     is_visible = models.BooleanField(default=False)
     bio = models.TextField(blank=True, max_length=400)
     discord = models.CharField(blank=True, max_length=36)
@@ -70,11 +67,11 @@ class Member(AbstractUser):
         token, created = Token.objects.get_or_create(user=self)
         return token.key
 
-    def is_2fa_enabled(self):
-        return self.totp_status == TOTPStatus.ENABLED
+    def has_2fa(self):
+        return self.totp_device is not None and self.totp_device.verified
 
     def should_deny_admin(self):
-        return self.totp_status != TOTPStatus.ENABLED and config.get(
+        return not self.has_2fa() and config.get(
             "enable_force_admin_2fa"
         )
 

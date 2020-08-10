@@ -15,9 +15,9 @@ class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team',
-                  'points', 'is_visible', 'is_active', 'solves', 'team_name', 'leaderboard_points', 'date_joined',
-                  'incorrect_solves']
+        fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'state_actor', 'twitter', 'reddit',
+                  'team', 'points', 'is_visible', 'is_active', 'solves', 'team_name', 'leaderboard_points',
+                  'date_joined', 'incorrect_solves']
 
 
 class ListMemberSerializer(serializers.ModelSerializer):
@@ -37,7 +37,7 @@ class AdminMemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         model = get_user_model()
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team',
                   'points', 'is_visible', 'is_active', 'solves', 'team_name', 'email', 'email_verified',
-                  'leaderboard_points', 'date_joined', 'incorrect_solves']
+                  'leaderboard_points', 'date_joined', 'state_actor', 'incorrect_solves']
 
 
 class MinimalMemberSerializer(serializers.ModelSerializer):
@@ -46,7 +46,7 @@ class MinimalMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team',
-                  'points', 'is_visible', 'is_active', 'team_name', 'leaderboard_points', 'date_joined']
+                  'points', 'is_visible', 'is_active', 'team_name', 'leaderboard_points', 'state_actor', 'date_joined']
 
 
 class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
@@ -56,14 +56,15 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     team_name = serializers.ReadOnlyField(source='team.name')
     email = serializers.EmailField()
     incorrect_solves = serializers.SerializerMethodField()
+    has_2fa = serializers.BooleanField(source='has_2fa')
 
     class Meta:
         model = get_user_model()
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team', 'email',
-                  'totp_status', 'points', 'solves', 'team_name', 'leaderboard_points', 'date_joined',
+                  'has_2fa', 'points', 'solves', 'team_name', 'leaderboard_points', 'date_joined',
                   'incorrect_solves']
-        read_only_fields = ['id', 'is_staff', 'team', 'email', 'totp_status', 'points',
-                            'leaderboard_points', 'date_joined', 'incorrect_solves']
+        read_only_fields = ['id', 'is_staff', 'team', 'email', 'points', 'leaderboard_points', 'date_joined',
+                            'incorrect_solves']
 
     def validate_email(self, value):
         self.instance.password_reset_token = secrets.token_hex()
