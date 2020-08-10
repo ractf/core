@@ -134,7 +134,7 @@ class LoginTwoFactorView(APIView):
         if user is None:
             return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': 'login_failed'}, m='login_failed')
 
-        if user.totp_status != TOTPStatus.ENABLED:
+        if not user.has_2fa():
             return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': '2fa_not_enabled'}, m='2fa_not_enabled')
 
         token = serializer.data['tfa']
