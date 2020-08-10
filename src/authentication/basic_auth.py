@@ -1,9 +1,7 @@
 import re
 import time
 
-import pyotp
 from django.contrib.auth import authenticate, get_user_model, password_validation
-from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 
@@ -13,7 +11,6 @@ from backend.exceptions import FormattedException
 from backend.mail import send_email
 from backend.signals import login_reject, login, register_reject, register
 from config import config
-from member.models import TOTPStatus
 
 
 class BasicAuthRegistrationProvider(RegistrationProvider):

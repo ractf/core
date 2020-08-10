@@ -23,7 +23,6 @@ from backend.response import FormattedResponse
 from backend.signals import logout, add_2fa, verify_2fa, password_reset_start, password_reset_start_reject, \
     email_verified, change_password, password_reset, remove_2fa
 from backend.viewsets import AdminListModelViewSet
-from member.models import TOTPStatus
 from plugins import providers
 from team.models import Team
 

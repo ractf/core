@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 ('username', django.contrib.postgres.fields.citext.CICharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 36 characters or fewer. Letters, digits and @/./+/-/_ only.', max_length=36, unique=True, validators=[backend.validators.NameValidator()], verbose_name='username')),
                 ('email', models.EmailField(blank=True, max_length=254, unique=True, verbose_name='email address')),
                 ('totp_secret', models.CharField(max_length=16, null=True)),
-                ('totp_status', models.IntegerField(choices=[(member.models.TOTPStatus['DISABLED'], 0), (member.models.TOTPStatus['VERIFYING'], 1), (member.models.TOTPStatus['ENABLED'], 2)], default=member.models.TOTPStatus['DISABLED'])),
+                ('totp_status', models.IntegerField(choices=[0, 1, 2], default=0)),
                 ('is_visible', models.BooleanField(default=False)),
                 ('bio', models.TextField(blank=True, max_length=400)),
                 ('discord', models.CharField(blank=True, max_length=36)),
