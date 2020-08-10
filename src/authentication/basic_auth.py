@@ -1,6 +1,7 @@
 import re
 import time
 
+from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, password_validation
 from rest_framework.authtoken.models import Token
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
@@ -51,6 +52,8 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
                 raise FormattedException(m="invalid_invite", status_code=HTTP_403_FORBIDDEN)
 
         token = user.email_token
+        if not settings.MAIL["SEND"]:
+            user.email_verified = True
         user.save()
         send_email(user.email, 'RACTF - Verify your email', 'verify',
                    url='verify?id={}&secret={}'.format(user.id, token))
