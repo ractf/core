@@ -45,7 +45,8 @@ class BackupCode(models.Model):
 
 
 class TOTPDevice(models.Model):
-    user = models.OneToOneField(get_user_model(), related_name='totp_device', on_delete=models.CASCADE, null=True)
+    user = models.OneToOneField(get_user_model(), related_name='totp_device', on_delete=models.CASCADE, null=True,
+                                blank=True)
     created = models.DateTimeField(auto_now_add=True)
     last_used = models.DateTimeField(null=True)
     totp_secret = models.CharField(null=True, max_length=16, default=pyotp.random_base32)

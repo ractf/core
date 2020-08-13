@@ -1,10 +1,9 @@
-import random
 import secrets
 import time
 from enum import IntEnum
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AbstractUser, UserManager
+from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import CICharField
 from django.db import models
 from django.db.models import SET_NULL
@@ -43,9 +42,7 @@ class Member(AbstractUser):
     discordid = models.CharField(blank=True, max_length=18)
     twitter = models.CharField(blank=True, max_length=36)
     reddit = models.CharField(blank=True, max_length=36)
-    team = models.ForeignKey(
-        "team.Team", on_delete=SET_NULL, null=True, related_name="members"
-    )
+    team = models.ForeignKey("team.Team", on_delete=SET_NULL, null=True, related_name="members")
     email_verified = models.BooleanField(default=False)
     email_token = models.CharField(max_length=64, default=secrets.token_hex)
     password_reset_token = models.CharField(max_length=64, default=secrets.token_hex)
@@ -58,9 +55,9 @@ class Member(AbstractUser):
 
     def can_login(self):
         return (
-            self.is_staff
-            or config.get("enable_prelogin")
-            or (config.get("enable_login") and config.get("start_time") <= time.time())
+                self.is_staff
+                or config.get("enable_prelogin")
+                or (config.get("enable_login") and config.get("start_time") <= time.time())
         )
 
     def issue_token(self):
@@ -68,7 +65,7 @@ class Member(AbstractUser):
         return token.key
 
     def has_2fa(self):
-        return self.totp_device is not None and self.totp_device.verified
+        return hasattr(self, 'totp_device') and self.totp_device.verified
 
     def should_deny_admin(self):
         return not self.has_2fa() and config.get(

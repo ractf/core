@@ -3147,7 +3147,7 @@
       "key": "config",
       "value": {
         "end_time": 1596663000,
-        "team_size": "1",
+        "team_size": -1,
         "start_time": 1596652200,
         "email_regex": "",
         "flag_prefix": "elite",
@@ -3161,7 +3161,7 @@
         "login_provider": "basic_auth",
         "token_provider": "basic_auth",
         "enable_prelogin": true,
-        "invite_required": true,
+        "invite_required": false,
         "enable_team_join": true,
         "sensitive_fields": [
           "sensitive_fields",
