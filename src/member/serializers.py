@@ -56,7 +56,7 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     team_name = serializers.ReadOnlyField(source='team.name')
     email = serializers.EmailField()
     incorrect_solves = serializers.SerializerMethodField()
-    has_2fa = serializers.BooleanField(source='has_2fa')
+    has_2fa = serializers.BooleanField()
 
     class Meta:
         model = get_user_model()
