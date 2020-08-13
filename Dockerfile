@@ -18,7 +18,7 @@ RUN set -ex && apt-get update && apt-get -y --no-install-recommends install $BUI
 RUN curl -sSL "https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py" | POETRY_PREVIEW=1 python \
   && . $HOME/.poetry/env \
   && poetry config virtualenvs.create false \
-  && poetry install $(test "$BUILD_ENV" = production && echo "--no-dev") --no-root --no-interaction --no-ansi
+  && poetry install --no-dev --no-root --no-interaction --no-ansi
 
 RUN apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $BUILD_DEPS \
   && rm -rf /var/lib/apt/lists/*
