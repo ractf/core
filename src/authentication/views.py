@@ -19,6 +19,7 @@ from authentication.permissions import HasTwoFactor, VerifyingTwoFactor
 from authentication.serializers import RegistrationSerializer, EmailVerificationSerializer, ChangePasswordSerializer, \
     GenerateInvitesSerializer, InviteCodeSerializer, EmailSerializer, CreateBotSerializer
 from backend.mail import send_email
+from backend.permissions import IsBot
 from backend.response import FormattedResponse
 from backend.signals import logout, add_2fa, verify_2fa, password_reset_start, password_reset_start_reject, \
     email_verified, change_password, password_reset, remove_2fa
@@ -64,7 +65,7 @@ class RegistrationView(CreateAPIView):
 
 
 class LogoutView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated & ~IsBot,)
 
     def post(self, request):
         logout.send(sender=self.__class__, user=request.user)
@@ -73,7 +74,7 @@ class LogoutView(APIView):
 
 
 class AddTwoFactorView(APIView):
-    permission_classes = (permissions.IsAuthenticated & ~HasTwoFactor,)
+    permission_classes = (permissions.IsAuthenticated & ~HasTwoFactor & ~IsBot,)
     throttle_scope = "2fa"
 
     def post(self, request):
@@ -84,7 +85,7 @@ class AddTwoFactorView(APIView):
 
 
 class VerifyTwoFactorView(APIView):
-    permission_classes = (permissions.IsAuthenticated & VerifyingTwoFactor,)
+    permission_classes = (permissions.IsAuthenticated & VerifyingTwoFactor & ~IsBot,)
     throttle_scope = "2fa"
 
     def post(self, request):
@@ -98,7 +99,7 @@ class VerifyTwoFactorView(APIView):
 
 
 class RemoveTwoFactorView(APIView):
-    permission_classes = (permissions.IsAuthenticated & HasTwoFactor,)
+    permission_classes = (permissions.IsAuthenticated & HasTwoFactor & ~IsBot,)
     throttle_scope = "2fa"
 
     def post(self, request):
@@ -152,7 +153,7 @@ class LoginTwoFactorView(APIView):
 
 
 class RegenerateBackupCodesView(APIView):
-    permission_classes = (permissions.IsAuthenticated & HasTwoFactor,)
+    permission_classes = (permissions.IsAuthenticated & HasTwoFactor & ~IsBot,)
     serializer_class = serializers.LoginTwoFactorSerializer
     throttle_scope = "2fa"
 
@@ -276,7 +277,7 @@ class ResendEmailView(GenericAPIView):
 
 
 class ChangePasswordView(APIView):
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated & ~IsBot,)
     throttle_scope = "change_password"
     serializer_class = ChangePasswordSerializer
 
@@ -331,7 +332,7 @@ class InviteViewSet(AdminListModelViewSet):
 
 
 class CreateBotView(APIView):
-    permission_classes = (permissions.IsAdminUser,)
+    permission_classes = (permissions.IsAdminUser & ~IsBot,)
     serializer_class = CreateBotSerializer
 
     def post(self, request):
