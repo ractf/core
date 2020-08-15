@@ -4,7 +4,7 @@ from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.viewsets import ModelViewSet
 
-from backend.permissions import AdminOrReadOnlyVisible
+from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
 from backend.viewsets import AdminListModelViewSet
 from member.models import UserIP
 from member.serializers import SelfSerializer, MemberSerializer, AdminMemberSerializer, ListMemberSerializer, \
@@ -13,7 +13,7 @@ from member.serializers import SelfSerializer, MemberSerializer, AdminMemberSeri
 
 class SelfView(RetrieveUpdateAPIView):
     serializer_class = SelfSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated & ReadOnlyBot,)
     throttle_scope = 'self'
 
     def get_object(self):

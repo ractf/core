@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
 
+from backend.permissions import IsBot
 from backend.response import FormattedResponse
 from backend.viewsets import AdminCreateModelViewSet
 from challenge.permissions import CompetitionOpen
@@ -30,7 +31,7 @@ class HintViewSet(AdminCreateModelViewSet):
 
 
 class UseHintView(APIView):
-    permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam,)
+    permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,)
     throttle_scope = "use_hint"
 
     def post(self, request):

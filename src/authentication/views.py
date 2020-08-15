@@ -17,7 +17,7 @@ from authentication import serializers
 from authentication.models import InviteCode, PasswordResetToken, TOTPDevice, BackupCode
 from authentication.permissions import HasTwoFactor, VerifyingTwoFactor
 from authentication.serializers import RegistrationSerializer, EmailVerificationSerializer, ChangePasswordSerializer, \
-    GenerateInvitesSerializer, InviteCodeSerializer, EmailSerializer
+    GenerateInvitesSerializer, InviteCodeSerializer, EmailSerializer, CreateBotSerializer
 from backend.mail import send_email
 from backend.response import FormattedResponse
 from backend.signals import logout, add_2fa, verify_2fa, password_reset_start, password_reset_start_reject, \
@@ -328,3 +328,17 @@ class InviteViewSet(AdminListModelViewSet):
 
     def get_queryset(self):
         return InviteCode.objects.order_by('id')
+
+
+class CreateBotView(APIView):
+    permission_classes = (permissions.IsAdminUser,)
+    serializer_class = CreateBotSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        bot = get_user_model()(username=serializer.data["username"], email_verified=True,
+                               is_visible=serializer.data["is_visible"], is_staff=serializer.data["is_staff"],
+                               is_superuser=serializer.data["is_superuser"])
+        bot.save()
+        return FormattedResponse(d={'token': bot.issue_token()})

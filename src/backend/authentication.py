@@ -13,4 +13,6 @@ class RactfTokenAuthentication(authentication.TokenAuthentication):
             return user, token
         if config.get("enable_maintenance_mode"):
             return None
+        if not config.get("enable_bot_users") and user.is_bot:
+            return None
         return user, token

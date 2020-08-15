@@ -11,7 +11,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
 
 from backend.exceptions import FormattedException
-from backend.permissions import AdminOrReadOnlyVisible
+from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
 from backend.response import FormattedResponse
 from backend.signals import team_join_attempt, team_join_reject, team_join
 from backend.viewsets import AdminListModelViewSet
@@ -30,7 +30,7 @@ from team.serializers import (
 
 class SelfView(RetrieveUpdateAPIView):
     serializer_class = SelfTeamSerializer
-    permission_classes = (IsAuthenticated & IsTeamOwnerOrReadOnly & TeamsEnabled,)
+    permission_classes = (IsAuthenticated & IsTeamOwnerOrReadOnly & TeamsEnabled & ReadOnlyBot,)
     throttle_scope = "self"
     pagination_class = None
 

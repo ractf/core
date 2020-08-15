@@ -110,3 +110,10 @@ class InviteCodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = InviteCode
         fields = ['id', 'code', 'uses', 'max_uses', 'auto_team']
+
+
+class CreateBotSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    visible = serializers.BooleanField()
+    staff = serializers.BooleanField()
+    superuser = serializers.BooleanField()

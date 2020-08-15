@@ -12,7 +12,7 @@ from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from backend.permissions import AdminOrReadOnly
+from backend.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
 from backend.response import FormattedResponse
 from backend.signals import flag_submit, flag_reject, flag_score
 from backend.viewsets import AdminCreateModelViewSet
@@ -126,7 +126,7 @@ class ChallengeViewset(AdminCreateModelViewSet):
 
 
 class ChallengeFeedbackView(APIView):
-    permission_classes = (IsAuthenticated & HasTeam,)
+    permission_classes = (IsAuthenticated & HasTeam & ReadOnlyBot,)
 
     def get(self, request):
         challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
@@ -151,7 +151,7 @@ class ChallengeFeedbackView(APIView):
 
 
 class ChallengeVoteView(APIView):
-    permission_classes = (IsAuthenticated & HasTeam,)
+    permission_classes = (IsAuthenticated & HasTeam & ~IsBot,)
 
     def post(self, request):
         challenge = get_object_or_404(Challenge, id=request.data.get('challenge'))
@@ -169,7 +169,7 @@ class ChallengeVoteView(APIView):
 
 
 class FlagSubmitView(APIView):
-    permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam,)
+    permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,)
     throttle_scope = 'flag_submit'
 
     def post(self, request):
