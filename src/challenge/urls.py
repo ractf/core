@@ -6,6 +6,7 @@ from challenge import views
 router = DefaultRouter()
 router.register(r'categories', views.CategoryViewset, basename='categories')
 router.register(r'files', views.FileViewSet, basename='files')
+router.register(r'tags', views.TagViewSet, basename='tags')
 router.register(r'', views.ChallengeViewset, basename='challenges')
 
 urlpatterns = [

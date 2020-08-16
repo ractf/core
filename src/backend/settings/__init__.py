@@ -189,6 +189,7 @@ REST_FRAMEWORK = {
         "challenge_instance_get": "20/minute",
         "challenge_instance_reset": "10/hour",
         "announcement": "100/minute",
+        "tag": "100/minute",
     },
     "DEFAULT_PAGINATION_CLASS": "backend.pagination.FastPagination",
     "PAGE_SIZE": 100,

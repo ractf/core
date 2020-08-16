@@ -1,9 +1,8 @@
-
 import time
 
 from django.contrib.auth import get_user_model
 from django.db import transaction, models
-from django.db.models import Prefetch, Case, When, Value, Count, Subquery, Q, Sum
+from django.db.models import Prefetch, Case, When, Value, Count, Subquery, Q
 from django.utils import timezone
 from rest_framework import permissions
 from rest_framework.generics import get_object_or_404
@@ -16,11 +15,11 @@ from backend.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
 from backend.response import FormattedResponse
 from backend.signals import flag_submit, flag_reject, flag_score
 from backend.viewsets import AdminCreateModelViewSet
-from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback
+from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag
 from challenge.permissions import CompetitionOpen
 from challenge.serializers import ChallengeSerializer, CategorySerializer, AdminCategorySerializer, \
     AdminChallengeSerializer, FileSerializer, CreateCategorySerializer, CreateChallengeSerializer, \
-    ChallengeFeedbackSerializer
+    ChallengeFeedbackSerializer, TagSerializer
 from config import config
 from hint.models import Hint, HintUse
 from plugins import plugins
@@ -50,19 +49,19 @@ class CategoryViewset(AdminCreateModelViewSet):
             solved_challenges = solves.values_list('challenge')
             challenges = Challenge.objects.prefetch_related('unlocked_by').filter(release_time__lte=timezone.now()) \
                 .annotate(
-                    unlocked=Case(
-                        When(auto_unlock=True, then=Value(True)),
-                        When(Q(unlocked_by__in=Subquery(solved_challenges)), then=Value(True)),
-                        default=Value(False),
-                        output_field=models.BooleanField()
-                    ),
-                    solved=Case(
-                        When(Q(id__in=Subquery(solved_challenges)), then=Value(True)),
-                        default=Value(False),
-                        output_field=models.BooleanField()
-                    ),
-                    solve_count=Count('solves', filter=Q(solves__correct=True))
-                )
+                unlocked=Case(
+                    When(auto_unlock=True, then=Value(True)),
+                    When(Q(unlocked_by__in=Subquery(solved_challenges)), then=Value(True)),
+                    default=Value(False),
+                    output_field=models.BooleanField()
+                ),
+                solved=Case(
+                    When(Q(id__in=Subquery(solved_challenges)), then=Value(True)),
+                    default=Value(False),
+                    output_field=models.BooleanField()
+                ),
+                solve_count=Count('solves', filter=Q(solves__correct=True))
+            )
         else:
             challenges = (
                 Challenge.objects.filter(release_time__lte=timezone.now()).annotate(
@@ -83,6 +82,9 @@ class CategoryViewset(AdminCreateModelViewSet):
                     output_field=models.BooleanField()
                 )), to_attr='hints'),
             Prefetch('file_set', queryset=File.objects.all(), to_attr='files'),
+            Prefetch('tag_set',
+                     queryset=Tag.objects.all() if time.time() > config.get('end_time') else Tag.objects.filter(
+                         post_competition=False), to_attr='tags'),
             'unlocks', 'first_blood', 'hint_set__uses')
         if self.request.user.is_staff:
             categories = Category.objects
@@ -240,4 +242,12 @@ class FileViewSet(ModelViewSet):
     permission_classes = (IsAdminUser,)
     throttle_scope = 'file'
     serializer_class = FileSerializer
+    pagination_class = None
+
+
+class TagViewSet(ModelViewSet):
+    queryset = Tag.objects.all()
+    permission_classes = (IsAdminUser,)
+    throttle_scope = 'tag'
+    serializer_class = TagSerializer
     pagination_class = None

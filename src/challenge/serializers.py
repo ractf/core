@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from challenge.models import Challenge, Category, File, Solve, ChallengeVote, ChallengeFeedback
+from challenge.models import Challenge, Category, File, Solve, ChallengeVote, ChallengeFeedback, Tag
 from hint.serializers import HintSerializer
 
 
@@ -14,6 +14,12 @@ class LockedChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = ['id', 'unlocks', 'challenge_metadata', 'challenge_type', 'hidden']
+
+
+class NestedTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['text', 'type']
 
 
 class ChallengeSerializerMixin:
@@ -46,12 +52,13 @@ class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer)
     votes = serializers.SerializerMethodField()
     first_blood_name = serializers.ReadOnlyField(source='first_blood.username')
     solve_count = serializers.SerializerMethodField()
+    tags = NestedTagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
                   'author', 'auto_unlock', 'score', 'unlocks', 'hints', 'files', 'solved', 'unlocked', 'first_blood',
-                  'first_blood_name', 'solve_count', 'hidden', 'votes']
+                  'first_blood_name', 'solve_count', 'hidden', 'votes', 'tags']
 
     def to_representation(self, instance):
         if instance.unlocked and not instance.hidden:
@@ -150,3 +157,9 @@ class SolveSerializer(serializers.ModelSerializer):
         if instance.correct:
             return instance.score.leaderboard
         return False
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['id', 'challenge', 'text', 'type', 'post_competition']

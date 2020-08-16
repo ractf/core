@@ -169,3 +169,10 @@ class File(models.Model):
     url = models.URLField()
     size = models.IntegerField()
     challenge = models.ForeignKey(Challenge, on_delete=CASCADE, related_name="file_set")
+
+
+class Tag(models.Model):
+    challenge = models.ForeignKey(Challenge, on_delete=CASCADE)
+    text = models.CharField(max_length=255)
+    type = models.CharField(max_length=255)
+    post_competition = models.BooleanField(default=False)
