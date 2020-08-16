@@ -60,7 +60,7 @@ jobs:
       run: npm install -g redoc-cli
 
     - name: Generate OpenAPI schema
-      run: ./src/manage.py generateschema --file openapi-schema.yml
+      run: ./src/manage.py getschema | tee openapi-schema.yml
       env:
         DJANGO_SETTINGS_MODULE: 'backend.settings.test'
 
