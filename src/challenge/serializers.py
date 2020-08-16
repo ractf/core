@@ -103,13 +103,14 @@ class AdminChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerial
     votes = serializers.SerializerMethodField()
     first_blood_name = serializers.ReadOnlyField(source='first_blood.team.name')
     solve_count = serializers.SerializerMethodField()
+    tags = NestedTagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
                   'author', 'auto_unlock', 'score', 'unlocks', 'flag_metadata', 'hints', 'files', 'solved',
                   'unlocked', 'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'release_time', 'votes',
-                  'post_score_explanation']
+                  'post_score_explanation', 'tags']
 
 
 class CreateChallengeSerializer(serializers.ModelSerializer):
