@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import CICharField
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import CASCADE
 from django.utils import timezone
@@ -19,3 +18,4 @@ class Team(models.Model):
     points = models.IntegerField(default=0)
     leaderboard_points = models.IntegerField(default=0)
     last_score = models.DateTimeField(default=timezone.now)
+    size_limit_exempt = models.BooleanField(default=False)

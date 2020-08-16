@@ -78,6 +78,7 @@ class AdminTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
             "members",
             "solves",
             "incorrect_solves",
+            "size_limit_exempt",
         ]
 
 
