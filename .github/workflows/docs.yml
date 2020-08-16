@@ -1,0 +1,85 @@
+name: Publish Documentation
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+
+    - uses: actions/setup-node@v2-beta
+      with:
+        node-version: '14'
+
+    - name: Cache Python modules
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.pip
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Cache node modules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-
+        restore-keys: |
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Install Poetry
+      run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+      env:
+        POETRY_PREVIEW: 1
+    
+    - name: Disable Virtualenvs
+      run: $HOME/.poetry/bin/poetry config virtualenvs.create false
+
+    - name: Install Python Dependencies
+      run: $HOME/.poetry/bin/poetry install --no-interaction --no-ansi
+      env:
+        PIP_CACHE_DIR: ~/.pip
+
+    - name: Install Node Dependencies
+      run: npm install -g redoc-cli
+
+    - name: Generate OpenAPI schema
+      run: ./src/manage.py generateschema --file openapi-schema.yml
+      env:
+        DJANGO_SETTINGS_MODULE: 'backend.settings.test'
+
+    - name: Convert schema to HTML
+      run: redoc-cli bundle openapi-schema.yml
+
+    - name: Make upload directory
+      run: mkdir upload
+
+    - name: Move HTML to correct location
+      run: mv redoc-static.html upload/index.html
+
+    - name: Upload documentation to S3
+      uses: jakejarvis/s3-sync-action@master
+      with:
+        args: --acl public-read --follow-symlinks --delete
+      env:
+        AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: 'eu-west-2'
+        SOURCE_DIR: 'upload'
