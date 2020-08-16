@@ -2,7 +2,7 @@ import json
 
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-from rest_framework.authtoken.models import Token
+from authentication.models import Token
 
 from backend.signals import websocket_connect, websocket_disconnect
 

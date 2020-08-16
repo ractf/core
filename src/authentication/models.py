@@ -1,11 +1,33 @@
+import binascii
+import os
 from datetime import timedelta
 
 import pyotp
-from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
 from team.models import Team
+
+
+class Token(models.Model):
+    key = models.CharField(max_length=40, primary_key=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tokens', on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owned_tokens', on_delete=models.CASCADE)
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key()
+        if not self.owner:
+            self.owner = self.user
+        return super().save(*args, **kwargs)
+
+    def generate_key(self):
+        return binascii.hexlify(os.urandom(20)).decode()
+
+    def __str__(self):
+        return self.key
 
 
 class InviteCode(models.Model):
@@ -21,14 +43,14 @@ def one_day():
 
 
 class PasswordResetToken(models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     token = models.CharField(max_length=64)
     issued = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(default=one_day)
 
 
 class BackupCode(models.Model):
-    user = models.ForeignKey(get_user_model(), related_name='backup_codes', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='backup_codes', on_delete=models.CASCADE)
     code = models.CharField(max_length=8)
 
     class Meta:
@@ -45,7 +67,7 @@ class BackupCode(models.Model):
 
 
 class TOTPDevice(models.Model):
-    user = models.OneToOneField(get_user_model(), related_name='totp_device', on_delete=models.CASCADE, null=True,
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='totp_device', on_delete=models.CASCADE, null=True,
                                 blank=True)
     created = models.DateTimeField(auto_now_add=True)
     last_used = models.DateTimeField(null=True)

@@ -1,9 +1,12 @@
 from rest_framework import authentication
 
+from authentication.models import Token
 from config import config
 
 
 class RactfTokenAuthentication(authentication.TokenAuthentication):
+    model = Token
+
     def authenticate(self, request):
         x = super(RactfTokenAuthentication, self).authenticate(request)
         if x is None:

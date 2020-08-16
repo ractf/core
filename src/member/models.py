@@ -9,7 +9,6 @@ from django.db import models
 from django.db.models import SET_NULL
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from rest_framework.authtoken.models import Token
 
 from backend.validators import printable_name
 from config import config
@@ -62,6 +61,7 @@ class Member(AbstractUser):
         )
 
     def issue_token(self):
+        from authentication.models import Token
         token, created = Token.objects.get_or_create(user=self)
         return token.key
 
