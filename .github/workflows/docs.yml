@@ -56,22 +56,16 @@ jobs:
       env:
         PIP_CACHE_DIR: ~/.pip
 
-    - name: Install Node Dependencies
-      run: npm install -g redoc-cli
-
-    - name: Generate OpenAPI schema
-      run: ./src/manage.py getschema | tee openapi-schema.yml
-      env:
-        DJANGO_SETTINGS_MODULE: 'backend.settings.test'
-
-    - name: Convert schema to HTML
-      run: redoc-cli bundle openapi-schema.yml
-
     - name: Make upload directory
       run: mkdir upload
 
-    - name: Move HTML to correct location
-      run: mv redoc-static.html upload/index.html
+    - name: Generate OpenAPI schema
+      run: ./src/manage.py getschema | tee upload/openapi-schema.yml
+      env:
+        DJANGO_SETTINGS_MODULE: 'backend.settings.test'
+
+    - name: Copy HTML to correct location
+      run: cp docs/redoc-index.html upload/index.html
 
     - name: Upload documentation to S3
       uses: jakejarvis/s3-sync-action@master
@@ -88,4 +82,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: openapi-schema.yml
-        path: openapi-schema.yml
+        path: upload/openapi-schema.yml

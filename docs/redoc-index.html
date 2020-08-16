@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>RACTF API Reference</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link async rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Robot+Mono:400&display=swap">
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background: #181626;
+        color: #fff;
+      }
+      h2, h3, h5, .dropdown, .dropdown-selector-value {
+        color: #fff !important;
+      }
+      h5 {
+        border-bottom: 1px solid #E53935 !important;
+      }
+      h5 > span {
+        color: inherit !important;
+      }
+      ul[role="tablist"] > li {
+        background-color: #0F0E1A !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="redoc_container" class="redoc-container anchored"></div>
+    <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
+    <script>
+      Redoc.init(
+        '/openapi-schema.yml',
+        {
+          hideHostname: true,
+          theme: {
+            colors: {
+              primary: {
+                main: "#fff",
+              },
+              text: {
+                primary: "#fff",
+                secondary: "#eee",
+              },
+              border: {
+                dark: "#fff",
+                light: "#0F0E1A",
+              },
+              http: {
+                get: "#02b875",
+                delete: "#d9534f",
+                post: "#4582ec",
+                patch: "#f0ad4e",
+                put: "#6f42c1",
+              },
+            },
+            logo: {
+              gutter: "32px",
+            },
+            typography: {
+              fontFamily: "Lato, sans-serif",
+              headings: {
+                color: "#f0f",
+                fontFamily: "Lato, sans-serif",
+              },
+              code: {
+                fontFamily: "'Roboto Mono', sans-serif",
+              },
+            },
+            sidebar: {
+              backgroundColor: "#1e1c34",
+              textColor: "#fff",
+            },
+            rightPanel: {
+              backgroundColor: "#1d1c33",
+            },
+          }
+        },
+        document.querySelector('#redoc_container'),
+      );
+    </script>
+  </div>
+  </body>
+</html>

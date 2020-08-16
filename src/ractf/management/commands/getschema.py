@@ -31,7 +31,7 @@ class Command(BaseCommand):
                     "url": "https://reallyawesome.atlassian.net/servicedesk/customer/portals",
                 },
                 "x-logo": {
-                    "url": "https://www.ractf.co.uk/brand_assets/combined/wordmark_black.svg",
+                    "url": "https://www.ractf.co.uk/brand_assets/combined/wordmark_white.svg",
                     "altText": "RACTF Logo",
                 },
             }
