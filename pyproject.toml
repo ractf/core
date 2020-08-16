@@ -75,9 +75,9 @@ boto3 = "^1.14.33"
 psycopg2-binary = "^2.8.5"
 django-filter = "^2.3.0"
 uritemplate = "^3.0.1"
-pyyaml = "^5.3.1"
 
 [tool.poetry.dev-dependencies]
+pyyaml = "^5.3.1"
 
 [tool.black]
 exclude = 'migrations'
