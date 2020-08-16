@@ -52,7 +52,7 @@ jobs:
       run: $HOME/.poetry/bin/poetry config virtualenvs.create false
 
     - name: Install Python Dependencies
-      run: $HOME/.poetry/bin/poetry install --no-interaction --no-ansi --no-dev
+      run: $HOME/.poetry/bin/poetry install --no-interaction --no-ansi
       env:
         PIP_CACHE_DIR: ~/.pip
 
