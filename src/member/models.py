@@ -62,7 +62,8 @@ class Member(AbstractUser):
 
     def issue_token(self):
         from authentication.models import Token
-        token, created = Token.objects.get_or_create(user=self)
+        token = Token(user=self)
+        token.save()
         return token.key
 
     def has_2fa(self):

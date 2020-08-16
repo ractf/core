@@ -69,7 +69,7 @@ class LogoutView(APIView):
 
     def post(self, request):
         logout.send(sender=self.__class__, user=request.user)
-        request.user.auth_token.delete()
+        request.user.tokens.delete()
         return FormattedResponse()
 
 

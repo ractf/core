@@ -90,5 +90,4 @@ class BasicAuthTokenProvider(TokenProvider):
     name = 'basic_auth'
 
     def issue_token(self, user, **kwargs):
-        token, created = Token.objects.get_or_create(user=user)
-        return token.key
+        return user.issue_token()
