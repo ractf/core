@@ -19,7 +19,7 @@ from authentication.permissions import HasTwoFactor, VerifyingTwoFactor
 from authentication.serializers import RegistrationSerializer, EmailVerificationSerializer, ChangePasswordSerializer, \
     GenerateInvitesSerializer, InviteCodeSerializer, EmailSerializer, CreateBotSerializer
 from backend.mail import send_email
-from backend.permissions import IsBot
+from backend.permissions import IsBot, IsSudo
 from backend.response import FormattedResponse
 from backend.signals import logout, add_2fa, verify_2fa, password_reset_start, password_reset_start_reject, \
     email_verified, change_password, password_reset, remove_2fa
@@ -343,3 +343,19 @@ class CreateBotView(APIView):
                                is_superuser=serializer.data["is_superuser"])
         bot.save()
         return FormattedResponse(d={'token': bot.issue_token()})
+
+
+class SudoView(APIView):
+    permission_classes = (permissions.IsAdminUser & ~IsBot & ~IsSudo,)
+
+    def post(self, request):
+        id = request.data['id']
+        user = get_object_or_404(get_user_model(), id=id)
+        return FormattedResponse(d={'token': user.issue_token(owner=request.user)})
+
+
+class DesudoView(APIView):
+    permission_classes = (IsSudo,)
+
+    def post(self, request):
+        return FormattedResponse(d={'token': request.sudo_from.issue_token()})

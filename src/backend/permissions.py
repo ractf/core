@@ -45,3 +45,8 @@ class ReadOnlyBot(permissions.BasePermission):
         if request.user.is_authenticated and request.user.is_bot:
             return request.method not in permissions.SAFE_METHODS
         return True
+
+
+class IsSudo(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return hasattr(request, 'sudo')

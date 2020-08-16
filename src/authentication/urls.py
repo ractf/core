@@ -22,5 +22,7 @@ urlpatterns = [
     path('generate_invites/', views.GenerateInvitesView.as_view(), name='generate-invites'),
     path('invites/', include(router.urls), name='invites'),
     path('regenerate_backup_codes', views.RegenerateBackupCodesView.as_view(), name='regenerate-backup-codes'),
-    path('create_bot', views.CreateBotView.as_view(), name='create-bot')
+    path('create_bot', views.CreateBotView.as_view(), name='create-bot'),
+    path('sudo', views.SudoView.as_view(), name='sudo'),
+    path('desudo', views.DesudoView.as_view(), name='desudo'),
 ]

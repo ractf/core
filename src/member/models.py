@@ -60,9 +60,9 @@ class Member(AbstractUser):
                 or (config.get("enable_login") and config.get("start_time") <= time.time())
         )
 
-    def issue_token(self):
+    def issue_token(self, owner=None):
         from authentication.models import Token
-        token = Token(user=self)
+        token = Token(user=self, owner=owner)
         token.save()
         return token.key
 
