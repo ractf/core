@@ -14,7 +14,8 @@ class Token(models.Model):
     key = models.CharField(max_length=40, primary_key=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='tokens', on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owned_tokens', on_delete=models.CASCADE)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='owned_tokens', on_delete=models.CASCADE,
+                              blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.key:
@@ -67,8 +68,8 @@ class BackupCode(models.Model):
 
 
 class TOTPDevice(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='totp_device', on_delete=models.CASCADE, null=True,
-                                blank=True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='totp_device', on_delete=models.CASCADE,
+                                null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     last_used = models.DateTimeField(null=True)
     totp_secret = models.CharField(null=True, max_length=16, default=pyotp.random_base32)
