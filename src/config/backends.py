@@ -27,7 +27,7 @@ class ConfigBackend(abc.ABC):
         pass
 
 
-class PostgresBackend(ConfigBackend):
+class DatabaseBackend(ConfigBackend):
     """Only use this if you absolutely have to"""
 
     def get(self, key):
