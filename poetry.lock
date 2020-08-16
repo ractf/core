@@ -821,6 +821,14 @@ version = "3.7.4.1"
 
 [[package]]
 category = "main"
+description = "URI templates"
+name = "uritemplate"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+version = "3.0.1"
+
+[[package]]
+category = "main"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 name = "urllib3"
 optional = false
@@ -874,7 +882,7 @@ python-versions = "*"
 version = "4.4.28"
 
 [metadata]
-content-hash = "51b083c3af0133bb831576ecc191d12cdf583e4d38837d7120a8bba1daf38af7"
+content-hash = "d321646fdb1fa728b202d8bdf0d31841def292b691d3fc0f1870fbdd3f86bb22"
 lock-version = "1.1"
 python-versions = "^3.8"
 
@@ -1397,6 +1405,10 @@ typing = [
     {file = "typing-3.7.4.1-py2-none-any.whl", hash = "sha256:c8cabb5ab8945cd2f54917be357d134db9cc1eb039e59d1606dc1e60cb1d9d36"},
     {file = "typing-3.7.4.1-py3-none-any.whl", hash = "sha256:f38d83c5a7a7086543a0f649564d661859c5146a85775ab90c0d2f93ffaa9714"},
     {file = "typing-3.7.4.1.tar.gz", hash = "sha256:91dfe6f3f706ee8cc32d38edbbf304e9b7583fb37108fef38229617f8b3eba23"},
+]
+uritemplate = [
+    {file = "uritemplate-3.0.1-py2.py3-none-any.whl", hash = "sha256:07620c3f3f8eed1f12600845892b0e036a2420acf513c53f7de0abd911a5894f"},
+    {file = "uritemplate-3.0.1.tar.gz", hash = "sha256:5af8ad10cec94f215e3f48112de2022e1d5a37ed427fbd88652fa908f2ab7cae"},
 ]
 urllib3 = [
     {file = "urllib3-1.25.8-py2.py3-none-any.whl", hash = "sha256:2f3db8b19923a873b3e5256dc9c2dedfa883e33d87c690d9c7913e1f40673cdc"},
