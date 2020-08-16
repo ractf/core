@@ -23,7 +23,7 @@ class Command(BaseCommand):
             },
             "info": {
                 "title": "RACTF Core",
-                "version": os.popen("git rev-parse HEAD").read().strip(),
+                "version": os.popen("git rev-parse HEAD").read().strip()[:8],
                 "description": "The API for RACTF.",
                 "contact": {
                     "name": "Support",
