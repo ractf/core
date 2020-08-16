@@ -172,7 +172,7 @@ class RequestPasswordResetView(APIView):
         email_validator(email)
         # prevent timing attack - is this necessary?
         try:
-            user = get_user_model().objects.get(email=email)
+            user = get_user_model().objects.get(email=email, email_verified=True)
             token = PasswordResetToken(user=user, token=secrets.token_hex(64))
             token.save()
             uid = user.id
