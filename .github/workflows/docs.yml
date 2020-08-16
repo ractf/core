@@ -83,3 +83,9 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: 'eu-west-2'
         SOURCE_DIR: 'upload'
+
+    - name: Publish API documentation to GitHub
+      uses: actions/upload-artifact@v2
+      with:
+        name: openapi-schema.yml
+        path: openapi-schema.yml
