@@ -1,16 +1,21 @@
-import sys
+import os
+from io import StringIO
+
+from django.core.management import BaseCommand
+from django.core.management import call_command
 
 import yaml
 
-from django.core.management import BaseCommand
-
 
 class Command(BaseCommand):
-    help = "Format an API schema provided through stdin."
+    help = "Generate a schema file and add relevant metadata."
 
     def handle(self, *args, **options):
-        """Read the API document from stdin and reformat it."""
-        document = yaml.load(sys.stdin, Loader=yaml.FullLoader)
+        """Read the API document from generateschema and reformat it."""
+        file = StringIO()
+        call_command("generateschema", stdout=file)
+        file.seek(0)
+        document = yaml.load(file, Loader=yaml.FullLoader)
         document.update({
             "externalDocs": {
                 "description": "Check us out on GitHub",
@@ -18,7 +23,7 @@ class Command(BaseCommand):
             },
             "info": {
                 "title": "RACTF Core",
-                "version": "",
+                "version": os.popen("git rev-parse HEAD").read().strip(),
                 "description": "The API for RACTF.",
                 "contact": {
                     "name": "Support",
