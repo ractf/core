@@ -828,7 +828,7 @@ python-versions = "*"
 version = "3.7.4.1"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "URI templates"
 name = "uritemplate"
 optional = false
@@ -890,7 +890,7 @@ python-versions = "*"
 version = "4.4.28"
 
 [metadata]
-content-hash = "a3da254a0e025cc321c90c97915d4864a02ab34071391d80902def1c7434a87b"
+content-hash = "95dda02ca1836ec431b4909efddd11041693a1e0abd624a91d0246fc9e7b9675"
 lock-version = "1.1"
 python-versions = "^3.8"
 
