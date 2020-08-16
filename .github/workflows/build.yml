@@ -1,10 +1,6 @@
 name: Build Docker Container
 
-on:
-  push:
-    branches:    
-      - master
-      - develop
+on: push
 
 jobs:
   build:
@@ -28,7 +24,17 @@ jobs:
       run: docker build -t ractf/core:${{ steps.branch.outputs.name }} .
 
     - name: Login to Docker Hub
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
       run: docker login --username ractf --password ${{ secrets.password }}
-      
-    - name: Push to GitHub Packages
+
+    - name: Login to Github packages
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
+      run: docker login docker.pkg.github.com -u $GITHUB_ACTOR -p ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Push to Github packages
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
+      run: docker push docker.pkg.github.com/ractf/core/core:${{ steps.branch.outputs.name }}
+
+    - name: Push to Docker Hub
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
       run: docker push ractf/core:${{ steps.branch.outputs.name }}
