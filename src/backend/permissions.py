@@ -5,6 +5,16 @@ from rest_framework import permissions
 from config import config
 
 
+class Admin(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_staff and not request.user.should_deny_admin()
+
+
+class ReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.method not in permissions.SAFE_METHODS
+
+
 class AdminOrReadOnlyVisible(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.user.is_staff and not request.user.should_deny_admin():
@@ -50,3 +60,14 @@ class ReadOnlyBot(permissions.BasePermission):
 class IsSudo(permissions.BasePermission):
     def has_permission(self, request, view):
         return hasattr(request, 'sudo')
+
+
+class GenericPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user.has_perm(self.node)
+
+
+def permission(node):
+    cls = type(f'GenericPermission_{node}', GenericPermission)
+    cls.node = node
+    return cls
