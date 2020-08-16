@@ -1,3 +1,4 @@
+import sys
 import inspect
 from collections import defaultdict
 from pydoc import locate
@@ -18,4 +19,4 @@ def load_plugins(plugin_list):
                     continue
                 if issubclass(obj, FlagPlugin) or issubclass(obj, PointsPlugin):
                     plugins[obj.plugin_type][obj.name] = obj
-                    print(f"Loaded {obj.plugin_type} plugin: {obj.name}({plugin})")
+                    print(f"Loaded {obj.plugin_type} plugin: {obj.name}({plugin})", file=sys.stderr)

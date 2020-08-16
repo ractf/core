@@ -20,7 +20,7 @@ RUN curl -sSL "https://raw.githubusercontent.com/python-poetry/poetry/master/get
 ENV PATH=/root/.poetry/bin:${PATH}
 
 COPY poetry.lock pyproject.toml /app/
-RUN poetry install --no-dev --no-root --no-interaction
+RUN poetry install --no-root --no-interaction
 
 RUN apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $BUILD_DEPS \
   && rm -rf /var/lib/apt/lists/*
