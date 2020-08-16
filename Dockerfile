@@ -11,19 +11,20 @@ ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=off
 
 WORKDIR /app/
 
-COPY poetry.lock pyproject.toml /app/
-
 RUN set -ex && apt-get update && apt-get -y --no-install-recommends install $BUILD_DEPS
 
 RUN curl -sSL "https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py" | POETRY_PREVIEW=1 python \
   && . $HOME/.poetry/env \
-  && poetry config virtualenvs.create false \
-  && poetry install --no-dev --no-root --no-interaction --no-ansi
+  && poetry config virtualenvs.create false
+
+ENV PATH=/root/.poetry/bin:${PATH}
+
+COPY poetry.lock pyproject.toml /app/
+RUN poetry install --no-dev --no-root --no-interaction
 
 RUN apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $BUILD_DEPS \
   && rm -rf /var/lib/apt/lists/*
 
-ENV PATH=/root/.poetry/bin:${PATH}
 COPY . /app/
 
 WORKDIR /app/src

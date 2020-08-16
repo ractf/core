@@ -22,7 +22,7 @@ class CTFTimeListView(APIView):
         return Response({"standings": CTFTimeSerializer(teams, many=True).data})
 
 
-class GraphView(ListAPIView):
+class GraphView(APIView):
     throttle_scope = 'leaderboard'
 
     def list(self, request, *args, **kwargs):
