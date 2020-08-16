@@ -21,7 +21,7 @@ jobs:
         restore-keys: docker-layer-caching-${{ github.workflow }}-${{ github.event_name }}-
 
     - name: Build challenge
-      run: docker build -t ractf/core:${{ steps.branch.outputs.name }} .
+      run: docker build -t ractf/core:${{ steps.branch.outputs.name }} -t docker.pkg.github.com/ractf/core/core:${{ steps.branch.outputs.name }} .
 
     - name: Login to Docker Hub
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
