@@ -19,7 +19,10 @@ class EventConsumer(AsyncJsonWebsocketConsumer):
     async def disconnect(self, close_code):
         websocket_disconnect.send(self.__class__, channel_layer=self.channel_layer)
 
-    def get_team(self, token):
+    @staticmethod
+    def get_team(token):
+        if not Token.objects.filter(key=token).exists():
+            return None
         user = Token.objects.get(key=token).user
         return user.team
 
