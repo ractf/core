@@ -162,7 +162,6 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": (
         "backend.renderers.RACTFJSONRenderer",
         "rest_framework.renderers.JSONRenderer",
-        "rest_framework.renderers.BrowsableAPIRenderer",
     ),
     "EXCEPTION_HANDLER": "backend.exception_handler.handle_exception",
     "DEFAULT_AUTHENTICATION_CLASSES": [
