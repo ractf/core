@@ -13,6 +13,7 @@ CORS_ALLOW_HEADERS = [
     "exporting",
 ]
 
+DOMAIN = os.getenv("DOMAIN")
 DEBUG = bool(os.getenv("DEBUG"))
 FRONTEND_URL = os.getenv("FRONTEND_URL")
 AUTH_USER_MODEL = "member.Member"
@@ -24,6 +25,8 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
 ]
+if DOMAIN:
+    ALLOWED_HOSTS.append(DOMAIN)
 
 MAIL = {
     "SEND_ADDRESS": "no-reply@ractf.co.uk",
