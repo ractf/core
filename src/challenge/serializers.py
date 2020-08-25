@@ -103,7 +103,7 @@ class AdminChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerial
     votes = serializers.SerializerMethodField()
     first_blood_name = serializers.ReadOnlyField(source='first_blood.team.name')
     solve_count = serializers.SerializerMethodField()
-    tags = NestedTagSerializer(many=True, read_only=True)
+    tags = NestedTagSerializer(many=True, read_only=False)
 
     class Meta:
         model = Challenge
@@ -114,13 +114,28 @@ class AdminChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerial
 
 
 class CreateChallengeSerializer(serializers.ModelSerializer):
+    tags = serializers.ListField(write_only=True)
 
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
                   'author', 'auto_unlock', 'score', 'unlocks', 'flag_metadata', 'hidden', 'release_time',
-                  'post_score_explanation']
+                  'post_score_explanation', 'tags']
         read_only_fields = ['id']
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tags')
+        challenge = Challenge.objects.create(**validated_data)
+        for tag_data in tags:
+            Tag.objects.create(challenge=challenge, **tag_data)
+        return challenge
+
+    def update(self, instance, validated_data):
+        tags = validated_data.pop('tags')
+        Tag.objects.filter(challenge=instance).delete()
+        for tag_data in tags:
+            Tag.objects.create(challenge=instance, **tag_data)
+        return super().update(instance, validated_data)
 
 
 class AdminCategorySerializer(serializers.ModelSerializer):
