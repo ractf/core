@@ -31,6 +31,7 @@ urlpatterns = [
     path('scorerecalculator/', include('scorerecalculator.urls')),
     path('stats/', include('stats.urls')),
     path('team/', include('team.urls')),
+    path('pages/', include('pages.urls')),
 
     path('api/v2/admin/', admin.site.urls),
     path('api/v2/announcements/', include('announcements.urls')),

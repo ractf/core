@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "hint.apps.HintConfig",
     "leaderboard.apps.LeaderboardConfig",
     "member.apps.MemberConfig",
+    "pages.apps.PagesConfig",
     "plugins.apps.PluginsConfig",
     "ractf.apps.RactfConfig",
     "scorerecalculator.apps.ScorerecalculatorConfig",
@@ -192,6 +193,7 @@ REST_FRAMEWORK = {
         "challenge_instance_reset": "10/hour",
         "announcement": "100/minute",
         "tag": "100/minute",
+        "pages": "100/minute"
     },
     "DEFAULT_PAGINATION_CLASS": "backend.pagination.FastPagination",
     "PAGE_SIZE": 100,
