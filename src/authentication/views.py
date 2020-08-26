@@ -140,9 +140,8 @@ class LoginTwoFactorView(APIView):
         token = serializer.data['tfa']
 
         if len(token) == 6:
-            for device in user.totp_devices:
-                if device.validate_token(token):
-                    return self.issue_token(user)
+            if user.totp_device is not None and user.totp_device.validate_token(token):
+                return self.issue_token(user)
         elif len(token) == 8:
             for code in user.backup_codes:
                 if token == code.code:
