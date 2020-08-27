@@ -47,8 +47,7 @@ class CategoryViewset(AdminCreateModelViewSet):
             else:
                 solves = Solve.objects.filter(solved_by=self.request.user)
             solved_challenges = solves.values_list('challenge')
-            challenges = Challenge.objects.prefetch_related('unlocked_by').filter(release_time__lte=timezone.now()) \
-                .annotate(
+            challenges = Challenge.objects.prefetch_related('unlocked_by').annotate(
                 unlocked=Case(
                     When(auto_unlock=True, then=Value(True)),
                     When(Q(unlocked_by__in=Subquery(solved_challenges)), then=Value(True)),
@@ -60,7 +59,12 @@ class CategoryViewset(AdminCreateModelViewSet):
                     default=Value(False),
                     output_field=models.BooleanField()
                 ),
-                solve_count=Count('solves', filter=Q(solves__correct=True))
+                solve_count=Count('solves', filter=Q(solves__correct=True)),
+                unlock_time_surpassed=Case(
+                    When(release_time__lte=timezone.now(), then=Value(True)),
+                    default=Value(False),
+                    output_field=models.BooleanField(),
+                )
             )
         else:
             challenges = (
@@ -71,7 +75,12 @@ class CategoryViewset(AdminCreateModelViewSet):
                         output_field=models.BooleanField()
                     ),
                     solved=Value(False, models.BooleanField()),
-                    solve_count=Count('solves')
+                    solve_count=Count('solves'),
+                    unlock_time_surpassed=Case(
+                        When(release_time__lte=timezone.now(), then=Value(True)),
+                        default=Value(False),
+                        output_field=models.BooleanField(),
+                    )
                 )
             )
         x = challenges.prefetch_related(

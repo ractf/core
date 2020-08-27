@@ -74,11 +74,7 @@ class Challenge(models.Model):
             solved_challenges = Solve.objects.filter(
                 team=user.team, correct=True
             ).values_list("challenge")
-            if user.is_staff:
-                base = Challenge.objects
-            else:
-                base = Challenge.objects.filter(release_time__gte=timezone.now())
-            challenges = base.annotate(
+            challenges = Challenge.objects.annotate(
                 unlocked=Case(
                     When(auto_unlock=True, then=Value(True)),
                     When(unlocked_by__in=Subquery(solved_challenges), then=Value(True)),
@@ -90,17 +86,25 @@ class Challenge(models.Model):
                     default=Value(False),
                     output_field=models.BooleanField(),
                 ),
+                unlock_time_surpassed=Case(
+                    When(release_time__lte=timezone.now(), then=Value(True)),
+                    default=Value(False),
+                    output_field=models.BooleanField(),
+                )
             )
         else:
-            challenges = Challenge.objects.filter(
-                release_time__gte=timezone.now()
-            ).annotate(
+            challenges = Challenge.objects.annotate(
                 unlocked=Case(
                     When(auto_unlock=True, then=Value(True)),
                     default=Value(False),
                     output_field=models.BooleanField(),
                 ),
                 solved=False,
+                unlock_time_surpassed=Case(
+                    When(release_time__lte=timezone.now(), then=Value(True)),
+                    default=Value(False),
+                    output_field=models.BooleanField(),
+                )
             )
         return challenges
 

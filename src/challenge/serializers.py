@@ -10,12 +10,6 @@ class FileSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'url', 'size', 'challenge']
 
 
-class LockedChallengeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Challenge
-        fields = ['id', 'unlocks', 'challenge_metadata', 'challenge_type', 'hidden']
-
-
 class NestedTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
@@ -32,6 +26,9 @@ class ChallengeSerializerMixin:
     def get_solve_count(self, instance):
         return instance.solve_count
 
+    def get_unlock_time_surpassed(self, instance):
+        return instance.unlock_time_surpassed
+
     def get_votes(self, instance):
         votes = ChallengeVote.objects.filter(challenge=instance)
         positive = votes.filter(positive=True).count()
@@ -44,11 +41,21 @@ class ChallengeSerializerMixin:
         }
 
 
+class LockedChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
+    unlock_time_surpassed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Challenge
+        fields = ['id', 'unlocks', 'challenge_metadata', 'challenge_type', 'hidden', 'unlock_time_surpassed',
+                  'release_time']
+
+
 class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
     hints = HintSerializer(many=True, read_only=True)
     files = FileSerializer(many=True, read_only=True)
     solved = serializers.SerializerMethodField()
     unlocked = serializers.SerializerMethodField()
+    unlock_time_surpassed = serializers.SerializerMethodField()
     votes = serializers.SerializerMethodField()
     first_blood_name = serializers.ReadOnlyField(source='first_blood.username')
     solve_count = serializers.SerializerMethodField()
@@ -58,10 +65,10 @@ class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer)
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
                   'author', 'auto_unlock', 'score', 'unlocks', 'hints', 'files', 'solved', 'unlocked', 'first_blood',
-                  'first_blood_name', 'solve_count', 'hidden', 'votes', 'tags']
+                  'first_blood_name', 'solve_count', 'hidden', 'votes', 'tags', 'unlock_time_surpassed']
 
     def to_representation(self, instance):
-        if instance.unlocked and not instance.hidden:
+        if instance.unlocked and not instance.hidden and instance.unlock_time_surpassed:
             return super(ChallengeSerializer, self).to_representation(instance)
         return LockedChallengeSerializer(instance).to_representation(instance)
 
