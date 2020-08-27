@@ -131,14 +131,16 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
     def create(self, validated_data):
-        tags = validated_data.pop('tags')
+        tags = validated_data.pop('tags', [])
+        unlocks = validated_data.pop('unlocks', [])
         challenge = Challenge.objects.create(**validated_data)
+        challenge.unlocks.set(unlocks)
         for tag_data in tags:
             Tag.objects.create(challenge=challenge, **tag_data)
         return challenge
 
     def update(self, instance, validated_data):
-        tags = validated_data.pop('tags')
+        tags = validated_data.pop('tags', [])
         Tag.objects.filter(challenge=instance).delete()
         for tag_data in tags:
             Tag.objects.create(challenge=instance, **tag_data)
