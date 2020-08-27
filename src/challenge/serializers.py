@@ -91,15 +91,11 @@ class CreateCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'name', 'contained_type', 'description', 'release_time']
+        fields = ['id', 'name', 'contained_type', 'description', 'release_time', 'metadata']
         read_only_fields = ['id']
 
     def create(self, validated_data):
-        name = validated_data['name']
-        contained_type = validated_data['contained_type']
-        description = validated_data['description']
-        return Category.objects.create(name=name, contained_type=contained_type, description=description,
-                                       display_order=Category.objects.count())
+        return Category.objects.create(**validated_data, display_order=Category.objects.count())
 
 
 class AdminChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
