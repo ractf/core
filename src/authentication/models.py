@@ -45,7 +45,7 @@ def one_day():
 
 class PasswordResetToken(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    token = models.CharField(max_length=64)
+    token = models.CharField(max_length=255)
     issued = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(default=one_day)
 
