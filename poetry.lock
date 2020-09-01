@@ -1,5 +1,16 @@
 [[package]]
 category = "main"
+description = "ASGI specs, helper code, and adapters"
+name = "asgiref"
+optional = false
+python-versions = ">=3.5"
+version = "3.2.10"
+
+[package.extras]
+tests = ["pytest", "pytest-asyncio"]
+
+[[package]]
+category = "main"
 description = "Classes Without Boilerplate"
 name = "attrs"
 optional = false
@@ -214,6 +225,18 @@ python-dateutil = "*"
 pytz = "*"
 requests = "*"
 sqlparse = "*"
+
+[[package]]
+category = "main"
+description = "A translatable password validator for django, based on zxcvbn-python."
+name = "django-zxcvbn-password-validator"
+optional = false
+python-versions = "*"
+version = "1.3.0"
+
+[package.dependencies]
+Django = ">=2.0"
+zxcvbn = "*"
 
 [[package]]
 category = "main"
@@ -573,12 +596,24 @@ docs = ["sphinx", "repoze.sphinx.autointerface"]
 test = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 testing = ["coverage (>=5.0.3)", "zope.event", "zope.testing"]
 
+[[package]]
+category = "main"
+description = ""
+name = "zxcvbn"
+optional = false
+python-versions = "*"
+version = "4.4.28"
+
 [metadata]
-content-hash = "b0c2127f982b9aa9d74d639a6198dc6dbcff0d80128f9792615fff1e28083c2f"
+content-hash = "4c293630774849c642e6b1f59e94b3d8c6d9e52df3747d836f52dea30e663794"
 lock-version = "1.1"
 python-versions = "^3.8"
 
 [metadata.files]
+asgiref = [
+    {file = "asgiref-3.2.10-py3-none-any.whl", hash = "sha256:9fc6fb5d39b8af147ba40765234fa822b39818b12cc80b35ad9b0cef3a476aed"},
+    {file = "asgiref-3.2.10.tar.gz", hash = "sha256:7e51911ee147dd685c3c8b805c0ad0cb58d360987b56953878f8c06d2d1c6f1a"},
+]
 attrs = [
     {file = "attrs-20.1.0-py2.py3-none-any.whl", hash = "sha256:2867b7b9f8326499ab5b0e2d12801fa5c98842d2cbd22b35112ae04bf85b4dff"},
     {file = "attrs-20.1.0.tar.gz", hash = "sha256:0ef97238856430dcf9228e07f316aefc17e8939fc8507e18c6501b761ef1a42a"},
@@ -686,6 +721,9 @@ django-cors-headers = [
 ]
 django-silk = [
     {file = "django_silk-4.1.0-py2.py3-none-any.whl", hash = "sha256:a331e55618fa62eaf3cf5a63f31bc1e91205efbeeca5e587c577498b0e251ed8"},
+]
+django-zxcvbn-password-validator = [
+    {file = "django-zxcvbn-password-validator-1.3.0.tar.gz", hash = "sha256:a3435aec55573d28d6b000cb751cf0f2dc2fc3af2ad72d4cea13eb54b3740612"},
 ]
 djangorestframework = [
     {file = "djangorestframework-3.11.1-py3-none-any.whl", hash = "sha256:8b1ac62c581dbc5799b03e535854b92fc4053ecfe74bad3f9c05782063d4196b"},
@@ -918,4 +956,7 @@ urllib3 = [
     {file = "zope.interface-5.1.0-cp38-cp38-win32.whl", hash = "sha256:27d287e61639d692563d9dab76bafe071fbeb26818dd6a32a0022f3f7ca884b5"},
     {file = "zope.interface-5.1.0-cp38-cp38-win_amd64.whl", hash = "sha256:a5f8f85986197d1dd6444763c4a15c991bfed86d835a1f6f7d476f7198d5f56a"},
     {file = "zope.interface-5.1.0.tar.gz", hash = "sha256:40e4c42bd27ed3c11b2c983fecfb03356fae1209de10686d03c02c8696a1d90e"},
+]
+zxcvbn = [
+    {file = "zxcvbn-4.4.28.tar.gz", hash = "sha256:151bd816817e645e9064c354b13544f85137ea3320ca3be1fb6873ea75ef7dc1"},
 ]
