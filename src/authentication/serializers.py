@@ -47,7 +47,7 @@ class RegistrationSerializer(serializers.Serializer):
 
 class PasswordResetSerializer(serializers.Serializer):
     uid = serializers.IntegerField()
-    token = serializers.CharField(max_length=64)
+    token = serializers.CharField(max_length=128)
     password = serializers.CharField()
 
     def validate(self, data):
@@ -55,7 +55,7 @@ class PasswordResetSerializer(serializers.Serializer):
         token = data.get('token')
         password = data.get('password')
         user = get_object_or_404(get_user_model(), id=uid)
-        reset_token = get_object_or_404(PasswordResetToken, token=token, user_id=uid, expires__lt=timezone.now())
+        reset_token = get_object_or_404(PasswordResetToken, token=token, user_id=uid, expires__gt=timezone.now())
         password_validation.validate_password(password, reset_token)
         data['user'] = user
         data['reset_token'] = reset_token
