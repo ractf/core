@@ -38,8 +38,7 @@ class SelfView(RetrieveUpdateAPIView):
         if self.request.user.team is None:
             raise Http404()
         return (
-            Team.objects.filter(is_visible=True)
-            .order_by("id")
+            Team.objects.order_by("id")
             .prefetch_related(
                 "solves",
                 "members",
