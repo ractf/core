@@ -58,10 +58,12 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
             user.email_verified = True
 
         if not config.get("enable_teams"):
-            team = Team(name=username, password=secrets.token_hex(32), owner=user)
             user.save()
-            team.save()
-            user.team = team
+            user.team = Team.objects.create(
+                owner=user,
+                name=username,
+                password=secrets.token_hex(32),
+            )
 
         user.save()
         send_email(user.email, 'RACTF - Verify your email', 'verify',
