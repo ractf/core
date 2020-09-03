@@ -30,7 +30,7 @@ from team.serializers import (
 
 class SelfView(RetrieveUpdateAPIView):
     serializer_class = SelfTeamSerializer
-    permission_classes = (IsAuthenticated & IsTeamOwnerOrReadOnly & TeamsEnabled & ReadOnlyBot,)
+    permission_classes = (IsAuthenticated & IsTeamOwnerOrReadOnly & ReadOnlyBot,)
     throttle_scope = "self"
     pagination_class = None
 
