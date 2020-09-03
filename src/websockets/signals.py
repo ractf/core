@@ -14,9 +14,8 @@ def get_team_channel(user):
 
 
 def send(user, data):
-    if config.get('enable_teams'):
-        channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)(get_team_channel(user), data)
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(get_team_channel(user), data)
 
 
 def broadcast(data):

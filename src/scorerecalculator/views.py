@@ -59,12 +59,7 @@ class RecalculateAllView(APIView):
     permission_classes = (IsAdminUser,)
 
     def post(self, request):
-        if config.get("enable_teams"):
-            with transaction.atomic():
-                for team in Team.objects.select_for_update().all():
-                    recalculate_team(team)
-        else:
-            with transaction.atomic():
-                for user in get_user_model().objects.all():
-                    recalculate_user(user)
+        with transaction.atomic():
+            for team in Team.objects.select_for_update().all():
+                recalculate_team(team)
         return FormattedResponse()

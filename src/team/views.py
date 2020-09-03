@@ -51,7 +51,7 @@ class SelfView(RetrieveUpdateAPIView):
 
 
 class TeamViewSet(AdminListModelViewSet):
-    permission_classes = (AdminOrReadOnlyVisible & TeamsEnabled,)
+    permission_classes = (AdminOrReadOnlyVisible,)
     throttle_scope = "team"
     serializer_class = TeamSerializer
     admin_serializer_class = AdminTeamSerializer
@@ -89,7 +89,7 @@ class TeamViewSet(AdminListModelViewSet):
 class CreateTeamView(CreateAPIView):
     serializer_class = CreateTeamSerializer
     model = Team
-    permission_classes = (IsAuthenticated & ~HasTeam & TeamsEnabled,)
+    permission_classes = (IsAuthenticated & ~HasTeam,)
     throttle_scope = "team_create"
 
 
