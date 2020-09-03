@@ -39,21 +39,14 @@ class UseHintView(APIView):
         serializer.is_valid(raise_exception=True)
         hint_id = serializer.validated_data["id"]
         hint = get_object_or_404(Hint, id=hint_id)
-        using_teams = config.get("enable_teams")
         if not hint.challenge.is_unlocked(request.user):
             return FormattedResponse(
                 m="challenge_not_unlocked", s=False, status=HTTP_403_FORBIDDEN
             )
-        if using_teams:
-            if HintUse.objects.filter(hint=hint, team=request.user.team).exists():
-                return FormattedResponse(
-                    m="hint_already_used", s=False, status=HTTP_403_FORBIDDEN
-                )
-        else:
-            if HintUse.objects.filter(hint=hint, user=request.user).exists():
-                return FormattedResponse(
-                    m="hint_already_used", s=False, status=HTTP_403_FORBIDDEN
-                )
+        if HintUse.objects.filter(hint=hint, team=request.user.team).exists():
+            return FormattedResponse(
+                m="hint_already_used", s=False, status=HTTP_403_FORBIDDEN
+            )
         use_hint.send(
             sender=self.__class__, user=request.user, team=request.user.team, hint=hint
         )

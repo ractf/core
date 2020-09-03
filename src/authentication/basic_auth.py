@@ -1,5 +1,6 @@
 import re
 import time
+import secrets
 
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, password_validation
@@ -12,6 +13,7 @@ from backend.exceptions import FormattedException
 from backend.mail import send_email
 from backend.signals import login_reject, login, register_reject, register
 from config import config
+from team.models import Team
 
 
 class BasicAuthRegistrationProvider(RegistrationProvider):
@@ -54,6 +56,13 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
         token = user.email_token
         if not settings.MAIL["SEND"]:
             user.email_verified = True
+
+        if not config.get("enable_teams"):
+            team = Team(name=username, password=secrets.token_hex(32), owner=user)
+            user.save()
+            team.save()
+            user.team = team
+
         user.save()
         send_email(user.email, 'RACTF - Verify your email', 'verify',
                    url='verify?id={}&secret={}'.format(user.id, token))

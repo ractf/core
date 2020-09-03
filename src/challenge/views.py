@@ -39,13 +39,9 @@ class CategoryViewset(AdminCreateModelViewSet):
     def get_queryset(self):
         if self.request.user.is_staff and self.request.user.should_deny_admin():
             return Category.objects.none()
-        using_teams = config.get('enable_teams')
         team = self.request.user.team
-        if team is not None or not using_teams:
-            if using_teams:
-                solves = Solve.objects.filter(team=team, correct=True)
-            else:
-                solves = Solve.objects.filter(solved_by=self.request.user)
+        if team is not None:
+            solves = Solve.objects.filter(team=team, correct=True)
             solved_challenges = solves.values_list('challenge')
             challenges = Challenge.objects.prefetch_related('unlocked_by').annotate(
                 unlocked=Case(
@@ -189,9 +185,7 @@ class FlagSubmitView(APIView):
             return FormattedResponse(m='flag_submission_disabled', status=HTTP_403_FORBIDDEN)
 
         with transaction.atomic():
-            using_teams = config.get('enable_teams')
-            if using_teams:
-                team = Team.objects.select_for_update().get(id=request.user.team.id)
+            team = Team.objects.select_for_update().get(id=request.user.team.id)
             user = get_user_model().objects.select_for_update().get(id=request.user.id)
             flag = request.data.get('flag')
             challenge_id = request.data.get('challenge')
@@ -200,32 +194,23 @@ class FlagSubmitView(APIView):
 
             challenge = get_object_or_404(Challenge.objects.select_for_update(), id=challenge_id)
             solve_set = Solve.objects.filter(challenge=challenge)
-            if using_teams:
-                if solve_set.filter(team=team, correct=True).exists() \
-                        or not challenge.is_unlocked(user):
-                    return FormattedResponse(m='already_solved_challenge', status=HTTP_403_FORBIDDEN)
-            else:
-                if solve_set.filter(solved_by=user, correct=True).exists() \
-                        or not challenge.is_unlocked(user):
-                    return FormattedResponse(m='already_solved_challenge', status=HTTP_403_FORBIDDEN)
+            if solve_set.filter(team=team, correct=True).exists() \
+                    or not challenge.is_unlocked(user):
+                return FormattedResponse(m='already_solved_challenge', status=HTTP_403_FORBIDDEN)
 
             if challenge.challenge_metadata.get("attempt_limit"):
-                if using_teams:
-                    count = solve_set.filter(team=team).count()
-                else:
-                    count = solve_set.filter(solved_by=user).count()
+                count = solve_set.filter(team=team).count()
                 if count > challenge.challenge_metadata['attempt_limit']:
-                    flag_reject.send(sender=self.__class__, user=user, team=team if using_teams else None,
-                                     challenge=challenge, flag=flag, reason='attempt_limit_reached')
+                    flag_reject.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag,
+                                     reason='attempt_limit_reached')
                     return FormattedResponse(d={'correct': False}, m='attempt_limit_reached')
 
-            flag_submit.send(sender=self.__class__, user=user, team=team if using_teams else None, challenge=challenge,
-                             flag=flag)
+            flag_submit.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag)
             plugin = plugins.plugins['flag'][challenge.flag_type](challenge)
             points_plugin = plugins.plugins['points'][challenge.points_type](challenge)
 
             if not plugin.check(flag, user=user, team=team):
-                flag_reject.send(sender=self.__class__, user=user, team=team if using_teams else None,
+                flag_reject.send(sender=self.__class__, user=user, team=team,
                                  challenge=challenge, flag=flag, reason='incorrect_flag')
                 points_plugin.register_incorrect_attempt(user, team, flag, solve_set)
                 return FormattedResponse(d={'correct': False}, m='incorrect_flag')
@@ -236,10 +221,8 @@ class FlagSubmitView(APIView):
                 challenge.save()
 
             user.save()
-            if using_teams:
-                team.save()
-            flag_score.send(sender=self.__class__, user=user, team=team if using_teams else None, challenge=challenge,
-                            flag=flag, solve=solve)
+            team.save()
+            flag_score.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag, solve=solve)
             ret = {'correct': True}
             if challenge.post_score_explanation:
                 ret["explanation"] = challenge.post_score_explanation

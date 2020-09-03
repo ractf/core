@@ -6,6 +6,7 @@ from rest_framework import serializers
 from backend.mixins import IncorrectSolvesMixin
 from challenge.serializers import SolveSerializer
 from member.models import UserIP
+from config import config
 
 
 class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
@@ -71,6 +72,12 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         self.instance.email_token = secrets.token_hex()
         self.instance.save()
         return value
+
+    def update(self, instance, validated_data):
+        if not config.get("enable_teams"):
+            if instance.team:
+                instance.team.name = validated_data.get("username", instance.username)
+        return super(SelfSerializer, self).update(instance, validated_data)
 
 
 class UserIPSerializer(serializers.ModelSerializer):
