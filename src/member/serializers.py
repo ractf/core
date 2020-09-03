@@ -18,7 +18,7 @@ class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         model = get_user_model()
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'state_actor', 'twitter', 'reddit',
                   'team', 'points', 'is_visible', 'is_active', 'solves', 'team_name', 'leaderboard_points',
-                  'date_joined', 'incorrect_solves']
+                  'date_joined', 'incorrect_solves', 'is_verified']
 
 
 class ListMemberSerializer(serializers.ModelSerializer):
@@ -38,7 +38,7 @@ class AdminMemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         model = get_user_model()
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team',
                   'points', 'is_visible', 'is_active', 'solves', 'team_name', 'email', 'email_verified',
-                  'leaderboard_points', 'date_joined', 'state_actor', 'incorrect_solves']
+                  'leaderboard_points', 'date_joined', 'state_actor', 'incorrect_solves', 'is_verified']
 
 
 class MinimalMemberSerializer(serializers.ModelSerializer):
@@ -47,7 +47,8 @@ class MinimalMemberSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team',
-                  'points', 'is_visible', 'is_active', 'team_name', 'leaderboard_points', 'state_actor', 'date_joined']
+                  'points', 'is_visible', 'is_active', 'team_name', 'leaderboard_points', 'state_actor', 'date_joined',
+                  'is_verified']
 
 
 class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
@@ -63,9 +64,9 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         model = get_user_model()
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team', 'email',
                   'has_2fa', 'points', 'solves', 'team_name', 'leaderboard_points', 'date_joined',
-                  'incorrect_solves']
+                  'incorrect_solves', 'is_verified']
         read_only_fields = ['id', 'is_staff', 'team', 'email', 'points', 'leaderboard_points', 'date_joined',
-                            'incorrect_solves']
+                            'incorrect_solves', 'is_verified']
 
     def validate_email(self, value):
         self.instance.password_reset_token = secrets.token_hex()

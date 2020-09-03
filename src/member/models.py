@@ -37,6 +37,7 @@ class Member(AbstractUser):
     state_actor = models.BooleanField(default=False)
     is_visible = models.BooleanField(default=False)
     is_bot = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
     bio = models.TextField(blank=True, max_length=400)
     discord = models.CharField(blank=True, max_length=36)
     discordid = models.CharField(blank=True, max_length=18)
