@@ -25,7 +25,7 @@ class CTFTimeListView(APIView):
 class GraphView(APIView):
     throttle_scope = 'leaderboard'
 
-    def list(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         if not config.get('enable_scoreboard'):
             return FormattedResponse({})
 
