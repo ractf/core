@@ -15,13 +15,12 @@ from backend.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
 from backend.response import FormattedResponse
 from backend.signals import flag_submit, flag_reject, flag_score
 from backend.viewsets import AdminCreateModelViewSet
-from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag
+from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag, Hint, HintUse
 from challenge.permissions import CompetitionOpen
 from challenge.serializers import ChallengeSerializer, CategorySerializer, AdminCategorySerializer, \
     AdminChallengeSerializer, FileSerializer, CreateCategorySerializer, CreateChallengeSerializer, \
     ChallengeFeedbackSerializer, TagSerializer
 from config import config
-from hint.models import Hint, HintUse
 from plugins import plugins
 from team.models import Team
 from team.permissions import HasTeam

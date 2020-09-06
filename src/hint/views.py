@@ -8,14 +8,9 @@ from backend.response import FormattedResponse
 from backend.viewsets import AdminCreateModelViewSet
 from challenge.permissions import CompetitionOpen
 from config import config
-from hint.models import Hint, HintUse
+from challenge.models import Hint, HintUse
 from hint.permissions import HasUsedHint
-from hint.serializers import (
-    FullHintSerializer,
-    HintSerializer,
-    UseHintSerializer,
-    CreateHintSerializer,
-)
+from challenge.serializers import HintSerializer, CreateHintSerializer, FullHintSerializer, UseHintSerializer
 from backend.signals import use_hint
 from team.permissions import HasTeam
 
