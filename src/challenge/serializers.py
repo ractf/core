@@ -15,9 +15,6 @@ class NestedTagSerializer(serializers.ModelSerializer):
         fields = ['text', 'type']
 
 
-
-
-
 class HintSerializer(serializers.ModelSerializer):
     text = serializers.SerializerMethodField()
     used = serializers.SerializerMethodField()
