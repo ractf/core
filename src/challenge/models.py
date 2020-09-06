@@ -168,8 +168,13 @@ class Solve(models.Model):
         indexes = [BrinIndex(fields=["challenge"], autosummarize=True)]
 
 
+def get_file_name(instance, filename):
+    return f"{instance.challenge.id}/{filename}"
+
+
 class File(models.Model):
     name = models.CharField(max_length=64)
+    upload = models.FileField(upload_to=get_file_name)
     url = models.URLField()
     size = models.IntegerField()
     challenge = models.ForeignKey(Challenge, on_delete=CASCADE, related_name="file_set")

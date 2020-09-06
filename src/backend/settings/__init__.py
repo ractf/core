@@ -34,6 +34,13 @@ MAIL = {
     "SEND": True,
 }
 
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_CHALLENGE_FILES_BUCKET")
+AWS_DEFAULT_ACL = None
+AWS_S3_CUSTOM_DOMAIN = AWS_STORAGE_BUCKET_NAME
+PUBLIC_MEDIA_LOCATION = 'challenge-files'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+DEFAULT_FILE_STORAGE = 'backend.storages.PublicMediaStorage'
+
 INSTALLED_APPS = [
     "announcements.apps.AnnouncementsConfig",
     "authentication.apps.AuthConfig",
