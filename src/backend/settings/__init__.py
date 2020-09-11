@@ -35,6 +35,7 @@ MAIL = {
 }
 
 INSTALLED_APPS = [
+    "achievements.apps.AchievementsConfig",
     "announcements.apps.AnnouncementsConfig",
     "authentication.apps.AuthConfig",
     "challenge.apps.ChallengeConfig",
@@ -212,8 +213,11 @@ INSTALLED_PLUGINS = [
     "plugins.flag.lenient",
     "plugins.flag.long_text",
     "plugins.flag.map",
+
     "plugins.points.basic",
     "plugins.points.decay",
+
+    'plugins.achievement.points'
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True

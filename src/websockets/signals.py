@@ -3,6 +3,8 @@ from channels.layers import get_channel_layer
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from achievements.models import UserAchievement
+from achievements.serializers import AchievementSerializer
 from announcements.models import Announcement
 from announcements.serializers import AnnouncementSerializer
 from backend.signals import flag_score, flag_reject, use_hint, team_join
@@ -89,3 +91,12 @@ def on_announcement_create(sender, instance, **kwargs):
     data['type'] = 'send_json'
     data['event_code'] = 5
     broadcast(data)
+
+
+@receiver(post_save, sender=UserAchievement)
+def on_achievement_create(sender, instance, **kwargs):
+    if instance.earned:
+        data = AchievementSerializer(instance.achievement).data
+        data['type'] = 'send_json'
+        data['event_code'] = 6
+        send(instance.user, data)

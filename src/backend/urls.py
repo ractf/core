@@ -30,6 +30,7 @@ urlpatterns = [
     path('stats/', include('stats.urls')),
     path('team/', include('team.urls')),
     path('pages/', include('pages.urls')),
+    path('achievements/', include('achievements.urls'))
 ]
 
 urlpatterns = [

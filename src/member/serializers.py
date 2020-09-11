@@ -3,6 +3,7 @@ import secrets
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from achievements.serializers import UserAchievementSerializer
 from backend.mixins import IncorrectSolvesMixin
 from challenge.serializers import SolveSerializer
 from member.models import UserIP
@@ -54,6 +55,7 @@ class MinimalMemberSerializer(serializers.ModelSerializer):
 class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     from team.serializers import MinimalTeamSerializer
     solves = SolveSerializer(many=True, read_only=True)
+    achievements = UserAchievementSerializer(many=True, read_only=True)
     team = MinimalTeamSerializer(read_only=True)
     team_name = serializers.ReadOnlyField(source='team.name')
     email = serializers.EmailField()
@@ -64,9 +66,9 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         model = get_user_model()
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team', 'email',
                   'has_2fa', 'points', 'solves', 'team_name', 'leaderboard_points', 'date_joined',
-                  'incorrect_solves', 'is_verified']
+                  'incorrect_solves', 'is_verified', 'achievements']
         read_only_fields = ['id', 'is_staff', 'team', 'email', 'points', 'leaderboard_points', 'date_joined',
-                            'incorrect_solves', 'is_verified']
+                            'incorrect_solves', 'is_verified', 'achievements']
 
     def validate_email(self, value):
         self.instance.password_reset_token = secrets.token_hex()
