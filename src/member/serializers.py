@@ -14,12 +14,13 @@ class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     solves = SolveSerializer(many=True, read_only=True)
     team_name = serializers.ReadOnlyField(source='team.name')
     incorrect_solves = serializers.SerializerMethodField()
+    achievements = UserAchievementSerializer(many=True, read_only=True)
 
     class Meta:
         model = get_user_model()
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'state_actor', 'twitter', 'reddit',
                   'team', 'points', 'is_visible', 'is_active', 'solves', 'team_name', 'leaderboard_points',
-                  'date_joined', 'incorrect_solves', 'is_verified']
+                  'date_joined', 'incorrect_solves', 'is_verified', 'achievements']
 
 
 class ListMemberSerializer(serializers.ModelSerializer):
@@ -34,12 +35,13 @@ class AdminMemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     solves = SolveSerializer(many=True, read_only=True)
     team_name = serializers.ReadOnlyField(source='team.name')
     incorrect_solves = serializers.SerializerMethodField()
+    achievements = UserAchievementSerializer(many=True, read_only=True)
 
     class Meta:
         model = get_user_model()
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team',
                   'points', 'is_visible', 'is_active', 'solves', 'team_name', 'email', 'email_verified',
-                  'leaderboard_points', 'date_joined', 'state_actor', 'incorrect_solves', 'is_verified']
+                  'leaderboard_points', 'date_joined', 'state_actor', 'incorrect_solves', 'is_verified', 'achievements']
 
 
 class MinimalMemberSerializer(serializers.ModelSerializer):
