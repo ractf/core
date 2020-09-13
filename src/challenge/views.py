@@ -6,6 +6,7 @@ from django.db.models import Prefetch, Case, When, Value, Count, Subquery, Q
 from django.utils import timezone
 from rest_framework import permissions
 from rest_framework.generics import get_object_or_404
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
@@ -228,12 +229,27 @@ class FlagSubmitView(APIView):
             return FormattedResponse(d=ret, m='correct_flag')
 
 
-class FileViewSet(ModelViewSet):
-    queryset = File.objects.all()
+class FileManagementView(APIView):
     permission_classes = (IsAdminUser,)
+    parser_classes = (MultiPartParser,)
     throttle_scope = 'file'
-    serializer_class = FileSerializer
-    pagination_class = None
+
+    def post(self, request):
+        challenge = get_object_or_404(Challenge, id=request.data["challenge"])
+        file = File(challenge=challenge, upload=request.data["upload"], size=request.data["size"])
+        file.name = file.upload.name
+        File.objects.filter(name=file.upload.name, challenge=challenge).all().delete()
+        file.save()
+        file.url = file.upload.url  # This field isn't set properly until saving
+        file.save()
+        return FormattedResponse(file.upload.url)
+
+
+class DeleteFileView(APIView):
+    def delete(self, request):
+        file = get_object_or_404(File, id=request.data["id"])
+        file.delete()
+        return FormattedResponse()
 
 
 class TagViewSet(ModelViewSet):
