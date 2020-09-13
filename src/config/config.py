@@ -33,8 +33,9 @@ DEFAULT_CONFIG = {
     'enable_teams': True,
     'enable_team_join': True,
     'enable_view_challenges_after_competion': True,
-    'invite_required': False,
     'enable_team_leave': False,
+    'invite_required': False,
+    'hide_scoreboard_at': -1,
     'sensitive_fields': ['sensitive_fields', 'enable_force_admin_2fa']
 }
 
