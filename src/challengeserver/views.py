@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 
 from backend.response import FormattedResponse
 from challenge.models import Challenge
-from challengeserver import client
 from challengeserver.serializers import JobSubmitSerializer
+from challengeserver import client
 
 
 class GetInstanceView(APIView):
