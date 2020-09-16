@@ -46,7 +46,7 @@ def restart_job(job_id):
         UUID(job_id)
     except ValueError:
         return {}
-    return post(f"/job/{job_id}/restart")
+    return post(f"job/{job_id}/restart")
 
 
 def list_instances():
@@ -55,3 +55,7 @@ def list_instances():
 
 def sysinfo():
     return get("sysinfo")
+
+
+def submit_job(job_spec):
+    return post("job/submit", json=job_spec)

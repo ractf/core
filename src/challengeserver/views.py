@@ -1,8 +1,11 @@
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
 
 from backend.response import FormattedResponse
+from challenge.models import Challenge
 from challengeserver import client
+from challengeserver.serializers import JobSubmitSerializer
 
 
 class GetInstanceView(APIView):
@@ -63,3 +66,25 @@ class SysinfoView(APIView):
         return FormattedResponse(
             client.sysinfo()
         )
+
+
+class JobSubmitView(APIView):
+    permission_classes = (IsAdminUser,)
+    throttle_scope = "andromeda_manage_jobs"
+
+    def post(self, request):
+        serializer = JobSubmitSerializer(request.data)
+        challenge = get_object_or_404(Challenge.objects, id=serializer.data['challenge_id'])
+        response = client.submit_job(serializer.data['job_spec'])
+        challenge.challenge_metadata['cserv_name'] = response['id']
+        return FormattedResponse()
+
+
+class JobSubmitRawView(APIView):
+    permission_classes = (IsAdminUser,)
+    throttle_scope = "andromeda_manage_jobs"
+
+    def post(self, request):
+        serializer = JobSubmitSerializer(request.data)
+        response = client.submit_job(serializer.data['job_spec'])
+        return FormattedResponse(response)
