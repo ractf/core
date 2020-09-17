@@ -15,20 +15,20 @@ jobs:
       id: branch
 
     - name: Build challenge
-      run: docker build -t ractf/core:${{ steps.branch.outputs.name }} -t docker.pkg.github.com/ractf/core/core:${{ steps.branch.outputs.name }} .
+      run: docker build -t ractf/core:${{ steps.branch.outputs.name }} -t ghcr.io/ractf/core:${{ steps.branch.outputs.name }} .
 
     - name: Login to Docker Hub
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
       run: docker login --username ractf --password ${{ secrets.password }}
 
-    - name: Login to Github packages
+    - name: Login to Github Container Registry
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
-      run: docker login docker.pkg.github.com -u $GITHUB_ACTOR -p ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Push to Github packages
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
-      run: docker push docker.pkg.github.com/ractf/core/core:${{ steps.branch.outputs.name }}
+      run: echo ${{ secrets.ghtoken }} | docker login ghcr.io -u ${{ secrets.ghuser }} --password-stdin
 
     - name: Push to Docker Hub
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
       run: docker push ractf/core:${{ steps.branch.outputs.name }}
+
+    - name: Login to Github Container Registry
+      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
+      run: docker push ghcr.io/ractf/core:${{ steps.branch.outputs.name }}
