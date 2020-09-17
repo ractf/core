@@ -32,6 +32,7 @@ MAIL = {
     "SEND_ADDRESS": "no-reply@ractf.co.uk",
     "SEND_NAME": "RACTF",
     "SEND": True,
+    "SEND_MODE": "SES",
 }
 
 INSTALLED_APPS = [
