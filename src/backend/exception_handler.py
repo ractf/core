@@ -13,9 +13,7 @@ from backend.response import FormattedResponse
 
 
 def handle_exception(exc, context):
-    print(context['request'].headers.keys())
     if "X-Reasonable" in context['request'].headers:
-        print('test')
         return exception_handler(exc, context)
     if settings.DEBUG:
         traceback.print_exc()
