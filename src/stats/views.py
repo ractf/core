@@ -27,7 +27,7 @@ def countdown(request):
 def stats(request):
     users = get_user_model().objects.count()
     teams = Team.objects.count()
-    if users > 0:
+    if users > 0 and teams > 0:
         average = users / teams
     else:
         average = 0
