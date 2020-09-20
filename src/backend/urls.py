@@ -17,6 +17,8 @@ from django.urls import path, include
 
 from django.conf import settings
 
+from backend.views import CatchAllView
+
 urlpatterns = [
     path('announcements/', include('announcements.urls')),
     path('auth/', include('authentication.urls')),
@@ -36,6 +38,8 @@ urlpatterns = [
     *urlpatterns,
     path('api/v2/', include(urlpatterns)),
 ]
+
+handler404 = CatchAllView.as_view()
 
 if "silk" in settings.INSTALLED_APPS:
     urlpatterns += [path('silk/', include('silk.urls'))]
