@@ -19,9 +19,11 @@ TEMPLATES.insert(0, {
 })
 
 MAIL = {
-    "SEND_ADDRESS": "no-reply@ractf.co.uk",
+    "SEND_ADDRESS": os.getenv("EMAIL_ADDRESS"),
     "SEND_NAME": "RACTF",
     "SEND": True,
+    "SEND_MODE": os.getenv("EMAIL_PROVIDER"),
+    "SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY")
 }
 
 sentry_sdk.init(
