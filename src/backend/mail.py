@@ -11,7 +11,7 @@ if settings.MAIL["SEND"]:  # pragma: no cover
         import sendgrid
         sg = sendgrid.SendGridAPIClient(settings.MAIL["EMAIL_USER"])
     elif settings.MAIL["SEND_MODE"] == "SMTP":
-        from smtplib
+        import smtplib
         from email.mime.multipart import MIMEMultipart
         from email.mime.text import MIMEText
         smtp = smtplib.SMTP_SSL(settings.MAIL["EMAIL_SERVER"])
