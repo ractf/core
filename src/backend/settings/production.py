@@ -20,7 +20,7 @@ TEMPLATES.insert(0, {
 
 MAIL = {
     "SEND_ADDRESS": os.getenv("EMAIL_ADDRESS"),
-    "SEND_NAME": "RACTF",
+    "SEND_NAME": os.getenv("EMAIL_NAME"),
     "SEND": True,
     "SEND_MODE": os.getenv("EMAIL_PROVIDER"),
     "SEND_SERVER": os.getenv("EMAIL_SERVER"),
