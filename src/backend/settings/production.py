@@ -25,7 +25,8 @@ MAIL = {
     "SEND_MODE": os.getenv("EMAIL_PROVIDER"),
     "SEND_SERVER": os.getenv("EMAIL_SERVER"),
     "SEND_USERNAME": os.getenv("EMAIL_USER"),
-    "SEND_PASSWORD": os.getenv("EMAIL_PASS")
+    "SEND_PASSWORD": os.getenv("EMAIL_PASS"),
+    "SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY"),
 }
 
 sentry_sdk.init(
