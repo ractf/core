@@ -23,7 +23,9 @@ MAIL = {
     "SEND_NAME": "RACTF",
     "SEND": True,
     "SEND_MODE": os.getenv("EMAIL_PROVIDER"),
-    "SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY")
+    "SEND_SERVER": os.getenv("EMAIL_SERVER"),
+    "SEND_USERNAME": os.getenv("EMAIL_USER"),
+    "SEND_PASSWORD": os.getenv("EMAIL_PASS")
 }
 
 sentry_sdk.init(
