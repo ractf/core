@@ -9,7 +9,7 @@ if settings.MAIL["SEND"]:  # pragma: no cover
         client = import_module("boto3").client("ses")
     elif settings.MAIL["SEND_MODE"] == "SENDGRID":  # pragma: no cover
         import sendgrid
-        sg = sendgrid.SendGridAPIClient(settings.MAIL["EMAIL_USER"])
+        sg = sendgrid.SendGridAPIClient(settings.MAIL["SENDGRID_API_KEY"])
     elif settings.MAIL["SEND_MODE"] == "SMTP":
         import smtplib
         from email.mime.multipart import MIMEMultipart
@@ -83,8 +83,8 @@ def send_email(send_to, subject_line, template_name, **template_details):
             data['From'] = sender
             data['Subject'] = subject_line
 
-            msg.attach(MIMEText(render_to_string(template_name + ".txt", template_details), 'plain'))
-            msg.attach(MIMEText(render_to_string(template_name + ".html", template_details), 'html'))
+            data.attach(MIMEText(render_to_string(template_name + ".txt", template_details), 'plain'))
+            data.attach(MIMEText(render_to_string(template_name + ".html", template_details), 'html'))
 
             smtp.sendmail(sender, send_to, data.as_string())
     else:
