@@ -26,6 +26,7 @@ MAIL = {
     "SEND_SERVER": os.getenv("EMAIL_SERVER"),
     "SEND_USERNAME": os.getenv("EMAIL_USER"),
     "SEND_PASSWORD": os.getenv("EMAIL_PASS"),
+    "SMTP_USE_SSL": os.getenv("EMAIL_SSL"),
     "SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY"),
 }
 
