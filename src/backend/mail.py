@@ -15,9 +15,9 @@ if settings.MAIL["SEND"]:  # pragma: no cover
         from email.mime.multipart import MIMEMultipart
         from email.mime.text import MIMEText
         if settings.MAIL["SMTP_USE_SSL"]:
-            smtp = smtplib.SMTP_SSL(settings.MAIL["SEND_SERVER"])
+            smtp = smtplib.SMTP_SSL()
         else:
-            smtp = smtplib.SMTP(settings.MAIL["SEND_SERVER"])
+            smtp = smtplib.SMTP()
         smtp.connect(settings.MAIL["SEND_SERVER"])
         smtp.set_debuglevel(False)
         smtp.login(settings.MAIL["SEND_USERNAME"], settings.MAIL["SEND_PASSWORD"])
