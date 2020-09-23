@@ -18,6 +18,7 @@ if settings.MAIL["SEND"]:  # pragma: no cover
             smtp = smtplib.SMTP_SSL(settings.MAIL["SEND_SERVER"])
         else:
             smtp = smtplib.SMTP(settings.MAIL["SEND_SERVER"])
+        smtp.connect()
         smtp.set_debuglevel(False)
         smtp.login(settings.MAIL["SEND_USERNAME"], settings.MAIL["SEND_PASSWORD"])
 
