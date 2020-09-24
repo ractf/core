@@ -76,6 +76,7 @@ def send_email(send_to, subject_line, template_name, **template_details):
                 smtp = smtplib.SMTP_SSL(settings.MAIL["SEND_SERVER"])
             else:
                 smtp = smtplib.SMTP(settings.MAIL["SEND_SERVER"])
+            smtp.connect(settings.MAIL["SEND_SERVER"])
             smtp.set_debuglevel(False)
             smtp.login(settings.MAIL["SEND_USERNAME"], settings.MAIL["SEND_PASSWORD"])
             sender = f"{settings.MAIL['SEND_NAME']} <{settings.MAIL['SEND_ADDRESS']}>"
