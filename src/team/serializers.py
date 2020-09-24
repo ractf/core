@@ -24,6 +24,8 @@ class SelfTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
             "members",
             "solves",
             "incorrect_solves",
+            "points",
+            "leaderboard_points",
         ]
         read_only_fields = ["id", "is_visible", "incorrect_solves"]
 
@@ -44,6 +46,8 @@ class TeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
             "members",
             "solves",
             "incorrect_solves",
+            "points",
+            "leaderboard_points",
         ]
 
     def get_incorrect_solves(self, instance):
