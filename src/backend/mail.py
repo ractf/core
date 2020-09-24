@@ -10,16 +10,6 @@ if settings.MAIL["SEND"]:  # pragma: no cover
     elif settings.MAIL["SEND_MODE"] == "SENDGRID":  # pragma: no cover
         import sendgrid
         sg = sendgrid.SendGridAPIClient(settings.MAIL["SENDGRID_API_KEY"])
-    elif settings.MAIL["SEND_MODE"] == "SMTP":
-        import smtplib
-        from email.mime.multipart import MIMEMultipart
-        from email.mime.text import MIMEText
-        if settings.MAIL["SMTP_USE_SSL"]:
-            smtp = smtplib.SMTP_SSL(settings.MAIL["SEND_SERVER"])
-        else:
-            smtp = smtplib.SMTP(settings.MAIL["SEND_SERVER"])
-        smtp.set_debuglevel(False)
-        smtp.login(settings.MAIL["SEND_USERNAME"], settings.MAIL["SEND_PASSWORD"])
 
 
 def send_email(send_to, subject_line, template_name, **template_details):
@@ -79,6 +69,16 @@ def send_email(send_to, subject_line, template_name, **template_details):
             }
             sg.client.mail.send.post(request_body=data)
         elif settings.MAIL["SEND_MODE"] == "SMTP":  # pragma: no cover
+            import smtplib
+            from email.mime.multipart import MIMEMultipart
+            from email.mime.text import MIMEText
+            if settings.MAIL["SMTP_USE_SSL"]:
+                smtp = smtplib.SMTP_SSL()
+            else:
+                smtp = smtplib.SMTP()
+            smtp.connect(settings.MAIL["SEND_SERVER"])
+            smtp.set_debuglevel(False)
+            smtp.login(settings.MAIL["SEND_USERNAME"], settings.MAIL["SEND_PASSWORD"])
             sender = f"{settings.MAIL['SEND_NAME']} <{settings.MAIL['SEND_ADDRESS']}>"
 
             data = MIMEMultipart('alternative')
