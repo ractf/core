@@ -67,7 +67,7 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
 
         user.save()
         send_email(user.email, 'RACTF - Verify your email', 'verify',
-                   url='verify?id={}&secret={}'.format(user.id, token))
+                   url=settings.FRONTEND_URL + 'verify?id={}&secret={}'.format(user.id, token))
         register.send(sender=self.__class__, user=user)
         return user
 
