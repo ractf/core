@@ -77,6 +77,7 @@ class JobSubmitView(APIView):
         challenge = get_object_or_404(Challenge.objects, id=serializer.data['challenge_id'])
         response = client.submit_job(serializer.data['job_spec'])
         challenge.challenge_metadata['cserv_name'] = response['id']
+        challenge.save()
         return FormattedResponse()
 
 
