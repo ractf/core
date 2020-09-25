@@ -56,7 +56,7 @@ class GraphView(APIView):
 
 class UserListView(ListAPIView):
     throttle_scope = 'leaderboard'
-    queryset = get_user_model().objects.order_by('-leaderboard_points', 'last_score')
+    queryset = get_user_model().objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
     serializer_class = UserPointsSerializer
 
     def list(self, request, *args, **kwargs):
@@ -67,7 +67,7 @@ class UserListView(ListAPIView):
 
 class TeamListView(ListAPIView):
     throttle_scope = 'leaderboard'
-    queryset = Team.objects.order_by('-leaderboard_points', 'last_score')
+    queryset = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
     serializer_class = TeamPointsSerializer
 
     def list(self, request, *args, **kwargs):
