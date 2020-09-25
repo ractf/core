@@ -62,7 +62,7 @@ class TeamViewSet(AdminListModelViewSet):
 
     def get_queryset(self):
         if self.action == "list":
-            return Team.objects.order_by("id").prefetch_related("members")
+            return Team.objects.filter(is_visible=True).order_by("id").prefetch_related("members")
         if self.request.user.is_staff and not self.request.user.should_deny_admin():
             return Team.objects.order_by("id").prefetch_related(
                 "solves",
