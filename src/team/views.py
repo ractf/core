@@ -7,7 +7,7 @@ from rest_framework.generics import (
     get_object_or_404,
 )
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from rest_framework.views import APIView
 
 from backend.exceptions import FormattedException
@@ -108,7 +108,7 @@ class JoinTeamView(APIView):
                 team = get_object_or_404(Team, name=name, password=password)
             except Http404:
                 team_join_reject.send(sender=self.__class__, user=request.user, name=name)
-                raise FormattedException
+                raise FormattedException('invalid_team_or_password', status_code=HTTP_404_NOT_FOUND)
             team_size = int(config.get('team_size'))
             if not request.user.is_staff and not team.size_limit_exempt and 0 < team_size <= team.members.count():
                 return FormattedResponse(m='team_full', status=HTTP_403_FORBIDDEN)
