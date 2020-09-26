@@ -36,6 +36,7 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
             raise FormattedException(m='email_or_username_in_use', status_code=HTTP_403_FORBIDDEN)
         if not get_user_model().objects.all().exists():
             user.is_staff = True
+            user.is_superuser = True
         password_validation.validate_password(password, user)
         user.set_password(password)
         if config.get("invite_required"):
