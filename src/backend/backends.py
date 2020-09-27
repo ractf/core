@@ -13,7 +13,7 @@ class EmailOrUsernameBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         try:
             if "@" in username:
-                user = UserModel.objects.get(email=username)
+                user = UserModel.objects.get(email__iexact=username)
             else:
                 user = UserModel.objects.get_by_natural_key(username)
         except UserModel.DoesNotExist:

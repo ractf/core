@@ -32,7 +32,8 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
             username=username,
             email=email
         )
-        if get_user_model().objects.filter(username=username) or get_user_model().objects.filter(email=email):
+        if get_user_model().objects.filter(username__iexact=username).exists() \
+                or get_user_model().objects.filter(email__iexact=email).exists():
             raise FormattedException(m='email_or_username_in_use', status_code=HTTP_403_FORBIDDEN)
         if not get_user_model().objects.all().exists():
             user.is_staff = True

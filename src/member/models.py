@@ -20,10 +20,17 @@ class TOTPStatus(IntEnum):
     ENABLED = 2
 
 
+class MemberManager(models.Manager):
+
+    def get_by_natural_key(self, username):
+        return self.get(username__iexact=username)
+
+
 class Member(AbstractUser):
     username_validator = printable_name
+    objects = MemberManager()
 
-    username = CICharField(
+    username = models.CharField(
         _("username"),
         max_length=36,
         unique=True,
