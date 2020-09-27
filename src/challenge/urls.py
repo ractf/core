@@ -16,5 +16,8 @@ urlpatterns = [
     path('files/', views.FileManagementView.as_view(), name='files'),
     path('files/delete/', views.DeleteFileView.as_view(), name='file-delete'),
     path('use_hint/', views.UseHintView.as_view(), name='hint-use'),
+    path('/recalculate/team/<int:id>/', views.RecalculateTeamView.as_view(), name='recalculate-team'),
+    path('/recalculate/user/<int:id>/', views.RecalculateUserView.as_view(), name='recalculate-user'),
+    path('/recalculate/', views.RecalculateAllView.as_view(), name='recalculate-all'),
     path('', include(router.urls)),
 ]

@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     "pages.apps.PagesConfig",
     "plugins.apps.PluginsConfig",
     "ractf.apps.RactfConfig",
-    "scorerecalculator.apps.ScorerecalculatorConfig",
     "stats.apps.StatsConfig",
     "team.apps.TeamConfig",
     "websockets.apps.WebsocketsConfig",

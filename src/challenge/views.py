@@ -16,7 +16,8 @@ from backend.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
 from backend.response import FormattedResponse
 from backend.signals import flag_submit, flag_reject, flag_score, use_hint
 from backend.viewsets import AdminCreateModelViewSet
-from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag, Hint, HintUse
+from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag, Hint, HintUse, \
+    Score
 from challenge.permissions import CompetitionOpen, HasUsedHint
 from challenge.serializers import ChallengeSerializer, CategorySerializer, AdminCategorySerializer, \
     AdminChallengeSerializer, FileSerializer, CreateCategorySerializer, CreateChallengeSerializer, \
@@ -299,3 +300,58 @@ class UseHintView(APIView):
         ).save()
         serializer = FullHintSerializer(hint, context={"request": request})
         return FormattedResponse(d=serializer.data)
+
+
+def recalculate_team(team):
+    team.points = 0
+    team.leaderboard_points = 0
+    for user_unsafe in team.members.all():
+        with transaction.atomic():
+            user = get_user_model().objects.select_for_update().get(id=user_unsafe.id)
+            recalculate_user(user)
+            team.points += user.points
+            team.leaderboard_points += user.leaderboard_points
+    team.save()
+
+
+def recalculate_user(user):
+    user.points = 0
+    user.leaderboard_points = 0
+    scores = Score.objects.filter(user=user)
+    for score in scores:
+        if score.leaderboard:
+            user.leaderboard_points += score.points - score.penalty
+        user.points += score.points - score.penalty
+    user.save()
+
+
+class RecalculateTeamView(APIView):
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request, id):
+        with transaction.atomic():
+            team = get_object_or_404(Team.objects.select_for_update(), id=id)
+            recalculate_team(team)
+        return FormattedResponse()
+
+
+class RecalculateUserView(APIView):
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request, id):
+        with transaction.atomic():
+            user = get_object_or_404(
+                get_user_model().objects.select_for_update(), id=id
+            )
+            recalculate_user(user)
+        return FormattedResponse()
+
+
+class RecalculateAllView(APIView):
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request):
+        with transaction.atomic():
+            for team in Team.objects.select_for_update().all():
+                recalculate_team(team)
+        return FormattedResponse()
