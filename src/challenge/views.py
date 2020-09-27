@@ -18,8 +18,7 @@ from backend.signals import flag_submit, flag_reject, flag_score, use_hint
 from backend.viewsets import AdminCreateModelViewSet
 from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag, Hint, HintUse
 from challenge.models import Score
-from challenge.permissions import CompetitionOpen
-from challenge.permissions import HasUsedHint
+from challenge.permissions import CompetitionOpen, HasUsedHint
 from challenge.serializers import ChallengeSerializer, CategorySerializer, AdminCategorySerializer, \
     AdminChallengeSerializer, CreateCategorySerializer, CreateChallengeSerializer, \
     ChallengeFeedbackSerializer, TagSerializer, HintSerializer, FullHintSerializer, CreateHintSerializer, \
