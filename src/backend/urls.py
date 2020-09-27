@@ -28,7 +28,6 @@ urlpatterns = [
     path('config/', include('config.urls')),
     path('leaderboard/', include('leaderboard.urls')),
     path('member/', include('member.urls')),
-    path('scorerecalculator/', include('scorerecalculator.urls')),
     path('stats/', include('stats.urls')),
     path('team/', include('team.urls')),
     path('pages/', include('pages.urls')),
