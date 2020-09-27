@@ -203,7 +203,7 @@ REST_FRAMEWORK = {
         "tag": "100/minute",
         "pages": "100/minute"
     },
-    "DEFAULT_PAGINATION_CLASS": "backend.pagination.FastPagination",
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
 }
 
