@@ -13,15 +13,16 @@ from rest_framework.viewsets import ModelViewSet
 
 from backend.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
 from backend.response import FormattedResponse
-from backend.signals import flag_submit, flag_reject, flag_score
+from backend.signals import flag_submit, flag_reject, flag_score, use_hint
 from backend.viewsets import AdminCreateModelViewSet
-from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag
-from challenge.permissions import CompetitionOpen
+from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag, Score, Hint, \
+    HintUse
+from challenge.permissions import CompetitionOpen, HasUsedHint
 from challenge.serializers import ChallengeSerializer, CategorySerializer, AdminCategorySerializer, \
     AdminChallengeSerializer, FileSerializer, CreateCategorySerializer, CreateChallengeSerializer, \
-    ChallengeFeedbackSerializer, TagSerializer
+    ChallengeFeedbackSerializer, TagSerializer, HintSerializer, CreateHintSerializer, FullHintSerializer, \
+    UseHintSerializer
 from config import config
-from hint.models import Hint, HintUse
 from plugins import plugins
 from team.models import Team
 from team.permissions import HasTeam
@@ -243,3 +244,101 @@ class TagViewSet(ModelViewSet):
     throttle_scope = 'tag'
     serializer_class = TagSerializer
     pagination_class = None
+
+
+
+
+class HintViewSet(AdminCreateModelViewSet):
+    queryset = Hint.objects.all()
+    permission_classes = (HasUsedHint,)
+    throttle_scope = "hint"
+    pagination_class = None
+    serializer_class = HintSerializer
+    admin_serializer_class = FullHintSerializer
+    create_serializer_class = CreateHintSerializer
+
+
+class UseHintView(APIView):
+    permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,)
+    throttle_scope = "use_hint"
+
+    def post(self, request):
+        serializer = UseHintSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        hint_id = serializer.validated_data["id"]
+        hint = get_object_or_404(Hint, id=hint_id)
+        if not hint.challenge.is_unlocked(request.user):
+            return FormattedResponse(
+                m="challenge_not_unlocked", s=False, status=HTTP_403_FORBIDDEN
+            )
+        if HintUse.objects.filter(hint=hint, team=request.user.team).exists():
+            return FormattedResponse(
+                m="hint_already_used", s=False, status=HTTP_403_FORBIDDEN
+            )
+        use_hint.send(
+            sender=self.__class__, user=request.user, team=request.user.team, hint=hint
+        )
+        HintUse(
+            hint=hint,
+            team=request.user.team,
+            user=request.user,
+            challenge=hint.challenge,
+        ).save()
+        serializer = FullHintSerializer(hint, context={"request": request})
+        return FormattedResponse(d=serializer.data)
+
+
+
+def recalculate_team(team):
+    team.points = 0
+    team.leaderboard_points = 0
+    for user_unsafe in team.members.all():
+        with transaction.atomic():
+            user = get_user_model().objects.select_for_update().get(id=user_unsafe.id)
+            recalculate_user(user)
+            team.points += user.points
+            team.leaderboard_points += user.leaderboard_points
+    team.save()
+
+
+def recalculate_user(user):
+    user.points = 0
+    user.leaderboard_points = 0
+    scores = Score.objects.filter(user=user)
+    for score in scores:
+        if score.leaderboard:
+            user.leaderboard_points += score.points - score.penalty
+        user.points += score.points - score.penalty
+    user.save()
+
+
+class RecalculateTeamView(APIView):
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request, id):
+        with transaction.atomic():
+            team = get_object_or_404(Team.objects.select_for_update(), id=id)
+            recalculate_team(team)
+        return FormattedResponse()
+
+
+class RecalculateUserView(APIView):
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request, id):
+        with transaction.atomic():
+            user = get_object_or_404(
+                get_user_model().objects.select_for_update(), id=id
+            )
+            recalculate_user(user)
+        return FormattedResponse()
+
+
+class RecalculateAllView(APIView):
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request):
+        with transaction.atomic():
+            for team in Team.objects.select_for_update().all():
+                recalculate_team(team)
+        return FormattedResponse()
