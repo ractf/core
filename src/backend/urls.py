@@ -26,7 +26,6 @@ urlpatterns = [
     path('challenges/', include('challenge.urls')),
     path('challengeserver/', include('challengeserver.urls')),
     path('config/', include('config.urls')),
-    path('hints/', include('hint.urls')),
     path('leaderboard/', include('leaderboard.urls')),
     path('member/', include('member.urls')),
     path('scorerecalculator/', include('scorerecalculator.urls')),
