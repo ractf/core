@@ -5,6 +5,7 @@ from challenge import views
 
 router = DefaultRouter()
 router.register(r'categories', views.CategoryViewset, basename='categories')
+router.register(r'hints', views.HintViewSet, basename='hint')
 router.register(r'tags', views.TagViewSet, basename='tags')
 router.register(r'', views.ChallengeViewset, basename='challenges')
 
@@ -14,5 +15,6 @@ urlpatterns = [
     path('vote/', views.ChallengeVoteView.as_view(), name='vote'),
     path('files/', views.FileManagementView.as_view(), name='files'),
     path('files/delete/', views.DeleteFileView.as_view(), name='file-delete'),
+    path('use_hint/', views.UseHintView.as_view(), name='hint-use'),
     path('', include(router.urls)),
 ]

@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     "challenge.apps.ChallengeConfig",
     "challengeserver.apps.ChallengeserverConfig",
     "config.apps.ConfigConfig",
-    "hint.apps.HintConfig",
     "leaderboard.apps.LeaderboardConfig",
     "member.apps.MemberConfig",
     "pages.apps.PagesConfig",
