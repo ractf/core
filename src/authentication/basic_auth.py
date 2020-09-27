@@ -4,7 +4,6 @@ import secrets
 
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, password_validation
-from authentication.models import Token
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 
 from authentication.providers import LoginProvider, TokenProvider, RegistrationProvider

@@ -5,7 +5,8 @@ from rest_framework.generics import (
     CreateAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
+
 from rest_framework.views import APIView
 
 from backend.exceptions import FormattedException
