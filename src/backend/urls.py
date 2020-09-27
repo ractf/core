@@ -33,11 +33,6 @@ urlpatterns = [
     path('pages/', include('pages.urls')),
 ]
 
-urlpatterns = [
-    *urlpatterns,
-    path('api/v2/', include(urlpatterns)),
-]
-
 if "silk" in settings.INSTALLED_APPS:
     urlpatterns += [path('silk/', include('silk.urls'))]
 
