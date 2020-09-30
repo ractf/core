@@ -21,3 +21,4 @@ class Command(BaseCommand):
             user.save()
             return
         user.team = None
+        user.save()
