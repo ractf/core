@@ -229,6 +229,37 @@ class FlagSubmitView(APIView):
             return FormattedResponse(d=ret, m='correct_flag')
 
 
+class FlagCheckView(APIView):
+    permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,)
+    throttle_scope = 'flag_submit'
+
+    def post(self, request):
+        if not config.get('enable_flag_submission') or \
+                (not config.get('enable_flag_submission_after_competition') and time.time() > config.get('end_time')):
+            return FormattedResponse(m='flag_submission_disabled', status=HTTP_403_FORBIDDEN)
+        team = Team.objects.get(id=request.user.team.id)
+        user = get_user_model().objects.get(id=request.user.id)
+        flag = request.data.get('flag')
+        challenge_id = request.data.get('challenge')
+        if not flag or not challenge_id:
+            return FormattedResponse(status=HTTP_400_BAD_REQUEST)
+
+        challenge = get_object_or_404(Challenge.objects.select_for_update(), id=challenge_id)
+        solve_set = Solve.objects.filter(challenge=challenge)
+        if not solve_set.filter(team=team, correct=True).exists():
+            return FormattedResponse(m='havent_solved_challenge', status=HTTP_403_FORBIDDEN)
+
+        plugin = plugins.plugins['flag'][challenge.flag_type](challenge)
+
+        if not plugin.check(flag, user=user, team=team):
+            return FormattedResponse(d={'correct': False}, m='incorrect_flag')
+
+        ret = {'correct': True}
+        if challenge.post_score_explanation:
+            ret["explanation"] = challenge.post_score_explanation
+        return FormattedResponse(d=ret, m='correct_flag')
+
+
 class FileViewSet(ModelViewSet):
     queryset = File.objects.all()
     permission_classes = (IsAdminUser,)

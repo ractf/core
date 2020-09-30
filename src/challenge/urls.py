@@ -11,6 +11,7 @@ router.register(r'', views.ChallengeViewset, basename='challenges')
 
 urlpatterns = [
     path('submit_flag/', views.FlagSubmitView.as_view(), name='submit-flag'),
+    path('check_flag/', views.FlagCheckView.as_view(), name='check-flag'),
     path('feedback/', views.ChallengeFeedbackView.as_view(), name='submit-feedback'),
     path('vote/', views.ChallengeVoteView.as_view(), name='vote'),
     path('', include(router.urls)),
