@@ -4,6 +4,7 @@ import string
 
 from django.contrib.auth import get_user_model
 from django.core.validators import EmailValidator
+from django.conf import settings
 from django.db import transaction
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
@@ -186,7 +187,7 @@ class RequestPasswordResetView(APIView):
             email,
             "RACTF - Reset Your Password",
             "password_reset",
-            url="password_reset?id={}&secret={}".format(uid, token),
+            url=settings.FRONTEND_URL + "password_reset?id={}&secret={}".format(uid, token),
         )
         return FormattedResponse()
 
@@ -271,7 +272,7 @@ class ResendEmailView(GenericAPIView):
                 status=HTTP_400_BAD_REQUEST,
             )
         send_email(user.email, 'RACTF - Verify your email', 'verify',
-                   url='verify?id={}&secret={}'.format(user.id, user.email_token))
+                   url=settings.FRONTEND_URL + 'verify?id={}&secret={}'.format(user.id, user.email_token))
         return FormattedResponse('email_resent')
 
 
