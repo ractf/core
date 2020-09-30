@@ -4,7 +4,6 @@ from enum import IntEnum
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
-from django.contrib.postgres.fields import CICharField
 from django.db import models
 from django.db.models import SET_NULL
 from django.utils import timezone
@@ -23,7 +22,7 @@ class TOTPStatus(IntEnum):
 class Member(AbstractUser):
     username_validator = printable_name
 
-    username = CICharField(
+    username = models.CharField(
         _("username"),
         max_length=36,
         unique=True,
