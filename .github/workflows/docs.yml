@@ -66,3 +66,9 @@ jobs:
       with:
         name: openapi-schema.yml
         path: openapi-schema.yml
+
+    - name: Trigger docs-site build
+      run: |
+        curl -X POST ${{ secrets.WEBHOOK_URL }} \
+        -H 'Authorization: token ${{ secrets.WEBHOOK_TOKEN }}' \
+        --data '{"event_type": "deploy_docs_site"}'
