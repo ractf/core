@@ -47,7 +47,7 @@ jobs:
       run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
       env:
         POETRY_PREVIEW: 1
-    
+
     - name: Disable Virtualenvs
       run: $HOME/.poetry/bin/poetry config virtualenvs.create false
 
@@ -56,30 +56,13 @@ jobs:
       env:
         PIP_CACHE_DIR: ~/.pip
 
-    - name: Make upload directory
-      run: mkdir upload
-
     - name: Generate OpenAPI schema
-      run: ./src/manage.py getschema | tee upload/openapi-schema.yml
+      run: ./src/manage.py getschema | tee openapi-schema.yml
       env:
         DJANGO_SETTINGS_MODULE: 'backend.settings.test'
-
-    - name: Copy HTML to correct location
-      run: cp docs/redoc-index.html upload/index.html
-
-    - name: Upload documentation to S3
-      uses: jakejarvis/s3-sync-action@master
-      with:
-        args: --acl public-read --follow-symlinks --delete
-      env:
-        AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: 'eu-west-2'
-        SOURCE_DIR: 'upload'
 
     - name: Publish API documentation to GitHub
       uses: actions/upload-artifact@v2
       with:
         name: openapi-schema.yml
-        path: upload/openapi-schema.yml
+        path: openapi-schema.yml
