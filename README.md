@@ -1,2 +1,2 @@
 # RACTF Backend
-The backend API for the RACTF platform.
+The backend API for the amazing RACTF platform.
