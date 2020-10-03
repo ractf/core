@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.schemas.openapi import AutoSchema
 
 from backend.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
 from backend.response import FormattedResponse
@@ -28,6 +29,27 @@ from team.permissions import HasTeam
 
 
 class CategoryViewset(AdminCreateModelViewSet):
+    """
+    list:
+    Retrieve all challenge categories.
+
+    create:
+    Create a new challenge category.
+
+    retrieve:
+    Retrieve a specific challenge category.
+
+    update:
+    Update a challenge category.
+
+    partial_update:
+    Partially update a challenge category.
+
+    destroy:
+    Delete a challenge category.
+    """
+    schema = AutoSchema(tags=['challengeCategories'])
+
     queryset = Category.objects.all()
     permission_classes = (CompetitionOpen & AdminOrReadOnly,)
     throttle_scope = 'challenges'
@@ -118,6 +140,26 @@ class CategoryViewset(AdminCreateModelViewSet):
 
 
 class ChallengeViewset(AdminCreateModelViewSet):
+    """
+    list:
+    Retrieve all challenges.
+
+    create:
+    Create a new challenge.
+
+    retrieve:
+    Retrieve a specific challenge.
+
+    update:
+    Update a challenge.
+
+    partial_update:
+    Partially update a challenge.
+
+    destroy:
+    Delete a challenge.
+    """
+
     queryset = Challenge.objects.all()
     permission_classes = (CompetitionOpen & AdminOrReadOnly,)
     throttle_scope = 'challenges'
@@ -133,6 +175,14 @@ class ChallengeViewset(AdminCreateModelViewSet):
 
 
 class ChallengeFeedbackView(APIView):
+    """
+    get:
+    Get feedback for a challenge
+
+    post:
+    Add feedback to a challenge.
+    """
+    
     permission_classes = (IsAuthenticated & HasTeam & ReadOnlyBot,)
 
     def get(self, request):
@@ -158,6 +208,10 @@ class ChallengeFeedbackView(APIView):
 
 
 class ChallengeVoteView(APIView):
+    """
+    Vote for a challenge
+    """
+
     permission_classes = (IsAuthenticated & HasTeam & ~IsBot,)
 
     def post(self, request):
@@ -176,6 +230,10 @@ class ChallengeVoteView(APIView):
 
 
 class FlagSubmitView(APIView):
+    """
+    Submit a challenge flag
+    """
+
     permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,)
     throttle_scope = 'flag_submit'
 
@@ -230,6 +288,10 @@ class FlagSubmitView(APIView):
 
 
 class FlagCheckView(APIView):
+    """
+    Check a challenge flag
+    """
+
     permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,)
     throttle_scope = 'flag_submit'
 
@@ -261,6 +323,27 @@ class FlagCheckView(APIView):
 
 
 class FileViewSet(ModelViewSet):
+    """
+    list:
+    Retrieve all challenge files.
+
+    create:
+    Create a new challenge file.
+
+    retrieve:
+    Retrieve a specific challenge file.
+
+    update:
+    Update a challenge file.
+
+    partial_update:
+    Partially update a challenge file.
+
+    destroy:
+    Delete a challenge file.
+    """
+    schema = AutoSchema(tags=['challengeFiles'])
+
     queryset = File.objects.all()
     permission_classes = (IsAdminUser,)
     throttle_scope = 'file'
@@ -269,6 +352,27 @@ class FileViewSet(ModelViewSet):
 
 
 class TagViewSet(ModelViewSet):
+    """
+    list:
+    Retrieve all challenge tags.
+
+    create:
+    Create a new challenge tag.
+
+    retrieve:
+    Retrieve a specific tag.
+
+    update:
+    Update a challenge tag.
+
+    partial_update:
+    Partially update a challenge tag.
+
+    destroy:
+    Delete a challenge tag.
+    """
+    schema = AutoSchema(tags=['challengeTags'])
+
     queryset = Tag.objects.all()
     permission_classes = (IsAdminUser,)
     throttle_scope = 'tag'
