@@ -5,6 +5,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.schemas.openapi import AutoSchema
 
 from backend.response import FormattedResponse
 from challenge.models import Score
@@ -66,6 +67,7 @@ class UserListView(ListAPIView):
     """
     Fetch the leaderboard of users.
     """
+    schema = AutoSchema(operation_id_base='TeamUserLeaderboard')
 
     throttle_scope = 'leaderboard'
     queryset = get_user_model().objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
@@ -81,6 +83,7 @@ class TeamListView(ListAPIView):
     """
     Fetch the leaderboard of teams.
     """
+    schema = AutoSchema(operation_id_base='TeamLeaderboard')
 
     throttle_scope = 'leaderboard'
     queryset = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')

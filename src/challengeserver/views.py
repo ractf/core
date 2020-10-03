@@ -88,7 +88,7 @@ class SysinfoView(APIView):
     """
     Get system information.
     """
-    schema = AutoSchema(tags=['challengeServer'])
+    schema = AutoSchema(operation_id_base='System', tags=['challengeServer'])
 
     permission_classes = (IsAdminUser,)
     throttle_scope = "andromeda_view_sysinfo"

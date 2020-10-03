@@ -83,7 +83,7 @@ def full(request):
 @api_view(['GET'])
 def version(request):
     """
-    Get the current core version
+    Get the current RACTF Core version
     """
 
     return FormattedResponse(
