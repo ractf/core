@@ -6,26 +6,36 @@ from config import config
 from backend.permissions import AdminOrAnonymousReadOnly
 
 
-class ConfigView(APIView):
+class AllConfigView(APIView):
     """
     get:
-    Get the backend configuration
-
-    post:
-    Update the backend configuration
-
-    patch:
-    Update the backend configuration
+    List the backend configuration
     """
 
     throttle_scope = "config"
     permission_classes = (AdminOrAnonymousReadOnly,)
 
-    def get(self, request, name=None):
-        if name is None:
-            if request.user.is_staff:
-                return FormattedResponse(config.get_all())
-            return FormattedResponse(config.get_all_non_sensitive())
+    def get(self, request):
+        if request.user.is_staff:
+            return FormattedResponse(config.get_all())
+        return FormattedResponse(config.get_all_non_sensitive())
+
+class ConfigView(APIView):
+    """
+    get:
+    Get a configuration option
+
+    post:
+    Update a configuration option
+
+    patch:
+    Update a configuration option
+    """
+
+    throttle_scope = "config"
+    permission_classes = (AdminOrAnonymousReadOnly,)
+
+    def get(self, request, name):
         return FormattedResponse(config.get(name))
 
     def post(self, request, name):
