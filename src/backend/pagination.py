@@ -12,3 +12,7 @@ class FastPagination(LimitOffsetPagination):
             ('previous', self.format_link(self.get_previous_link())),
             ('results', data)
         ]))
+
+    @staticmethod
+    def format_link(result):
+        return result if result is None else result.replace('.co.uk', '.co.uk/api/v2')
