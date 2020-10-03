@@ -2,6 +2,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
+from rest_framework.schemas.openapi import AutoSchema
 
 from backend.permissions import IsBot
 from backend.response import FormattedResponse
@@ -21,6 +22,27 @@ from team.permissions import HasTeam
 
 
 class HintViewSet(AdminCreateModelViewSet):
+    """
+    list:
+    Retrieve all challenge hints.
+
+    create:
+    Create a new challenge hint.
+
+    retrieve:
+    Retrieve a specific challenge hint.
+
+    update:
+    Update a challenge hint.
+
+    partial_update:
+    Partially update a challenge hint.
+
+    destroy:
+    Delete a challenge hint.
+    """
+    schema = AutoSchema(tags=['challengeHints'])
+
     queryset = Hint.objects.all()
     permission_classes = (HasUsedHint,)
     throttle_scope = "hint"
@@ -31,6 +53,11 @@ class HintViewSet(AdminCreateModelViewSet):
 
 
 class UseHintView(APIView):
+    """
+    Request a challenge hint
+    """
+    schema = AutoSchema(tags=['challengeHints'])
+
     permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,)
     throttle_scope = "use_hint"
 
