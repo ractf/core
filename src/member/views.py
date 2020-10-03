@@ -3,6 +3,7 @@ from rest_framework import filters
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.schemas.openapi import AutoSchema
 
 from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
 from backend.viewsets import AdminListModelViewSet
@@ -12,6 +13,17 @@ from member.serializers import SelfSerializer, MemberSerializer, AdminMemberSeri
 
 
 class SelfView(RetrieveUpdateAPIView):
+    """
+    get:
+    Retrieve the authenticated user.
+
+    put:
+    Update the authenticated user.
+
+    patch:
+    Partially update the authenticated user.
+    """
+
     serializer_class = SelfSerializer
     permission_classes = (IsAuthenticated & ReadOnlyBot,)
     throttle_scope = 'self'
@@ -27,6 +39,26 @@ class SelfView(RetrieveUpdateAPIView):
 
 
 class MemberViewSet(AdminListModelViewSet):
+    """
+    list:
+    Retrieve all users.
+
+    create:
+    Create a new user.
+
+    retrieve:
+    Retrieve a user.
+
+    update:
+    Update a user.
+
+    partial_update:
+    Partially update a user.
+
+    destroy:
+    Delete a user.
+    """
+
     permission_classes = (AdminOrReadOnlyVisible,)
     throttle_scope = 'member'
     serializer_class = MemberSerializer
@@ -49,6 +81,27 @@ class MemberViewSet(AdminListModelViewSet):
 
 
 class UserIPViewSet(ModelViewSet):
+    """
+    list:
+    Retrieve all user IPs.
+
+    create:
+    Create a new user IP.
+
+    retrieve:
+    Retrieve a specific user IP.
+
+    update:
+    Update a user IP.
+
+    partial_update:
+    Partially update a user IP.
+
+    destroy:
+    Delete a user IP.
+    """
+    schema = AutoSchema(tags=['userIps'])
+
     queryset = UserIP.objects.all()
     pagination_class = None
     permission_classes = (IsAdminUser,)
