@@ -34,6 +34,7 @@ urlpatterns = [
 
 urlpatterns = [
     *urlpatterns,
+    path('api/v2/', include(urlpatterns)),
 ]
 
 handler404 = CatchAllView.as_view()
