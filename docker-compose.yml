@@ -24,6 +24,8 @@ services:
     depends_on:
       - backend
       - sockets
+    command:
+      caddy run --config /etc/caddy/Caddyfile.development --adapter caddyfile
 
   backend: &backend
     build: .
