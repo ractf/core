@@ -8,8 +8,7 @@ application = ProtocolTypeRouter({
     'websocket': AuthMiddlewareStack(
         URLRouter(
             [
-                re_path(r'^ws/$', consumers.EventConsumer),
-                re_path(r'^api/v2/ws/$', consumers.EventConsumer)
+                re_path(r'^ws/$', consumers.EventConsumer)
             ]
         )
     )
