@@ -13,6 +13,7 @@ from rest_framework import permissions
 from rest_framework.generics import CreateAPIView, GenericAPIView, get_object_or_404
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
 from rest_framework.views import APIView
+from rest_framework.schemas.openapi import AutoSchema
 
 from authentication import serializers
 from authentication.models import InviteCode, PasswordResetToken, TOTPDevice, BackupCode
@@ -32,6 +33,10 @@ hide_password = method_decorator(sensitive_post_parameters("password", ))
 
 
 class LoginView(APIView):
+    """
+    Attempt to login and retrieve a token.
+    """
+
     permission_classes = (~permissions.IsAuthenticated,)
     serializer_class = serializers.LoginSerializer
     throttle_scope = "login"
@@ -55,6 +60,10 @@ class LoginView(APIView):
 
 
 class RegistrationView(CreateAPIView):
+    """
+    Register a new user.
+    """
+
     model = get_user_model()
     permission_classes = (~permissions.IsAuthenticated,)
     serializer_class = RegistrationSerializer
@@ -66,6 +75,10 @@ class RegistrationView(CreateAPIView):
 
 
 class LogoutView(APIView):
+    """
+    Logout a user and delete their tokens.
+    """
+
     permission_classes = (permissions.IsAuthenticated & ~IsBot,)
 
     def post(self, request):
@@ -75,6 +88,10 @@ class LogoutView(APIView):
 
 
 class AddTwoFactorView(APIView):
+    """
+    Create a two factor secret to add two factor authentication to an account.
+    """
+
     permission_classes = (permissions.IsAuthenticated & ~HasTwoFactor & ~IsBot,)
     throttle_scope = "2fa"
 
@@ -86,6 +103,10 @@ class AddTwoFactorView(APIView):
 
 
 class VerifyTwoFactorView(APIView):
+    """
+    Add two factor authentication to an account.
+    """
+
     permission_classes = (permissions.IsAuthenticated & VerifyingTwoFactor & ~IsBot,)
     throttle_scope = "2fa"
 
@@ -100,6 +121,10 @@ class VerifyTwoFactorView(APIView):
 
 
 class RemoveTwoFactorView(APIView):
+    """
+    Remove two factor authentication from an account.
+    """
+
     permission_classes = (permissions.IsAuthenticated & HasTwoFactor & ~IsBot,)
     throttle_scope = "2fa"
 
@@ -116,6 +141,10 @@ class RemoveTwoFactorView(APIView):
 
 
 class LoginTwoFactorView(APIView):
+    """
+    Attempt to login and retrieve a token to a two factor authentication enabled account.
+    """
+
     permission_classes = (~permissions.IsAuthenticated,)
     serializer_class = serializers.LoginTwoFactorSerializer
     throttle_scope = "login"
@@ -153,6 +182,10 @@ class LoginTwoFactorView(APIView):
 
 
 class RegenerateBackupCodesView(APIView):
+    """
+    Regenerate two factor authentication backup codes.
+    """
+
     permission_classes = (permissions.IsAuthenticated & HasTwoFactor & ~IsBot,)
     serializer_class = serializers.LoginTwoFactorSerializer
     throttle_scope = "2fa"
@@ -163,6 +196,10 @@ class RegenerateBackupCodesView(APIView):
 
 
 class RequestPasswordResetView(APIView):
+    """
+    Send a password reset email.
+    """
+
     permission_classes = (~permissions.IsAuthenticated,)
     throttle_scope = "request_password_reset"
 
@@ -193,6 +230,10 @@ class RequestPasswordResetView(APIView):
 
 
 class DoPasswordResetView(GenericAPIView):
+    """
+    Reset a user's password.
+    """
+
     permission_classes = (~permissions.IsAuthenticated,)
     serializer_class = serializers.PasswordResetSerializer
     throttle_scope = "password_reset"
@@ -224,6 +265,10 @@ class DoPasswordResetView(GenericAPIView):
 
 
 class VerifyEmailView(GenericAPIView):
+    """
+    Verify an email.
+    """
+
     permission_classes = (~permissions.IsAuthenticated,)
     throttle_scope = "verify_email"
     serializer_class = EmailVerificationSerializer
@@ -250,6 +295,10 @@ class VerifyEmailView(GenericAPIView):
 
 
 class ResendEmailView(GenericAPIView):
+    """
+    Resend an email verification email.
+    """
+
     permission_classes = (~permissions.IsAuthenticated,)
     throttle_scope = "resend_verify_email"
     serializer_class = EmailSerializer
@@ -277,6 +326,10 @@ class ResendEmailView(GenericAPIView):
 
 
 class ChangePasswordView(APIView):
+    """
+    Change a user password
+    """
+
     permission_classes = (permissions.IsAuthenticated & ~IsBot,)
     throttle_scope = "change_password"
     serializer_class = ChangePasswordSerializer
@@ -299,6 +352,11 @@ class ChangePasswordView(APIView):
 
 
 class GenerateInvitesView(APIView):
+    """
+    Generate invites for new users
+    """
+    schema = AutoSchema(tags=['invites'])
+
     permission_classes = (permissions.IsAdminUser,)
     serializer_class = GenerateInvitesSerializer
 
@@ -321,6 +379,27 @@ class GenerateInvitesView(APIView):
 
 
 class InviteViewSet(AdminListModelViewSet):
+    """
+    list:
+    Retrieve all invites.
+
+    create:
+    Create a new invite.
+
+    retrieve:
+    Retrieve a specific invite.
+
+    update:
+    Update an invite.
+
+    partial_update:
+    Partially update an invite.
+
+    destroy:
+    Delete an invite.
+    """
+    schema = AutoSchema(tags=['invites'])
+
     permission_classes = (permissions.IsAdminUser,)
     admin_serializer_class = InviteCodeSerializer
     list_admin_serializer_class = InviteCodeSerializer
@@ -332,6 +411,10 @@ class InviteViewSet(AdminListModelViewSet):
 
 
 class CreateBotView(APIView):
+    """
+    Create a bot account
+    """
+
     permission_classes = (permissions.IsAdminUser & ~IsBot,)
     serializer_class = CreateBotSerializer
 
@@ -346,6 +429,10 @@ class CreateBotView(APIView):
 
 
 class SudoView(APIView):
+    """
+    Promote a user to sudo
+    """
+
     permission_classes = (permissions.IsAdminUser & ~IsBot & ~IsSudo,)
 
     def post(self, request):
@@ -355,6 +442,10 @@ class SudoView(APIView):
 
 
 class DesudoView(APIView):
+    """
+    Demote a user from sudo
+    """
+
     permission_classes = (IsSudo,)
 
     def post(self, request):

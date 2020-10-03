@@ -1,5 +1,4 @@
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.schemas.openapi import AutoSchema
 
 from announcements.models import Announcement
 from announcements.serializers import AnnouncementSerializer
