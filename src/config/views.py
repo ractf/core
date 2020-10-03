@@ -7,6 +7,17 @@ from backend.permissions import AdminOrAnonymousReadOnly
 
 
 class ConfigView(APIView):
+    """
+    get:
+    Get the backend configuration
+
+    post:
+    Update the backend configuration
+
+    patch:
+    Update the backend configuration
+    """
+
     throttle_scope = "config"
     permission_classes = (AdminOrAnonymousReadOnly,)
 
