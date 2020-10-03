@@ -1,6 +1,7 @@
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.views import APIView
+from rest_framework.schemas.openapi import AutoSchema
 
 from backend.response import FormattedResponse
 from challenge.models import Challenge
@@ -9,6 +10,11 @@ from challengeserver.serializers import JobSubmitSerializer
 
 
 class GetInstanceView(APIView):
+    """
+    Get a challenge instance.
+    """
+    schema = AutoSchema(tags=['challengeServer', 'challengeInstances'])
+
     permission_classes = (IsAuthenticated,)
     throttle_scope = "challenge_instance_get"
 
@@ -19,6 +25,11 @@ class GetInstanceView(APIView):
 
 
 class ResetInstanceView(APIView):
+    """
+    'Reset' a challenge instance.
+    """
+    schema = AutoSchema(tags=['challengeServer', 'challengeInstances'])
+
     permission_classes = (IsAuthenticated,)
     throttle_scope = "challenge_instance_reset"
 
@@ -29,6 +40,11 @@ class ResetInstanceView(APIView):
 
 
 class ListJobsView(APIView):
+    """
+    List all jobs.
+    """
+    schema = AutoSchema(tags=['challengeServer', 'jobs'])
+
     permission_classes = (IsAdminUser,)
     throttle_scope = "andromeda_view_jobs"
 
@@ -39,6 +55,11 @@ class ListJobsView(APIView):
 
 
 class RestartJobView(APIView):
+    """
+    Restart a job.
+    """
+    schema = AutoSchema(tags=['challengeServer', 'jobs'])
+
     permission_classes = (IsAdminUser,)
     throttle_scope = "andromeda_manage_jobs"
 
@@ -49,6 +70,11 @@ class RestartJobView(APIView):
 
 
 class ListInstancesView(APIView):
+    """
+    List all challenge instances.
+    """
+    schema = AutoSchema(tags=['challengeServer', 'challengeInstances'])
+
     permission_classes = (IsAdminUser,)
     throttle_scope = "andromeda_view_jobs"
 
@@ -59,6 +85,11 @@ class ListInstancesView(APIView):
 
 
 class SysinfoView(APIView):
+    """
+    Get system information.
+    """
+    schema = AutoSchema(tags=['challengeServer'])
+
     permission_classes = (IsAdminUser,)
     throttle_scope = "andromeda_view_sysinfo"
 
@@ -69,6 +100,11 @@ class SysinfoView(APIView):
 
 
 class JobSubmitView(APIView):
+    """
+    Create a new job.
+    """
+    schema = AutoSchema(tags=['challengeServer', 'jobs'])
+
     permission_classes = (IsAdminUser,)
     throttle_scope = "andromeda_manage_jobs"
 
@@ -82,6 +118,11 @@ class JobSubmitView(APIView):
 
 
 class JobSubmitRawView(APIView):
+    """
+    Create a new job.
+    """
+    schema = AutoSchema(tags=['challengeServer', 'jobs'])
+
     permission_classes = (IsAdminUser,)
     throttle_scope = "andromeda_manage_jobs"
 
