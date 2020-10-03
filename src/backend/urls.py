@@ -25,10 +25,8 @@ urlpatterns = [
     path('challenges/', include('challenge.urls')),
     path('challengeserver/', include('challengeserver.urls')),
     path('config/', include('config.urls')),
-    path('hints/', include('hint.urls')),
     path('leaderboard/', include('leaderboard.urls')),
     path('member/', include('member.urls')),
-    path('scorerecalculator/', include('scorerecalculator.urls')),
     path('stats/', include('stats.urls')),
     path('team/', include('team.urls')),
     path('pages/', include('pages.urls')),
@@ -36,7 +34,6 @@ urlpatterns = [
 
 urlpatterns = [
     *urlpatterns,
-    path('api/v2/', include(urlpatterns)),
 ]
 
 handler404 = CatchAllView.as_view()

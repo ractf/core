@@ -5,9 +5,8 @@ from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_401_UNAU
     HTTP_400_BAD_REQUEST
 from rest_framework.test import APITestCase
 
-from challenge.models import Category, Challenge, Solve
+from challenge.models import Category, Challenge, Solve, Hint, HintUse
 from config import config
-from hint.models import Hint, HintUse
 from team.models import Team
 
 

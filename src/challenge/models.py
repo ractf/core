@@ -1,10 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import BrinIndex
 from django.db import models
 from django.db.models import SET_NULL, CASCADE, PROTECT, Case, When, Value, UniqueConstraint, Q, Subquery
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils import timezone
 
 from team.models import Team
@@ -15,7 +12,7 @@ class Category(models.Model):
     display_order = models.IntegerField()
     contained_type = models.CharField(max_length=36)
     description = models.TextField()
-    metadata = JSONField(default=dict)
+    metadata = models.JSONField(default=dict)
     release_time = models.DateTimeField(default=timezone.now)
 
 
@@ -26,10 +23,10 @@ class Challenge(models.Model):
     )
     description = models.TextField()
     challenge_type = models.CharField(max_length=64)
-    challenge_metadata = JSONField()
+    challenge_metadata = models.JSONField()
     post_score_explanation = models.TextField(blank=True)
     flag_type = models.CharField(max_length=64, default="plaintext")
-    flag_metadata = JSONField()
+    flag_metadata = models.JSONField()
     author = models.CharField(max_length=36)
     auto_unlock = models.BooleanField(default=False)
     hidden = models.BooleanField(default=False)
@@ -121,12 +118,6 @@ class ChallengeFeedback(models.Model):
     feedback = models.TextField()
 
 
-@receiver(post_save, sender=Challenge)
-def on_challenge_update(sender, instance, created, **kwargs):
-    if not created:
-        new_score = instance.score
-
-
 class Score(models.Model):
     team = models.ForeignKey(Team, related_name="scores", on_delete=CASCADE, null=True)
     user = models.ForeignKey(
@@ -137,7 +128,7 @@ class Score(models.Model):
     penalty = models.IntegerField(default=0)
     leaderboard = models.BooleanField(default=True)
     timestamp = models.DateTimeField(default=timezone.now)
-    metadata = JSONField(default=dict)
+    metadata = models.JSONField(default=dict)
 
 
 class Solve(models.Model):
@@ -180,3 +171,21 @@ class Tag(models.Model):
     text = models.CharField(max_length=255)
     type = models.CharField(max_length=255)
     post_competition = models.BooleanField(default=False)
+
+
+class Hint(models.Model):
+    name = models.CharField(max_length=36)
+    challenge = models.ForeignKey(Challenge, related_name='hint_set', on_delete=CASCADE)
+    text = models.TextField()
+    penalty = models.IntegerField()
+
+
+class HintUse(models.Model):
+    hint = models.ForeignKey(Hint, related_name='uses', on_delete=CASCADE)
+    team = models.ForeignKey(Team, related_name='hints_used', on_delete=CASCADE, null=True)
+    user = models.ForeignKey(get_user_model(), related_name='hints_used', on_delete=SET_NULL, null=True)
+    timestamp = models.DateTimeField(default=timezone.now)
+    challenge = models.ForeignKey(Challenge, related_name='hints_used', on_delete=CASCADE)
+
+    class Meta:
+        unique_together = ('hint', 'team',)

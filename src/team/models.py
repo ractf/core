@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import CICharField
 from django.db import models
 from django.db.models import CASCADE
 from django.utils import timezone
@@ -8,7 +7,7 @@ from backend.validators import printable_name
 
 
 class Team(models.Model):
-    name = CICharField(max_length=36, unique=True, validators=[printable_name])
+    name = models.CharField(max_length=36, unique=True, validators=[printable_name])
     is_visible = models.BooleanField(default=True)
     password = models.CharField(max_length=64)
     owner = models.ForeignKey(

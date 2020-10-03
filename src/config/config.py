@@ -33,7 +33,7 @@ DEFAULT_CONFIG = {
     'enable_teams': True,
     'enable_team_join': True,
     'enable_view_challenges_after_competion': True,
-    'enable_team_leave': False,
+    'enable_team_leave': True,
     'invite_required': False,
     'hide_scoreboard_at': -1,
     'setup_wizard_complete': False,

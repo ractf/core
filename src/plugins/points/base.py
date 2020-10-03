@@ -4,9 +4,8 @@ import time
 from django.db.models import Sum, F
 from django.utils import timezone
 
-from challenge.models import Score, Solve
+from challenge.models import Score, Solve, HintUse
 from config import config
-from hint.models import HintUse
 
 
 class PointsPlugin(abc.ABC):
