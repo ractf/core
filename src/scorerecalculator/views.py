@@ -3,6 +3,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
+from rest_framework.schemas.openapi import AutoSchema
 
 from backend.response import FormattedResponse
 from challenge.models import Score
@@ -34,6 +35,11 @@ def recalculate_user(user):
 
 
 class RecalculateTeamView(APIView):
+    """
+    Recalculate a team's score.
+    """
+    schema = AutoSchema(tags=['scoreRecalculation'])
+
     permission_classes = (IsAdminUser,)
 
     def post(self, request, id):
@@ -44,6 +50,11 @@ class RecalculateTeamView(APIView):
 
 
 class RecalculateUserView(APIView):
+    """
+    Recalculate a user's score.
+    """
+    schema = AutoSchema(tags=['scoreRecalculation'])
+
     permission_classes = (IsAdminUser,)
 
     def post(self, request, id):
@@ -56,6 +67,11 @@ class RecalculateUserView(APIView):
 
 
 class RecalculateAllView(APIView):
+    """
+    Recalculate all user and team scores.
+    """
+    schema = AutoSchema(tags=['scoreRecalculation'])
+
     permission_classes = (IsAdminUser,)
 
     def post(self, request):
