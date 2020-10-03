@@ -361,7 +361,7 @@ class TagViewSet(ModelViewSet):
     Create a new challenge tag.
 
     retrieve:
-    Retrieve a specific tag.
+    Retrieve a specific challenge tag.
 
     update:
     Update a challenge tag.
@@ -384,6 +384,27 @@ class TagViewSet(ModelViewSet):
 
 
 class HintViewSet(AdminCreateModelViewSet):
+    """
+    list:
+    Retrieve all challenge hints.
+
+    create:
+    Create a new challenge hint.
+
+    retrieve:
+    Retrieve a specific challenge hint.
+
+    update:
+    Update a challenge hint.
+
+    partial_update:
+    Partially update a challenge hint.
+
+    destroy:
+    Delete a challenge hint.
+    """
+    schema = AutoSchema(tags=['challengeHints'])
+
     queryset = Hint.objects.all()
     permission_classes = (HasUsedHint,)
     throttle_scope = "hint"
@@ -394,6 +415,11 @@ class HintViewSet(AdminCreateModelViewSet):
 
 
 class UseHintView(APIView):
+    """
+    Fetch a new challenge hint
+    """
+    schema = AutoSchema(tags=['challengeHints'])
+
     permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,)
     throttle_scope = "use_hint"
 
@@ -448,6 +474,11 @@ def recalculate_user(user):
 
 
 class RecalculateTeamView(APIView):
+    """
+    Recalculate a team's score.
+    """
+    schema = AutoSchema(tags=['challengeScores'])
+
     permission_classes = (IsAdminUser,)
 
     def post(self, request, id):
@@ -458,6 +489,11 @@ class RecalculateTeamView(APIView):
 
 
 class RecalculateUserView(APIView):
+    """
+    Recalculate a user's score.
+    """
+    schema = AutoSchema(tags=['challengeScores'])
+
     permission_classes = (IsAdminUser,)
 
     def post(self, request, id):
@@ -470,6 +506,11 @@ class RecalculateUserView(APIView):
 
 
 class RecalculateAllView(APIView):
+    """
+    Recalculate team and user scores.
+    """
+    schema = AutoSchema(tags=['challengeScores'])
+
     permission_classes = (IsAdminUser,)
 
     def post(self, request):
