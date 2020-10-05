@@ -15,6 +15,10 @@ from team.models import Team
 
 @api_view(['GET'])
 def countdown(request):
+    """
+    Get the CTF start, end and server times.
+    """
+
     return FormattedResponse({
         "countdown_timestamp": config.get('start_time'),
         "registration_open": config.get('register_start_time'),
@@ -25,6 +29,10 @@ def countdown(request):
 
 @api_view(['GET'])
 def stats(request):
+    """
+    Get CTF statistics
+    """
+
     users = get_user_model().objects.count()
     teams = Team.objects.count()
     if users > 0 and teams > 0:
@@ -43,6 +51,10 @@ def stats(request):
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def full(request):
+    """
+    Get full CTF statistics
+    """
+
     challenge_data = {}
     for challenge in Challenge.objects.all():
         challenge_data[challenge.id] = {}
@@ -70,6 +82,10 @@ def full(request):
 
 @api_view(['GET'])
 def version(request):
+    """
+    Get the current core version
+    """
+
     return FormattedResponse(
         {
             "commit_hash": os.popen("git rev-parse HEAD").read().strip()
