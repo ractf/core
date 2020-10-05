@@ -1,4 +1,6 @@
-<img align="center" src="https://www.ractf.co.uk/brand_assets/combined/wordmark_black.svg" width="70%">
+<div align="center">
+  <img src="https://www.ractf.co.uk/brand_assets/combined/wordmark_black.svg" width="70%">
+</div>
 
 <div align="center">
   🚩⛳🏁🏳️‍🌈
