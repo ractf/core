@@ -52,20 +52,13 @@
 - [Support](#support)
 
 ## Features
-- __robust:__ tested on a live event with several thousand users, and artifically stress tested to many more.
-- __split architecture:__ our architecture allows you to run various components on different hosts for increased performance.
-- __highly configurable:__ we have a huge array of options you can configure for your event.
-- __really awesome:__ it's in the name, after all!
+- __Robust:__ tested on a live event with several thousand users, and artifically stress tested to many more.
+- __Split architecture:__ our architecture allows you to run various components on different hosts for increased performance.
+- __Highly configurable:__ we have a huge array of options you can configure for your event.
+- __Really awesome:__ it's in the name, after all!
 
 ## Installation
 Check out the [Installer](https://github.com/ractf/install/). Want a more custom deployment? Check out our [installation docs](https://docs.ractf.co.uk/installer).
-
-## Philosophy
-We believe running a CTF should be fun, easy and cheap, so you can focus on 
-engaging with your community and spend money on prizes instead of infrastructure.
-We've done the heavy lifting - you focus on getting that event going. We don't want
-to be intimidating, we want to be awesome, and then _casually_ be the best choice around.
-_Real casually._
 
 ## Getting Support
 If you need support, check out our [Discord](https://discord.gg/FfW2xXR), or if you've found a bug with the framework, open an issue.
