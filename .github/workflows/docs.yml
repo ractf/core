@@ -3,7 +3,7 @@ name: Publish Documentation
 on: push
 
 jobs:
-  build:
+  docs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
