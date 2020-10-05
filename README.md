@@ -48,7 +48,6 @@
 
 ## Table of Contents
 - [Installation](#installation)
-- [Philosophy](#philosophy)
 - [Support](#support)
 
 ## Features
