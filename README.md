@@ -1,4 +1,6 @@
-<h1 align="center">RACTF Core</h1>
+<div align="center">
+  <img src="https://www.ractf.co.uk/brand_assets/combined/wordmark_black.svg" width="70%">
+</div>
 
 <div align="center">
   🚩⛳🏁🏳️‍🌈
@@ -40,7 +42,7 @@
 
 <div align="center">
   <sub>The CTF framework that <strong>won't</strong> fall over half way through an event. Built with ❤︎ by
-  the <a href="https://twitter.com/RACTF_UK">RACTF</a> team
+  the <a href="https://twitter.com/RACTF_UK">RACTF</a> team and 
   <a href="https://github.com/ractf/core/graphs/contributors">
     contributors
   </a>
