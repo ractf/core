@@ -1,9 +1,6 @@
 name: Publish Documentation
 
-on:
-  push:
-    branches:
-      - master
+on: push
 
 jobs:
   build:
@@ -68,6 +65,7 @@ jobs:
         path: openapi-schema.yml
 
     - name: Trigger docs-site build
+      if: github.ref == 'refs/heads/master'
       run: |
         curl -X POST ${{ secrets.WEBHOOK_URL }} \
         -H 'Authorization: token ${{ secrets.WEBHOOK_TOKEN }}' \
