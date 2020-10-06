@@ -178,7 +178,7 @@ class ChallengeViewset(AdminCreateModelViewSet):
 class ChallengeFeedbackView(APIView):
     """
     get:
-    Get feedback for a challenge
+    Get feedback for a challenge.
 
     post:
     Add feedback to a challenge.
@@ -210,7 +210,7 @@ class ChallengeFeedbackView(APIView):
 
 class ChallengeVoteView(APIView):
     """
-    Vote for a challenge
+    Like or dislike a challenge.
     """
 
     permission_classes = (IsAuthenticated & HasTeam & ~IsBot,)
@@ -232,7 +232,7 @@ class ChallengeVoteView(APIView):
 
 class FlagSubmitView(APIView):
     """
-    Submit a challenge flag
+    Submit a challenge flag.
     """
 
     permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,)

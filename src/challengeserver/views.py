@@ -86,7 +86,7 @@ class ListInstancesView(APIView):
 
 class SysinfoView(APIView):
     """
-    Get system information.
+    Get system information of the Andromeda node.
     """
     schema = AutoSchema(operation_id_base='System', tags=['challengeServer'])
 

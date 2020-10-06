@@ -326,7 +326,7 @@ class ResendEmailView(GenericAPIView):
 
 class ChangePasswordView(APIView):
     """
-    Change a user password
+    Change a user password.
     """
 
     permission_classes = (permissions.IsAuthenticated & ~IsBot,)
@@ -352,7 +352,7 @@ class ChangePasswordView(APIView):
 
 class GenerateInvitesView(APIView):
     """
-    Generate invites for new users
+    Generate invites for new users.
     """
     schema = AutoSchema(tags=['invites'])
 
@@ -411,7 +411,7 @@ class InviteViewSet(AdminListModelViewSet):
 
 class CreateBotView(APIView):
     """
-    Create a bot account
+    Create a bot account.
     """
 
     permission_classes = (permissions.IsAdminUser & ~IsBot,)
@@ -429,7 +429,7 @@ class CreateBotView(APIView):
 
 class SudoView(APIView):
     """
-    Promote a user to sudo
+    Retrieve a sudo token that impersonates a user.
     """
 
     permission_classes = (permissions.IsAdminUser & ~IsBot & ~IsSudo,)
@@ -442,7 +442,7 @@ class SudoView(APIView):
 
 class DesudoView(APIView):
     """
-    Demote a user from sudo
+    Restore an admin account from a sudo view.
     """
 
     permission_classes = (IsSudo,)
