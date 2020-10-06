@@ -972,8 +972,8 @@ version = "4.4.28"
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.8"
-content-hash = "e5c8c6b618133e84733f1bd14b639d54e6dfc5841b554de27e2c3bfbfa34c7b8"
+python-versions = "^3.6"
+content-hash = "b3d2749a7add1228126910f44a497731eef7227f7d0cc0e687876646efd430de"
 
 [metadata.files]
 aioredis = [
