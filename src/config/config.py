@@ -64,6 +64,10 @@ def get_all_non_sensitive():
     return config
 
 
+def is_sensitive(key):
+    return key in backend.get('sensitive_fields')
+
+
 def set_bulk(values: dict):
     for key, value in values.items():
         set(key, value)
