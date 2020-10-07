@@ -10,7 +10,7 @@ from corsheaders.defaults import default_headers
 
 CORS_ALLOW_HEADERS = [
     *default_headers,
-    "exporting",
+    "x-exporting",
 ]
 
 DOMAIN = os.getenv("DOMAIN")
