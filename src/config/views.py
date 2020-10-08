@@ -1,4 +1,4 @@
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
 
 from backend.response import FormattedResponse
@@ -6,16 +6,39 @@ from config import config
 from backend.permissions import AdminOrAnonymousReadOnly
 
 
-class ConfigView(APIView):
+class AllConfigView(APIView):
+    """
+    get:
+    List the backend configuration
+    """
+
     throttle_scope = "config"
     permission_classes = (AdminOrAnonymousReadOnly,)
 
-    def get(self, request, name=None):
-        if name is None:
-            if request.user.is_staff:
-                return FormattedResponse(config.get_all())
-            return FormattedResponse(config.get_all_non_sensitive())
-        return FormattedResponse(config.get(name))
+    def get(self, request):
+        if request.user.is_superuser:
+            return FormattedResponse(config.get_all())
+        return FormattedResponse(config.get_all_non_sensitive())
+
+class ConfigView(APIView):
+    """
+    get:
+    Get a configuration option
+
+    post:
+    Update a configuration option
+
+    patch:
+    Update a configuration option
+    """
+
+    throttle_scope = "config"
+    permission_classes = (AdminOrAnonymousReadOnly,)
+
+    def get(self, request, name):
+        if not config.is_sensitive(name) or request.is_superuser:
+            return FormattedResponse(config.get(name))
+        return FormattedResponse(status=HTTP_403_FORBIDDEN)
 
     def post(self, request, name):
         if "value" not in request.data:

@@ -9,6 +9,7 @@ from rest_framework.generics import (
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from rest_framework.views import APIView
+from rest_framework.schemas.openapi import AutoSchema
 
 from backend.exceptions import FormattedException
 from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
@@ -30,6 +31,17 @@ from team.serializers import (
 
 
 class SelfView(RetrieveUpdateAPIView):
+    """
+    retrieve:
+    Retrieve the authenticated user's team.
+
+    update:
+    Update the authenticated user's team.
+
+    partial_update:
+    Partially update the authenticated user's team.
+    """
+
     serializer_class = SelfTeamSerializer
     permission_classes = (IsAuthenticated & IsTeamOwnerOrReadOnly & ReadOnlyBot,)
     throttle_scope = "self"
@@ -52,6 +64,27 @@ class SelfView(RetrieveUpdateAPIView):
 
 
 class TeamViewSet(AdminListModelViewSet):
+    """
+    list:
+    Retrieve all teams.
+
+    create:
+    Create a new team.
+
+    retrieve:
+    Retrieve a team.
+
+    update:
+    Update a team.
+
+    partial_update:
+    Partially update a team.
+
+    destroy:
+    Delete a team.
+    """
+    schema = AutoSchema(operation_id_base='Team')
+
     permission_classes = (AdminOrReadOnlyVisible,)
     throttle_scope = "team"
     serializer_class = TeamSerializer
@@ -90,6 +123,10 @@ class TeamViewSet(AdminListModelViewSet):
 
 
 class CreateTeamView(CreateAPIView):
+    """
+    Create a new team.
+    """
+
     serializer_class = CreateTeamSerializer
     model = Team
     permission_classes = (IsAuthenticated & ~HasTeam,)
@@ -97,6 +134,10 @@ class CreateTeamView(CreateAPIView):
 
 
 class JoinTeamView(APIView):
+    """
+    Add the authenticated user to a team.
+    """
+
     permission_classes = (IsAuthenticated & ~HasTeam & TeamsEnabled,)
     throttle_scope = "team_join"
 
@@ -123,6 +164,10 @@ class JoinTeamView(APIView):
 
 
 class LeaveTeamView(APIView):
+    """
+    Remove the authenticated user from a team.
+    """
+
     permission_classes = (IsAuthenticated & HasTeam & TeamsEnabled,)
 
     def post(self, request):

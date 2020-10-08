@@ -5,6 +5,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.schemas.openapi import AutoSchema
 
 from backend.response import FormattedResponse
 from challenge.models import Score
@@ -21,6 +22,10 @@ def should_hide_scoreboard():
 
 
 class CTFTimeListView(APIView):
+    """
+    Fetch the leaderboard in a CTFTime format.
+    """
+
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
 
     def get(self, request, *args, **kwargs):
@@ -31,6 +36,10 @@ class CTFTimeListView(APIView):
 
 
 class GraphView(APIView):
+    """
+    Fetch the leaderboard for a graph view.
+    """
+
     throttle_scope = 'leaderboard'
 
     def get(self, request, *args, **kwargs):
@@ -55,6 +64,11 @@ class GraphView(APIView):
 
 
 class UserListView(ListAPIView):
+    """
+    Fetch the leaderboard of users.
+    """
+    schema = AutoSchema(operation_id_base='TeamUserLeaderboard')
+
     throttle_scope = 'leaderboard'
     queryset = get_user_model().objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
     serializer_class = UserPointsSerializer
@@ -66,6 +80,11 @@ class UserListView(ListAPIView):
 
 
 class TeamListView(ListAPIView):
+    """
+    Fetch the leaderboard of teams.
+    """
+    schema = AutoSchema(operation_id_base='TeamLeaderboard')
+
     throttle_scope = 'leaderboard'
     queryset = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
     serializer_class = TeamPointsSerializer
