@@ -18,7 +18,7 @@ services:
     environment:
       - RACTF_API_BASE=/api/v2
       - RACTF_USE_HEAD_NAV=true
-      - RACTF_SITE_NAME="CS:Awesome"
+      - RACTF_SITE_NAME="RACTF Dev"
       - RACTF_API_DOMAIN=https://localhost:8000
       - RACTF_WSS_URL=wss://localhost:8000/api/v2/ws/
     depends_on:
