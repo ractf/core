@@ -34,7 +34,6 @@ services:
     volumes:
       - .:/app
     environment:
-      - LOAD_FIXTURES=1
       - FRONTEND_URL=https://localhost:8000/
       - SECRET_KEY=CorrectHorseBatteryStaple
       - DJANGO_SETTINGS_MODULE=backend.settings.local
