@@ -33,7 +33,7 @@ MAIL = {
 sentry_sdk.init(
     dsn="https://beaf099a91144f74afac77c0afe70518@o430159.ingest.sentry.io/5378144",
     integrations=[DjangoIntegration()],
-    send_default_pii=True
+    send_default_pii=False
 )
 
 REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"].update({
