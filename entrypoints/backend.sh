@@ -18,4 +18,10 @@ then
   /app/src/manage.py loaddata test_fixtures
 fi
 
-exec "$@"
+
+if [ -f /etc/newrelic.ini ]
+then
+  NEW_RELIC_CONFIG_FILE=/etc/newrelic.ini newrelic-admin run-program "$@"
+else
+  exec "$@"
+fi
