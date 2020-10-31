@@ -75,6 +75,7 @@ boto3 = "^1.14.33"
 psycopg2-binary = "^2.8.5"
 django-filter = "^2.3.0"
 sendgrid = "^6.4.7"
+newrelic = "^5.22.1"
 
 [tool.poetry.dev-dependencies]
 pyyaml = "^5.3.1"
