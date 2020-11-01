@@ -22,7 +22,7 @@
       Docs
     </a>
     <span> | </span>
-    <a href="https://github.com/ractf/installer">
+    <a href="https://github.com/ractf/install">
       Installer
     </a>
     <span> | </span>
