@@ -122,6 +122,10 @@ class JoinTeamView(APIView):
 
 
 class LeaveTeamView(APIView):
+    """
+    Remove the authenticated user from a team.
+    """
+
     permission_classes = (IsAuthenticated & HasTeam & TeamsEnabled,)
 
     def post(self, request):
@@ -129,6 +133,11 @@ class LeaveTeamView(APIView):
             return FormattedResponse(m='leave_disabled', status=HTTP_403_FORBIDDEN)
         if Solve.objects.filter(solved_by=request.user).exists():
             return FormattedResponse(m='challenge_solved', status=HTTP_403_FORBIDDEN)
+        if request.user.team.owner == request.user:
+            if Member.objects.filter(team=request.user.team).count() > 1:
+                return FormattedResponse(m='cannot_leave_team_ownerless', status=HTTP_403_FORBIDDEN)
+            else:
+                request.user.team.delete()
         request.user.team = None
         request.user.save()
         return FormattedResponse()
