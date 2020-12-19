@@ -57,6 +57,7 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
         token = user.email_token
         if not settings.MAIL["SEND"]:
             user.email_verified = True
+            user.is_visible = True
 
         if not config.get("enable_teams"):
             user.save()
