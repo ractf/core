@@ -1,41 +1,41 @@
 [[package]]
-category = "main"
-description = "asyncio (PEP 3156) Redis support"
 name = "aioredis"
+version = "1.3.1"
+description = "asyncio (PEP 3156) Redis support"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.3.1"
 
 [package.dependencies]
 async-timeout = "*"
 hiredis = "*"
 
 [[package]]
-category = "main"
-description = "ASGI specs, helper code, and adapters"
 name = "asgiref"
+version = "3.2.3"
+description = "ASGI specs, helper code, and adapters"
+category = "main"
 optional = false
 python-versions = "*"
-version = "3.2.3"
 
 [package.extras]
 tests = ["pytest (>=4.3.0,<4.4.0)", "pytest-asyncio (>=0.10.0,<0.11.0)"]
 
 [[package]]
-category = "main"
-description = "Timeout context manager for asyncio programs"
 name = "async-timeout"
+version = "3.0.1"
+description = "Timeout context manager for asyncio programs"
+category = "main"
 optional = false
 python-versions = ">=3.5.3"
-version = "3.0.1"
 
 [[package]]
-category = "main"
-description = "Classes Without Boilerplate"
 name = "attrs"
+version = "19.3.0"
+description = "Classes Without Boilerplate"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "19.3.0"
 
 [package.extras]
 azure-pipelines = ["coverage", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "zope.interface", "pytest-azurepipelines"]
@@ -44,12 +44,12 @@ docs = ["sphinx", "zope.interface"]
 tests = ["coverage", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "zope.interface"]
 
 [[package]]
-category = "main"
-description = "WebSocket client & server library, WAMP real-time framework"
 name = "autobahn"
+version = "20.2.1"
+description = "WebSocket client & server library, WAMP real-time framework"
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "20.2.1"
 
 [package.dependencies]
 cryptography = ">=2.7"
@@ -68,12 +68,12 @@ twisted = ["zope.interface (>=3.6.0)", "twisted (>=15.4.0)"]
 xbr = ["cbor2 (>=4.1.1)", "zlmdb (>=19.7.1)", "twisted (>=18.9.0)", "autobahn (>=18.11.2)", "web3 (>=4.8.1)", "py-eth-sig-utils (>=0.4.0)", "py-ecc (>=1.7.1)", "eth-abi (>=1.3.0)", "mnemonic (>=0.13)", "base58 (>=1.0.2,<2.0)", "ecdsa (>=0.13)"]
 
 [[package]]
-category = "main"
-description = "Self-service finite-state machines for the programmer on the go."
 name = "automat"
+version = "20.2.0"
+description = "Self-service finite-state machines for the programmer on the go."
+category = "main"
 optional = false
 python-versions = "*"
-version = "20.2.0"
 
 [package.dependencies]
 attrs = ">=19.2.0"
@@ -83,24 +83,24 @@ six = "*"
 visualize = ["graphviz (>0.5.1)", "Twisted (>=16.1.1)"]
 
 [[package]]
-category = "main"
-description = "A tool that automatically formats Python code to conform to the PEP 8 style guide"
 name = "autopep8"
+version = "1.5.3"
+description = "A tool that automatically formats Python code to conform to the PEP 8 style guide"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.5.3"
 
 [package.dependencies]
 pycodestyle = ">=2.6.0"
 toml = "*"
 
 [[package]]
-category = "main"
-description = "The AWS SDK for Python"
 name = "boto3"
+version = "1.14.33"
+description = "The AWS SDK for Python"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.14.33"
 
 [package.dependencies]
 botocore = ">=1.17.33,<1.18.0"
@@ -108,64 +108,61 @@ jmespath = ">=0.7.1,<1.0.0"
 s3transfer = ">=0.3.0,<0.4.0"
 
 [[package]]
-category = "main"
-description = "Low-level, data-driven core of boto 3."
 name = "botocore"
+version = "1.17.33"
+description = "Low-level, data-driven core of boto 3."
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.17.33"
 
 [package.dependencies]
 docutils = ">=0.10,<0.16"
 jmespath = ">=0.7.1,<1.0.0"
 python-dateutil = ">=2.1,<3.0.0"
-
-[package.dependencies.urllib3]
-python = "<3.4.0 || >=3.5.0"
-version = ">=1.20,<1.26"
+urllib3 = {version = ">=1.20,<1.26", markers = "python_version != \"3.4\""}
 
 [[package]]
-category = "main"
-description = "Python package for providing Mozilla's CA Bundle."
 name = "certifi"
+version = "2019.11.28"
+description = "Python package for providing Mozilla's CA Bundle."
+category = "main"
 optional = false
 python-versions = "*"
-version = "2019.11.28"
 
 [[package]]
-category = "main"
-description = "Foreign Function Interface for Python calling C code."
 name = "cffi"
+version = "1.14.0"
+description = "Foreign Function Interface for Python calling C code."
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.14.0"
 
 [package.dependencies]
 pycparser = "*"
 
 [[package]]
-category = "main"
-description = "Brings async, event-driven capabilities to Django. Django 2.2 and up only."
 name = "channels"
+version = "2.4.0"
+description = "Brings async, event-driven capabilities to Django. Django 2.2 and up only."
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "2.4.0"
 
 [package.dependencies]
-Django = ">=2.2"
 asgiref = ">=3.2,<4.0"
 daphne = ">=2.3,<3.0"
+Django = ">=2.2"
 
 [package.extras]
 tests = ["pytest (>=4.4,<5.0)", "pytest-django (>=3.4,<4.0)", "pytest-asyncio (>=0.10,<1.0)", "async-generator (>=1.10,<2.0)", "async-timeout (>=3.0,<4.0)", "coverage (>=4.5,<5.0)"]
 
 [[package]]
-category = "main"
-description = "Redis-backed ASGI channel layer implementation"
 name = "channels-redis"
+version = "2.4.1"
+description = "Redis-backed ASGI channel layer implementation"
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "2.4.1"
 
 [package.dependencies]
 aioredis = ">=1.0,<2.0"
@@ -178,39 +175,39 @@ cryptography = ["cryptography (>=1.3.0)"]
 tests = ["cryptography (>=1.3.0)", "pytest (>=3.6.0,<3.7.0)", "pytest-asyncio (>=0.8,<1.0)", "async-generator (>=1.8,<2.0)", "async-timeout (>=2.0,<3.0)"]
 
 [[package]]
-category = "main"
-description = "Universal encoding detector for Python 2 and 3"
 name = "chardet"
-optional = false
-python-versions = "*"
 version = "3.0.4"
-
-[[package]]
+description = "Universal encoding detector for Python 2 and 3"
 category = "main"
-description = "Symbolic constants in Python"
-name = "constantly"
 optional = false
 python-versions = "*"
-version = "15.1.0"
 
 [[package]]
+name = "constantly"
+version = "15.1.0"
+description = "Symbolic constants in Python"
 category = "main"
-description = "Code coverage measurement for Python"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "coverage"
+version = "5.0.3"
+description = "Code coverage measurement for Python"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
-version = "5.0.3"
 
 [package.extras]
 toml = ["toml"]
 
 [[package]]
-category = "main"
-description = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
 name = "cryptography"
+version = "2.8"
+description = "cryptography is a package which provides cryptographic recipes and primitives to Python developers."
+category = "main"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
-version = "2.8"
 
 [package.dependencies]
 cffi = ">=1.8,<1.11.3 || >1.11.3"
@@ -224,31 +221,28 @@ pep8test = ["flake8", "flake8-import-order", "pep8-naming"]
 test = ["pytest (>=3.6.0,<3.9.0 || >3.9.0,<3.9.1 || >3.9.1,<3.9.2 || >3.9.2)", "pretend", "iso8601", "pytz", "hypothesis (>=1.11.4,<3.79.2 || >3.79.2)"]
 
 [[package]]
-category = "main"
-description = "Django ASGI (HTTP/WebSocket) server"
 name = "daphne"
+version = "2.5.0"
+description = "Django ASGI (HTTP/WebSocket) server"
+category = "main"
 optional = false
 python-versions = "*"
-version = "2.5.0"
 
 [package.dependencies]
 asgiref = ">=3.2,<4.0"
 autobahn = ">=0.18"
-
-[package.dependencies.twisted]
-extras = ["tls"]
-version = ">=18.7"
+twisted = {version = ">=18.7", extras = ["tls"]}
 
 [package.extras]
 tests = ["hypothesis (4.23)", "pytest (>=3.10,<4.0)", "pytest-asyncio (>=0.8,<1.0)"]
 
 [[package]]
-category = "main"
-description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
 name = "django"
+version = "3.0.5"
+description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
+category = "main"
 optional = false
 python-versions = ">=3.6"
-version = "3.0.5"
 
 [package.dependencies]
 asgiref = ">=3.2,<4.0"
@@ -260,88 +254,88 @@ argon2 = ["argon2-cffi (>=16.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
-category = "main"
-description = "django-cors-headers is a Django application for handling the server headers required for Cross-Origin Resource Sharing (CORS)."
 name = "django-cors-headers"
+version = "3.2.1"
+description = "django-cors-headers is a Django application for handling the server headers required for Cross-Origin Resource Sharing (CORS)."
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "3.2.1"
 
 [package.dependencies]
 Django = ">=1.11"
 
 [[package]]
-category = "main"
-description = "Django-filter is a reusable Django application for allowing users to filter querysets dynamically."
 name = "django-filter"
+version = "2.3.0"
+description = "Django-filter is a reusable Django application for allowing users to filter querysets dynamically."
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "2.3.0"
 
 [package.dependencies]
 Django = ">=2.2"
 
 [[package]]
-category = "main"
-description = "Full featured redis cache backend for Django."
 name = "django-redis"
+version = "4.11.0"
+description = "Full featured redis cache backend for Django."
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "4.11.0"
 
 [package.dependencies]
 Django = ">=1.11"
 redis = ">=2.10.0"
 
 [[package]]
-category = "main"
-description = "Redis Cache Backend for Django"
 name = "django-redis-cache"
+version = "2.1.1"
+description = "Redis Cache Backend for Django"
+category = "main"
 optional = false
 python-versions = "*"
-version = "2.1.1"
 
 [package.dependencies]
 redis = "<4.0"
 six = "*"
 
 [[package]]
-category = "main"
-description = "alias."
 name = "django-rest-framework"
+version = "0.1.0"
+description = "alias."
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.1.0"
 
 [package.dependencies]
 djangorestframework = "*"
 
 [[package]]
-category = "main"
-description = "Silky smooth profiling for the Django Framework"
 name = "django-silk"
+version = "4.0.1"
+description = "Silky smooth profiling for the Django Framework"
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "4.0.1"
 
 [package.dependencies]
+autopep8 = "*"
 Django = ">=2.2"
+gprof2dot = ">=2017.09.19"
 Jinja2 = "*"
 Pygments = "*"
-autopep8 = "*"
-gprof2dot = ">=2017.09.19"
 python-dateutil = "*"
 pytz = "*"
 requests = "*"
 sqlparse = "*"
 
 [[package]]
-category = "main"
-description = "Support for many storage backends in Django"
 name = "django-storages"
+version = "1.9.1"
+description = "Support for many storage backends in Django"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.9.1"
 
 [package.dependencies]
 Django = ">=1.11"
@@ -355,43 +349,43 @@ libcloud = ["apache-libcloud"]
 sftp = ["paramiko"]
 
 [[package]]
-category = "main"
-description = "A translatable password validator for django, based on zxcvbn-python."
 name = "django-zxcvbn-password-validator"
+version = "1.3.0"
+description = "A translatable password validator for django, based on zxcvbn-python."
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.3.0"
 
 [package.dependencies]
 Django = ">=2.0"
 zxcvbn = "*"
 
 [[package]]
-category = "main"
-description = "Web APIs for Django, made easy."
 name = "djangorestframework"
+version = "3.11.0"
+description = "Web APIs for Django, made easy."
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "3.11.0"
 
 [package.dependencies]
 django = ">=1.11"
 
 [[package]]
-category = "main"
-description = "Docutils -- Python Documentation Utilities"
 name = "docutils"
+version = "0.15.2"
+description = "Docutils -- Python Documentation Utilities"
+category = "main"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "0.15.2"
 
 [[package]]
-category = "main"
-description = "Dictionary with auto-expiring values for caching purposes"
 name = "expiringdict"
+version = "1.2.0"
+description = "Dictionary with auto-expiring values for caching purposes"
+category = "main"
 optional = false
 python-versions = "*"
-version = "1.2.0"
 
 [package.dependencies]
 typing = "*"
@@ -400,23 +394,20 @@ typing = "*"
 tests = ["dill", "coverage", "coveralls", "mock", "nose"]
 
 [[package]]
-category = "main"
-description = "Generate a dot graph from the output of several profilers."
 name = "gprof2dot"
+version = "2019.11.30"
+description = "Generate a dot graph from the output of several profilers."
+category = "main"
 optional = false
 python-versions = "*"
-version = "2019.11.30"
 
 [[package]]
-category = "main"
-description = "WSGI HTTP Server for UNIX"
 name = "gunicorn"
+version = "20.0.4"
+description = "WSGI HTTP Server for UNIX"
+category = "main"
 optional = false
 python-versions = ">=3.4"
-version = "20.0.4"
-
-[package.dependencies]
-setuptools = ">=3.0"
 
 [package.extras]
 eventlet = ["eventlet (>=0.9.7)"]
@@ -425,50 +416,50 @@ setproctitle = ["setproctitle"]
 tornado = ["tornado (>=0.2)"]
 
 [[package]]
-category = "main"
-description = "Python wrapper for hiredis"
 name = "hiredis"
+version = "1.0.1"
+description = "Python wrapper for hiredis"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.0.1"
 
 [[package]]
-category = "main"
-description = "A featureful, immutable, and correct URL for Python."
 name = "hyperlink"
+version = "19.0.0"
+description = "A featureful, immutable, and correct URL for Python."
+category = "main"
 optional = false
 python-versions = "*"
-version = "19.0.0"
 
 [package.dependencies]
 idna = ">=2.5"
 
 [[package]]
-category = "main"
-description = "Internationalized Domain Names in Applications (IDNA)"
 name = "idna"
+version = "2.8"
+description = "Internationalized Domain Names in Applications (IDNA)"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "2.8"
 
 [[package]]
-category = "main"
-description = ""
 name = "incremental"
+version = "17.5.0"
+description = ""
+category = "main"
 optional = false
 python-versions = "*"
-version = "17.5.0"
 
 [package.extras]
 scripts = ["click (>=6.0)", "twisted (>=16.4.0)"]
 
 [[package]]
-category = "main"
-description = "A very fast and expressive template engine."
 name = "jinja2"
+version = "2.11.2"
+description = "A very fast and expressive template engine."
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "2.11.2"
 
 [package.dependencies]
 MarkupSafe = ">=0.23"
@@ -477,142 +468,153 @@ MarkupSafe = ">=0.23"
 i18n = ["Babel (>=0.8)"]
 
 [[package]]
-category = "main"
-description = "JSON Matching Expressions"
 name = "jmespath"
+version = "0.10.0"
+description = "JSON Matching Expressions"
+category = "main"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "0.10.0"
 
 [[package]]
-category = "main"
-description = "Safely add untrusted strings to HTML/XML markup."
 name = "markupsafe"
+version = "1.1.1"
+description = "Safely add untrusted strings to HTML/XML markup."
+category = "main"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
-version = "1.1.1"
 
 [[package]]
-category = "main"
-description = "More routines for operating on iterables, beyond itertools"
 name = "more-itertools"
+version = "8.2.0"
+description = "More routines for operating on iterables, beyond itertools"
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "8.2.0"
 
 [[package]]
-category = "main"
-description = "MessagePack (de)serializer."
 name = "msgpack"
+version = "0.6.2"
+description = "MessagePack (de)serializer."
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.6.2"
 
 [[package]]
-category = "main"
-description = "multidict implementation"
 name = "multidict"
+version = "4.7.4"
+description = "multidict implementation"
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "4.7.4"
 
 [[package]]
+name = "newrelic"
+version = "5.22.1.152"
+description = "New Relic Python Agent"
 category = "main"
-description = "Core utilities for Python packages"
+optional = false
+python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*"
+
+[package.extras]
+infinite-tracing = ["grpcio (<2)", "protobuf (<4)"]
+
+[[package]]
 name = "packaging"
+version = "20.3"
+description = "Core utilities for Python packages"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "20.3"
 
 [package.dependencies]
 pyparsing = ">=2.0.2"
 six = "*"
 
 [[package]]
-category = "main"
-description = "plugin and hook calling mechanisms for python"
 name = "pluggy"
+version = "0.13.1"
+description = "plugin and hook calling mechanisms for python"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "0.13.1"
 
 [package.extras]
 dev = ["pre-commit", "tox"]
 
 [[package]]
-category = "main"
-description = "psycopg2 - Python-PostgreSQL Database Adapter"
 name = "psycopg2-binary"
+version = "2.8.5"
+description = "psycopg2 - Python-PostgreSQL Database Adapter"
+category = "main"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*"
-version = "2.8.5"
 
 [[package]]
-category = "main"
-description = "library with cross-python path, ini-parsing, io, code, log facilities"
 name = "py"
+version = "1.8.1"
+description = "library with cross-python path, ini-parsing, io, code, log facilities"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.8.1"
 
 [[package]]
-category = "main"
-description = "ASN.1 types and codecs"
 name = "pyasn1"
+version = "0.4.8"
+description = "ASN.1 types and codecs"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.4.8"
 
 [[package]]
-category = "main"
-description = "A collection of ASN.1-based protocols modules."
 name = "pyasn1-modules"
+version = "0.2.8"
+description = "A collection of ASN.1-based protocols modules."
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.2.8"
 
 [package.dependencies]
 pyasn1 = ">=0.4.6,<0.5.0"
 
 [[package]]
-category = "main"
-description = "Python style guide checker"
 name = "pycodestyle"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "2.6.0"
-
-[[package]]
+description = "Python style guide checker"
 category = "main"
-description = "C parser in Python"
-name = "pycparser"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+
+[[package]]
+name = "pycparser"
 version = "2.19"
+description = "C parser in Python"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
-category = "main"
-description = "Pygments is a syntax highlighting package written in Python."
 name = "pygments"
-optional = false
-python-versions = ">=3.5"
 version = "2.6.1"
-
-[[package]]
+description = "Pygments is a syntax highlighting package written in Python."
 category = "main"
-description = "Hamcrest framework for matcher objects"
-name = "pyhamcrest"
 optional = false
 python-versions = ">=3.5"
-version = "2.0.0"
 
 [[package]]
+name = "pyhamcrest"
+version = "2.0.0"
+description = "Hamcrest framework for matcher objects"
 category = "main"
-description = "Python wrapper module around the OpenSSL library"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
 name = "pyopenssl"
+version = "19.1.0"
+description = "Python wrapper module around the OpenSSL library"
+category = "main"
 optional = false
 python-versions = "*"
-version = "19.1.0"
 
 [package.dependencies]
 cryptography = ">=2.8"
@@ -623,74 +625,74 @@ docs = ["sphinx", "sphinx-rtd-theme"]
 test = ["flaky", "pretend", "pytest (>=3.0.1)"]
 
 [[package]]
-category = "main"
-description = "Python One Time Password Library"
 name = "pyotp"
+version = "2.3.0"
+description = "Python One Time Password Library"
+category = "main"
 optional = false
 python-versions = "*"
-version = "2.3.0"
 
 [[package]]
-category = "main"
-description = "Python parsing module"
 name = "pyparsing"
+version = "2.4.6"
+description = "Python parsing module"
+category = "main"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "2.4.6"
 
 [[package]]
-category = "main"
-description = "Extensions to the standard Python datetime module"
 name = "python-dateutil"
+version = "2.8.1"
+description = "Extensions to the standard Python datetime module"
+category = "main"
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
-version = "2.8.1"
 
 [package.dependencies]
 six = ">=1.5"
 
 [[package]]
-category = "main"
-description = "HTTP REST client, simplified for Python"
 name = "python-http-client"
+version = "3.3.1"
+description = "HTTP REST client, simplified for Python"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "3.3.1"
 
 [[package]]
-category = "main"
-description = "World timezone definitions, modern and historical"
 name = "pytz"
+version = "2019.3"
+description = "World timezone definitions, modern and historical"
+category = "main"
 optional = false
 python-versions = "*"
-version = "2019.3"
 
 [[package]]
-category = "dev"
-description = "YAML parser and emitter for Python"
 name = "pyyaml"
+version = "5.3.1"
+description = "YAML parser and emitter for Python"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "5.3.1"
 
 [[package]]
-category = "main"
-description = "Python client for Redis key-value store"
 name = "redis"
+version = "3.5.0"
+description = "Python client for Redis key-value store"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "3.5.0"
 
 [package.extras]
 hiredis = ["hiredis (>=0.1.3)"]
 
 [[package]]
-category = "main"
-description = "Python HTTP for Humans."
 name = "requests"
+version = "2.22.0"
+description = "Python HTTP for Humans."
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "2.22.0"
 
 [package.dependencies]
 certifi = ">=2017.4.17"
@@ -703,47 +705,47 @@ security = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)"]
 socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7)", "win-inet-pton"]
 
 [[package]]
-category = "main"
-description = "Use requests to talk HTTP via a UNIX domain socket"
 name = "requests-unixsocket"
+version = "0.2.0"
+description = "Use requests to talk HTTP via a UNIX domain socket"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.2.0"
 
 [package.dependencies]
 requests = ">=1.1"
 urllib3 = ">=1.8"
 
 [[package]]
-category = "main"
-description = "An Amazon S3 Transfer Manager"
 name = "s3transfer"
+version = "0.3.3"
+description = "An Amazon S3 Transfer Manager"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.3.3"
 
 [package.dependencies]
 botocore = ">=1.12.36,<2.0a.0"
 
 [[package]]
-category = "main"
-description = "Twilio SendGrid library for Python"
 name = "sendgrid"
+version = "6.4.7"
+description = "Twilio SendGrid library for Python"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "6.4.7"
 
 [package.dependencies]
 python-http-client = ">=3.2.1"
 starkbank-ecdsa = ">=1.0.0"
 
 [[package]]
-category = "main"
-description = "Python client for Sentry (https://sentry.io)"
 name = "sentry-sdk"
+version = "0.16.3"
+description = "Python client for Sentry (https://sentry.io)"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.16.3"
 
 [package.dependencies]
 certifi = "*"
@@ -765,23 +767,23 @@ sqlalchemy = ["sqlalchemy (>=1.2)"]
 tornado = ["tornado (>=5)"]
 
 [[package]]
-category = "main"
-description = "ridiculously fast object serialization"
 name = "serpy"
+version = "0.3.1"
+description = "ridiculously fast object serialization"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.3.1"
 
 [package.dependencies]
 six = "*"
 
 [[package]]
-category = "main"
-description = "Service identity verification for pyOpenSSL & cryptography."
 name = "service-identity"
+version = "18.1.0"
+description = "Service identity verification for pyOpenSSL & cryptography."
+category = "main"
 optional = false
 python-versions = "*"
-version = "18.1.0"
 
 [package.dependencies]
 attrs = ">=16.0.0"
@@ -796,52 +798,55 @@ idna = ["idna"]
 tests = ["coverage (>=4.2.0)", "pytest"]
 
 [[package]]
-category = "main"
-description = "Python 2 and 3 compatibility utilities"
 name = "six"
+version = "1.14.0"
+description = "Python 2 and 3 compatibility utilities"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
-version = "1.14.0"
 
 [[package]]
-category = "main"
-description = "Non-validating SQL parser"
 name = "sqlparse"
+version = "0.3.0"
+description = "Non-validating SQL parser"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "0.3.0"
 
 [[package]]
-category = "main"
-description = "A lightweight and fast pure python ECDSA library"
 name = "starkbank-ecdsa"
-optional = false
-python-versions = "*"
 version = "1.1.0"
+description = "A lightweight and fast pure python ECDSA library"
+category = "main"
+optional = false
+python-versions = "*"
 
 [[package]]
-category = "main"
-description = "Python Library for Tom's Obvious, Minimal Language"
 name = "toml"
+version = "0.10.1"
+description = "Python Library for Tom's Obvious, Minimal Language"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.10.1"
 
 [[package]]
-category = "main"
-description = "An asynchronous networking framework written in Python"
 name = "twisted"
+version = "19.10.0"
+description = "An asynchronous networking framework written in Python"
+category = "main"
 optional = false
 python-versions = "*"
-version = "19.10.0"
 
 [package.dependencies]
-Automat = ">=0.3.0"
-PyHamcrest = ">=1.9.0"
 attrs = ">=17.4.0"
+Automat = ">=0.3.0"
 constantly = ">=15.1"
 hyperlink = ">=17.1.1"
+idna = {version = ">=0.6,<2.3 || >2.3", optional = true, markers = "extra == \"tls\""}
 incremental = ">=16.10.1"
+PyHamcrest = ">=1.9.0"
+pyopenssl = {version = ">=16.0.0", optional = true, markers = "extra == \"tls\""}
+service_identity = {version = ">=18.1.0", optional = true, markers = "extra == \"tls\""}
 "zope.interface" = ">=4.4.2"
 
 [package.extras]
@@ -857,12 +862,12 @@ tls = ["pyopenssl (>=16.0.0)", "service_identity (>=18.1.0)", "idna (>=0.6,<2.3 
 windows_platform = ["pywin32", "pyopenssl (>=16.0.0)", "service_identity (>=18.1.0)", "idna (>=0.6,<2.3 || >2.3)", "pyasn1", "cryptography (>=2.5)", "appdirs (>=1.4.0)", "bcrypt (>=3.0.0)", "soappy", "pyserial (>=3.0)", "h2 (>=3.0,<4.0)", "priority (>=1.1.0,<2.0)", "pywin32"]
 
 [[package]]
-category = "main"
-description = "Compatibility API between asyncio/Twisted/Trollius"
 name = "txaio"
+version = "20.1.1"
+description = "Compatibility API between asyncio/Twisted/Trollius"
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "20.1.1"
 
 [package.dependencies]
 six = "*"
@@ -873,28 +878,28 @@ dev = ["wheel", "pytest (>=2.6.4)", "pytest-cov (>=1.8.1)", "pep8 (>=1.6.2)", "s
 twisted = ["zope.interface (>=3.6)", "twisted (>=12.1.0)"]
 
 [[package]]
-category = "main"
-description = "Type Hints for Python"
 name = "typing"
+version = "3.7.4.1"
+description = "Type Hints for Python"
+category = "main"
 optional = false
 python-versions = "*"
-version = "3.7.4.1"
 
 [[package]]
-category = "dev"
-description = "URI templates"
 name = "uritemplate"
+version = "3.0.1"
+description = "URI templates"
+category = "dev"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "3.0.1"
 
 [[package]]
-category = "main"
-description = "HTTP library with thread-safe connection pooling, file post, and more."
 name = "urllib3"
+version = "1.25.8"
+description = "HTTP library with thread-safe connection pooling, file post, and more."
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4"
-version = "1.25.8"
 
 [package.extras]
 brotli = ["brotlipy (>=0.6.0)"]
@@ -902,35 +907,32 @@ secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "cer
 socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7,<2.0)"]
 
 [[package]]
-category = "main"
-description = "Measures number of Terminal column cells of wide-character codes"
 name = "wcwidth"
+version = "0.1.8"
+description = "Measures number of Terminal column cells of wide-character codes"
+category = "main"
 optional = false
 python-versions = "*"
-version = "0.1.8"
 
 [[package]]
-category = "main"
-description = "Yet another URL library"
 name = "yarl"
+version = "1.4.2"
+description = "Yet another URL library"
+category = "main"
 optional = false
 python-versions = ">=3.5"
-version = "1.4.2"
 
 [package.dependencies]
 idna = ">=2.0"
 multidict = ">=4.0"
 
 [[package]]
-category = "main"
-description = "Interfaces for Python"
 name = "zope.interface"
+version = "4.7.1"
+description = "Interfaces for Python"
+category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "4.7.1"
-
-[package.dependencies]
-setuptools = "*"
 
 [package.extras]
 docs = ["sphinx", "repoze.sphinx.autointerface"]
@@ -938,17 +940,17 @@ test = ["zope.event"]
 testing = ["coverage", "nose", "zope.event"]
 
 [[package]]
-category = "main"
-description = ""
 name = "zxcvbn"
+version = "4.4.28"
+description = ""
+category = "main"
 optional = false
 python-versions = "*"
-version = "4.4.28"
 
 [metadata]
-content-hash = "e0c84cb70122bc52850d0cf38a67dbfae91512bec2b1a28ef92fe8900a440be5"
-lock-version = "1.0"
+lock-version = "1.1"
 python-versions = "^3.8"
+content-hash = "b2821056b6d5d6e9c9682d15b6551bf4ff9a33c19dd897fca716de3fdc576517"
 
 [metadata.files]
 aioredis = [
@@ -1290,6 +1292,21 @@ multidict = [
     {file = "multidict-4.7.4-cp38-cp38-win32.whl", hash = "sha256:6bd10adf9f0d6a98ccc792ab6f83d18674775986ba9bacd376b643fe35633357"},
     {file = "multidict-4.7.4-cp38-cp38-win_amd64.whl", hash = "sha256:5414f388ffd78c57e77bd253cf829373721f450613de53dc85a08e34d806e8eb"},
     {file = "multidict-4.7.4.tar.gz", hash = "sha256:d7d428488c67b09b26928950a395e41cc72bb9c3d5abfe9f0521940ee4f796d4"},
+]
+newrelic = [
+    {file = "newrelic-5.22.1.152-cp27-cp27m-manylinux1_x86_64.whl", hash = "sha256:1ee7aa93f39da366ba051fe97e62c87c16c6a6344e22204454df5e162c580928"},
+    {file = "newrelic-5.22.1.152-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:8097a86ca1ad547bee12043a1abf85c3be34d9000ae74d4c03ed9099da4dd320"},
+    {file = "newrelic-5.22.1.152-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:990f238b3e62ee8b6d93878848e4c36ee6ef48103f7592b2132cb7215da7385e"},
+    {file = "newrelic-5.22.1.152-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:344d3fe149e7c327e58824a0f77cccdf86b6b42e092cfe3f17608e996d08b159"},
+    {file = "newrelic-5.22.1.152-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:6e25f398c5844bb326feeac75de0d6dd3ad0e89c4e5746e22e70c38da81088ef"},
+    {file = "newrelic-5.22.1.152-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:c1961afc267d210972f8bf5f21ebeeca567a10242ca81e98d4c556ab03e3e55f"},
+    {file = "newrelic-5.22.1.152-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:152d475d3f638fc312a995e3e6db0c3d81d1f0c379314d3daad3f89e249e6d3f"},
+    {file = "newrelic-5.22.1.152-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:fccba6e61efce265b90f45ed4f4007621213f9bf5dead3f2e4b17eb0e05fabd9"},
+    {file = "newrelic-5.22.1.152-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:ba4b22483c5506c17c1d1387aaaa39b6f06931a47b0b3592077ffaeba9ab9069"},
+    {file = "newrelic-5.22.1.152-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:359de086148aa4c0a02bdfd41e00effa37f9373f40ca187f1d27b4591975ba83"},
+    {file = "newrelic-5.22.1.152-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:1d1023c13b71c428fe28f5b68c80f7e1112c4ef361265e2045bfde35144dbdf7"},
+    {file = "newrelic-5.22.1.152-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:5ec2e6fa77b8918c910b36d962864e01db2c01248aafa64e28bbae4d55c4ce0b"},
+    {file = "newrelic-5.22.1.152.tar.gz", hash = "sha256:0cedc2df0b54c5fd451a5c6baefb11eb9fb3aa817f6fa0708e407f3917874358"},
 ]
 packaging = [
     {file = "packaging-20.3-py2.py3-none-any.whl", hash = "sha256:82f77b9bee21c1bafbf35a84905d604d5d1223801d639cf3ed140bd651c08752"},
