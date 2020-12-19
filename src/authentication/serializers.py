@@ -89,6 +89,7 @@ class EmailSerializer(serializers.Serializer):
 
 class ChangePasswordSerializer(serializers.Serializer):
     password = serializers.CharField()
+    old_password = serializers.CharField()
 
     def validate(self, data):
         user = self.context['request'].user
