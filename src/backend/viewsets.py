@@ -3,7 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 
 
 def is_exporting(request):
-    return request.user.is_staff and request.headers.get('exporting')
+    return request.user.is_staff and (request.headers.get('exporting') or request.headers.get('x-exporting'))
 
 
 class AdminCreateModelViewSet(ModelViewSet):
