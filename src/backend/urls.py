@@ -43,3 +43,6 @@ handler404 = CatchAllView.as_view()
 
 if "silk" in settings.INSTALLED_APPS:
     urlpatterns += [path('silk/', include('silk.urls'))]
+
+if not os.getenv("USE_AWS"):
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

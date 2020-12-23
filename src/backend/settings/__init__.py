@@ -36,6 +36,17 @@ MAIL = {
     "SEND_MODE": "SES",
 }
 
+if os.getenv("USE_AWS_S3_FILE_STORAGE"):
+    AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_FILES_BUCKET_NAME")
+    AWS_DEFAULT_ACL = None
+    AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_FILES_BUCKET_DOMAIN", AWS_STORAGE_BUCKET_NAME)
+    PUBLIC_MEDIA_LOCATION = 'challenge-files'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    DEFAULT_FILE_STORAGE = 'backend.storages.PublicMediaStorage'
+else:
+    MEDIA_URL = '/publicmedia/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'publicmedia')
+
 INSTALLED_APPS = [
     "announcements.apps.AnnouncementsConfig",
     "authentication.apps.AuthConfig",
