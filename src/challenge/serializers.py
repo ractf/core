@@ -7,7 +7,7 @@ from hint.serializers import HintSerializer
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
-        fields = ['id', 'name', 'url', 'size', 'challenge']
+        fields = ['id', 'name', 'url', 'size', 'challenge', 'md5']
 
 
 class NestedTagSerializer(serializers.ModelSerializer):

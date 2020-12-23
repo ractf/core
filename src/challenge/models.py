@@ -169,7 +169,7 @@ class Solve(models.Model):
 
 
 def get_file_name(instance, filename):
-    return f"{instance.challenge.id}/{filename}"
+    return f"{instance.challenge.id}/{instance.md5}/{filename}"
 
 
 class File(models.Model):
@@ -178,6 +178,7 @@ class File(models.Model):
     size = models.IntegerField()
     upload = models.FileField(upload_to=get_file_name, null=True)
     challenge = models.ForeignKey(Challenge, on_delete=CASCADE, related_name="file_set")
+    md5 = models.CharField(max_length=32, null=True)
 
 
 class Tag(models.Model):

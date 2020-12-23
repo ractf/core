@@ -1,4 +1,5 @@
 import time
+import hashlib
 
 from django.contrib.auth import get_user_model
 from django.db import transaction, models
@@ -276,11 +277,12 @@ class FileViewSet(ModelViewSet):
         if request.data.get("upload", None):
             file = File(challenge=challenge, upload=request.data["upload"])
             file.name = file.upload.name
+            file.size = file.upload.size
+            file.md5 = hashlib.md5(file.upload.open('rb').read()).hexdigest()
             file.save()
             file.url = file.upload.url  # This field isn't set properly until saving
-            file.size = file.upload.size
         else:
-            file = File(challenge=challenge, url=request.data["url"], size=request.data["size"])
+            file = File(challenge=challenge, url=request.data["url"], size=request.data["size"], md5=request.data.get("md5", None))
         file.save()
         return FormattedResponse(self.serializer_class(file).data)
 
