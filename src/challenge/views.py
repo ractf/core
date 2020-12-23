@@ -6,6 +6,7 @@ from django.db.models import Prefetch, Case, When, Value, Count, Subquery, Q
 from django.utils import timezone
 from rest_framework import permissions
 from rest_framework.generics import get_object_or_404
+from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
@@ -263,9 +264,30 @@ class FlagCheckView(APIView):
 class FileViewSet(ModelViewSet):
     queryset = File.objects.all()
     permission_classes = (IsAdminUser,)
+    parser_classes = (MultiPartParser,)
     throttle_scope = 'file'
     serializer_class = FileSerializer
     pagination_class = None
+
+    def create(self, request, *args, **kwargs):
+        challenge = get_object_or_404(Challenge, id=request.data["challenge"])
+        if not (request.data.get("url", None) or request.data.get("upload", None)):
+            return FormattedResponse(m="Either url or upload must be provided", status=HTTP_400_BAD_REQUEST)
+        if request.data.get("upload", None):
+            file = File(challenge=challenge, upload=request.data["upload"])
+            file.name = file.upload.name
+            file.save()
+            file.url = file.upload.url  # This field isn't set properly until saving
+            file.size = file.upload.size
+        else:
+            file = File(challenge=challenge, url=request.data["url"], size=request.data["size"])
+        file.save()
+        return FormattedResponse(self.serializer_class(file).data)
+
+    def destroy(self, request, *args, **kwargs):
+        if getattr(self.get_object(), "upload", None):
+            self.get_object().upload.delete(save=False)
+        return super().destroy(request, *args, **kwargs)
 
 
 class TagViewSet(ModelViewSet):
