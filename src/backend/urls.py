@@ -13,7 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-import os
+from os import getenv
 from django.urls import path, include
 
 from django.conf import settings
@@ -46,5 +46,5 @@ handler404 = CatchAllView.as_view()
 if "silk" in settings.INSTALLED_APPS:
     urlpatterns += [path('silk/', include('silk.urls'))]
 
-if not os.getenv("USE_AWS"):
+if not getenv("USE_AWS"):
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
