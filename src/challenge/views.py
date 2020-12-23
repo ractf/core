@@ -274,10 +274,11 @@ class FileViewSet(ModelViewSet):
         if not (request.data.get("url", None) or request.data.get("upload", None)):
             return FormattedResponse(m="Either url or upload must be provided", status=HTTP_400_BAD_REQUEST)
         if request.data.get("upload", None):
-            file = File(challenge=challenge, upload=request.data["upload"], size=request.data["size"])
+            file = File(challenge=challenge, upload=request.data["upload"])
             file.name = file.upload.name
             file.save()
             file.url = file.upload.url  # This field isn't set properly until saving
+            file.size = file.upload.size
         else:
             file = File(challenge=challenge, url=request.data["url"], size=request.data["size"])
         file.save()
