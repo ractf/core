@@ -15,7 +15,6 @@ if settings.MAIL["SEND"]:  # pragma: no cover
 def send_email(send_to, subject_line, template_name, **template_details):
     if settings.MAIL["SEND"]:  # pragma: no cover
         if settings.MAIL["SEND_MODE"] == "AWS":  # pragma: no cover
-            template_details["url"] = settings.FRONTEND_URL + template_details["url"]
             client.send_email(
                 Destination={
                     "ToAddresses": [
