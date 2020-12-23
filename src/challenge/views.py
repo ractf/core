@@ -281,7 +281,7 @@ class FileViewSet(ModelViewSet):
         else:
             file = File(challenge=challenge, url=request.data["url"], size=request.data["size"])
         file.save()
-        return FormattedResponse(file.url)
+        return FormattedResponse(self.serializer_class(file).data)
 
     def destroy(self, request, *args, **kwargs):
         if getattr(self.get_object(), "upload", None):
