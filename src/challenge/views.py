@@ -190,7 +190,7 @@ class FlagSubmitView(APIView):
             flag = request.data.get('flag')
             challenge_id = request.data.get('challenge')
             if not flag or not challenge_id:
-                return FormattedResponse(status=HTTP_400_BAD_REQUEST)
+                return FormattedResponse(status=HTTP_400_BAD_REQUEST, m='No flag or challenge ID provided')
 
             challenge = get_object_or_404(Challenge.objects.select_for_update(), id=challenge_id)
             solve_set = Solve.objects.filter(challenge=challenge)
