@@ -66,7 +66,7 @@ class CategoryViewset(AdminCreateModelViewSet):
             )
         else:
             challenges = (
-                Challenge.objects.filter(release_time__lte=timezone.now()).annotate(
+                Challenge.objects.annotate(
                     unlocked=Case(
                         When(auto_unlock=True, then=Value(True)),
                         default=Value(False),
