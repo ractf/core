@@ -30,14 +30,9 @@ class ChallengeSerializerMixin:
         return instance.unlock_time_surpassed
 
     def get_votes(self, instance):
-        votes = ChallengeVote.objects.filter(challenge=instance)
-        positive = votes.filter(positive=True).count()
-        negative = votes.filter(positive=False).count()
-        self_vote = votes.filter(user=self.context['request'].user).first()
         return {
-            "positive": positive,
-            "negative": negative,
-            "self": self_vote.positive if self_vote else None
+            "positive": instance.votes_positive,
+            "negative": instance.votes_negative
         }
 
 

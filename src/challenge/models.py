@@ -90,7 +90,7 @@ class Challenge(models.Model):
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),
                     output_field=models.BooleanField(),
-                )
+                ),
             )
         else:
             challenges = Challenge.objects.annotate(
@@ -110,7 +110,7 @@ class Challenge(models.Model):
 
 
 class ChallengeVote(models.Model):
-    challenge = models.ForeignKey(Challenge, on_delete=CASCADE)
+    challenge = models.ForeignKey(Challenge, on_delete=CASCADE, related_name="votes")
     user = models.ForeignKey(get_user_model(), on_delete=CASCADE)
     positive = models.BooleanField()
 
