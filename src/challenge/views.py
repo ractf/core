@@ -63,8 +63,8 @@ class CategoryViewset(AdminCreateModelViewSet):
                     default=Value(False),
                     output_field=models.BooleanField(),
                 ),
-                votes_positive=Count("votes", filter=Q(votes__positive=True)),
-                votes_negative=Count("votes", filter=Q(votes__positive=False)),
+                votes_positive=Count("votes", filter=Q(votes__positive=True), distinct=True),
+                votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
             )
         else:
             challenges = (
@@ -80,7 +80,9 @@ class CategoryViewset(AdminCreateModelViewSet):
                         When(release_time__lte=timezone.now(), then=Value(True)),
                         default=Value(False),
                         output_field=models.BooleanField(),
-                    )
+                    ),
+                    votes_positive=Count("votes", filter=Q(votes__positive=True), distinct=True),
+                    votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
                 )
             )
         x = challenges.prefetch_related(
