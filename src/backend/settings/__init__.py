@@ -36,6 +36,10 @@ MAIL = {
     "SEND_MODE": "SES",
 }
 
+EXPERIMENT_OVERRIDES = {
+
+}
+
 if os.getenv("USE_AWS_S3_FILE_STORAGE"):
     AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_FILES_BUCKET_NAME")
     AWS_DEFAULT_ACL = None
@@ -53,6 +57,7 @@ INSTALLED_APPS = [
     "challenge.apps.ChallengeConfig",
     "challengeserver.apps.ChallengeserverConfig",
     "config.apps.ConfigConfig",
+    "experiments.apps.ExperimentsConfig",
     "hint.apps.HintConfig",
     "leaderboard.apps.LeaderboardConfig",
     "member.apps.MemberConfig",
