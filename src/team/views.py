@@ -18,6 +18,7 @@ from backend.viewsets import AdminListModelViewSet
 from config import config
 from team.models import Team
 from challenge.models import Solve
+from member.models import Member
 from team.permissions import IsTeamOwnerOrReadOnly, HasTeam, TeamsEnabled
 from team.serializers import (
     SelfTeamSerializer,
