@@ -2,6 +2,7 @@ import time
 import hashlib
 
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.db import transaction, models
 from django.db.models import Prefetch, Case, When, Value, Count, Subquery, Q
 from django.utils import timezone
@@ -281,6 +282,8 @@ class FileViewSet(ModelViewSet):
         if request.data.get("upload", None):
             file = File(challenge=challenge, upload=request.data["upload"])
             file.name = file.upload.name
+            if file.upload.size > settings.MAX_UPLOAD_SIZE:
+                return FormattedResponse(m=f"File cannot be over {settings.MAX_UPLOAD_SIZE} bytes in size.", status=HTTP_400_BAD_REQUEST)
             file.size = file.upload.size
             file.md5 = hashlib.md5(file.upload.open('rb').read()).hexdigest()
             file.save()

@@ -174,7 +174,7 @@ def get_file_name(instance, filename):
 class File(models.Model):
     name = models.CharField(max_length=64)
     url = models.URLField()
-    size = models.IntegerField()
+    size = models.PositiveBigIntegerField()
     upload = models.FileField(upload_to=get_file_name, null=True)
     challenge = models.ForeignKey(Challenge, on_delete=CASCADE, related_name="file_set")
     md5 = models.CharField(max_length=32, null=True)
