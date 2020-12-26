@@ -299,7 +299,10 @@ class FileViewSet(ModelViewSet):
             file.size = file.upload.size
             file.md5 = hashlib.md5(file_data).hexdigest()
             file.save()
-            file.url = file.upload.url  # This field isn't set properly until saving
+            if settings.DOMAIN and not settings.USE_AWS_S3_FILE_STORAGE:
+                file.url = f"https://{settings.DOMAIN}{file.upload.url}"
+            else:
+                file.url = file.upload.url  # This field isn't set properly until saving
         else:
             file = File(challenge=challenge, url=file_url, size=file_size, md5=file_digest)
 
