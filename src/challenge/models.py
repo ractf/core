@@ -1,8 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import JSONField
 from django.contrib.postgres.indexes import BrinIndex
 from django.db import models
-from django.db.models import SET_NULL, CASCADE, PROTECT, Case, When, Value, UniqueConstraint, Q, Subquery
+from django.db.models import SET_NULL, CASCADE, PROTECT, Case, When, Value, UniqueConstraint, Q, Subquery, JSONField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone

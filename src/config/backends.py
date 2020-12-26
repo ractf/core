@@ -4,6 +4,7 @@ import pickle
 from unittest.mock import MagicMock
 
 from django.conf import settings
+from django.core.cache import caches
 from config.models import Config
 
 
@@ -46,21 +47,16 @@ class DatabaseBackend(ConfigBackend):
         return config
 
 
-class RedisBackend(ConfigBackend):
+class CachedBackend(ConfigBackend):
 
     CONFIG_SET = Config.objects if "migrate" not in sys.argv else MagicMock()
 
     def __init__(self):
-        ip = settings.CONFIG['REDIS']['HOST']
-        port = settings.CONFIG['REDIS']['PORT']
-        db = settings.CONFIG['REDIS']['DB']
-        password = settings.CONFIG['REDIS']['PASSWORD']
-
-        from redis import Redis
-        self.redis = Redis(host=ip, port=port, db=db, password=password)
+        self.cache = caches["default"]
+        self.keys = set()
 
     def get(self, key):
-        value = self.redis.get(f'config_{key}')
+        value = self.cache.get(f'config_{key}')
         if value is None:
             return None
         return pickle.loads(value)
@@ -72,17 +68,18 @@ class RedisBackend(ConfigBackend):
         if db_config:
             db_config.value[key] = value
             db_config.save()
-        self.redis.set(f'config_{key}', pickle.dumps(value))
+        self.cache.set(f'config_{key}', pickle.dumps(value), timeout=None)
+        self.keys.add(f"config_{key}")
 
     def get_all(self):
         config = {}
-        for key in self.redis.keys('config_*'):
-            config[key[7:].decode('latin-1')] = self.get(key[7:].decode('latin-1'))
+        for key in self.keys:
+            config[key[7:]] = self.get(key[7:])
         return config
 
     def set_if_not_exists(self, key, value):
-        if not self.redis.exists('config_' + key):
-            self.set(key, value)
+        if self.cache.add('config_' + key, value, timeout=None):
+            self.keys.add(f"config_{key}")
 
     def load(self, defaults):
         if type(self.CONFIG_SET) is MagicMock:
