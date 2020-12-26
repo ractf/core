@@ -257,13 +257,7 @@ CACHES = {
 }
 
 CONFIG = {
-    "BACKEND": "config.backends.RedisBackend",
-    "REDIS": {
-        "HOST": os.getenv("REDIS_HOST"),
-        "PORT": os.getenv("REDIS_PORT"),
-        "PASSWORD": None,
-        "DB": int(os.getenv("REDIS_CONFIG_DB", 0))
-    },
+    "BACKEND": "config.backends.CachedBackend",
 }
 
 LOGGING = {
