@@ -1,14 +1,19 @@
 import time
 import hashlib
+from typing import Union
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction, models
 from django.db.models import Prefetch, Case, When, Value, Count, Subquery, Q
 from django.utils import timezone
+
 from rest_framework import permissions
 from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.response import Response
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
@@ -19,9 +24,11 @@ from backend.signals import flag_submit, flag_reject, flag_score
 from backend.viewsets import AdminCreateModelViewSet
 from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag
 from challenge.permissions import CompetitionOpen
-from challenge.serializers import ChallengeSerializer, CategorySerializer, AdminCategorySerializer, \
-    AdminChallengeSerializer, FileSerializer, CreateCategorySerializer, CreateChallengeSerializer, \
-    ChallengeFeedbackSerializer, TagSerializer
+from challenge.serializers import (
+    ChallengeSerializer, CategorySerializer, AdminCategorySerializer,
+    AdminChallengeSerializer, FileSerializer, CreateCategorySerializer,
+    CreateChallengeSerializer, ChallengeFeedbackSerializer, TagSerializer
+)
 from config import config
 from hint.models import Hint, HintUse
 from plugins import plugins
@@ -274,25 +281,36 @@ class FileViewSet(ModelViewSet):
     serializer_class = FileSerializer
     pagination_class = None
 
-    def create(self, request, *args, **kwargs):
-        challenge = get_object_or_404(Challenge, id=request.data["challenge"])
-        if not (request.data.get("url", None) or request.data.get("upload", None)):
-            return FormattedResponse(m="Either url or upload must be provided", status=HTTP_400_BAD_REQUEST)
-        if request.data.get("upload", None):
-            file = File(challenge=challenge, upload=request.data["upload"])
+    def create(self, request: Request, *args, **kwargs) -> Union[FormattedResponse, Response]:
+        """Create a File, given a URL or from a direct upload."""
+        challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
+        file_url, file_data, file_size, file_digest = (
+            request.data.get(name) for name in ("url", "upload", "size", "md5")
+        )
+
+        if not file_url and not file_data:
+            return FormattedResponse(m="Either url or upload must be provided.", status=HTTP_400_BAD_REQUEST)
+
+        if file_data:
+            if len(file_data) > settings.MAX_UPLOAD_SIZE:
+                return FormattedResponse(m=f"File cannot be over {settings.MAX_UPLOAD_SIZE} bytes in size.", status=HTTP_400_BAD_REQUEST)
+            file = File(challenge=challenge, upload=file_data)
             file.name = file.upload.name
             file.size = file.upload.size
-            file.md5 = hashlib.md5(file.upload.open('rb').read()).hexdigest()
+            file.md5 = hashlib.md5(file_data).hexdigest()
             file.save()
             file.url = file.upload.url  # This field isn't set properly until saving
         else:
-            file = File(challenge=challenge, url=request.data["url"], size=request.data["size"], md5=request.data.get("md5", None))
+            file = File(challenge=challenge, url=file_url, size=file_size, md5=file_digest)
+
         file.save()
         return FormattedResponse(self.serializer_class(file).data)
 
-    def destroy(self, request, *args, **kwargs):
-        if getattr(self.get_object(), "upload", None):
-            self.get_object().upload.delete(save=False)
+    def destroy(self, request: Request, *args, **kwargs) -> Response:
+        """If the file was uploaded, delete the FileField on the model first."""
+        file: File = self.get_object()
+        if file.upload:
+            file.upload.delete(save=False)
         return super().destroy(request, *args, **kwargs)
 
 
