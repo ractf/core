@@ -254,3 +254,4 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/python,jetbrains,linux,windows,code
 *.sqlite3
 *.db
+.vim
