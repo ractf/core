@@ -47,5 +47,5 @@ handler404 = CatchAllView.as_view()
 if "silk" in settings.INSTALLED_APPS:
     urlpatterns += [path('silk/', include('silk.urls'))]
 
-if not getenv("USE_AWS_S3_FILE_STORAGE"):
+if not settings.USE_AWS_S3_FILE_STORAGE:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

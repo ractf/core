@@ -284,8 +284,8 @@ class FileViewSet(ModelViewSet):
     def create(self, request: Request, *args, **kwargs) -> Union[FormattedResponse, Response]:
         """Create a File, given a URL or from a direct upload."""
         challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
-        file_url, file_data, file_size, file_digest = (
-            request.data.get(name) for name in ("url", "upload", "size", "md5")
+        file_url, file_data, file_size, file_digest, file_name = (
+            request.data.get(name) for name in ("url", "upload", "size", "md5", "name")
         )
 
         if not file_url and not file_data:
@@ -299,9 +299,12 @@ class FileViewSet(ModelViewSet):
             file.size = file.upload.size
             file.md5 = hashlib.md5(file_data).hexdigest()
             file.save()
-            file.url = file.upload.url  # This field isn't set properly until saving
+            if settings.DOMAIN and not settings.USE_AWS_S3_FILE_STORAGE:
+                file.url = f"https://{settings.DOMAIN}{file.upload.url}"
+            else:
+                file.url = file.upload.url  # This field isn't set properly until saving
         else:
-            file = File(challenge=challenge, url=file_url, size=file_size, md5=file_digest)
+            file = File(challenge=challenge, url=file_url, size=file_size, md5=file_digest, name=file_name)
 
         file.save()
         return FormattedResponse(self.serializer_class(file).data)
