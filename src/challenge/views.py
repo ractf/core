@@ -297,7 +297,12 @@ class FileViewSet(ModelViewSet):
             file = File(challenge=challenge, upload=file_data)
             file.name = file.upload.name
             file.size = file.upload.size
-            file.md5 = hashlib.md5(file_data).hexdigest()
+
+            md5 = hashlib.md5()
+            for chunk in file_data.chunks():
+                md5.update(chunk)
+            file.md5 = md5.hexdigest()
+
             file.save()
             if settings.DOMAIN and not settings.USE_AWS_S3_FILE_STORAGE:
                 file.url = f"https://{settings.DOMAIN}{file.upload.url}"
