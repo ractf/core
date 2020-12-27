@@ -35,6 +35,11 @@ class ChallengeSerializerMixin:
             "negative": instance.votes_negative
         }
 
+    def get_post_score_explanation(self, instance):
+        if instance.solved:
+            return instance.post_score_explanation
+        return None
+
 
 class LockedChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
     unlock_time_surpassed = serializers.SerializerMethodField()
@@ -55,12 +60,14 @@ class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer)
     first_blood_name = serializers.ReadOnlyField(source='first_blood.username')
     solve_count = serializers.SerializerMethodField()
     tags = NestedTagSerializer(many=True, read_only=True)
+    post_score_explanation = serializers.SerializerMethodField()
 
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
                   'author', 'auto_unlock', 'score', 'unlocks', 'hints', 'files', 'solved', 'unlocked', 'first_blood',
-                  'first_blood_name', 'solve_count', 'hidden', 'votes', 'tags', 'unlock_time_surpassed']
+                  'first_blood_name', 'solve_count', 'hidden', 'votes', 'tags', 'unlock_time_surpassed',
+                  'post_score_explanation']
 
     def to_representation(self, instance):
         if instance.unlocked and not instance.hidden and instance.unlock_time_surpassed:
