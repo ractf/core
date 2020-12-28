@@ -12,7 +12,11 @@ RUN set -ex \
 COPY poetry.lock pyproject.toml /app/
 WORKDIR /app/
 
-ENV PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=off PATH=/root/.poetry/bin:/app/src/manage.py${PATH}
+ENV PYTHONUNBUFFERED=1 \
+  PIP_NO_CACHE_DIR=off \
+  PYTHONPYCACHEPREFIX=/tmp \
+  PATH=/root/.poetry/bin:/app/src/manage.py${PATH}
+
 RUN poetry install --no-root --no-interaction \
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $BUILD_DEPS
 
