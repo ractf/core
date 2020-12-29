@@ -1,3 +1,7 @@
+import time
+import secrets
+
+from django.conf import settings
 from django.contrib.auth import get_user_model, password_validation
 from django.utils import timezone
 from rest_framework import serializers
@@ -6,7 +10,10 @@ from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_401_UNAUTHORIZED
 
 from authentication.models import InviteCode, PasswordResetToken
 from backend.exceptions import FormattedException
+from backend.mail import send_email
+from config import config
 from plugins import providers
+from team.models import Team
 
 
 class LoginSerializer(serializers.Serializer):
@@ -31,17 +38,63 @@ class LoginTwoFactorSerializer(serializers.Serializer):
 
 
 class RegistrationSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    password = serializers.CharField(trim_whitespace=False)
-    email = serializers.EmailField()
-    invite = serializers.CharField(max_length=64, required=False, default=None)
+    def validate(self, _):
+        register_end_time = config.get('register_end_time')
+        if not (config.get('enable_registration') and time.time() >= config.get('register_start_time')) \
+                and (register_end_time < 0 or register_end_time > time.time()):
+            raise FormattedException(m='registration_not_open', status_code=HTTP_403_FORBIDDEN)
+
+        validated_data = providers.get_provider('registration').validate(self.initial_data)
+        if config.get("invite_required"):
+            if not self.initial_data.get("invite", None):
+                raise FormattedException(m="invite_required")
+            validated_data["invite"] = self.initial_data["invite"]
+        return validated_data
 
     def create(self, validated_data):
-        return providers.get_provider('registration').register_user(**validated_data, context=self.context)
+        user = providers.get_provider('registration').register_user(**validated_data, context=self.context)
+
+        if not config.get("enable_teams"):
+            user.team = Team.objects.create(
+                owner=user,
+                name=user.username,
+                password=secrets.token_hex(32),
+            )
+
+        if not get_user_model().objects.all().exists():
+            user.is_staff = True
+            user.is_superuser = True
+
+        if config.get("invite_required"):
+            if InviteCode.objects.filter(code=validated_data["invite"]):
+                code = InviteCode.objects.get(code=validated_data["invite"])
+                if code:
+                    if code.uses >= code.max_uses:
+                        raise FormattedException(m="invite_already_used", status_code=HTTP_403_FORBIDDEN)
+                code.uses += 1
+                if code.uses >= code.max_uses:
+                    code.fully_used = True
+                code.save()
+                if code.auto_team:
+                    user.team = code.auto_team
+            else:
+                raise FormattedException(m="invalid_invite", status_code=HTTP_403_FORBIDDEN)
+
+        if not settings.MAIL["SEND"]:
+            user.email_verified = True
+            user.is_visible = True
+        else:
+            user.save()
+            send_email(user.email, 'RACTF - Verify your email', 'verify',
+                       url=settings.FRONTEND_URL + 'verify?id={}&secret={}'.format(user.id, user.email_token))
+
+        user.save()
+
+        return user
 
     def to_representation(self, instance):
         representation = super(RegistrationSerializer, self).to_representation(instance)
-        representation.pop('password')
+        representation.pop('password', None)
         return representation
 
 
