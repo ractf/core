@@ -1,76 +1,34 @@
-import re
-import time
-import secrets
-
-from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, password_validation
-from authentication.models import Token
-from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
+from rest_framework.status import HTTP_401_UNAUTHORIZED
+from rest_framework.exceptions import ValidationError
 
 from authentication.providers import LoginProvider, TokenProvider, RegistrationProvider
-from authentication.models import InviteCode
 from backend.exceptions import FormattedException
-from backend.mail import send_email
-from backend.signals import login_reject, login, register_reject, register
-from config import config
-from team.models import Team
+from backend.signals import login_reject, login
 
 
 class BasicAuthRegistrationProvider(RegistrationProvider):
     name = 'basic_auth'
+    required_fields = ["username", "email", "password"]
 
-    def register_user(self, username, email, password, invite, **kwargs):
-        if config.get('email_regex') and not re.compile(config.get('email_regex')).match(email) or \
-                not email.endswith(config.get('email_domain')):
-            raise FormattedException(m='invalid_email', status_code=HTTP_400_BAD_REQUEST)
-        register_end_time = config.get('register_end_time')
-        if not (config.get('enable_registration') and time.time() >= config.get('register_start_time')) \
-                and (register_end_time < 0 or register_end_time > time.time()):
-            register_reject.send(sender=self.__class__, username=username, email=email)
-            raise FormattedException(m='registration_not_open', status_code=HTTP_403_FORBIDDEN)
+    def validate(self, data):
+        if not all(key in data for key in self.required_fields):
+            raise ValidationError("A required field was not found.")
+
+        self.validate_email(data["email"])
+        self.check_email_or_username_in_use(email=data["email"], username=data["username"])
+
+        return {key: data[key] for key in self.required_fields}
+
+    def register_user(self, username, email, password, **kwargs):
         user = get_user_model()(
             username=username,
             email=email
         )
-        if get_user_model().objects.filter(username=username) or get_user_model().objects.filter(email=email):
-            raise FormattedException(m='email_or_username_in_use', status_code=HTTP_403_FORBIDDEN)
-        if not get_user_model().objects.all().exists():
-            user.is_staff = True
-            user.is_superuser = True
+
         password_validation.validate_password(password, user)
         user.set_password(password)
-        if config.get("invite_required"):
-            if InviteCode.objects.filter(code=invite):
-                code = InviteCode.objects.get(code=invite)
-                if code:
-                    if code.uses >= code.max_uses:
-                        raise FormattedException(m="invite_already_used", status_code=HTTP_403_FORBIDDEN)
-                code.uses += 1
-                if code.uses >= code.max_uses:
-                    code.fully_used = True
-                code.save()
-                if code.auto_team:
-                    user.team = code.auto_team
-            else:
-                raise FormattedException(m="invalid_invite", status_code=HTTP_403_FORBIDDEN)
 
-        token = user.email_token
-        if not settings.MAIL["SEND"]:
-            user.email_verified = True
-            user.is_visible = True
-
-        if not config.get("enable_teams"):
-            user.save()
-            user.team = Team.objects.create(
-                owner=user,
-                name=username,
-                password=secrets.token_hex(32),
-            )
-
-        user.save()
-        send_email(user.email, 'RACTF - Verify your email', 'verify',
-                   url=settings.FRONTEND_URL + 'verify?id={}&secret={}'.format(user.id, token))
-        register.send(sender=self.__class__, user=user)
         return user
 
 
