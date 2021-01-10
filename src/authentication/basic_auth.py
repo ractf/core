@@ -12,7 +12,6 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
     required_fields = ["username", "email", "password"]
 
     def validate(self, data):
-        print(dict(data))
         if not all(key in data for key in self.required_fields):
             raise ValidationError("A required field was not found.")
 
