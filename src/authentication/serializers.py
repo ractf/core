@@ -54,13 +54,6 @@ class RegistrationSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = providers.get_provider('registration').register_user(**validated_data, context=self.context)
 
-        if not config.get("enable_teams"):
-            user.team = Team.objects.create(
-                owner=user,
-                name=user.username,
-                password=secrets.token_hex(32),
-            )
-
         if not get_user_model().objects.all().exists():
             user.is_staff = True
             user.is_superuser = True
@@ -88,8 +81,15 @@ class RegistrationSerializer(serializers.Serializer):
             send_email(user.email, 'RACTF - Verify your email', 'verify',
                        url=settings.FRONTEND_URL + 'verify?id={}&secret={}'.format(user.id, user.email_token))
 
+        if not config.get("enable_teams"):
+            user.team = Team.objects.create(
+                owner=user,
+                name=user.username,
+                password=secrets.token_hex(32),
+            )
+            
         user.save()
-
+        
         return user
 
     def to_representation(self, instance):
