@@ -27,7 +27,8 @@ from challenge.permissions import CompetitionOpen
 from challenge.serializers import (
     ChallengeSerializer, CategorySerializer, AdminCategorySerializer,
     AdminChallengeSerializer, FileSerializer, CreateCategorySerializer,
-    CreateChallengeSerializer, ChallengeFeedbackSerializer, TagSerializer
+    CreateChallengeSerializer, ChallengeFeedbackSerializer, TagSerializer,
+    SolveSerializer
 )
 from config import config
 from hint.models import Hint, HintUse
@@ -143,6 +144,12 @@ class ChallengeViewset(AdminCreateModelViewSet):
         if self.request.method not in permissions.SAFE_METHODS:
             return self.queryset
         return Challenge.get_unlocked_annotated_queryset(self.request.user)
+
+
+class SolvesViewset(ModelViewSet):
+    queryset = Solve.objects.all()
+    permission_classes = (IsAdminUser,)
+    serializer_class = SolveSerializer
 
 
 class ChallengeFeedbackView(APIView):
