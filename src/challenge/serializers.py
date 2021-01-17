@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from challenge.models import Challenge, Category, File, Solve, ChallengeVote, ChallengeFeedback, Tag
+from challenge.models import Challenge, Category, File, Solve, Score, ChallengeFeedback, Tag
 from hint.serializers import HintSerializer
 
 
@@ -155,10 +155,10 @@ class AdminCategorySerializer(serializers.ModelSerializer):
                   'release_time']
 
 
-class AdminSolveSerializer(serializers.ModelSerializer):
+class AdminScoreSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Solve
-        fields = ['team', 'challenge', 'solved_by', 'first_blood', 'timestamp', 'correct', 'flag', 'score']
+        model = Score
+        fields = ['team', 'user', 'reason', 'points', 'penalty', 'leaderboard', 'timestamp', 'metadata']
 
 
 class SolveSerializer(serializers.ModelSerializer):

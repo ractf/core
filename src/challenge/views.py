@@ -28,7 +28,7 @@ from challenge.serializers import (
     ChallengeSerializer, CategorySerializer, AdminCategorySerializer,
     AdminChallengeSerializer, FileSerializer, CreateCategorySerializer,
     CreateChallengeSerializer, ChallengeFeedbackSerializer, TagSerializer,
-    AdminSolveSerializer
+    AdminScoreSerializer
 )
 from config import config
 from hint.models import Hint, HintUse
@@ -146,10 +146,10 @@ class ChallengeViewset(AdminCreateModelViewSet):
         return Challenge.get_unlocked_annotated_queryset(self.request.user)
 
 
-class SolvesViewset(ModelViewSet):
+class ScoresViewset(ModelViewSet):
     queryset = Solve.objects.all()
     permission_classes = (IsAdminUser,)
-    serializer_class = AdminSolveSerializer
+    serializer_class = AdminScoreSerializer
 
 
 class ChallengeFeedbackView(APIView):
