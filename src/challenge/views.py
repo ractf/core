@@ -28,7 +28,7 @@ from challenge.serializers import (
     ChallengeSerializer, CategorySerializer, AdminCategorySerializer,
     AdminChallengeSerializer, FileSerializer, CreateCategorySerializer,
     CreateChallengeSerializer, ChallengeFeedbackSerializer, TagSerializer,
-    SolveSerializer
+    AdminSolveSerializer
 )
 from config import config
 from hint.models import Hint, HintUse
@@ -149,7 +149,7 @@ class ChallengeViewset(AdminCreateModelViewSet):
 class SolvesViewset(ModelViewSet):
     queryset = Solve.objects.all()
     permission_classes = (IsAdminUser,)
-    serializer_class = SolveSerializer
+    serializer_class = AdminSolveSerializer
 
 
 class ChallengeFeedbackView(APIView):

@@ -155,6 +155,12 @@ class AdminCategorySerializer(serializers.ModelSerializer):
                   'release_time']
 
 
+class AdminSolveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Solve
+        fields = ['team', 'challenge', 'solved_by', 'first_blood', 'timestamp', 'correct', 'flag', 'score']
+
+
 class SolveSerializer(serializers.ModelSerializer):
     team_name = serializers.ReadOnlyField(source='team.name')
     solved_by_name = serializers.ReadOnlyField(source='solved_by.username')
