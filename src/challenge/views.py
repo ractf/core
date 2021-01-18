@@ -154,13 +154,15 @@ class ScoresViewset(ModelViewSet):
     def recalculate_scores(self, user, team):
         if user:
             user = get_object_or_404(get_user_model(), id=user)
-            user.leaderboard_points = Score.objects.filter(user=user).aggregate(Sum("points"))["points__sum"] or 0
-            user.last_score = Score.objects.filter(user=user).order_by("timestamp").first().timestamp
+            user.leaderboard_points = Score.objects.filter(user=user, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
+            user.points = Score.objects.filter(user=user).aggregate(Sum("points"))["points__sum"] or 0
+            user.last_score = Score.objects.filter(user=user, leaderboard=True).order_by("timestamp").first().timestamp
             user.save()
         if team:
             team = get_object_or_404(Team, id=team)
-            team.leaderboard_points = Score.objects.filter(team=team).aggregate(Sum("points"))["points__sum"] or 0
-            team.last_score = Score.objects.filter(team=team).order_by("timestamp").first().timestamp
+            team.leaderboard_points = Score.objects.filter(team=team, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
+            team.points = Score.objects.filter(team=team).aggregate(Sum("points"))["points__sum"] or 0
+            team.last_score = Score.objects.filter(team=team, leaderboard=True).order_by("timestamp").first().timestamp
             team.save()
 
     def create(self, req, *args, **kwargs):
