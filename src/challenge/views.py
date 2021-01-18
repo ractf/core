@@ -5,7 +5,7 @@ from typing import Union
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import transaction, models
-from django.db.models import Prefetch, Case, When, Value, Count, Subquery, Q
+from django.db.models import Prefetch, Case, When, Value, Count, Subquery, Q, Sum
 from django.utils import timezone
 
 from rest_framework import permissions
@@ -150,6 +150,43 @@ class ScoresViewset(ModelViewSet):
     queryset = Score.objects.all()
     permission_classes = (IsAdminUser,)
     serializer_class = AdminScoreSerializer
+
+    def recalculate_scores(self, user, team):
+        if user:
+            user = get_object_or_404(get_user_model(), user)
+            user.leaderboard_points = Score.objects.filter(user=user).aggregate(Sum("points"))["points__sum"] or 0
+            user.last_score = Score.objects.get(user=user).order_by("timestamp").timestamp
+            user.save()
+        if team:
+            team = get_object_or_404(Team, team)
+            team.leaderboard_points = Score.objects.filter(team=team).aggregate(Sum("points"))["points__sum"] or 0
+            team.last_score = Score.objects.get(team=team).order_by("timestamp").timestamp
+            team.save()
+
+    def create(self, req, *args, **kwargs):
+        x = super().create(req, *args, **kwargs)
+        self.recalculate_scores(req.data.get("user", None), req.data.get("team", None))
+        return x
+
+    def create(self, req, *args, **kwargs):
+        x = super().create(req, *args, **kwargs)
+        self.recalculate_scores(req.data.get("user", None), req.data.get("team", None))
+        return x
+
+    def update(self, req, *args, **kwargs):
+        x = super().update(req, *args, **kwargs)
+        self.recalculate_scores(req.data.get("user", None), req.data.get("team", None))
+        return x
+
+    def partial_update(self, req, *args, **kwargs):
+        x = super().partial_update(req, *args, **kwargs)
+        self.recalculate_scores(req.data.get("user", None), req.data.get("team", None))
+        return x
+
+    def destroy(self, req, *args, **kwargs):
+        x = super().destroy(req, *args, **kwargs)
+        self.recalculate_scores(req.data.get("user", None), req.data.get("team", None))
+        return x
 
 
 class ChallengeFeedbackView(APIView):
