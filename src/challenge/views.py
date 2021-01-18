@@ -155,12 +155,12 @@ class ScoresViewset(ModelViewSet):
         if user:
             user = get_object_or_404(get_user_model(), id=user)
             user.leaderboard_points = Score.objects.filter(user=user).aggregate(Sum("points"))["points__sum"] or 0
-            user.last_score = Score.objects.get(user=user).order_by("timestamp").timestamp
+            user.last_score = Score.objects.first(user=user).order_by("timestamp").timestamp
             user.save()
         if team:
             team = get_object_or_404(Team, id=team)
             team.leaderboard_points = Score.objects.filter(team=team).aggregate(Sum("points"))["points__sum"] or 0
-            team.last_score = Score.objects.get(team=team).order_by("timestamp").timestamp
+            team.last_score = Score.objects.first(team=team).order_by("timestamp").timestamp
             team.save()
 
     def create(self, req, *args, **kwargs):
