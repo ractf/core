@@ -29,6 +29,6 @@ jobs:
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
       run: docker push ractf/core:${{ steps.branch.outputs.name }}
 
-    - name: Login to Github Container Registry
+    - name: Push to Github Container Registry
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
       run: docker push ghcr.io/ractf/core:${{ steps.branch.outputs.name }}
