@@ -168,11 +168,6 @@ class ScoresViewset(ModelViewSet):
         self.recalculate_scores(req.data.get("user", None), req.data.get("team", None))
         return x
 
-    def create(self, req, *args, **kwargs):
-        x = super().create(req, *args, **kwargs)
-        self.recalculate_scores(req.data.get("user", None), req.data.get("team", None))
-        return x
-
     def update(self, req, *args, **kwargs):
         x = super().update(req, *args, **kwargs)
         self.recalculate_scores(req.data.get("user", None), req.data.get("team", None))
