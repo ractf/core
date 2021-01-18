@@ -22,7 +22,7 @@ from backend.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
 from backend.response import FormattedResponse
 from backend.signals import flag_submit, flag_reject, flag_score
 from backend.viewsets import AdminCreateModelViewSet
-from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag
+from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag, Score
 from challenge.permissions import CompetitionOpen
 from challenge.serializers import (
     ChallengeSerializer, CategorySerializer, AdminCategorySerializer,
@@ -147,7 +147,7 @@ class ChallengeViewset(AdminCreateModelViewSet):
 
 
 class ScoresViewset(ModelViewSet):
-    queryset = Solve.objects.all()
+    queryset = Score.objects.all()
     permission_classes = (IsAdminUser,)
     serializer_class = AdminScoreSerializer
 
