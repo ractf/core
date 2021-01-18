@@ -153,12 +153,12 @@ class ScoresViewset(ModelViewSet):
 
     def recalculate_scores(self, user, team):
         if user:
-            user = get_object_or_404(get_user_model(), user)
+            user = get_object_or_404(get_user_model(), id=user)
             user.leaderboard_points = Score.objects.filter(user=user).aggregate(Sum("points"))["points__sum"] or 0
             user.last_score = Score.objects.get(user=user).order_by("timestamp").timestamp
             user.save()
         if team:
-            team = get_object_or_404(Team, team)
+            team = get_object_or_404(Team, id=team)
             team.leaderboard_points = Score.objects.filter(team=team).aggregate(Sum("points"))["points__sum"] or 0
             team.last_score = Score.objects.get(team=team).order_by("timestamp").timestamp
             team.save()
