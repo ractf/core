@@ -18,6 +18,8 @@ class NestedTagSerializer(serializers.ModelSerializer):
 
 class ChallengeSerializerMixin:
     def get_unlocked(self, instance):
+        if not getattr(instance, "unlocked", None):
+            return instance.is_unlocked(self.context["request"].user)
         return instance.unlocked
 
     def get_solved(self, instance):
@@ -46,8 +48,8 @@ class LockedChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSeria
 
     class Meta:
         model = Challenge
-        fields = ['id', 'unlocks', 'challenge_metadata', 'challenge_type', 'hidden', 'unlock_time_surpassed',
-                  'release_time']
+        fields = ['id', 'unlock_requirements', 'challenge_metadata', 'challenge_type', 'hidden',
+                  'unlock_time_surpassed', 'release_time']
 
 
 class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
@@ -65,12 +67,13 @@ class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer)
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
-                  'author', 'auto_unlock', 'score', 'unlocks', 'hints', 'files', 'solved', 'unlocked', 'first_blood',
-                  'first_blood_name', 'solve_count', 'hidden', 'votes', 'tags', 'unlock_time_surpassed',
+                  'author', 'auto_unlock', 'score', 'unlock_requirements', 'hints', 'files', 'solved', 'unlocked',
+                  'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'votes', 'tags', 'unlock_time_surpassed',
                   'post_score_explanation']
 
     def to_representation(self, instance):
-        if instance.unlocked and not instance.hidden and instance.unlock_time_surpassed:
+        if instance.is_unlocked(self.context["request"].user) and not instance.hidden \
+                and instance.unlock_time_surpassed:
             return super(ChallengeSerializer, self).to_representation(instance)
         return LockedChallengeSerializer(instance).to_representation(instance)
 
@@ -113,7 +116,7 @@ class AdminChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerial
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
-                  'author', 'auto_unlock', 'score', 'unlocks', 'flag_metadata', 'hints', 'files', 'solved',
+                  'author', 'auto_unlock', 'score', 'unlock_requirements', 'flag_metadata', 'hints', 'files', 'solved',
                   'unlocked', 'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'release_time', 'votes',
                   'post_score_explanation', 'tags']
 
@@ -124,15 +127,13 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
-                  'author', 'auto_unlock', 'score', 'unlocks', 'flag_metadata', 'hidden', 'release_time',
+                  'author', 'auto_unlock', 'score', 'unlock_requirements', 'flag_metadata', 'hidden', 'release_time',
                   'post_score_explanation', 'tags']
         read_only_fields = ['id']
 
     def create(self, validated_data):
         tags = validated_data.pop('tags', [])
-        unlocks = validated_data.pop('unlocks', [])
         challenge = Challenge.objects.create(**validated_data)
-        challenge.unlocks.set(unlocks)
         for tag_data in tags:
             Tag.objects.create(challenge=challenge, **tag_data)
         return challenge

@@ -53,13 +53,7 @@ class CategoryViewset(AdminCreateModelViewSet):
         if team is not None:
             solves = Solve.objects.filter(team=team, correct=True)
             solved_challenges = solves.values_list('challenge')
-            challenges = Challenge.objects.prefetch_related('unlocked_by').annotate(
-                unlocked=Case(
-                    When(auto_unlock=True, then=Value(True)),
-                    When(Q(unlocked_by__in=Subquery(solved_challenges)), then=Value(True)),
-                    default=Value(False),
-                    output_field=models.BooleanField()
-                ),
+            challenges = Challenge.objects.annotate(
                 solved=Case(
                     When(Q(id__in=Subquery(solved_challenges)), then=Value(True)),
                     default=Value(False),
@@ -104,7 +98,7 @@ class CategoryViewset(AdminCreateModelViewSet):
             Prefetch('tag_set',
                      queryset=Tag.objects.all() if time.time() > config.get('end_time') else Tag.objects.filter(
                          post_competition=False), to_attr='tags'),
-            'unlocks', 'first_blood', 'hint_set__uses')
+            'first_blood', 'hint_set__uses')
         if self.request.user.is_staff:
             categories = Category.objects
         else:
