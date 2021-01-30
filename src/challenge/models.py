@@ -69,6 +69,22 @@ class Challenge(models.Model):
                 if len(state) >= 2:
                     a, b = state.pop(), state.pop()
                     state.append(a and b)
+            elif i == "XOR":
+                if len(state) >= 2:
+                    a, b = state.pop, state.pop()
+                    state.append(a != b)
+            elif i == "NAND":
+                if len(state) >= 2:
+                    a, b = state.pop, state.pop()
+                    state.append(not (a and b))
+            elif i == "NOR":
+                if len(state) >= 2:
+                    a, b = state.pop, state.pop()
+                    state.append(not (a or b))
+            elif i == "XNOR":
+                if len(state) >= 2:
+                    a, b = state.pop, state.pop()
+                    state.append(not (a != b))
         if not state:
             return False
         return state[0]
