@@ -44,7 +44,7 @@ class Challenge(models.Model):
     points_type = models.CharField(max_length=64, default="basic")
     release_time = models.DateTimeField(default=timezone.now)
 
-    def is_unlocked(self, user):
+    def is_unlocked(self, user, solves=None):
         if user is None:
             return False
         if not user.is_authenticated:
@@ -53,7 +53,8 @@ class Challenge(models.Model):
             return True
         if user.team is None:
             return False
-        solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
+        if solves is None:
+            solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
         requirements = self.unlock_requirements
         state = []
         if not requirements:

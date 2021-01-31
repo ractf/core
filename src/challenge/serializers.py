@@ -19,7 +19,7 @@ class NestedTagSerializer(serializers.ModelSerializer):
 class ChallengeSerializerMixin:
     def get_unlocked(self, instance):
         if not getattr(instance, "unlocked", None):
-            return instance.is_unlocked(self.context["request"].user)
+            return instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None))
         return instance.unlocked
 
     def get_solved(self, instance):
@@ -72,8 +72,8 @@ class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer)
                   'post_score_explanation']
 
     def to_representation(self, instance):
-        if instance.is_unlocked(self.context["request"].user) and not instance.hidden \
-                and instance.unlock_time_surpassed:
+        if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and \
+                not instance.hidden and instance.unlock_time_surpassed:
             return super(ChallengeSerializer, self).to_representation(instance)
         return LockedChallengeSerializer(instance).to_representation(instance)
 
@@ -84,6 +84,15 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', 'name', 'display_order', 'contained_type', 'description', 'metadata', 'challenges']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['challenges'].context.update({
+            "request": self.context["request"],
+            "solves": list(
+                self.context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
+            )
+        })
 
 
 class ChallengeFeedbackSerializer(serializers.ModelSerializer):
