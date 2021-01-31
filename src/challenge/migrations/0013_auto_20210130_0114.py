@@ -10,10 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='challenge',
-            name='unlocks',
-        ),
         migrations.AddField(
             model_name='challenge',
             name='unlock_requirements',
