@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 
 
 stdbuf -o 0 echo -n "Waiting for postgres... "
