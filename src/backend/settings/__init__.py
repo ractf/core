@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "member.apps.MemberConfig",
     "pages.apps.PagesConfig",
     "plugins.apps.PluginsConfig",
+    "polaris.apps.PolarisConfig",
     "ractf.apps.RactfConfig",
     "scorerecalculator.apps.ScorerecalculatorConfig",
     "stats.apps.StatsConfig",
@@ -225,9 +226,14 @@ REST_FRAMEWORK = {
 MAIL_SOCK_URL = "http+unix://%2Ftmp%2Fmailusv.sock/send"
 SEND_MAIL = False
 
-ANDROMEDA_URL = os.getenv("ANDROMEDA_URL")
-ANDROMEDA_API_KEY = os.getenv("ANDROMEDA_API_KEY")
-ANDROMEDA_SERVER_IP = os.getenv("ANDROMEDA_IP")  # shown to participants
+if os.getenv("CHALLENGE_SERVER_TYPE") == "POLARIS":
+    POLARIS_URL = os.getenv("POLARIS_URL")
+    POLARIS_USERNAME = os.getenv("POLARIS_USERNAME")
+    POLARIS_PASSWORD = os.getenv("POLARIS_PASSWORD")
+else:
+    ANDROMEDA_URL = os.getenv("ANDROMEDA_URL")
+    ANDROMEDA_API_KEY = os.getenv("ANDROMEDA_API_KEY")
+    ANDROMEDA_SERVER_IP = os.getenv("ANDROMEDA_IP")  # shown to participants
 
 INSTALLED_PLUGINS = [
     "plugins.flag.hashed",
