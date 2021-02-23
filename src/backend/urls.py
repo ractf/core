@@ -25,7 +25,7 @@ urlpatterns = [
     path('announcements/', include('announcements.urls')),
     path('auth/', include('authentication.urls')),
     path('challenges/', include('challenge.urls')),
-    path('challengeserver/', include('challengeserver.urls')),
+    path('challengeserver/', include('andromeda.urls')),
     path('config/', include('config.urls')),
     path('hints/', include('hint.urls')),
     path('leaderboard/', include('leaderboard.urls')),
@@ -34,7 +34,8 @@ urlpatterns = [
     path('stats/', include('stats.urls')),
     path('team/', include('team.urls')),
     path('pages/', include('pages.urls')),
-    path('experiments/', include('experiments.urls'))
+    path('experiments/', include('experiments.urls')),
+    path('polaris/', include('polaris.urls')),
 ]
 
 urlpatterns = [

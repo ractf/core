@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     "announcements.apps.AnnouncementsConfig",
     "authentication.apps.AuthConfig",
     "challenge.apps.ChallengeConfig",
-    "challengeserver.apps.ChallengeserverConfig",
+    "andromeda.apps.AndromedaConfig",
     "config.apps.ConfigConfig",
     "experiments.apps.ExperimentsConfig",
     "hint.apps.HintConfig",
@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "member.apps.MemberConfig",
     "pages.apps.PagesConfig",
     "plugins.apps.PluginsConfig",
+    "polaris.apps.PolarisConfig",
     "ractf.apps.RactfConfig",
     "scorerecalculator.apps.ScorerecalculatorConfig",
     "stats.apps.StatsConfig",
@@ -217,6 +218,14 @@ REST_FRAMEWORK = {
         "andromeda_view_jobs": "100/minute",
         "andromeda_manage_jobs": "100/minute",
         "andromeda_view_sysinfo": "100/minute",
+        "polaris_view_challenges": "100/minute",
+        "polaris_submit_challenge": "100/minute",
+        "polaris_delete_challenge": "100/minute",
+        "polaris_view_deployments": "100/minute",
+        "polaris_submit_deployments": "10/minute",
+        "polaris_delete_deployments": "100/minute",
+        "polaris_view_hosts": "100/minute",
+        "polaris_view_instances": "100/minute",
     },
     "DEFAULT_PAGINATION_CLASS": "backend.pagination.FastPagination",
     "PAGE_SIZE": 100,
@@ -225,9 +234,14 @@ REST_FRAMEWORK = {
 MAIL_SOCK_URL = "http+unix://%2Ftmp%2Fmailusv.sock/send"
 SEND_MAIL = False
 
-CHALLENGE_SERVER_URL = os.getenv("ANDROMEDA_URL")
-CHALLENGE_SERVER_API_KEY = os.getenv("ANDROMEDA_API_KEY")
-CHALLENGE_SERVER_IP = os.getenv("ANDROMEDA_IP")  # shown to participants
+if os.getenv("CHALLENGE_SERVER_TYPE") == "POLARIS":
+    POLARIS_URL = os.getenv("POLARIS_URL")
+    POLARIS_USERNAME = os.getenv("POLARIS_USERNAME")
+    POLARIS_PASSWORD = os.getenv("POLARIS_PASSWORD")
+else:
+    ANDROMEDA_URL = os.getenv("ANDROMEDA_URL")
+    ANDROMEDA_API_KEY = os.getenv("ANDROMEDA_API_KEY")
+    ANDROMEDA_SERVER_IP = os.getenv("ANDROMEDA_IP")  # shown to participants
 
 INSTALLED_PLUGINS = [
     "plugins.flag.hashed",

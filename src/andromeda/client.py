@@ -8,16 +8,16 @@ from backend.exceptions import FormattedException
 
 
 def post(path, **kwargs):
-    response = requests.post(f"{settings.CHALLENGE_SERVER_URL}/{path}",
-                             headers={"Authorization": settings.CHALLENGE_SERVER_API_KEY}, **kwargs)
+    response = requests.post(f"{settings.ANDROMEDA_URL}/{path}",
+                             headers={"Authorization": settings.ANDROMEDA_API_KEY}, **kwargs)
     if response.status_code == HTTP_200_OK:
         return response.json()
     raise FormattedException(m='challenge_server_error')
 
 
 def get(path, **kwargs):
-    response = requests.get(f"{settings.CHALLENGE_SERVER_URL}/{path}",
-                            headers={"Authorization": settings.CHALLENGE_SERVER_API_KEY}, **kwargs)
+    response = requests.get(f"{settings.ANDROMEDA_URL}/{path}",
+                            headers={"Authorization": settings.ANDROMEDA_API_KEY}, **kwargs)
     if response.status_code == HTTP_200_OK:
         return response.json()
     raise FormattedException(m='challenge_server_error')
