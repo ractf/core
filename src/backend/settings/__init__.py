@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     "announcements.apps.AnnouncementsConfig",
     "authentication.apps.AuthConfig",
     "challenge.apps.ChallengeConfig",
-    "challengeserver.apps.ChallengeserverConfig",
+    "andromeda.apps.AndromedaConfig",
     "config.apps.ConfigConfig",
     "experiments.apps.ExperimentsConfig",
     "hint.apps.HintConfig",
@@ -225,9 +225,9 @@ REST_FRAMEWORK = {
 MAIL_SOCK_URL = "http+unix://%2Ftmp%2Fmailusv.sock/send"
 SEND_MAIL = False
 
-CHALLENGE_SERVER_URL = os.getenv("ANDROMEDA_URL")
-CHALLENGE_SERVER_API_KEY = os.getenv("ANDROMEDA_API_KEY")
-CHALLENGE_SERVER_IP = os.getenv("ANDROMEDA_IP")  # shown to participants
+ANDROMEDA_URL = os.getenv("ANDROMEDA_URL")
+ANDROMEDA_API_KEY = os.getenv("ANDROMEDA_API_KEY")
+ANDROMEDA_SERVER_IP = os.getenv("ANDROMEDA_IP")  # shown to participants
 
 INSTALLED_PLUGINS = [
     "plugins.flag.hashed",
