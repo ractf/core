@@ -37,7 +37,6 @@ def on_flag_score(user, team, challenge, flag, solve, **kwargs):
         'challenge_score': solve.score.points,
         'team': team.id,
         'team_name': team.name,
-        'unlocks': [i.id for i in challenge.unlocks.all()]
     })
 
 

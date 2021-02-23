@@ -33,9 +33,7 @@ class Challenge(models.Model):
     auto_unlock = models.BooleanField(default=False)
     hidden = models.BooleanField(default=False)
     score = models.IntegerField()
-    unlocks = models.ManyToManyField(
-        "self", related_name="unlocked_by", blank=True, symmetrical=False
-    )
+    unlock_requirements = models.CharField(max_length=255, null=True)
     first_blood = models.ForeignKey(
         get_user_model(),
         related_name="first_bloods",
@@ -46,17 +44,35 @@ class Challenge(models.Model):
     points_type = models.CharField(max_length=64, default="basic")
     release_time = models.DateTimeField(default=timezone.now)
 
-    def is_unlocked(self, user):
+    def is_unlocked(self, user, solves=None):
+        if user is None:
+            return False
         if not user.is_authenticated:
             return False
         if self.auto_unlock:
             return True
         if user.team is None:
             return False
-        solves = user.team.solves.filter(correct=True).values_list("challenge", flat=True)
-        if self.unlocked_by.filter(id__in=solves).exists():
-            return True
-        return False
+        if solves is None:
+            solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
+        requirements = self.unlock_requirements
+        state = []
+        if not requirements:
+            return False
+        for i in requirements.split():
+            if i.isdigit():
+                state.append(int(i) in solves)
+            elif i == "OR":
+                if len(state) >= 2:
+                    a, b = state.pop(), state.pop()
+                    state.append(a or b)
+            elif i == "AND":
+                if len(state) >= 2:
+                    a, b = state.pop(), state.pop()
+                    state.append(a and b)
+        if not state:
+            return False
+        return state[0]
 
     def is_solved(self, user):
         if not user.is_authenticated:
@@ -74,12 +90,6 @@ class Challenge(models.Model):
                 team=user.team, correct=True
             ).values_list("challenge")
             challenges = Challenge.objects.annotate(
-                unlocked=Case(
-                    When(auto_unlock=True, then=Value(True)),
-                    When(unlocked_by__in=Subquery(solved_challenges), then=Value(True)),
-                    default=Value(False),
-                    output_field=models.BooleanField(),
-                ),
                 solved=Case(
                     When(id__in=Subquery(solved_challenges), then=Value(True)),
                     default=Value(False),
