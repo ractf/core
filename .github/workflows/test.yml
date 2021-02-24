@@ -44,7 +44,7 @@ jobs:
         DJANGO_SETTINGS_MODULE: 'backend.settings.test'
     
     - name: Output Coverage Report
-      run: coverage report && true
+      run: coverage report || true
 
     - name: Save Coverage XML
       run: coverage xml
