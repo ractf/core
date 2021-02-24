@@ -16,9 +16,9 @@ MAIL["SEND"] = False
 #    },
 #}
 
-CONFIG = {
-    "BACKEND": "config.backends.DatabaseBackend",
-}
+#CONFIG = {
+#    "BACKEND": "config.backends.DatabaseBackend",
+#}
 
 #CACHES = {
 #    'default': {
