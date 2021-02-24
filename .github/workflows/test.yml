@@ -62,9 +62,6 @@ jobs:
           ${{ runner.os }}-build-
           ${{ runner.os }}-
 
-    - name: Install APT Dependencies
-      run: apt update && apt -y --no-install-recommends install build-essential curl libpq-dev netcat git
-
     - name: Install Poetry
       run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
       env:
@@ -81,17 +78,6 @@ jobs:
     - name: Run Tests
       run: coverage run --source='.' ./manage.py test
       working-directory: ./src
-      env:
-        DJANGO_SETTINGS_MODULE: 'backend.settings.test'
-        REDIS_PORT: 6379
-        REDIS_CONFIG_DB: 1
-        REDIS_CACHE_DB: 2
-        REDIS_HOST: redis
-        SQL_PORT: 5432
-        SQL_USER: ractf
-        SQL_HOST: postgres
-        SQL_DATABASE: ractf
-        SQL_PASSWORD: postgres
     
     - name: Output Coverage Report
       run: coverage report || true
@@ -105,3 +91,9 @@ jobs:
         files: ./coverage.xml
         fail_ci_if_error: true
         verbose: true
+
+    - name: Publish Coverage XML
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage.xml
+        path: ./coverage.xml
