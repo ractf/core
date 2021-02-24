@@ -75,6 +75,10 @@ jobs:
       env:
         PIP_CACHE_DIR: ~/.pip
 
+    - name: Run Migrations
+      run: ./manage.py migrate
+      working-directory: ./src
+
     - name: Run Tests
       run: coverage run --source='.' ./manage.py test
       working-directory: ./src
