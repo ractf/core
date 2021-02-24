@@ -5,7 +5,7 @@ on: push
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: python:3.8-slim
+    container: python:3.9-slim
     services:
       postgres:
         image: postgres:12-alpine
@@ -32,10 +32,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - uses: actions/setup-python@v2
-      with:
-        python-version: '3.8'
-
     - name: Cache Python modules
       uses: actions/cache@v1
       env:
@@ -49,7 +45,7 @@ jobs:
           ${{ runner.os }}-
 
     - name: Install APT Dependencies
-      run: apt update && apt -y --no-install-recommends install build-essential curl libpq-dev netcat git python3-dev
+      run: apt update && apt -y --no-install-recommends install build-essential curl libpq-dev netcat git
 
     - name: Install Poetry
       run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
