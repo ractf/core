@@ -49,7 +49,8 @@ jobs:
     - name: Save Coverage XML
       run: coverage xml || true
 
-    - uses: codecov/codecov-action@v1
+    - name: Upload to CodeCov
+      uses: codecov/codecov-action@v1
       with:
         files: ./coverage.xml
         fail_ci_if_error: true
