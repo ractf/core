@@ -14,8 +14,18 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: ractf
           POSTGRES_USER: ractf
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
       redis:
         image: redis:5
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
     - name: Checkout repository
