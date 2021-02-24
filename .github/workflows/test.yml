@@ -54,6 +54,15 @@ jobs:
       run: coverage run --source='.' ./src/manage.py test
       env:
         DJANGO_SETTINGS_MODULE: 'backend.settings.test'
+        REDIS_PORT: 6379
+        REDIS_CONFIG_DB: 1
+        REDIS_CACHE_DB: 2
+        REDIS_HOST: redis
+        SQL_PORT: 5432
+        SQL_USER: ractf
+        SQL_HOST: postgres
+        SQL_DATABASE: ractf
+        SQL_PASSWORD: postgres
     
     - name: Output Coverage Report
       run: coverage report || true
