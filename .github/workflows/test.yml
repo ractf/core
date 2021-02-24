@@ -39,7 +39,7 @@ jobs:
         PIP_CACHE_DIR: ~/.pip
 
     - name: Run Tests
-      run: coverage run --source='.' ./src/manage.py test
+      run: coverage run --source='.' ./src/manage.py test && true
       env:
         DJANGO_SETTINGS_MODULE: 'backend.settings.test'
     
