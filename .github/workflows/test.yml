@@ -51,7 +51,8 @@ jobs:
         PIP_CACHE_DIR: ~/.pip
 
     - name: Run Tests
-      run: coverage run --source='.' ./src/manage.py test
+      run: coverage run --source='.' ./manage.py test
+      working-directory: ./src
       env:
         DJANGO_SETTINGS_MODULE: 'backend.settings.test'
         REDIS_PORT: 6379
