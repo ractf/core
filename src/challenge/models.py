@@ -33,7 +33,7 @@ class Challenge(models.Model):
     auto_unlock = models.BooleanField(default=False)
     hidden = models.BooleanField(default=False)
     score = models.IntegerField()
-    unlock_requirements = models.CharField(max_length=255, null=True)
+    unlock_requirements = models.CharField(max_length=255, null=True, default="")
     first_blood = models.ForeignKey(
         get_user_model(),
         related_name="first_bloods",
