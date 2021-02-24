@@ -39,12 +39,12 @@ jobs:
         PIP_CACHE_DIR: ~/.pip
 
     - name: Run Tests
-      run: coverage run --source='.' ./src/manage.py test && true
+      run: coverage run --source='.' ./src/manage.py test
       env:
         DJANGO_SETTINGS_MODULE: 'backend.settings.test'
     
     - name: Output Coverage Report
-      run: coverage report
+      run: coverage report && true
 
     - name: Save Coverage XML
       run: coverage xml
