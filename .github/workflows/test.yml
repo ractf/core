@@ -39,6 +39,18 @@ jobs:
         PIP_CACHE_DIR: ~/.pip
 
     - name: Run Tests
-      run: ./src/manage.py test
+      run: coverage run --source='.' ./src/manage.py test
       env:
         DJANGO_SETTINGS_MODULE: 'backend.settings.test'
+    
+    - name: Output Coverage Report
+      run: coverage report
+
+    - name: Save Coverage XML
+      run: coverage xml
+
+    - uses: codecov/codecov-action@v1
+      with:
+        files: ./coverage.xml
+        fail_ci_if_error: true
+        verbose: true
