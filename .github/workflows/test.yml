@@ -5,6 +5,7 @@ on: push
 jobs:
   test:
     runs-on: ubuntu-latest
+    container: python:3.8-alpine
     services:
       postgres:
         image: postgres:12-alpine
