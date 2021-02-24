@@ -13,9 +13,9 @@ jobs:
       REDIS_HOST: localhost
       SQL_PORT: 5432
       SQL_USER: ractf
-      SQL_HOST: postgres
+      SQL_HOST: localhost
       SQL_DATABASE: ractf
-      SQL_PASSWORD: localhost
+      SQL_PASSWORD: postgres
     services:
       postgres:
         image: postgres:12-alpine
