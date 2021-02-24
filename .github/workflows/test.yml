@@ -5,7 +5,17 @@ on: push
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: python:3.9-slim
+    env:
+      DJANGO_SETTINGS_MODULE: 'backend.settings.test'
+      REDIS_PORT: 6379
+      REDIS_CONFIG_DB: 1
+      REDIS_CACHE_DB: 2
+      REDIS_HOST: localhost
+      SQL_PORT: 5432
+      SQL_USER: ractf
+      SQL_HOST: postgres
+      SQL_DATABASE: ractf
+      SQL_PASSWORD: localhost
     services:
       postgres:
         image: postgres:12-alpine
@@ -20,6 +30,8 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 5432:5432
       redis:
         image: redis:5
         options: >-
@@ -27,10 +39,16 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+        ports:
+          - 6379:6379
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
 
     - name: Cache Python modules
       uses: actions/cache@v1
