@@ -47,7 +47,7 @@ jobs:
       run: coverage report || true
 
     - name: Save Coverage XML
-      run: coverage xml
+      run: coverage xml || true
 
     - uses: codecov/codecov-action@v1
       with:
