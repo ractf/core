@@ -49,7 +49,7 @@ jobs:
           ${{ runner.os }}-
 
     - name: Install APT Dependencies
-      run: apt update && apt -y --no-install-recommends install build-essential curl libpq-dev netcat git
+      run: apt update && apt -y --no-install-recommends install build-essential curl libpq-dev netcat git python3-dev
 
     - name: Install Poetry
       run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
