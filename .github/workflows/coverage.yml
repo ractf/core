@@ -1,4 +1,4 @@
-name: Run Tests
+name: Gather Coverage
 
 on: push
 
@@ -80,5 +80,24 @@ jobs:
       working-directory: ./src
 
     - name: Run Tests
-      run: ./manage.py test
+      run: coverage run --source='.' ./manage.py test || true
       working-directory: ./src
+    
+    - name: Output Coverage Report
+      run: coverage report || true
+
+    - name: Save Coverage XML
+      run: coverage xml || true
+
+    - name: Upload to CodeCov
+      uses: codecov/codecov-action@v1
+      with:
+        files: ./coverage.xml
+        fail_ci_if_error: true
+        verbose: true
+
+    - name: Publish Coverage XML
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage.xml
+        path: ./coverage.xml
