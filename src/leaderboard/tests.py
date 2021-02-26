@@ -4,6 +4,7 @@ from rest_framework.status import HTTP_200_OK
 from rest_framework.test import APITestCase
 
 from challenge.models import Score
+from config import config
 from leaderboard.views import UserListView, TeamListView, GraphView
 from team.models import Team
 
@@ -40,6 +41,12 @@ class ScoreListTestCase(APITestCase):
         response = self.client.get(reverse('leaderboard-graph'))
         self.assertEquals(response.status_code, HTTP_200_OK)
 
+    def test_disabled_access(self):
+        config.set("enable_scoreboard", False)
+        response = self.client.get(reverse('leaderboard-graph'))
+        config.set("enable_scoreboard", True)
+        self.assertEquals(response.data["d"], {})
+
     def test_format(self):
         response = self.client.get(reverse('leaderboard-graph'))
         self.assertTrue('user' in response.data['d'])
@@ -48,16 +55,24 @@ class ScoreListTestCase(APITestCase):
     def test_list_size(self):
         populate()
         response = self.client.get(reverse('leaderboard-graph'))
-        print(response.data)
         self.assertEquals(len(response.data['d']['user']), 10)
         self.assertEquals(len(response.data['d']['team']), 10)
 
     def test_list_sorting(self):
         populate()
         response = self.client.get(reverse('leaderboard-graph'))
-        print(response.data)
         self.assertEquals(response.data['d']['user'][0]['points'], 1400)
         self.assertEquals(response.data['d']['team'][0]['points'], 1400)
+
+    def test_user_only(self):
+        populate()
+        config.set("enable_teams", False)
+        response = self.client.get(reverse('leaderboard-graph'))
+        config.set("enable_teams", True)
+        self.assertEquals(len(response.data['d']['user']), 10)
+        self.assertEquals(response.data['d']['user'][0]['points'], 1400)
+        self.assertNotIn("team", response.data['d'].keys())
+
 
 
 class UserListTestCase(APITestCase):
@@ -76,6 +91,12 @@ class UserListTestCase(APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('leaderboard-user'))
         self.assertEquals(response.status_code, HTTP_200_OK)
+
+    def test_disabled_access(self):
+        config.set("enable_scoreboard", False)
+        response = self.client.get(reverse('leaderboard-user'))
+        config.set("enable_scoreboard", True)
+        self.assertEquals(response.data["d"], {})
 
     def test_length(self):
         populate()
@@ -108,6 +129,12 @@ class TeamListTestCase(APITestCase):
         response = self.client.get(reverse('leaderboard-team'))
         self.assertEquals(response.status_code, HTTP_200_OK)
 
+    def test_disabled_access(self):
+        config.set("enable_scoreboard", False)
+        response = self.client.get(reverse('leaderboard-team'))
+        config.set("enable_scoreboard", True)
+        self.assertEquals(response.data["d"], {})
+
     def test_length(self):
         populate()
         response = self.client.get(reverse('leaderboard-team'))
@@ -116,6 +143,46 @@ class TeamListTestCase(APITestCase):
     def test_order(self):
         populate()
         response = self.client.get(reverse('leaderboard-team'))
-        print(response.data)
         points = [x['leaderboard_points'] for x in response.data['d']['results']]
+        self.assertEquals(points, sorted(points, reverse=True))
+
+
+class CTFTimeListTestCase(APITestCase):
+
+    def setUp(self):
+        user = get_user_model()(username='userlist-test', email='userlist-test@example.org')
+        user.save()
+        self.user = user
+        TeamListView.throttle_scope = None
+
+    def test_unauthed(self):
+        response = self.client.get(reverse('leaderboard-ctftime'))
+        self.assertEquals(response.status_code, HTTP_200_OK)
+
+    def test_authed(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(reverse('leaderboard-ctftime'))
+        self.assertEquals(response.status_code, HTTP_200_OK)
+
+    def test_disabled_access(self):
+        config.set("enable_scoreboard", False)
+        response = self.client.get(reverse('leaderboard-ctftime'))
+        config.set("enable_scoreboard", True)
+        self.assertEquals(response.data, {})
+
+    def test_disabled_ctftime(self):
+        config.set("enable_ctftime", False)
+        response = self.client.get(reverse('leaderboard-ctftime'))
+        config.set("enable_ctftime", True)
+        self.assertEquals(response.data, {})
+
+    def test_length(self):
+        populate()
+        response = self.client.get(reverse('leaderboard-ctftime'))
+        self.assertEquals(len(response.data["standings"]), 15)
+
+    def test_order(self):
+        populate()
+        response = self.client.get(reverse('leaderboard-ctftime'))
+        points = [x['score'] for x in response.data['standings']]
         self.assertEquals(points, sorted(points, reverse=True))
