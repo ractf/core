@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate, get_user_model, password_validation
-from rest_framework.status import HTTP_401_UNAUTHORIZED
+from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST
 from rest_framework.exceptions import ValidationError
 
 from authentication.providers import LoginProvider, TokenProvider, RegistrationProvider
@@ -26,7 +26,10 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
             email=email
         )
 
-        password_validation.validate_password(password, user)
+        try:
+            password_validation.validate_password(password, user)
+        except Exception:
+            raise FormattedException(status=HTTP_400_BAD_REQUEST, m='weak_password')
         user.set_password(password)
 
         return user
@@ -41,17 +44,17 @@ class BasicAuthLoginProvider(LoginProvider):
         if not user:
             login_reject.send(sender=self.__class__, username=username, reason='creds')
             raise FormattedException(m='incorrect_username_or_password', d={'reason': 'incorrect_username_or_password'},
-                                     status_code=HTTP_401_UNAUTHORIZED)
+                                     status=HTTP_401_UNAUTHORIZED)
 
         if not user.email_verified and not user.is_superuser:
             login_reject.send(sender=self.__class__, username=username, reason='email')
             raise FormattedException(m='email_verification_required', d={'reason': 'email_verification_required'},
-                                     status_code=HTTP_401_UNAUTHORIZED)
+                                     status=HTTP_401_UNAUTHORIZED)
 
         if not user.can_login():
             login_reject.send(sender=self.__class__, username=username, reason='closed')
             raise FormattedException(m='login_not_open', d={'reason': 'login_not_open'},
-                                     status_code=HTTP_401_UNAUTHORIZED)
+                                     status=HTTP_401_UNAUTHORIZED)
 
         login.send(sender=self.__class__, user=user)
         return user

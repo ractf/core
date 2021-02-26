@@ -10,9 +10,9 @@ from team.models import Team
 
 def populate():
     for i in range(15):
-        user = get_user_model()(username=f'scorelist-test{i}', email=f'scorelist-test{i}@example.org')
+        user = get_user_model()(username=f'scorelist-test{i}', email=f'scorelist-test{i}@example.org', is_visible=True)
         user.save()
-        team = Team(name=f'scorelist-test{i}', password=f'scorelist-test{i}', owner=user)
+        team = Team(name=f'scorelist-test{i}', password=f'scorelist-test{i}', owner=user, is_visible=True)
         team.points = i * 100
         team.leaderboard_points = i * 100
         team.save()
@@ -42,22 +42,22 @@ class ScoreListTestCase(APITestCase):
 
     def test_format(self):
         response = self.client.get(reverse('leaderboard-graph'))
-        self.assertTrue('user' in response.data)
-        self.assertTrue('team' in response.data)
+        self.assertTrue('user' in response.data['d'])
+        self.assertTrue('team' in response.data['d'])
 
     def test_list_size(self):
         populate()
         response = self.client.get(reverse('leaderboard-graph'))
         print(response.data)
-        self.assertEquals(len(response.data['user']), 10)
-        self.assertEquals(len(response.data['team']), 10)
+        self.assertEquals(len(response.data['d']['user']), 10)
+        self.assertEquals(len(response.data['d']['team']), 10)
 
     def test_list_sorting(self):
         populate()
         response = self.client.get(reverse('leaderboard-graph'))
         print(response.data)
-        self.assertEquals(response.data['user'][-1]['points'], 1400)
-        self.assertEquals(response.data['team'][-1]['points'], 1400)
+        self.assertEquals(response.data['d']['user'][0]['points'], 1400)
+        self.assertEquals(response.data['d']['team'][0]['points'], 1400)
 
 
 class UserListTestCase(APITestCase):
@@ -79,14 +79,16 @@ class UserListTestCase(APITestCase):
 
     def test_length(self):
         populate()
+        print(Score.objects.all())
         response = self.client.get(reverse('leaderboard-user'))
-        self.assertEquals(len(response.data['results']), 16)
+        print(response.content)
+        self.assertEquals(len(response.data['d']['results']), 15)
 
     def test_order(self):
         populate()
         response = self.client.get(reverse('leaderboard-user'))
-        self.assertTrue(response.data['results'][0]['leaderboard_points']
-                        > response.data['results'][1]['leaderboard_points'])
+        points = [x['leaderboard_points'] for x in response.data['d']['results']]
+        self.assertEquals(points, sorted(points, reverse=True))
 
 
 class TeamListTestCase(APITestCase):
@@ -109,10 +111,11 @@ class TeamListTestCase(APITestCase):
     def test_length(self):
         populate()
         response = self.client.get(reverse('leaderboard-team'))
-        self.assertEquals(len(response.data['results']), 15)
+        self.assertEquals(len(response.data["d"]["results"]), 15)
 
     def test_order(self):
         populate()
         response = self.client.get(reverse('leaderboard-team'))
-        self.assertTrue(response.data['results'][0]['leaderboard_points']
-                        > response.data['results'][1]['leaderboard_points'])
+        print(response.data)
+        points = [x['leaderboard_points'] for x in response.data['d']['results']]
+        self.assertEquals(points, sorted(points, reverse=True))

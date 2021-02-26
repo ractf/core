@@ -28,8 +28,8 @@ class ChallengeSetupMixin:
         challenge1.save()
         challenge2.save()
         challenge3.save()
-        challenge2.unlocks.add(challenge1)
-        challenge2.save()
+        challenge1.unlock_requirements = "2"
+        challenge1.save()
         hint1 = Hint(name='hint1', challenge=challenge1, text='a', penalty=100)
         hint2 = Hint(name='hint2', challenge=challenge1, text='a', penalty=100)
         hint3 = Hint(name='hint3', challenge=challenge2, text='a', penalty=100)
@@ -78,7 +78,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
     def test_challenge_solve(self):
         response = self.solve_challenge()
         self.assertEquals(response.status_code, HTTP_200_OK)
-        self.assertEquals(response.data['correct'], True)
+        self.assertEquals(response.data['d']['correct'], True)
 
     def test_challenge_solve_incorrect_flag(self):
         self.client.force_authenticate(user=self.user)
@@ -88,7 +88,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         }
         response = self.client.post(reverse('submit-flag'), data)
         self.assertEquals(response.status_code, HTTP_200_OK)
-        self.assertEquals(response.data['correct'], False)
+        self.assertEquals(response.data['d']['correct'], False)
 
     def test_challenge_double_solve(self):
         self.solve_challenge()
@@ -102,8 +102,8 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
 
     def test_challenge_unlocks(self):
         self.solve_challenge()
-        self.assertTrue(self.challenge1.is_unlocked(self.user))
-        self.assertTrue(self.challenge2.is_unlocked(self.user))
+        self.challenge1.unlock_requirements = str(self.challenge2.id)
+        self.assertTrue(self.challenge1.is_unlocked(get_user_model().objects.get(id=self.user.id)))
 
     def test_challenge_unlocks_no_team(self):
         user4 = get_user_model()(username='challenge-test-4', email='challenge-test-4@example.org')
@@ -147,8 +147,9 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.assertFalse(self.challenge1.is_solved(user=self.user))
 
     def test_submission_disabled(self):
-        config.set('flags', False)
+        config.set('enable_flag_submission', False)
         response = self.solve_challenge()
+        config.set('enable_flag_submission', True)
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_submission_malformed(self):
@@ -217,27 +218,27 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
     def test_category_list_authenticated_content(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('categories-list'))
-        self.assertEquals(len(response.data), 1)
-        self.assertEquals(len(response.data[0]['challenges']), 3)
+        self.assertEquals(len(response.data['d']), 1)
+        self.assertEquals(len(response.data['d'][0]['challenges']), 3)
 
     def test_category_list_challenge_redacting(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('categories-list'))
-        self.assertFalse('description' in response.data[0]['challenges'][0])
+        self.assertFalse('description' in response.data['d'][0]['challenges'][0])
 
     def test_category_list_challenge_redacting_admin(self):
         self.user.is_staff = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('categories-list'))
-        self.assertTrue('description' in response.data[0]['challenges'][0])
+        self.assertTrue('description' in response.data['d'][0]['challenges'][0])
 
     def test_category_list_challenge_unlocked_admin(self):
         self.user.is_staff = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('categories-list'))
-        self.assertFalse(response.data[0]['challenges'][0]['unlocked'])
+        self.assertFalse(response.data['d'][0]['challenges'][0]['unlocked'])
 
     def test_category_create(self):
         self.user.is_staff = True
@@ -345,7 +346,8 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         response = self.client.post(reverse('challenges-list'), data={
             'name': 'test4', 'category': self.category.id, 'description': 'abc',
             'challenge_type': 'test', 'challenge_metadata': {}, 'flag_type': 'plaintext',
-            'author': 'dave', 'auto_unlock': True, 'score': 1000, 'unlocks': [], 'flag_metadata': {}
+            'author': 'dave', 'auto_unlock': True, 'score': 1000, 'unlock_requirements': "", 'flag_metadata': {},
+            'tags': [],
         }, format='json')
         self.assertEquals(response.status_code, HTTP_201_CREATED)
 
@@ -356,7 +358,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         response = self.client.post(reverse('challenges-list'), data={
             'name': 'test4', 'category': self.category.id, 'description': 'abc',
             'challenge_type': 'test', 'challenge_metadata': {}, 'flag_type': 'plaintext',
-            'author': 'dave', 'auto_unlock': True, 'score': 1000, 'unlocks': [], 'flag_metadata': {}
+            'author': 'dave', 'auto_unlock': True, 'score': 1000, 'unlock_requirements': "a", 'flag_metadata': {}
         }, format='json')
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 

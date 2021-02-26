@@ -28,13 +28,13 @@ class HintSerializer(serializers.ModelSerializer):
         if (
             self.context["request"].user.is_staff
             and not self.context["request"].user.should_deny_admin()
-        ) or instance.used:
+        ) or is_used(self.context, instance):
             return instance.text
         else:
             return ""
 
     def get_used(self, instance):
-        return instance.used
+        return is_used(self.context, instance)
 
 
 class CreateHintSerializer(serializers.ModelSerializer):

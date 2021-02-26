@@ -4,16 +4,15 @@ from pydoc import locate
 from django.conf import settings
 
 DEFAULT_CONFIG = {
-    'config_version': 4,
+    'config_version': 5,
     'flag_prefix': 'ractf',
     'graph_members': 10,
+    'register_start_time': time.time(),
     'register_end_time': -1,
     'end_time': time.time() + 7 * 24 * 60 * 60,
     'start_time': time.time(),
-    'register_start_time': time.time(),
     'team_size': -1,
-    'email_regex': '',
-    'email_domain': '',
+    'email_allow': "a",
     'login_provider': 'basic_auth',
     'registration_provider': 'basic_auth',
     'token_provider': 'basic_auth',

@@ -7,9 +7,11 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_2
     HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
 from rest_framework.test import APITestCase
 
+from authentication.models import PasswordResetToken, TOTPDevice, InviteCode, BackupCode
 from authentication.views import VerifyEmailView, DoPasswordResetView, AddTwoFactorView, VerifyTwoFactorView, LoginView, \
-    RegistrationView, ChangePasswordView
-from member.models import TOTPStatus
+    RegistrationView, ChangePasswordView, LoginTwoFactorView, RequestPasswordResetView, RegenerateBackupCodesView
+from config import config
+from team.models import Team
 
 
 def get_fake_time():
@@ -73,13 +75,15 @@ class RegisterTestCase(APITestCase):
 
     @mock.patch('time.time', side_effect=get_fake_time)
     def test_register_closed(self, mock_obj):
+        config.set('enable_prelogin', False)
         data = {
             'username': 'user6',
             'password': 'uO7*$E@0ngqL',
             'email': 'user6@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        config.set('enable_prelogin', True)
 
     def test_register_admin(self):
         data = {
@@ -88,7 +92,7 @@ class RegisterTestCase(APITestCase):
             'email': 'user6@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertTrue(get_user_model().objects.filter(id=response.data['id']).first().is_staff)
+        self.assertTrue(get_user_model().objects.filter(username=data['username']).first().is_staff)
 
     def test_register_second(self):
         data = {
@@ -103,7 +107,124 @@ class RegisterTestCase(APITestCase):
             'email': 'user7@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertFalse(get_user_model().objects.filter(id=response.data['id']).first().is_staff)
+        self.assertFalse(get_user_model().objects.filter(username=data['username']).first().is_staff)
+
+    def test_register_malformed(self):
+        data = {
+            'username': 'user6',
+        }
+        response = self.client.post(reverse('register'), data)
+        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_register_invalid_email(self):
+        data = {
+            'username': 'user6',
+            'password': 'uO7*$E@0ngqL',
+            'email': 'user6',
+        }
+        response = self.client.post(reverse('register'), data)
+        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_register_teams_disabled(self):
+        config.set('enable_teams', False)
+        data = {
+            'username': 'user10',
+            'password': 'uO7*$E@0ngqL',
+            'email': 'user10@example.com',
+        }
+        response = self.client.post(reverse('register'), data)
+        print(response.data)
+        config.set('enable_teams', True)
+        self.assertEquals(response.status_code, HTTP_201_CREATED)
+        self.assertEquals(get_user_model().objects.get(username='user10').team.name, 'user10')
+
+
+class InviteRequiredRegistrationTestCase(APITestCase):
+
+    def setUp(self):
+        RegistrationView.throttle_scope = ''
+        config.set('invite_required', True)
+        InviteCode(code='test1', max_uses=10).save()
+        InviteCode(code='test2', max_uses=1).save()
+        InviteCode(code='test3', max_uses=1).save()
+        user = get_user_model()(username='invtestadmin', email='invtestadmin@example.org', email_verified=True,
+                                is_superuser=True, is_staff=True)
+        user.set_password('password')
+        user.save()
+        self.user = user
+        team = Team(name='team', password='password', owner=user)
+        team.save()
+        self.team = team
+        InviteCode(code='test4', max_uses=1, auto_team=team).save()
+
+    def tearDown(self):
+        config.set('invite_required', False)
+
+    def test_register_invite_required_missing_invite(self):
+        data = {
+            'username': 'user7',
+            'password': 'uO7*$E@0ngqL',
+            'email': 'user7@example.com',
+        }
+        response = self.client.post(reverse('register'), data)
+        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_register_invite_required_valid(self):
+        data = {
+            'username': 'user8',
+            'password': 'uO7*$E@0ngqL',
+            'email': 'user8@example.com',
+            'invite': 'test1',
+        }
+        response = self.client.post(reverse('register'), data)
+        self.assertEquals(response.status_code, HTTP_201_CREATED)
+
+    def test_register_invite_required_invalid(self):
+        data = {
+            'username': 'user8',
+            'password': 'uO7*$E@0ngqL',
+            'email': 'user8@example.com',
+            'invite': 'test1---',
+        }
+        response = self.client.post(reverse('register'), data)
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_register_invite_required_already_used(self):
+        data = {
+            'username': 'user9',
+            'password': 'uO7*$E@0ngqL',
+            'email': 'user9@example.com',
+            'invite': 'test2',
+        }
+        response = self.client.post(reverse('register'), data)
+        data = {
+            'username': 'user10',
+            'password': 'uO7*$E@0ngqL',
+            'email': 'user10@example.com',
+            'invite': 'test2',
+        }
+        response = self.client.post(reverse('register'), data)
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_register_invite_required_valid_maxing_uses(self):
+        data = {
+            'username': 'user11',
+            'password': 'uO7*$E@0ngqL',
+            'email': 'user11@example.com',
+            'invite': 'test3',
+        }
+        response = self.client.post(reverse('register'), data)
+        self.assertEquals(response.status_code, HTTP_201_CREATED)
+
+    def test_register_invite_required_auto_team(self):
+        data = {
+            'username': 'user12',
+            'password': 'uO7*$E@0ngqL',
+            'email': 'user12@example.com',
+            'invite': 'test4',
+        }
+        response = self.client.post(reverse('register'), data)
+        self.assertEquals(get_user_model().objects.get(username='user12').team.id, self.team.id)
 
 
 class LogoutTestCase(APITestCase):
@@ -140,7 +261,6 @@ class LoginTestCase(APITestCase):
         data = {
             'username': 'login-test',
             'password': 'password',
-            'otp': '',
         }
         response = self.client.post(reverse('login'), data)
         self.assertEquals(response.status_code, HTTP_200_OK)
@@ -149,7 +269,6 @@ class LoginTestCase(APITestCase):
         data = {
             'username': 'login-test',
             'password': 'a',
-            'otp': '',
         }
         response = self.client.post(reverse('login'), data)
         self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
@@ -157,56 +276,9 @@ class LoginTestCase(APITestCase):
     def test_login_missing_data(self):
         data = {
             'username': 'login-test',
-            'otp': '',
         }
         response = self.client.post(reverse('login'), data)
         self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
-
-    def test_login_2fa(self):
-        secret = pyotp.random_base32()
-        self.user.totp_secret = secret
-        self.user.totp_status = TOTPStatus.ENABLED
-        self.user.save()
-        totp = pyotp.TOTP(secret)
-        data = {
-            'username': 'login-test',
-            'password': 'password',
-            'otp': totp.now(),
-        }
-        response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_200_OK)
-        self.user.totp_status = TOTPStatus.DISABLED
-        self.user.save()
-
-    def test_login_2fa_invalid(self):
-        secret = pyotp.random_base32()
-        self.user.totp_secret = secret
-        self.user.totp_status = TOTPStatus.ENABLED
-        self.user.save()
-        data = {
-            'username': 'login-test',
-            'password': 'password',
-            'otp': '123456',
-        }
-        response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
-        self.user.totp_status = TOTPStatus.DISABLED
-        self.user.save()
-
-    def test_login_2fa_missing(self):
-        secret = pyotp.random_base32()
-        self.user.totp_secret = secret
-        self.user.totp_status = TOTPStatus.ENABLED
-        self.user.save()
-        data = {
-            'username': 'login-test',
-            'password': 'password',
-            'otp': '',
-        }
-        response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
-        self.user.totp_status = TOTPStatus.DISABLED
-        self.user.save()
 
     def test_login_email_not_verified(self):
         self.user.email_verified = False
@@ -214,7 +286,6 @@ class LoginTestCase(APITestCase):
         data = {
             'username': 'login-test',
             'password': 'password',
-            'otp': '',
         }
         response = self.client.post(reverse('login'), data)
         self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
@@ -224,9 +295,10 @@ class LoginTestCase(APITestCase):
         data = {
             'username': 'login-test',
             'password': 'password',
-            'otp': '',
         }
+        config.set('enable_prelogin', False)
         response = self.client.post(reverse('login'), data)
+        config.set('enable_prelogin', True)
         self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_login_inactive(self):
@@ -235,7 +307,6 @@ class LoginTestCase(APITestCase):
         data = {
             'username': 'login-test',
             'password': 'password',
-            'otp': '',
         }
         response = self.client.post(reverse('login'), data)
         self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
@@ -275,8 +346,68 @@ class LoginTestCase(APITestCase):
             'otp': '',
         }
         response = self.client.post(reverse('login'), data)
-        print(response.data)
         self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_login_2fa_required(self):
+        TOTPDevice(user=self.user, verified=True).save()
+        data = {
+            'username': 'login-test',
+            'password': 'password',
+        }
+        response = self.client.post(reverse('login'), data)
+        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+
+
+class Login2FATestCase(APITestCase):
+
+    def setUp(self):
+        user = get_user_model()(username='login-test', email='login-test@example.org')
+        user.set_password('password')
+        user.email_verified = True
+        user.save()
+        TOTPDevice(user=user, verified=True).save()
+        self.user = user
+        LoginTwoFactorView.throttle_scope = ''
+
+    def test_login_2fa(self):
+        secret = TOTPDevice.objects.get(user=self.user).totp_secret
+        totp = pyotp.TOTP(secret)
+        data = {
+            'username': 'login-test',
+            'password': 'password',
+            'tfa': totp.now(),
+        }
+        response = self.client.post(reverse('login-2fa'), data)
+        self.assertEquals(response.status_code, HTTP_200_OK)
+
+    def test_login_2fa_invalid(self):
+        data = {
+            'username': 'login-test',
+            'password': 'password',
+            'tfa': '123456',
+        }
+        response = self.client.post(reverse('login-2fa'), data)
+        print(self.user.has_2fa(), response.content)
+        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+
+    def test_login_2fa_missing(self):
+        data = {
+            'username': 'login-test',
+            'password': 'password',
+        }
+        response = self.client.post(reverse('login-2fa'), data)
+        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_login_2fa_backup_cde(self):
+        BackupCode(user=self.user, code='12345678').save()
+        data = {
+            'username': 'login-test',
+            'password': 'password',
+            'tfa': '12345678',
+        }
+        response = self.client.post(reverse('login-2fa'), data)
+        print(response.data)
+        self.assertEquals(response.status_code, HTTP_200_OK)
 
 
 class TFATestCase(APITestCase):
@@ -291,40 +422,77 @@ class TFATestCase(APITestCase):
         VerifyTwoFactorView.throttle_scope = ''
 
     def test_add_2fa_unauthenticated(self):
-        self.client.post(reverse('add-2fa'))
-        self.assertEquals(self.user.totp_status, TOTPStatus.DISABLED)
+        response = self.client.post(reverse('add-2fa'))
+        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertFalse(self.user.has_2fa())
 
     def test_add_2fa(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse('add-2fa'))
-        self.assertEquals(self.user.totp_status, TOTPStatus.VERIFYING)
-        self.assertNotEquals(self.user.totp_secret, None)
+        self.assertFalse(self.user.has_2fa())
+        self.assertNotEquals(self.user.totp_device, None)
 
     def test_verify_2fa(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse('add-2fa'))
-        secret = self.user.totp_secret
+        secret = self.user.totp_device.totp_secret
         totp = pyotp.TOTP(secret)
         self.client.post(reverse('verify-2fa'), data={'otp': totp.now()})
-        self.assertEquals(self.user.totp_status, TOTPStatus.ENABLED)
+        self.assertTrue(self.user.has_2fa())
 
     def test_verify_2fa_invalid(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse('add-2fa'))
         self.client.post(reverse('verify-2fa'), data={'otp': '123456'})
-        self.assertEquals(self.user.totp_status, TOTPStatus.VERIFYING)
+        self.assertFalse(self.user.totp_device.verified)
 
     def test_add_2fa_with_2fa(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse('add-2fa'))
-        secret = self.user.totp_secret
+        secret = self.user.totp_device.totp_secret
         totp = pyotp.TOTP(secret)
         self.client.post(reverse('verify-2fa'), data={'otp': totp.now()})
         response = self.client.post(reverse('add-2fa'))
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
+    def test_remove_2fa(self):
+        self.client.force_authenticate(user=self.user)
+        self.client.post(reverse('add-2fa'))
+        totp_device = get_user_model().objects.get(id=self.user.id).totp_device
+        totp_device.verified = True
+        totp_device.save()
+        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
+        response = self.client.post(reverse('remove-2fa'), data={
+            'otp': pyotp.TOTP(totp_device.totp_secret).now()
+        })
+        self.assertEquals(response.status_code, HTTP_200_OK)
+
+    def test_remove_2fa_removes_2fa(self):
+        self.client.force_authenticate(user=self.user)
+        self.client.post(reverse('add-2fa'))
+        totp_device = get_user_model().objects.get(id=self.user.id).totp_device
+        totp_device.verified = True
+        totp_device.save()
+        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
+        response = self.client.post(reverse('remove-2fa'), data={
+            'otp': pyotp.TOTP(totp_device.totp_secret).now()
+        })
+        self.assertFalse(get_user_model().objects.get(id=self.user.id).has_2fa())
+
+    def test_remove_2fa_no_2fa(self):
+        self.client.force_authenticate(user=self.user)
+        self.client.post(reverse('add-2fa'))
+        user = get_user_model().objects.get(id=self.user.id)
+        user.totp_device = None
+        user.save()
+        response = self.client.post(reverse('remove-2fa'))
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+
 
 class RequestPasswordResetTestCase(APITestCase):
+
+    def setUp(self):
+        RequestPasswordResetView.throttle_scope = ''
 
     def test_password_reset_request_invalid(self):
         response = self.client.post(reverse('request-password-reset'), data={'email': 'user10@example.org'})
@@ -343,17 +511,27 @@ class DoPasswordResetTestCase(APITestCase):
         user.set_password('password')
         user.email_verified = True
         user.save()
+        PasswordResetToken(user=user, token='testtoken').save()
         self.user = user
         DoPasswordResetView.throttle_scope = ''
 
     def test_password_reset(self):
         data = {
             'uid': self.user.id,
-            'token': self.user.password_reset_token,
+            'token': 'testtoken',
             'password': 'uO7*$E@0ngqL',
         }
         response = self.client.post(reverse('do-password-reset'), data)
         self.assertEquals(response.status_code, HTTP_200_OK)
+
+    def test_password_reset_issues_token(self):
+        data = {
+            'uid': self.user.id,
+            'token': 'testtoken',
+            'password': 'uO7*$E@0ngqL',
+        }
+        response = self.client.post(reverse('do-password-reset'), data)
+        self.assertTrue('token' in response.data['d'])
 
     def test_password_reset_bad_token(self):
         data = {
@@ -367,11 +545,35 @@ class DoPasswordResetTestCase(APITestCase):
     def test_password_reset_weak_password(self):
         data = {
             'uid': self.user.id,
-            'token': self.user.password_reset_token,
+            'token': 'testtoken',
             'password': 'password',
         }
         response = self.client.post(reverse('do-password-reset'), data)
         self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_password_reset_login_disabled(self):
+        config.set('enable_login', False)
+        data = {
+            'uid': self.user.id,
+            'token': 'testtoken',
+            'password': 'uO7*$E@0ngqL',
+        }
+        response = self.client.post(reverse('do-password-reset'), data)
+        config.set('enable_login', True)
+        self.assertFalse('token' in response.data['d'])
+
+    @mock.patch('time.time', side_effect=get_fake_time)
+    def test_password_reset_cant_login_yet(self, obj):
+        config.set('enable_prelogin', False)
+        data = {
+            'uid': self.user.id,
+            'token': 'testtoken',
+            'password': 'uO7*$E@0ngqL',
+        }
+        response = self.client.post(reverse('do-password-reset'), data)
+        config.set('enable_prelogin', True)
+        self.assertFalse('token' in response.data['d'])
+
 
 
 class VerifyEmailTestCase(APITestCase):
@@ -398,7 +600,7 @@ class VerifyEmailTestCase(APITestCase):
         }
         response = self.client.post(reverse('verify-email'), data)
         response = self.client.post(reverse('verify-email'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_email_verify_bad_token(self):
         data = {
@@ -421,15 +623,62 @@ class ChangePasswordTestCase(APITestCase):
     def test_change_password(self):
         self.client.force_authenticate(user=self.user)
         data = {
+            'old_password': 'password',
             'password': 'uO7*$E@0ngqL',
         }
         response = self.client.post(reverse('change-password'), data)
+        print(response.data)
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_change_password_weak(self):
         self.client.force_authenticate(user=self.user)
         data = {
+            'old_password': 'password',
             'password': 'password',
         }
         response = self.client.post(reverse('change-password'), data)
         self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_change_password_invalid_old(self):
+        self.client.force_authenticate(user=self.user)
+        data = {
+            'old_password': 'passwordddddddd',
+            'password': 'password',
+        }
+        response = self.client.post(reverse('change-password'), data)
+        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+
+
+class RegerateBackupCodesTestCase(APITestCase):
+
+    def setUp(self):
+        user = get_user_model()(username='backupcode-test', email='backupcode-test@example.org')
+        user.set_password('password')
+        user.save()
+        TOTPDevice(user=user, verified=True).save()
+        self.user = user
+        RegenerateBackupCodesView.throttle_scope = ''
+
+    def test_regenerate_backup_codes_count(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(reverse('regenerate-backup-codes'))
+        self.assertEquals(len(response.data['d']['backup_codes']), 10)
+
+    def test_regenerate_backup_codes_length(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(reverse('regenerate-backup-codes'))
+        self.assertEquals(sum([len(x) for x in response.data['d']['backup_codes']]), 80)
+
+    def test_regenerate_backup_codes_unique(self):
+        self.client.force_authenticate(user=self.user)
+        first_response = self.client.post(reverse('regenerate-backup-codes'))
+        second_response = self.client.post(reverse('regenerate-backup-codes'))
+        self.assertFalse(set(first_response.data['d']['backup_codes']) & set(second_response.data['d']['backup_codes']))
+
+    def test_regenerate_backup_codes_no_2fa(self):
+        user = get_user_model().objects.get(id=self.user.id)
+        user.totp_device.delete()
+        user.save()
+        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
+        response = self.client.post(reverse('regenerate-backup-codes'))
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)

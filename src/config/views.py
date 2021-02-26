@@ -1,4 +1,4 @@
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 
 from backend.response import FormattedResponse
@@ -23,7 +23,7 @@ class ConfigView(APIView):
         if "value" not in request.data:
             return FormattedResponse(status=HTTP_400_BAD_REQUEST)
         config.set(name, request.data.get("value"))
-        return FormattedResponse()
+        return FormattedResponse(status=HTTP_201_CREATED)
 
     def patch(self, request, name):
         if "value" not in request.data:
@@ -32,4 +32,4 @@ class ConfigView(APIView):
             config.set("name", config.get(name).append(request.data["value"]))
             return FormattedResponse()
         config.set(name, request.data.get("value"))
-        return FormattedResponse()
+        return FormattedResponse(status=HTTP_204_NO_CONTENT)

@@ -32,9 +32,11 @@ class MemberTestCase(APITestCase):
     def test_self_change_email(self):
         self.client.force_authenticate(self.user)
         response = self.client.put(
-            reverse("member-self"), data={"email": "test-self2@example.org"}
+            reverse("member-self"), data={"email": "test-self2@example.org", "username": "test-self"}
         )
+        print(response.data)
         self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEquals(get_user_model().objects.get(id=self.user.id).email, "test-self2@example.org")
 
     def test_self_change_email_invalid(self):
         self.client.force_authenticate(self.user)
@@ -57,15 +59,6 @@ class MemberTestCase(APITestCase):
         response = self.client.get(reverse("member-self"))
         self.assertEquals(response.data["email"], "test-self@example.org")
 
-    def test_self_update_email(self):
-        self.client.force_authenticate(self.user)
-        self.client.get(reverse("member-self"))
-        self.client.put(
-            reverse("member-self"), data={"email": "test-self3@example.org"}
-        )
-        response = self.client.get(reverse("member-self"))
-        self.assertEquals(response.data["email"], "test-self3@example.org")
-
 
 class MemberViewSetTestCase(APITestCase):
     def setUp(self):
@@ -85,7 +78,7 @@ class MemberViewSetTestCase(APITestCase):
         user.save()
         self.client.force_authenticate(self.admin_user)
         response = self.client.get(reverse("member-list"))
-        self.assertEquals(len(response.data["results"]), 3)
+        self.assertEquals(len(response.data["d"]["results"]), 3)
 
     def test_visible_not_admin(self):
         user = get_user_model()(
@@ -95,7 +88,7 @@ class MemberViewSetTestCase(APITestCase):
         user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("member-list"))
-        self.assertEquals(len(response.data["results"]), 0)
+        self.assertEquals(len(response.data["d"]["results"]), 0)
 
     def test_visible_detail_admin(self):
         user = get_user_model()(
@@ -115,7 +108,7 @@ class MemberViewSetTestCase(APITestCase):
         user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("member-detail", kwargs={"pk": user.id}))
-        self.assertEquals(response.status_code, HTTP_404_NOT_FOUND)
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_view_email_admin(self):
         self.client.force_authenticate(self.admin_user)

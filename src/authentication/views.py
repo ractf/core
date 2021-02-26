@@ -71,7 +71,7 @@ class LogoutView(APIView):
 
     def post(self, request):
         logout.send(sender=self.__class__, user=request.user)
-        request.user.tokens.delete()
+        request.user.tokens.all().delete()
         return FormattedResponse()
 
 
@@ -105,15 +105,18 @@ class RemoveTwoFactorView(APIView):
     throttle_scope = "2fa"
 
     def post(self, request):
-        request.user.totp_device.delete()
-        request.user.save()
-        remove_2fa.send(sender=self.__class__, user=request.user)
-        send_email(
-            request.user.email,
-            "RACTF - 2FA Has Been Disabled",
-            "2fa_removed"
-        )
-        return FormattedResponse()
+        code = request.data['otp']
+        if request.user.totp_device.validate_token(code):
+            request.user.totp_device.delete()
+            request.user.save()
+            remove_2fa.send(sender=self.__class__, user=request.user)
+            send_email(
+                request.user.email,
+                "RACTF - 2FA Has Been Disabled",
+                "2fa_removed"
+            )
+            return FormattedResponse()
+        return FormattedResponse(status=HTTP_401_UNAUTHORIZED)
 
 
 class LoginTwoFactorView(APIView):
@@ -145,7 +148,7 @@ class LoginTwoFactorView(APIView):
             if user.totp_device is not None and user.totp_device.validate_token(token):
                 return self.issue_token(user)
         elif len(token) == 8:
-            for code in user.backup_codes:
+            for code in user.backup_codes.all():
                 if token == code.code:
                     code.delete()
                     return self.issue_token(user)
@@ -184,12 +187,14 @@ class RequestPasswordResetView(APIView):
             uid = -1
             token = ""
             email = "noreply@ractf.co.uk"
-        send_email(
-            email,
-            "RACTF - Reset Your Password",
-            "password_reset",
-            url=settings.FRONTEND_URL + "password_reset?id={}&secret={}".format(uid, token),
-        )
+
+        if settings.MAIL["SEND"]:
+            send_email(
+                email,
+                "RACTF - Reset Your Password",
+                "password_reset",
+                url=settings.FRONTEND_URL + "password_reset?id={}&secret={}".format(uid, token),
+            )
         return FormattedResponse()
 
 
