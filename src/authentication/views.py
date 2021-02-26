@@ -150,7 +150,7 @@ class LoginTwoFactorView(APIView):
                     code.delete()
                     return self.issue_token(user)
 
-        return self.issue_token(user)
+        return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': 'login_failed'}, m='login_failed')
 
 
 class RegenerateBackupCodesView(APIView):
