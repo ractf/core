@@ -14,13 +14,13 @@ CORS_ALLOW_HEADERS = [
     "exporting"
 ]
 
-DOMAIN = os.getenv("DOMAIN")
+DOMAIN = ""
 DEBUG = bool(os.getenv("DEBUG"))
-FRONTEND_URL = os.getenv("FRONTEND_URL")
+FRONTEND_URL = "a"
 AUTH_USER_MODEL = "member.Member"
 
 BASE_DIR = str(Path(__file__).parent.parent.parent.absolute())
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = "brr"
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
@@ -124,7 +124,7 @@ ASGI_APPLICATION = "websockets.routing.application"
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {"hosts": [(os.getenv("REDIS_HOST"), os.getenv("REDIS_PORT"))]},
+        "CONFIG": {"hosts": [("localhost", 6379)]},
     },
 }
 
@@ -135,11 +135,11 @@ CHANNEL_LAYERS = {
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "PASSWORD": os.getenv("SQL_PASSWORD"),
-        "NAME": os.getenv("SQL_DATABASE"),
-        "USER": os.getenv("SQL_USER"),
-        "HOST": os.getenv("SQL_HOST"),
-        "PORT": os.getenv("SQL_PORT"),
+        "PASSWORD": "flibbleq123",
+        "NAME": "ractf",
+        "USER": "postgres",
+        "HOST": "localhost",
+        "PORT": 5432,
     }
 }
 
@@ -260,7 +260,7 @@ CORS_ALLOW_CREDENTIALS = True
 CACHES = {
     "default": {
         "BACKEND": "redis_cache.RedisCache",
-        "LOCATION": f"{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}",
+        "LOCATION": f"localhost:6379",
         "OPTIONS": {
             "DB": int(os.getenv("REDIS_CACHE_DB", 0)),
             "PASSWORD": None,
