@@ -97,7 +97,6 @@ jobs:
         files: ./src/coverage.xml
         fail_ci_if_error: true
         verbose: true
-      working-directory: ./src
 
     - name: Publish Coverage XML
       uses: actions/upload-artifact@v2
