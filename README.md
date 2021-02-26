@@ -48,22 +48,40 @@
   </a>
 </div>
 
+<br>
+
+<div align="center">
+  <a href="https://github.com/ractf/core/actions/workflows/build.yml"><img src=https://github.com/ractf/core/actions/workflows/build.yml/badge.svg></a>
+  <a href="https://github.com/ractf/core/actions/workflows/codeql-analysis.yml"><img src=https://github.com/ractf/core/actions/workflows/codeql-analysis.yml/badge.svg></a>
+  <a href="https://github.com/ractf/core/actions/workflows/docs.yml"><img src=https://github.com/ractf/core/actions/workflows/docs.yml/badge.svg></a>
+  <a href="https://github.com/ractf/core/actions/workflows/test.yml"><img src=https://github.com/ractf/core/actions/workflows/test.yml/badge.svg></a>
+  <a href="https://codecov.io/gh/ractf/core"><img src="https://codecov.io/gh/ractf/core/branch/master/graph/badge.svg?token=JFCTNT15FC"/></a>    
+</div>
+
 ## Table of Contents
+
+- [Table of Contents](#table-of-contents)
+- [Features](#features)
 - [Installation](#installation)
-- [Support](#support)
+- [Getting Support](#getting-support)
+- [License](#license)
 
 ## Features
+
 - __Robust:__ tested on a live event with several thousand users, and artifically stress tested to many more.
 - __Split architecture:__ our architecture allows you to run various components on different hosts for increased performance.
 - __Highly configurable:__ we have a huge array of options you can configure for your event.
 - __Really awesome:__ it's in the name, after all!
 
 ## Installation
+
 Check out the [Installer](https://github.com/ractf/install/). Want a more custom deployment? Check out our [installation docs](https://docs.ractf.co.uk/installer).
 
 ## Getting Support
+
 If you need support, check out our [Discord](https://discord.gg/FfW2xXR), or if you've found a bug with the framework, open an issue.
  > 🔒 Found a security issue? Email us at `security@ractf.co.uk`.
 
 ## License
+
 [AGPLv3](https://tldrlegal.com/license/gnu-affero-general-public-license-v3-(agpl-3.0))

@@ -1,6 +1,6 @@
 from django.urls import path
 
-from challengeserver import views
+from andromeda import views
 
 urlpatterns = [
     path('instance/<str:job_id>/', views.GetInstanceView.as_view(), name='get-instance'),
