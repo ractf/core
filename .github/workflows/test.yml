@@ -85,9 +85,11 @@ jobs:
     
     - name: Output Coverage Report
       run: coverage report || true
+      working-directory: ./src
 
     - name: Save Coverage XML
       run: coverage xml || true
+      working-directory: ./src
 
     - name: Upload to CodeCov
       uses: codecov/codecov-action@v1
