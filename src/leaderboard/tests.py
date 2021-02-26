@@ -64,6 +64,16 @@ class ScoreListTestCase(APITestCase):
         self.assertEquals(response.data['d']['user'][0]['points'], 1400)
         self.assertEquals(response.data['d']['team'][0]['points'], 1400)
 
+    def test_user_only(self):
+        populate()
+        config.set("enable_teams", False)
+        response = self.client.get(reverse('leaderboard-graph'))
+        config.set("enable_teams", True)
+        self.assertEquals(len(response.data['d']['user']), 10)
+        self.assertEquals(response.data['d']['user'][0]['points'], 1400)
+        self.assertNotIn("team", response.data['d'].keys())
+
+
 
 class UserListTestCase(APITestCase):
 
