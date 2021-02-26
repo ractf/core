@@ -180,6 +180,8 @@ USE_TZ = True
 STATIC_URL = "/api/v2/static/"
 STATIC_ROOT = "/srv/django_static"
 
+RATELIMIT_ENABLE = True
+
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": (
         "backend.renderers.RACTFJSONRenderer",
