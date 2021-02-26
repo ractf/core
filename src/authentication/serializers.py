@@ -173,6 +173,6 @@ class InviteCodeSerializer(serializers.ModelSerializer):
 
 class CreateBotSerializer(serializers.Serializer):
     username = serializers.CharField()
-    visible = serializers.BooleanField()
-    staff = serializers.BooleanField()
-    superuser = serializers.BooleanField()
+    is_visible = serializers.BooleanField()
+    is_staff = serializers.BooleanField()
+    is_superuser = serializers.BooleanField()

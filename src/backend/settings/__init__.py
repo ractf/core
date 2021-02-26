@@ -196,6 +196,7 @@ REST_FRAMEWORK = {
         "2fa": "1000/day",
         "password_reset": "3/minute",
         "request_password_reset": "5/hour",
+        "resend_verify_email": "5/hour",
         "verify_email": "3/minute",
         "change_password": "10/minute",
         "challenges": "99999/minute",
