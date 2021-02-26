@@ -16,19 +16,20 @@ from team.models import Team
 class TeamSetupMixin:
     def setUp(self):
         self.user = get_user_model()(
-            username="team-test", email="team-test@example.org"
+            username="team-test", email="team-test@example.org", is_visible=True
         )
         self.user.save()
         self.team = Team(
-            name="team-test", password="abc", description="", owner=self.user
+            name="team-test", password="abc", description="", owner=self.user, is_visible=True
         )
         self.team.save()
         self.user.team = self.team
         self.user.save()
         self.admin_user = get_user_model()(
-            username="team-test-admin", email="team-test-admin@example.org"
+            username="team-test-admin", email="team-test-admin@example.org", is_visible=True
         )
         self.admin_user.is_staff = True
+        self.admin_user.is_superuser = True
         self.admin_user.save()
 
 
@@ -56,7 +57,7 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(reverse("team-self"), data={"name": "name-change"})
         self.assertEquals(response.status_code, HTTP_200_OK)
-        self.assertEquals(self.team.name, "name-change")
+        self.assertEquals(response.data['name'], "name-change")
 
     def test_update_not_owner(self):
         self.admin_user.team = self.team
@@ -140,7 +141,9 @@ class TeamViewsetTestCase(TeamSetupMixin, APITestCase):
         self.team.save()
         self.client.force_authenticate(self.admin_user)
         response = self.client.get(reverse("team-list"))
-        self.assertEquals(len(response.data["results"]), 1)
+        print(response.data)
+        print(self.user.should_deny_admin())
+        self.assertEquals(len(response.data['d']["results"]), 1)
 
     def test_visible_not_admin(self):
         self.team.is_visible = False
@@ -148,7 +151,7 @@ class TeamViewsetTestCase(TeamSetupMixin, APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("team-list"))
         print(response.data)
-        self.assertEquals(len(response.data["results"]), 0)
+        self.assertEquals(len(response.data["d"]["results"]), 0)
 
     def test_visible_detail_admin(self):
         self.team.is_visible = False

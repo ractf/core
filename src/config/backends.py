@@ -3,7 +3,6 @@ import sys
 import pickle
 from unittest.mock import MagicMock
 
-from django.conf import settings
 from django.core.cache import caches
 from config.models import Config
 

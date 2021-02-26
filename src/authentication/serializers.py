@@ -6,11 +6,12 @@ from django.contrib.auth import get_user_model, password_validation
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
-from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_401_UNAUTHORIZED
+from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST
 
 from authentication.models import InviteCode, PasswordResetToken
 from backend.exceptions import FormattedException
 from backend.mail import send_email
+from backend.response import FormattedResponse
 from config import config
 from plugins import providers
 from team.models import Team
@@ -42,12 +43,12 @@ class RegistrationSerializer(serializers.Serializer):
         register_end_time = config.get('register_end_time')
         if not (config.get('enable_registration') and time.time() >= config.get('register_start_time')) \
                 and (register_end_time < 0 or register_end_time > time.time()):
-            raise FormattedException(m='registration_not_open', status_code=HTTP_403_FORBIDDEN)
+            raise FormattedException(m='registration_not_open', status=HTTP_403_FORBIDDEN)
 
         validated_data = providers.get_provider('registration').validate(self.initial_data)
         if config.get("invite_required"):
             if not self.initial_data.get("invite", None):
-                raise FormattedException(m="invite_required")
+                raise FormattedException(m="invite_required", status=HTTP_400_BAD_REQUEST)
             validated_data["invite"] = self.initial_data["invite"]
         return validated_data
 
@@ -63,7 +64,7 @@ class RegistrationSerializer(serializers.Serializer):
                 code = InviteCode.objects.get(code=validated_data["invite"])
                 if code:
                     if code.uses >= code.max_uses:
-                        raise FormattedException(m="invite_already_used", status_code=HTTP_403_FORBIDDEN)
+                        raise FormattedException(m="invite_already_used", status=HTTP_403_FORBIDDEN)
                 code.uses += 1
                 if code.uses >= code.max_uses:
                     code.fully_used = True
@@ -71,7 +72,7 @@ class RegistrationSerializer(serializers.Serializer):
                 if code.auto_team:
                     user.team = code.auto_team
             else:
-                raise FormattedException(m="invalid_invite", status_code=HTTP_403_FORBIDDEN)
+                raise FormattedException(m="invalid_invite", status=HTTP_403_FORBIDDEN)
 
         if not settings.MAIL["SEND"]:
             user.email_verified = True
@@ -82,6 +83,7 @@ class RegistrationSerializer(serializers.Serializer):
                        url=settings.FRONTEND_URL + 'verify?id={}&secret={}'.format(user.id, user.email_token))
 
         if not config.get("enable_teams"):
+            user.save()
             user.team = Team.objects.create(
                 owner=user,
                 name=user.username,
@@ -89,8 +91,11 @@ class RegistrationSerializer(serializers.Serializer):
             )
             
         user.save()
-        
-        return user
+
+        if not settings.MAIL["SEND"]:
+            return {"token": user.issue_token(), 'email': user.email}
+        else:
+            return {}
 
     def to_representation(self, instance):
         representation = super(RegistrationSerializer, self).to_representation(instance)
@@ -124,7 +129,7 @@ class EmailVerificationSerializer(serializers.Serializer):
         token = data.get('token')
         user = get_object_or_404(get_user_model(), id=uid, email_token=token)
         if user.email_verified:
-            raise FormattedException(m='email_already_verified', status_code=HTTP_403_FORBIDDEN)
+            raise FormattedException(m='email_already_verified', status=HTTP_403_FORBIDDEN)
         data['user'] = user
         return data
 
@@ -135,7 +140,7 @@ class EmailSerializer(serializers.Serializer):
     def validate(self, data):
         user = get_object_or_404(get_user_model(), email=data.get('email'))
         if user.email_verified:
-            raise FormattedException(m='email_already_verified', status_code=HTTP_403_FORBIDDEN)
+            raise FormattedException(m='email_already_verified', status=HTTP_403_FORBIDDEN)
         data['user'] = user
         return data
 
@@ -149,7 +154,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         password = data.get('password')
         old_password = data.get('old_password')
         if not user.check_password(old_password):
-            raise FormattedException(status_code=HTTP_401_UNAUTHORIZED, m='invalid_password')
+            raise FormattedException(status=HTTP_401_UNAUTHORIZED, m='invalid_password')
         password_validation.validate_password(password, user)
         return data
 

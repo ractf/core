@@ -1,7 +1,7 @@
 import abc
-import re
 
 from django.contrib.auth import get_user_model
+from django.core.validators import EmailValidator
 from rest_framework.exceptions import ValidationError
 
 from config import config
@@ -20,8 +20,12 @@ class RegistrationProvider(Provider, abc.ABC):
         pass
 
     def validate_email(self, email):
-        if config.get('email_regex') and not re.compile(config.get('email_regex')).match(email) or \
-                not email.endswith(config.get('email_domain')):
+        allow_domain = config.get('email_allow')
+        if allow_domain:
+            email_validator = EmailValidator(allow_domain)
+        else:
+            email_validator = EmailValidator()
+        if email_validator(email):
             raise ValidationError('invalid_email')
 
     def check_email_or_username_in_use(self, email=None, username=None):

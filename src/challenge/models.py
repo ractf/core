@@ -1,11 +1,16 @@
+import time
+
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.indexes import BrinIndex
 from django.db import models
 from django.db.models import SET_NULL, CASCADE, PROTECT, Case, When, Value, UniqueConstraint, Q, Subquery, JSONField
+from django.db.models.aggregates import Count
+from django.db.models.query import Prefetch
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from config import config
 from team.models import Team
 
 
@@ -33,7 +38,7 @@ class Challenge(models.Model):
     auto_unlock = models.BooleanField(default=False)
     hidden = models.BooleanField(default=False)
     score = models.IntegerField()
-    unlock_requirements = models.CharField(max_length=255, null=True)
+    unlock_requirements = models.CharField(max_length=255, null=True, blank=True)
     first_blood = models.ForeignKey(
         get_user_model(),
         related_name="first_bloods",
@@ -86,36 +91,57 @@ class Challenge(models.Model):
         if user.is_staff and user.should_deny_admin():
             return Challenge.objects.none()
         if user.team is not None:
-            solved_challenges = Solve.objects.filter(
-                team=user.team, correct=True
-            ).values_list("challenge")
+            solves = Solve.objects.filter(team=user.team, correct=True)
+            solved_challenges = solves.values_list('challenge')
             challenges = Challenge.objects.annotate(
                 solved=Case(
-                    When(id__in=Subquery(solved_challenges), then=Value(True)),
+                    When(Q(id__in=Subquery(solved_challenges)), then=Value(True)),
                     default=Value(False),
-                    output_field=models.BooleanField(),
+                    output_field=models.BooleanField()
                 ),
+                solve_count=Count('solves', filter=Q(solves__correct=True)),
                 unlock_time_surpassed=Case(
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),
                     output_field=models.BooleanField(),
                 ),
+                votes_positive=Count("votes", filter=Q(votes__positive=True), distinct=True),
+                votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
             )
         else:
-            challenges = Challenge.objects.annotate(
-                unlocked=Case(
-                    When(auto_unlock=True, then=Value(True)),
-                    default=Value(False),
-                    output_field=models.BooleanField(),
-                ),
-                solved=False,
-                unlock_time_surpassed=Case(
-                    When(release_time__lte=timezone.now(), then=Value(True)),
-                    default=Value(False),
-                    output_field=models.BooleanField(),
+            challenges = (
+                Challenge.objects.annotate(
+                    unlocked=Case(
+                        When(auto_unlock=True, then=Value(True)),
+                        default=Value(False),
+                        output_field=models.BooleanField()
+                    ),
+                    solved=Value(False, models.BooleanField()),
+                    solve_count=Count('solves'),
+                    unlock_time_surpassed=Case(
+                        When(release_time__lte=timezone.now(), then=Value(True)),
+                        default=Value(False),
+                        output_field=models.BooleanField(),
+                    ),
+                    votes_positive=Count("votes", filter=Q(votes__positive=True), distinct=True),
+                    votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
                 )
             )
-        return challenges
+        from hint.models import Hint
+        from hint.models import HintUse
+        x = challenges.prefetch_related(
+            Prefetch('hint_set', queryset=Hint.objects.annotate(
+                used=Case(
+                    When(id__in=HintUse.objects.filter(team=user.team).values_list('hint_id'), then=Value(True)),
+                    default=Value(False),
+                    output_field=models.BooleanField()
+                )), to_attr='hints'),
+            Prefetch('file_set', queryset=File.objects.all(), to_attr='files'),
+            Prefetch('tag_set',
+                     queryset=Tag.objects.all() if time.time() > config.get('end_time') else Tag.objects.filter(
+                         post_competition=False), to_attr='tags'),
+            'first_blood', 'hint_set__uses')
+        return x
 
 
 class ChallengeVote(models.Model):

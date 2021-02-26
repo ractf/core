@@ -57,8 +57,7 @@ class Member(AbstractUser):
     def can_login(self):
         return (
                 self.is_staff
-                or config.get("enable_prelogin")
-                or (config.get("enable_login") and config.get("start_time") <= time.time())
+                or (config.get("enable_login") and (config.get("enable_prelogin") or config.get("start_time") <= time.time()))
         )
 
     def issue_token(self, owner=None):
@@ -87,8 +86,8 @@ class UserIP(models.Model):
     def hook(request):
         if not request.user.is_authenticated:
             return
-        ip = request.headers.get('x-forwarded-for')
-        user_agent = request.headers.get('user-agent')
+        ip = request.headers.get('x-forwarded-for', '0.0.0.0')
+        user_agent = request.headers.get('user-agent', '???')
         qs = UserIP.objects.filter(user=request.user, ip=ip)
         if qs.exists():
             user_ip = qs.first()

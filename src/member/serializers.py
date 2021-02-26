@@ -65,7 +65,7 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team', 'email',
                   'has_2fa', 'points', 'solves', 'team_name', 'leaderboard_points', 'date_joined',
                   'incorrect_solves', 'is_verified']
-        read_only_fields = ['id', 'is_staff', 'team', 'email', 'points', 'leaderboard_points', 'date_joined',
+        read_only_fields = ['id', 'is_staff', 'team', 'points', 'leaderboard_points', 'date_joined',
                             'incorrect_solves', 'is_verified']
 
     def validate_email(self, value):

@@ -1,10 +1,9 @@
 from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_200_OK, HTTP_201_CREATED, HTTP_401_UNAUTHORIZED
+from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.test import APITestCase
 
 from config import config
-from config.models import Config
 
 
 class ConfigTestCase(APITestCase):
@@ -34,21 +33,20 @@ class ConfigTestCase(APITestCase):
 
     def test_post_authed(self):
         self.client.force_authenticate(self.user)
-        response = self.client.post(reverse('config-list'),
-                                    data={'key': 'test', 'value': {'value': 'test'}}, format='json')
+        response = self.client.post(reverse('config-pk', kwargs={'name': 'test'}),
+                                    data={'key': 'test', 'value': 'test'}, format='json')
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_create(self):
         self.client.force_authenticate(self.staff_user)
-        response = self.client.post(reverse('config-list'),
-                                    data={'key': 'test', 'value': {'value': 'test'}}, format='json')
+        response = self.client.post(reverse('config-pk', kwargs={'name': 'test'}),
+                                    data={'value': 'test'}, format='json')
         self.assertEquals(response.status_code, HTTP_201_CREATED)
 
     def test_update(self):
         self.client.force_authenticate(self.staff_user)
-        self.client.post(reverse('config-list'), data={'key': 'test', 'value': {'value': 'test'}}, format='json')
-        response = self.client.put(reverse('config-detail', kwargs={'pk': Config.objects.get(key='test').id}),
-                                   data={'key': 'test', 'value': {'value': 'test2'}}, format='json')
-        print(response.data)
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.client.post(reverse('config-pk', kwargs={'name': 'test'}), data={'value': 'test'}, format='json')
+        response = self.client.patch(reverse('config-pk', kwargs={'name': 'test'}),
+                                     data={'value': 'test2'}, format='json')
+        self.assertEquals(response.status_code, HTTP_204_NO_CONTENT)
         self.assertEquals(config.get('test'), 'test2')
