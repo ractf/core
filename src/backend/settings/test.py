@@ -5,6 +5,8 @@ SECRET_KEY = "CorrectHorseBatteryStaple"
 
 MAIL["SEND"] = False
 
+FRONTEND_URL = "http://example.com/"
+
 #DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',
