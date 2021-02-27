@@ -235,7 +235,6 @@ REST_FRAMEWORK = {
 }
 
 MAIL_SOCK_URL = "http+unix://%2Ftmp%2Fmailusv.sock/send"
-SEND_MAIL = False
 
 if os.getenv("CHALLENGE_SERVER_TYPE") == "POLARIS":
     POLARIS_URL = os.getenv("POLARIS_URL")

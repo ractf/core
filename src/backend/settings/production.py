@@ -1,4 +1,4 @@
-"""Settings for running RACTF backend locally."""
+"""Settings for running RACTF backend in production."""
 
 # flake8: noqa
 
@@ -7,8 +7,6 @@ from . import *
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
-
-SEND_MAIL = True
 
 ALLOWED_HOSTS.extend(("ractf.co.uk", "api-elite.ractf.co.uk"))
 

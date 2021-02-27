@@ -1,4 +1,4 @@
-"""Settings for running RACTF backend locally."""
+"""Settings for running RACTF backend in a staging environment."""
 
 # flake8: noqa
 
@@ -13,8 +13,6 @@ sentry_sdk.init(
     integrations=[DjangoIntegration()],
     send_default_pii=True
 )
-
-SEND_MAIL = True
 
 TEMPLATES.insert(0, {
     "BACKEND": "django.template.backends.jinja2.Jinja2",
