@@ -78,6 +78,8 @@ class AddTwoFactorView(APIView):
     throttle_scope = "2fa"
 
     def post(self, request):
+        if TOTPDevice.objects.filter(user=request.user).exists():
+            TOTPDevice.objects.get(user=request.user).delete()
         totp_device = TOTPDevice(user=request.user)
         totp_device.save()
         add_2fa.send(sender=self.__class__, user=request.user)
