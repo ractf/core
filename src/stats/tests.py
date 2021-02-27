@@ -1,7 +1,10 @@
 from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_200_OK
+from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_401_UNAUTHORIZED
 from rest_framework.test import APITestCase
+
+from challenge.models import Challenge, Category, Solve
+from team.models import Team
 
 
 class CountdownTestCase(APITestCase):
@@ -30,6 +33,80 @@ class StatsTestCase(APITestCase):
         self.client.force_authenticate(user)
         response = self.client.get(reverse("stats"))
         self.assertEquals(response.status_code, HTTP_200_OK)
+
+    def test_team_average(self):
+        user = get_user_model()(username="stats-test", email="stats-test@example.org")
+        user.save()
+
+        team = Team(name="stats-test", password="stats-test", owner=user)
+        team.save()
+
+        response = self.client.get(reverse("stats"))
+        self.assertEquals(response.data["d"]["avg_members"], 1)
+
+
+class FullStatsTestCase(APITestCase):
+    def test_unauthed(self):
+        response = self.client.get(reverse("full"))
+        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+
+    def test_authed_non_privileged(self):
+        user = get_user_model()(username="stats-test", email="stats-test@example.org")
+        user.save()
+        self.client.force_authenticate(user)
+        response = self.client.get(reverse("full"))
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_authed(self):
+        user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
+        user.save()
+        self.client.force_authenticate(user)
+        response = self.client.get(reverse("full"))
+        self.assertEquals(response.status_code, HTTP_200_OK)
+
+    def test_team_point_distribution(self):
+        user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
+        user.save()
+
+        team = Team(name="stats-test", password="stats-test", owner=user)
+        team.save()
+
+        team1 = Team(name="stats-test1", password="stats-test", owner=user)
+        team1.save()
+
+        team2 = Team(name="stats-test2", password="stats-test", owner=user)
+        team2.points = 5
+        team2.save()
+
+        self.client.force_authenticate(user)
+        response = self.client.get(reverse("full"))
+        self.assertEquals(response.data["d"]["team_point_distribution"][0], 2)
+        self.assertEquals(response.data["d"]["team_point_distribution"][5], 1)
+
+    def test_challenge_data(self):
+        user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
+        user.save()
+
+        category = Category.objects.create(name="test category", display_order=1, contained_type="test", description="test")
+        chall = Challenge.objects.create(
+            name="test challenge",
+            category=category,
+            challenge_metadata={},
+            description="test challenge",
+            challenge_type="test challenge",
+            flag_type="none",
+            flag_metadata={},
+            author="test author",
+            score=5
+        )
+
+        Solve.objects.create(challenge=chall, flag="", correct=True)
+        Solve.objects.create(challenge=chall, flag="", correct=False)
+
+        self.client.force_authenticate(user)
+        response = self.client.get(reverse("full"))
+        self.assertEquals(response.data["d"]["challenges"][chall.id]["incorrect"], 1)
+        self.assertEquals(response.data["d"]["challenges"][chall.id]["correct"], 1)
 
 
 class CommitTestCase(APITestCase):

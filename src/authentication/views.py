@@ -45,8 +45,6 @@ class LoginView(APIView):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        if user is None:
-            return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': 'login_failed'}, m='login_failed')
 
         if user.has_2fa():
             return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': '2fa_required'}, m='2fa_required')
@@ -136,8 +134,6 @@ class LoginTwoFactorView(APIView):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
-        if user is None:
-            return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': 'login_failed'}, m='login_failed')
 
         if not user.has_2fa():
             return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': '2fa_not_enabled'}, m='2fa_not_enabled')
@@ -346,7 +342,7 @@ class CreateBotView(APIView):
         serializer.is_valid(raise_exception=True)
         bot = get_user_model()(username=serializer.data["username"], email_verified=True,
                                is_visible=serializer.data["is_visible"], is_staff=serializer.data["is_staff"],
-                               is_superuser=serializer.data["is_superuser"])
+                               is_superuser=serializer.data["is_superuser"], is_bot=True)
         bot.save()
         return FormattedResponse(d={'token': bot.issue_token()})
 

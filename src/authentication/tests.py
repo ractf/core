@@ -1,4 +1,5 @@
 from unittest import mock
+from unittest.mock import patch
 
 import pyotp
 from django.contrib.auth import get_user_model
@@ -7,7 +8,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_2
     HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
 from rest_framework.test import APITestCase
 
-from authentication.models import PasswordResetToken, TOTPDevice, InviteCode, BackupCode
+from authentication.models import PasswordResetToken, TOTPDevice, InviteCode, BackupCode, Token
 from authentication.views import VerifyEmailView, DoPasswordResetView, AddTwoFactorView, VerifyTwoFactorView, LoginView, \
     RegistrationView, ChangePasswordView, LoginTwoFactorView, RequestPasswordResetView, RegenerateBackupCodesView
 from config import config
@@ -31,6 +32,21 @@ class RegisterTestCase(APITestCase):
         }
         response = self.client.post(reverse('register'), data)
         self.assertEquals(response.status_code, HTTP_201_CREATED)
+
+    def test_register_with_mail(self):
+        with self.settings(MAIL={
+            "SEND_ADDRESS": "no-reply@ractf.co.uk",
+            "SEND_NAME": "RACTF",
+            "SEND": True,
+            "SEND_MODE": "SES"
+        }):
+            data = {
+                'username': 'user1',
+                'password': 'uO7*$E@0ngqL',
+                'email': 'user@example.org',
+            }
+            response = self.client.post(reverse('register'), data)
+            self.assertEquals(response.status_code, HTTP_201_CREATED)
 
     def test_register_weak_password(self):
         data = {
@@ -133,10 +149,71 @@ class RegisterTestCase(APITestCase):
             'email': 'user10@example.com',
         }
         response = self.client.post(reverse('register'), data)
-        print(response.data)
         config.set('enable_teams', True)
         self.assertEquals(response.status_code, HTTP_201_CREATED)
         self.assertEquals(get_user_model().objects.get(username='user10').team.name, 'user10')
+
+
+class EmailResendTestCase(APITestCase):
+    def test_email_resend(self):
+        with self.settings(RATELIMIT_ENABLE=False):
+            user = get_user_model()(username="test_verify_user", email_verified=False, email="tvu@example.com")
+            user.save()
+            response = self.client.post(reverse('resend-email'), {"email": "tvu@example.com"})
+            self.assertEquals(response.status_code, HTTP_200_OK)
+
+    def test_already_verified_email_resend(self):
+        with self.settings(RATELIMIT_ENABLE=False):
+            user = get_user_model()(username="resend-email", email_verified=True, email="tvu@example.com")
+            user.save()
+            response = self.client.post(reverse('resend-email'), {"email": "tvu@example.com"})
+            self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_non_existing_email_resend(self):
+        with self.settings(RATELIMIT_ENABLE=False):
+            response = self.client.post(reverse('resend-email'), {"email": "nonexisting@example.com"})
+            self.assertEquals(response.status_code, HTTP_404_NOT_FOUND)
+
+
+class SudoTestCase(APITestCase):
+    def test_sudo(self):
+        user = get_user_model()(username="sudotest", is_staff=True, email="sudotest@example.com", is_superuser=True)
+        user.save()
+        user2 = get_user_model()(username="sudotest2", email="sudotest2@example.com")
+        user2.save()
+
+        self.client.force_authenticate(user)
+        req = self.client.post(reverse('sudo'), {"id": user2.id})
+        self.assertEquals(req.status_code, HTTP_200_OK)
+
+
+
+class BotTestCase(APITestCase):
+    def test_create_bot(self):
+        user = get_user_model()(username="resend-email", is_staff=True, email="tvu@example.com", is_superuser=True)
+        user.save()
+        self.client.force_authenticate(user=user)
+        response = self.client.post(reverse("create-bot"), {"username": "bot", "is_visible": False, "is_staff": False, "is_superuser": False})
+        self.assertEquals(response.status_code, HTTP_200_OK)
+
+
+class GenerateInvitesTestCase(APITestCase):
+    def test_response_length(self):
+        user = get_user_model()(username="resend-email", is_staff=True, email="tvu@example.com", is_superuser=True)
+        user.save()
+        self.client.force_authenticate(user=user)
+        team = Team.objects.create(owner=user, name=user.username, password='123123')
+        response = self.client.post(reverse('generate-invites'), {"amount": 15, "auto_team": team.id, "max_uses": 1})
+        self.assertEquals(len(response.data["d"]["invite_codes"]), 15)
+
+    def test_invites_viewset(self):
+        user = get_user_model()(username="resend-email", is_staff=True, email="tvu@example.com", is_superuser=True)
+        user.save()
+        self.client.force_authenticate(user=user)
+        self.client.post(reverse('generate-invites'), {"amount": 15, "max_uses": 1})
+        response = self.client.get(reverse('invites-list'))
+        self.assertEquals(len(response.data["d"]["results"]), 15)
+
 
 
 class InviteRequiredRegistrationTestCase(APITestCase):
@@ -387,7 +464,19 @@ class Login2FATestCase(APITestCase):
             'tfa': '123456',
         }
         response = self.client.post(reverse('login-2fa'), data)
-        print(self.user.has_2fa(), response.content)
+        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+
+    def test_login_2fa_without_2fa(self):
+        user = get_user_model()(username='login-test-no-2fa', email='login-test-no-2fa@example.org')
+        user.set_password('password')
+        user.email_verified = True
+        user.save()
+        data = {
+            'username': 'login-test-no-2fa',
+            'password': 'password',
+            'tfa': '123456'
+        }
+        response = self.client.post(reverse('login-2fa'), data)
         self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_login_2fa_missing(self):
@@ -406,8 +495,15 @@ class Login2FATestCase(APITestCase):
             'tfa': '12345678',
         }
         response = self.client.post(reverse('login-2fa'), data)
-        print(response.data)
         self.assertEquals(response.status_code, HTTP_200_OK)
+
+
+class TokenTestCase(APITestCase):
+    def test_token_str(self):
+        user = get_user_model()(username='token-test', email='token-test@example.org')
+        user.save()
+        tok = Token(key="a"*40, user=user)
+        self.assertEquals(str(tok), "a"*40)
 
 
 class TFATestCase(APITestCase):
@@ -467,6 +563,18 @@ class TFATestCase(APITestCase):
         })
         self.assertEquals(response.status_code, HTTP_200_OK)
 
+    def test_remove_2fa_fail(self):
+        self.client.force_authenticate(user=self.user)
+        self.client.post(reverse('add-2fa'))
+        totp_device = get_user_model().objects.get(id=self.user.id).totp_device
+        totp_device.verified = True
+        totp_device.save()
+        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
+        response = self.client.post(reverse('remove-2fa'), data={
+            'otp': "invalid_otp"
+        })
+        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+
     def test_remove_2fa_removes_2fa(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse('add-2fa'))
@@ -499,9 +607,15 @@ class RequestPasswordResetTestCase(APITestCase):
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_password_reset_request_valid(self):
-        get_user_model()(username='test-password-rest', email='user10@example.org').save()
-        response = self.client.post(reverse('request-password-reset'), data={'email': 'user10@example.org'})
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        with self.settings(MAIL={
+            "SEND_ADDRESS": "no-reply@ractf.co.uk",
+            "SEND_NAME": "RACTF",
+            "SEND": True,
+            "SEND_MODE": "SES"
+        }):
+            get_user_model()(username='test-password-rest', email='user10@example.org', email_verified=True).save()
+            response = self.client.post(reverse('request-password-reset'), data={'email': 'user10@example.org'})
+            self.assertEquals(response.status_code, HTTP_200_OK)
 
 
 class DoPasswordResetTestCase(APITestCase):
@@ -575,7 +689,6 @@ class DoPasswordResetTestCase(APITestCase):
         self.assertFalse('token' in response.data['d'])
 
 
-
 class VerifyEmailTestCase(APITestCase):
 
     def setUp(self):
@@ -592,6 +705,25 @@ class VerifyEmailTestCase(APITestCase):
         }
         response = self.client.post(reverse('verify-email'), data)
         self.assertEquals(response.status_code, HTTP_200_OK)
+
+    def test_email_verify_invalid(self):
+        data = {
+            'uid': 123,
+            'token': 'haha brr',
+        }
+        response = self.client.post(reverse('verify-email'), data)
+        self.assertEquals(response.status_code, HTTP_404_NOT_FOUND)
+
+    def test_email_verify_nologin(self):
+        config.set("enable_login", False)
+
+        data = {
+            'uid': self.user.id,
+            'token': self.user.email_token,
+        }
+        response = self.client.post(reverse('verify-email'), data)
+        config.set("enable_login", False)
+        self.assertEquals(response.data["d"], "")
 
     def test_email_verify_twice(self):
         data = {
@@ -627,7 +759,7 @@ class ChangePasswordTestCase(APITestCase):
             'password': 'uO7*$E@0ngqL',
         }
         response = self.client.post(reverse('change-password'), data)
-        print(response.data)
+
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_change_password_weak(self):
