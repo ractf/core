@@ -12,24 +12,26 @@ if settings.MAIL["SEND"]:  # pragma: no cover
         sg = sendgrid.SendGridAPIClient(settings.MAIL["SENDGRID_API_KEY"])
 
 
-def send_email(send_to, subject_line, template_name, **template_details):
-    if settings.MAIL["SEND"]:  # pragma: no cover
-        if settings.MAIL["SEND_MODE"] == "AWS":  # pragma: no cover
+def send_html(recipients, subject_line, html, txt):
+    if not settings.MAIL["SEND"]:
+        print(f"Sending html email '{subject_line}' to {', '.join(recipients)}")
+        return
+
+    if settings.MAIL["SEND_MODE"] == "AWS":  # pragma: no cover
+        for chunk in range(0, len(recipients), 50):
             client.send_email(
                 Destination={
-                    "ToAddresses": [
-                        send_to
-                    ]
+                    "BccAddresses": recipients[chunk:chunk + 50]
                 },
                 Message={
                     "Body": {
                         "Html": {
                             "Charset": "UTF-8",
-                            "Data": render_to_string(template_name + ".html", template_details)
+                            "Data": html
                         },
                         "Text": {
                             "Charset": "UTF-8",
-                            "Data": render_to_string(template_name + ".txt", template_details)
+                            "Data": txt
                         }
                     },
                     "Subject": {
@@ -39,14 +41,13 @@ def send_email(send_to, subject_line, template_name, **template_details):
                 },
                 Source=f"{settings.MAIL['SEND_NAME']} <{settings.MAIL['SEND_ADDRESS']}>"
             )
-        elif settings.MAIL["SEND_MODE"] == "SENDGRID":  # pragma: no cover
+    elif settings.MAIL["SEND_MODE"] == "SENDGRID":  # pragma: no cover
+        for chunk in range(0, len(recipients), 1000):
             data = {
                 "personalizations": [
                     {
-                        "to": [
-                            {
-                                "email": send_to
-                            }
+                        "bcc": [
+                            {"email":v} for v in recipients[chunk:chunk + 1000]
                         ],
                         "subject": subject_line
                     }
@@ -58,36 +59,46 @@ def send_email(send_to, subject_line, template_name, **template_details):
                 "content": [
                     {
                         "type": "text/plain",
-                        "value": render_to_string(template_name + ".txt", template_details)
+                        "value": txt
                     },
                     {
                         "type": "text/html",
-                        "value": render_to_string(template_name + ".html", template_details)
+                        "value": html
                     }
                 ]
             }
             sg.client.mail.send.post(request_body=data)
-        elif settings.MAIL["SEND_MODE"] == "SMTP":  # pragma: no cover
-            import smtplib
-            from email.mime.multipart import MIMEMultipart
-            from email.mime.text import MIMEText
-            if settings.MAIL["SMTP_USE_SSL"]:
-                smtp = smtplib.SMTP_SSL(settings.MAIL["SEND_SERVER"])
-            else:
-                smtp = smtplib.SMTP(settings.MAIL["SEND_SERVER"])
-            smtp.connect(settings.MAIL["SEND_SERVER"])
-            smtp.set_debuglevel(False)
-            smtp.login(settings.MAIL["SEND_USERNAME"], settings.MAIL["SEND_PASSWORD"])
-            sender = f"{settings.MAIL['SEND_NAME']} <{settings.MAIL['SEND_ADDRESS']}>"
+    elif settings.MAIL["SEND_MODE"] == "SMTP":  # pragma: no cover
+        import smtplib
+        from email.mime.multipart import MIMEMultipart
+        from email.mime.text import MIMEText
+        if settings.MAIL["SMTP_USE_SSL"]:
+            smtp = smtplib.SMTP_SSL(settings.MAIL["SEND_SERVER"])
+        else:
+            smtp = smtplib.SMTP(settings.MAIL["SEND_SERVER"])
+        smtp.connect(settings.MAIL["SEND_SERVER"])
+        smtp.set_debuglevel(False)
+        smtp.login(settings.MAIL["SEND_USERNAME"], settings.MAIL["SEND_PASSWORD"])
+        sender = f"{settings.MAIL['SEND_NAME']} <{settings.MAIL['SEND_ADDRESS']}>"
 
-            data = MIMEMultipart('alternative')
-            data['To'] = send_to
-            data['From'] = sender
-            data['Subject'] = subject_line
+        data = MIMEMultipart('alternative')
+        data['To'] = "You <noreply@ractf.co.uk>"
+        data['From'] = sender
+        data['Subject'] = subject_line
 
-            data.attach(MIMEText(render_to_string(template_name + ".txt", template_details), 'plain'))
-            data.attach(MIMEText(render_to_string(template_name + ".html", template_details), 'html'))
+        data.attach(MIMEText(txt, 'plain'))
+        data.attach(MIMEText(html, 'html'))
 
-            smtp.sendmail(sender, send_to, data.as_string())
-    else:
+        smtp.sendmail(sender, recipients, data.as_string())
+
+
+def send_email(send_to, subject_line, template_name, **template_details):
+    if not settings.MAIL["SEND"]:
         print(f"Sending email '{subject_line}' to {send_to} using template {template_name} with details {template_details}")
+
+    send_html(
+        [send_to],
+        subject_line,
+        render_to_string(template_name + ".html", template_details),
+        render_to_string(template_name + ".txt", template_details)
+    )
