@@ -8,7 +8,7 @@ class RactfConfig(AppConfig):
 
 
 @register()
-def check_settings(app_configs, **kwargs):
+def check_settings(app_configs, **kwargs):  # pragma: no cover
     errors = []
     for setting in settings.REQUIRED_SETTINGS:
         if getattr(settings, setting, None) is None:
