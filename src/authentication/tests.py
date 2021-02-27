@@ -472,7 +472,7 @@ class Login2FATestCase(APITestCase):
         user.email_verified = True
         user.save()
         data = {
-            'username': 'login-test',
+            'username': 'login-test-no-2fa',
             'password': 'password',
             'tfa': '123456'
         }

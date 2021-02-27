@@ -41,7 +41,7 @@ class LoginProvider(Provider, abc.ABC):  # pragma: no cover
         pass
 
 
-class TokenProvider(Provider, abc.ABC):
+class TokenProvider(Provider, abc.ABC):  # pragma: no cover
     type = 'token'
 
     @abc.abstractmethod
