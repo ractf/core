@@ -1,3 +1,9 @@
-from django.test import TestCase
+from django.urls import reverse
+from rest_framework.test import APITestCase
 
-# Create your tests here.
+
+class ExperimentsTestCase(APITestCase):
+    def test_experiments(self):
+        with self.settings(EXPERIMENT_OVERRIDES={"test": True}):
+            response = self.client.get(reverse("experiments"))
+            self.assertEquals(response.data["d"]["test"], True)

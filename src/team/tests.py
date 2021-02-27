@@ -10,6 +10,8 @@ from rest_framework.status import (
 )
 from rest_framework.test import APITestCase
 
+from challenge.models import Solve, Category, Challenge
+from config import config
 from team.models import Team
 
 
@@ -68,6 +70,55 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
         response = self.client.patch(reverse("team-self"), data={"name": "name-change"})
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
+    def test_team_leave_disabled(self):
+        self.client.force_authenticate(user=self.user)
+        config.set("enable_team_leave", False)
+        response = self.client.post(reverse("team-leave"))
+        config.set("enable_team_leave", True)
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_team_leave_challenge_solved(self):
+        config.set("enable_team_leave", True)
+        self.client.force_authenticate(user=self.user)
+
+        category = Category.objects.create(name="test category", display_order=1, contained_type="test", description="test")
+        chall = Challenge.objects.create(
+            name="test challenge",
+            category=category,
+            challenge_metadata={},
+            description="test challenge",
+            challenge_type="test challenge",
+            flag_type="none",
+            flag_metadata={},
+            author="test author",
+            score=5
+        )
+
+        Solve.objects.create(solved_by=self.user, flag="", challenge=chall)
+        response = self.client.post(reverse("team-leave"))
+        config.set("enable_team_leave", False)
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_team_leave_as_owner_with_members(self):
+        self.client.force_authenticate(user=self.user)
+
+        self.admin_user.team = self.team
+        self.admin_user.is_staff = False
+        self.admin_user.save()
+
+        config.set("enable_team_leave", True)
+        response = self.client.post(reverse("team-leave"))
+        config.set("enable_team_leave", False)
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_team_leave_as_owner_without_members(self):
+        self.client.force_authenticate(user=self.user)
+
+        config.set("enable_team_leave", True)
+        response = self.client.post(reverse("team-leave"))
+        config.set("enable_team_leave", False)
+        self.assertEquals(response.status_code, HTTP_200_OK)
+
 
 class CreateTeamTestCase(TeamSetupMixin, APITestCase):
     def test_create_team(self):
@@ -105,6 +156,45 @@ class JoinTeamTestCase(TeamSetupMixin, APITestCase):
             reverse("team-join"), data={"name": "team-test", "password": "abc"}
         )
         self.assertEquals(response.status_code, HTTP_200_OK)
+
+    def test_join_team_incorrect_password(self):
+        self.client.force_authenticate(self.admin_user)
+        response = self.client.post(
+            reverse("team-join"), data={"name": "team-test", "password": "incorrect_pass"}
+        )
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_join_team_incorrect_name(self):
+        self.client.force_authenticate(self.admin_user)
+        response = self.client.post(
+            reverse("team-join"), data={"name": "incorrect-team-test", "password": "abc"}
+        )
+        self.assertEquals(response.status_code, HTTP_404_NOT_FOUND)
+
+    def test_join_team_full(self):
+        user2 = get_user_model()(
+            username="team-test2", email="team-test2@example.org", is_visible=True
+        )
+        user2.save()
+        self.client.force_authenticate(self.admin_user)
+        config.set("team_size", 1)
+        self.client.post(
+            reverse("team-join"), data={"name": "team-test", "password": "abc"}
+        )
+        self.client.force_authenticate(user2)
+        response = self.client.post(
+            reverse("team-join"), data={"name": "team-test", "password": "abc"}
+        )
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_join_team_disabled(self):
+        self.client.force_authenticate(self.admin_user)
+        config.set("enable_team_join", False)
+        response = self.client.post(
+            reverse("team-join"), data={"name": "team-test", "password": "abc"}
+        )
+        config.set("enable_team_join", True)
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_join_team_duplicate(self):
         self.client.force_authenticate(self.admin_user)
