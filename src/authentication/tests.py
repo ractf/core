@@ -457,14 +457,6 @@ class Login2FATestCase(APITestCase):
         response = self.client.post(reverse('login-2fa'), data)
         self.assertEquals(response.status_code, HTTP_200_OK)
 
-    def test_login_2fa_missing(self):
-        data = {
-            'username': 'login-test',
-            'password': 'password'
-        }
-        response = self.client.post(reverse('login-2fa'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
-
     def test_login_2fa_invalid(self):
         data = {
             'username': 'login-test',
