@@ -8,7 +8,7 @@ from config import config
 from plugins.providers import Provider
 
 
-class RegistrationProvider(Provider, abc.ABC):
+class RegistrationProvider(Provider, abc.ABC):  # pragma: no cover
     type = 'registration'
 
     @abc.abstractmethod
@@ -33,7 +33,7 @@ class RegistrationProvider(Provider, abc.ABC):
             raise ValidationError('email_or_username_in_use')
 
 
-class LoginProvider(Provider, abc.ABC):
+class LoginProvider(Provider, abc.ABC):  # pragma: no cover
     type = 'login'
 
     @abc.abstractmethod

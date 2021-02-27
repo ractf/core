@@ -457,19 +457,24 @@ class Login2FATestCase(APITestCase):
         response = self.client.post(reverse('login-2fa'), data)
         self.assertEquals(response.status_code, HTTP_200_OK)
 
-    def test_login_2fa_missing(self):
-        data = {
-            'username': 'login-test',
-            'password': 'password'
-        }
-        response = self.client.post(reverse('login-2fa'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
-
     def test_login_2fa_invalid(self):
         data = {
             'username': 'login-test',
             'password': 'password',
             'tfa': '123456',
+        }
+        response = self.client.post(reverse('login-2fa'), data)
+        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+
+    def test_login_2fa_without_2fa(self):
+        user = get_user_model()(username='login-test-no-2fa', email='login-test-no-2fa@example.org')
+        user.set_password('password')
+        user.email_verified = True
+        user.save()
+        data = {
+            'username': 'login-test',
+            'password': 'password',
+            'tfa': '123456'
         }
         response = self.client.post(reverse('login-2fa'), data)
         self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
