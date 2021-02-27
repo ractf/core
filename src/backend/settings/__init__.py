@@ -307,3 +307,5 @@ LOGGING = {
         }
     },
 }
+
+REQUIRED_SETTINGS = ["FRONTEND_URL", "DOMAIN"]
