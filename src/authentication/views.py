@@ -116,7 +116,7 @@ class RemoveTwoFactorView(APIView):
                 "2fa_removed"
             )
             return FormattedResponse()
-        return FormattedResponse(status=HTTP_401_UNAUTHORIZED)
+        return FormattedResponse(status=HTTP_401_UNAUTHORIZED, m="code_incorrect")
 
 
 class LoginTwoFactorView(APIView):
