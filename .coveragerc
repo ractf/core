@@ -8,6 +8,7 @@ omit =
     backend/exception_handler.py
     manage.py
     websockets/routing.py
+    backend/settings/*
 [report]
 fail_under = 100
 show_missing = True
