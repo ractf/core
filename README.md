@@ -79,7 +79,7 @@ Check out the [Installer](https://github.com/ractf/install/). Want a more custom
 
 ## Getting Support
 
-If you need support, check out our [Discord](https://discord.gg/FfW2xXR), or if you've found a bug with the framework, open an issue.
+If you need support, check out our [Discord](https://discord.gg/FfW2xXR). If you've found a bug with the framework, open an issue.
  > 🔒 Found a security issue? Email us at `security@ractf.co.uk`.
 
 ## License
