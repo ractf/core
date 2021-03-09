@@ -22,31 +22,32 @@ from django.conf.urls.static import static
 from backend.views import CatchAllView
 
 urlpatterns = [
-    path('announcements/', include('announcements.urls')),
-    path('auth/', include('authentication.urls')),
-    path('challenges/', include('challenge.urls')),
-    path('challengeserver/', include('andromeda.urls')),
-    path('config/', include('config.urls')),
-    path('hints/', include('hint.urls')),
-    path('leaderboard/', include('leaderboard.urls')),
-    path('member/', include('member.urls')),
-    path('scorerecalculator/', include('scorerecalculator.urls')),
-    path('stats/', include('stats.urls')),
-    path('team/', include('team.urls')),
-    path('pages/', include('pages.urls')),
-    path('experiments/', include('experiments.urls')),
-    path('polaris/', include('polaris.urls')),
+    path("announcements/", include("announcements.urls")),
+    path("auth/", include("authentication.urls")),
+    path("challenges/", include("challenge.urls")),
+    path("challengeserver/", include("andromeda.urls")),
+    path("config/", include("config.urls")),
+    path("hints/", include("hint.urls")),
+    path("leaderboard/", include("leaderboard.urls")),
+    path("member/", include("member.urls")),
+    path("scorerecalculator/", include("scorerecalculator.urls")),
+    path("stats/", include("stats.urls")),
+    path("team/", include("team.urls")),
+    path("pages/", include("pages.urls")),
+    path("experiments/", include("experiments.urls")),
+    path("polaris/", include("polaris.urls")),
+    path("", include("django_prometheus.urls")),
 ]
 
 urlpatterns = [
     *urlpatterns,
-    path('api/v2/', include(urlpatterns)),
+    path("api/v2/", include(urlpatterns)),
 ]
 
 handler404 = CatchAllView.as_view()
 
 if "silk" in settings.INSTALLED_APPS:
-    urlpatterns += [path('silk/', include('silk.urls'))]
+    urlpatterns += [path("silk/", include("silk.urls"))]
 
 if not settings.USE_AWS_S3_FILE_STORAGE:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
