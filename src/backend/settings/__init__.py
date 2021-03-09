@@ -131,7 +131,7 @@ CHANNEL_LAYERS = {
 
 DATABASES = {
     "default": {
-        "ENGINE": "django_prometheus.db.backends.postgresql_psycopg2",
+        "ENGINE": "django_prometheus.db.backends.postgresql",
         "PASSWORD": os.getenv("SQL_PASSWORD"),
         "NAME": os.getenv("SQL_DATABASE"),
         "USER": os.getenv("SQL_USER"),
