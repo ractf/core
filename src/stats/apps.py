@@ -4,6 +4,8 @@ from django.dispatch import receiver
 
 from prometheus_client import Gauge
 
+from backend.signals import websocket_connect, websocket_disconnect
+
 
 class StatsConfig(AppConfig):
     name = "stats"
@@ -25,6 +27,8 @@ class StatsConfig(AppConfig):
         correct_solve_count = Gauge("correct_solve_count", "The count of correct solves")
         correct_solve_count.set(Solve.objects.filter(correct=True).count())
 
+        connected_websocket_users = Gauge("connected_websocket_users", "The number of users connected to the Websocket")
+
         @receiver(post_save, sender=Member)
         def on_member_create(sender, instance, created, **kwargs):
             if created:
@@ -41,3 +45,11 @@ class StatsConfig(AppConfig):
                 solve_count.inc()
                 if instance.correct:
                     correct_solve_count.inc()
+
+        @receiver(websocket_connect)
+        def on_ws_connect():
+            connected_websocket_users.inc()
+
+        @receiver(websocket_disconnect)
+        def on_ws_disconnect():
+            connected_websocket_users.dec()
