@@ -54,7 +54,7 @@ class StatsConfig(AppConfig):
             if created:
                 team_count.inc()
 
-        @receiver(post_save, sender=Team)
+        @receiver(post_delete, sender=Team)
         def on_team_delete(sender, instance, **kwargs):
             team_count.dec()
 
@@ -65,7 +65,7 @@ class StatsConfig(AppConfig):
                 if instance.correct:
                     correct_solve_count.inc()
 
-        @receiver(post_save, sender=Solve)
+        @receiver(post_delete, sender=Solve)
         def on_solve_delete(sender, instance, **kwargs):
             solve_count.dec()
             if instance.correct:
