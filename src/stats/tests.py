@@ -120,3 +120,9 @@ class CommitTestCase(APITestCase):
         self.client.force_authenticate(user)
         response = self.client.get(reverse("version"))
         self.assertEquals(response.status_code, HTTP_200_OK)
+
+
+class PrometheusTestCase(APITestCase):
+    def test_responds(self):
+        response = self.client.get("/metrics")
+        self.assertEquals(response.status_code, HTTP_200_OK)
