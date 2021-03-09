@@ -260,7 +260,7 @@ CORS_ALLOW_CREDENTIALS = True
 CACHES = {
     "default": {
         "BACKEND": "django_prometheus.cache.backends.redis.RedisCache",
-        "LOCATION": f"{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}",
+        "LOCATION": f"redis://{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}",
         "OPTIONS": {
             "DB": int(os.getenv("REDIS_CACHE_DB", 0)),
             "PASSWORD": None,
