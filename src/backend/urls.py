@@ -36,7 +36,6 @@ urlpatterns = [
     path("pages/", include("pages.urls")),
     path("experiments/", include("experiments.urls")),
     path("polaris/", include("polaris.urls")),
-    path("", include("django_prometheus.urls")),
 ]
 
 urlpatterns = [
