@@ -3,8 +3,10 @@ from datetime import timezone, datetime
 
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
+from django_prometheus.exports import ExportToDjangoView
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
+from rest_framework.views import APIView
 
 from member.models import UserIP
 from backend.response import FormattedResponse
@@ -75,3 +77,10 @@ def version(request):
             "commit_hash": os.popen("git rev-parse HEAD").read().strip()
         }
     )
+
+
+class PrometheusMetricsView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, format=None):
+        return ExportToDjangoView(request)

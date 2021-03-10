@@ -12,6 +12,7 @@ from authentication.models import InviteCode, PasswordResetToken
 from backend.exceptions import FormattedException
 from backend.mail import send_email
 from backend.response import FormattedResponse
+from backend.signals import register
 from config import config
 from plugins import providers
 from team.models import Team
@@ -91,6 +92,8 @@ class RegistrationSerializer(serializers.Serializer):
             )
             
         user.save()
+
+        register.send(sender=self.__class__, user=user)
 
         if not settings.MAIL["SEND"]:
             return {"token": user.issue_token(), 'email': user.email}
