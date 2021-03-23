@@ -3,18 +3,31 @@ import time
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.indexes import BrinIndex
 from django.db import models
-from django.db.models import SET_NULL, CASCADE, PROTECT, Case, When, Value, UniqueConstraint, Q, Subquery, JSONField
+from django.db.models import (
+    SET_NULL,
+    CASCADE,
+    PROTECT,
+    Case,
+    When,
+    Value,
+    UniqueConstraint,
+    Q,
+    Subquery,
+    JSONField,
+)
 from django.db.models.aggregates import Count
 from django.db.models.query import Prefetch
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
+from django_prometheus.models import ExportModelOperationsMixin
+
 from config import config
 from team.models import Team
 
 
-class Category(models.Model):
+class Category(ExportModelOperationsMixin("category"), models.Model):
     name = models.CharField(max_length=36, unique=True)
     display_order = models.IntegerField()
     contained_type = models.CharField(max_length=36)
@@ -23,11 +36,9 @@ class Category(models.Model):
     release_time = models.DateTimeField(default=timezone.now)
 
 
-class Challenge(models.Model):
+class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     name = models.CharField(max_length=36, unique=True)
-    category = models.ForeignKey(
-        Category, on_delete=PROTECT, related_name="category_challenges"
-    )
+    category = models.ForeignKey(Category, on_delete=PROTECT, related_name="category_challenges")
     description = models.TextField()
     challenge_type = models.CharField(max_length=64)
     challenge_metadata = JSONField()
@@ -59,7 +70,9 @@ class Challenge(models.Model):
         if user.team is None:
             return False
         if solves is None:
-            solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
+            solves = list(
+                user.team.solves.filter(correct=True).values_list("challenge", flat=True)
+            )
         requirements = self.unlock_requirements
         state = []
         if not requirements:
@@ -92,14 +105,14 @@ class Challenge(models.Model):
             return Challenge.objects.none()
         if user.team is not None:
             solves = Solve.objects.filter(team=user.team, correct=True)
-            solved_challenges = solves.values_list('challenge')
+            solved_challenges = solves.values_list("challenge")
             challenges = Challenge.objects.annotate(
                 solved=Case(
                     When(Q(id__in=Subquery(solved_challenges)), then=Value(True)),
                     default=Value(False),
-                    output_field=models.BooleanField()
+                    output_field=models.BooleanField(),
                 ),
-                solve_count=Count('solves', filter=Q(solves__correct=True)),
+                solve_count=Count("solves", filter=Q(solves__correct=True)),
                 unlock_time_surpassed=Case(
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),
@@ -109,48 +122,61 @@ class Challenge(models.Model):
                 votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
             )
         else:
-            challenges = (
-                Challenge.objects.annotate(
-                    unlocked=Case(
-                        When(auto_unlock=True, then=Value(True)),
-                        default=Value(False),
-                        output_field=models.BooleanField()
-                    ),
-                    solved=Value(False, models.BooleanField()),
-                    solve_count=Count('solves'),
-                    unlock_time_surpassed=Case(
-                        When(release_time__lte=timezone.now(), then=Value(True)),
-                        default=Value(False),
-                        output_field=models.BooleanField(),
-                    ),
-                    votes_positive=Count("votes", filter=Q(votes__positive=True), distinct=True),
-                    votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
-                )
+            challenges = Challenge.objects.annotate(
+                unlocked=Case(
+                    When(auto_unlock=True, then=Value(True)),
+                    default=Value(False),
+                    output_field=models.BooleanField(),
+                ),
+                solved=Value(False, models.BooleanField()),
+                solve_count=Count("solves"),
+                unlock_time_surpassed=Case(
+                    When(release_time__lte=timezone.now(), then=Value(True)),
+                    default=Value(False),
+                    output_field=models.BooleanField(),
+                ),
+                votes_positive=Count("votes", filter=Q(votes__positive=True), distinct=True),
+                votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
             )
         from hint.models import Hint
         from hint.models import HintUse
+
         x = challenges.prefetch_related(
-            Prefetch('hint_set', queryset=Hint.objects.annotate(
-                used=Case(
-                    When(id__in=HintUse.objects.filter(team=user.team).values_list('hint_id'), then=Value(True)),
-                    default=Value(False),
-                    output_field=models.BooleanField()
-                )), to_attr='hints'),
-            Prefetch('file_set', queryset=File.objects.all(), to_attr='files'),
-            Prefetch('tag_set',
-                     queryset=Tag.objects.all() if time.time() > config.get('end_time') else Tag.objects.filter(
-                         post_competition=False), to_attr='tags'),
-            'first_blood', 'hint_set__uses')
+            Prefetch(
+                "hint_set",
+                queryset=Hint.objects.annotate(
+                    used=Case(
+                        When(
+                            id__in=HintUse.objects.filter(team=user.team).values_list("hint_id"),
+                            then=Value(True),
+                        ),
+                        default=Value(False),
+                        output_field=models.BooleanField(),
+                    )
+                ),
+                to_attr="hints",
+            ),
+            Prefetch("file_set", queryset=File.objects.all(), to_attr="files"),
+            Prefetch(
+                "tag_set",
+                queryset=Tag.objects.all()
+                if time.time() > config.get("end_time")
+                else Tag.objects.filter(post_competition=False),
+                to_attr="tags",
+            ),
+            "first_blood",
+            "hint_set__uses",
+        )
         return x
 
 
-class ChallengeVote(models.Model):
+class ChallengeVote(ExportModelOperationsMixin("challenge_vote"), models.Model):
     challenge = models.ForeignKey(Challenge, on_delete=CASCADE, related_name="votes")
     user = models.ForeignKey(get_user_model(), on_delete=CASCADE)
     positive = models.BooleanField()
 
 
-class ChallengeFeedback(models.Model):
+class ChallengeFeedback(ExportModelOperationsMixin("challenge_feedback"), models.Model):
     challenge = models.ForeignKey(Challenge, on_delete=CASCADE)
     user = models.ForeignKey(get_user_model(), on_delete=CASCADE)
     feedback = models.TextField()
@@ -162,7 +188,7 @@ def on_challenge_update(sender, instance, created, **kwargs):
         new_score = instance.score
 
 
-class Score(models.Model):
+class Score(ExportModelOperationsMixin("score"), models.Model):
     team = models.ForeignKey(Team, related_name="scores", on_delete=CASCADE, null=True)
     user = models.ForeignKey(
         get_user_model(), related_name="scores", on_delete=SET_NULL, null=True
@@ -175,7 +201,7 @@ class Score(models.Model):
     metadata = JSONField(default=dict)
 
 
-class Solve(models.Model):
+class Solve(ExportModelOperationsMixin("solve"), models.Model):
     team = models.ForeignKey(Team, related_name="solves", on_delete=CASCADE, null=True)
     challenge = models.ForeignKey(Challenge, related_name="solves", on_delete=CASCADE)
     solved_by = models.ForeignKey(
@@ -207,7 +233,7 @@ def get_file_name(instance, filename):
     return f"{instance.challenge.id}/{instance.md5}/{filename}"
 
 
-class File(models.Model):
+class File(ExportModelOperationsMixin("file"), models.Model):
     name = models.CharField(max_length=64)
     url = models.URLField()
     size = models.PositiveBigIntegerField()
@@ -216,7 +242,7 @@ class File(models.Model):
     md5 = models.CharField(max_length=32, null=True)
 
 
-class Tag(models.Model):
+class Tag(ExportModelOperationsMixin("tag"), models.Model):
     challenge = models.ForeignKey(Challenge, on_delete=CASCADE)
     text = models.CharField(max_length=255)
     type = models.CharField(max_length=255)

@@ -8,11 +8,7 @@ from pathlib import Path
 from corsheaders.defaults import default_headers
 
 
-CORS_ALLOW_HEADERS = [
-    *default_headers,
-    "x-exporting",
-    "exporting"
-]
+CORS_ALLOW_HEADERS = [*default_headers, "x-exporting", "exporting"]
 
 DOMAIN = os.getenv("DOMAIN")
 DEBUG = bool(os.getenv("DEBUG"))
@@ -36,9 +32,7 @@ MAIL = {
     "SEND_MODE": "SES",
 }
 
-EXPERIMENT_OVERRIDES = {
-
-}
+EXPERIMENT_OVERRIDES = {}
 
 MAX_UPLOAD_SIZE = 10_000_000_000  # 10gb
 USE_AWS_S3_FILE_STORAGE = os.getenv("USE_AWS_S3_FILE_STORAGE")
@@ -47,12 +41,12 @@ if USE_AWS_S3_FILE_STORAGE:
     AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_FILES_BUCKET_NAME")
     AWS_DEFAULT_ACL = None
     AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_FILES_BUCKET_DOMAIN", AWS_STORAGE_BUCKET_NAME)
-    PUBLIC_MEDIA_LOCATION = 'challenge-files'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
-    DEFAULT_FILE_STORAGE = 'backend.storages.PublicMediaStorage'
+    PUBLIC_MEDIA_LOCATION = "challenge-files"
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/"
+    DEFAULT_FILE_STORAGE = "backend.storages.PublicMediaStorage"
 else:
-    MEDIA_URL = '/publicmedia/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'publicmedia')
+    MEDIA_URL = "/publicmedia/"
+    MEDIA_ROOT = os.path.join(BASE_DIR, "publicmedia")
 
 INSTALLED_APPS = [
     "announcements.apps.AnnouncementsConfig",
@@ -69,15 +63,16 @@ INSTALLED_APPS = [
     "polaris.apps.PolarisConfig",
     "ractf.apps.RactfConfig",
     "scorerecalculator.apps.ScorerecalculatorConfig",
-    "stats.apps.StatsConfig",
     "team.apps.TeamConfig",
     "websockets.apps.WebsocketsConfig",
+    "stats.apps.StatsConfig",
     "rest_framework",
     "rest_framework.authtoken",
     "django_zxcvbn_password_validator",
     "channels",
     "storages",
     "corsheaders",
+    "django_prometheus",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -86,6 +81,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "django_prometheus.middleware.PrometheusBeforeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -94,6 +90,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -134,7 +131,7 @@ CHANNEL_LAYERS = {
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "ENGINE": "django_prometheus.db.backends.postgresql",
         "PASSWORD": os.getenv("SQL_PASSWORD"),
         "NAME": os.getenv("SQL_DATABASE"),
         "USER": os.getenv("SQL_USER"),
@@ -262,8 +259,8 @@ CORS_ALLOW_CREDENTIALS = True
 
 CACHES = {
     "default": {
-        "BACKEND": "redis_cache.RedisCache",
-        "LOCATION": f"{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}",
+        "BACKEND": "django_prometheus.cache.backends.redis.RedisCache",
+        "LOCATION": f"redis://{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}",
         "OPTIONS": {
             "DB": int(os.getenv("REDIS_CACHE_DB", 0)),
             "PASSWORD": None,
@@ -281,30 +278,21 @@ CONFIG = {
 }
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'simple': {
-            'format': '%(levelname)s %(message)s'
-        },
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {"format": "%(levelname)s %(message)s"},
     },
-    'handlers': {
-        'console':{
-            'level':'DEBUG',
-            'class':'logging.StreamHandler',
-            'formatter': 'simple'
-        },
+    "handlers": {
+        "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple"},
     },
-    'loggers': {
-        'django.request':{
-            'handlers': ['console'],
-            'propagate': False,
-            'level': 'DEBUG',
+    "loggers": {
+        "django.request": {
+            "handlers": ["console"],
+            "propagate": False,
+            "level": "DEBUG",
         },
-        'core.handlers': {
-            'level': 'DEBUG',
-            'handlers': ['console']
-        }
+        "core.handlers": {"level": "DEBUG", "handlers": ["console"]},
     },
 }
 

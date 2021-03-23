@@ -120,3 +120,23 @@ class CommitTestCase(APITestCase):
         self.client.force_authenticate(user)
         response = self.client.get(reverse("version"))
         self.assertEquals(response.status_code, HTTP_200_OK)
+
+
+class PrometheusTestCase(APITestCase):
+    def test_unauthed(self):
+        response = self.client.get(reverse("prometheus"))
+        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+
+    def test_authed(self):
+        user = get_user_model()(username="prometheus-test", email="prometheus-test@example.org")
+        user.save()
+        self.client.force_authenticate(user)
+        response = self.client.get(reverse("prometheus"))
+        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_authed_admin(self):
+        user = get_user_model()(username="prometheus-test-admin", email="prometheus-test-admin@example.org", is_staff=True, is_superuser=True)
+        user.save()
+        self.client.force_authenticate(user)
+        response = self.client.get(reverse("prometheus"))
+        self.assertEquals(response.status_code, HTTP_200_OK)

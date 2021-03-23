@@ -12,11 +12,14 @@ SEND_MAIL = True
 
 ALLOWED_HOSTS.extend(("ractf.co.uk", "api-elite.ractf.co.uk"))
 
-TEMPLATES.insert(0, {
-    "BACKEND": "django.template.backends.jinja2.Jinja2",
-    "DIRS": [os.path.join(BASE_DIR, 'templates')],
-    "APP_DIRS": True,
-})
+TEMPLATES.insert(
+    0,
+    {
+        "BACKEND": "django.template.backends.jinja2.Jinja2",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+    },
+)
 
 MAIL = {
     "SEND_ADDRESS": os.getenv("EMAIL_ADDRESS"),
@@ -37,12 +40,14 @@ sentry_sdk.init(
     server_name=DOMAIN,
 )
 
-REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"].update({
-    "challenges": "4/second",
-    "leaderboard": "4/second",
-    "self": "4/second",
-    "member": "4/second",
-    "team": "4/second",
-    "config": "4/second",
-    "announcement": "4/second",
-})
+REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"].update(
+    {
+        "challenges": "4/second",
+        "leaderboard": "4/second",
+        "self": "4/second",
+        "member": "4/second",
+        "team": "4/second",
+        "config": "4/second",
+        "announcement": "4/second",
+    }
+)
