@@ -9,6 +9,7 @@ omit =
     manage.py
     websockets/routing.py
     backend/settings/*
+    ractf/management/*
 [report]
 fail_under = 100
 show_missing = True
