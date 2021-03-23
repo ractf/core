@@ -295,3 +295,5 @@ LOGGING = {
         "core.handlers": {"level": "DEBUG", "handlers": ["console"]},
     },
 }
+
+REQUIRED_SETTINGS = ["FRONTEND_URL", "DOMAIN"]
