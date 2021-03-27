@@ -22,17 +22,17 @@ class Command(BaseCommand):
             for j in range(50):
                 challenge = Challenge(name='cat-' + str(i) + '-chal-' + str(j), category=category,
                                       description='An example challenge ' + str(j),
-                                      flag_metadata={'flag': f'ractf{{{j}}}'}, author='dave', auto_unlock=True, score=j,
+                                      flag_metadata={'flag': f'ractf{{{j}}}'}, author='dave', score=j,
                                       challenge_metadata={})
                 challenge.save()
             for j in range(50, 100, 2):
                 challenge = Challenge(name='cat-' + str(i) + '-chal-' + str(j), category=category,
                                       description='An example challenge ' + str(j),
-                                      flag_metadata={'flag': f'ractf{{{j}}}'}, author='dave', auto_unlock=True,
+                                      flag_metadata={'flag': f'ractf{{{j}}}'}, author='dave',
                                       score=j, challenge_metadata={})
                 challenge2 = Challenge(name='cat-' + str(i) + '-chal-' + str(j + 1), category=category,
                                        description='An example challenge ' + str(j + 1),
-                                       flag_metadata={'flag': f'ractf{{{j + 1}}}'}, author='dave', auto_unlock=False,
+                                       flag_metadata={'flag': f'ractf{{{j + 1}}}'}, author='dave',
                                        score=j, challenge_metadata={})
                 challenge2.save()
                 challenge.save()

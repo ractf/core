@@ -71,11 +71,6 @@ class CategoryViewset(AdminCreateModelViewSet):
         else:
             challenges = (
                 Challenge.objects.annotate(
-                    unlocked=Case(
-                        When(auto_unlock=True, then=Value(True)),
-                        default=Value(False),
-                        output_field=models.BooleanField()
-                    ),
                     solved=Value(False, models.BooleanField()),
                     solve_count=Count('solves'),
                     unlock_time_surpassed=Case(

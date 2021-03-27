@@ -21,13 +21,9 @@ class ChallengeSetupMixin:
                                author='dave', score=1000)
         challenge2 = Challenge(name='test2', category=category, description='a', challenge_type='basic',
                                challenge_metadata={}, flag_type='plaintext', flag_metadata={'flag': 'ractf{a}'},
-                               author='dave', score=1000, auto_unlock=True)
-        challenge3 = Challenge(name='test3', category=category, description='a', challenge_type='basic',
-                               challenge_metadata={}, flag_type='plaintext', flag_metadata={'flag': 'ractf{a}'},
-                               author='dave', score=1000, auto_unlock=False)
+                               author='dave', score=1000)
         challenge1.save()
         challenge2.save()
-        challenge3.save()
         challenge1.unlock_requirements = "2"
         challenge1.save()
         hint1 = Hint(name='hint1', challenge=challenge1, text='a', penalty=100)
@@ -59,7 +55,6 @@ class ChallengeSetupMixin:
         self.category = category
         self.challenge1 = challenge1
         self.challenge2 = challenge2
-        self.challenge3 = challenge3
         self.hint1 = hint1
         self.hint2 = hint2
         self.hint3 = hint3
@@ -109,9 +104,6 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         user4 = get_user_model()(username='challenge-test-4', email='challenge-test-4@example.org')
         user4.save()
         self.assertFalse(self.challenge1.is_unlocked(user4))
-
-    def test_challenge_unlocks_locked(self):
-        self.assertFalse(self.challenge3.is_unlocked(self.user))
 
     def test_hint_scoring(self):
         HintUse(hint=self.hint3, team=self.team, user=self.user, challenge=self.challenge2).save()
@@ -219,7 +211,7 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('categories-list'))
         self.assertEquals(len(response.data['d']), 1)
-        self.assertEquals(len(response.data['d'][0]['challenges']), 3)
+        self.assertEquals(len(response.data['d'][0]['challenges']), 2)
 
     def test_category_list_challenge_redacting(self):
         self.client.force_authenticate(self.user)
@@ -283,7 +275,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
     def test_challenge_list_authenticated_content(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('challenges-list'))
-        self.assertEquals(len(response.data), 3)
+        self.assertEquals(len(response.data), 2)
 
     def test_challenge_list_challenge_redacting(self):
         self.client.force_authenticate(self.user)
@@ -346,7 +338,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         response = self.client.post(reverse('challenges-list'), data={
             'name': 'test4', 'category': self.category.id, 'description': 'abc',
             'challenge_type': 'test', 'challenge_metadata': {}, 'flag_type': 'plaintext',
-            'author': 'dave', 'auto_unlock': True, 'score': 1000, 'unlock_requirements': "", 'flag_metadata': {},
+            'author': 'dave', 'score': 1000, 'unlock_requirements': "", 'flag_metadata': {},
             'tags': [],
         }, format='json')
         self.assertEquals(response.status_code, HTTP_201_CREATED)
@@ -358,7 +350,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         response = self.client.post(reverse('challenges-list'), data={
             'name': 'test4', 'category': self.category.id, 'description': 'abc',
             'challenge_type': 'test', 'challenge_metadata': {}, 'flag_type': 'plaintext',
-            'author': 'dave', 'auto_unlock': True, 'score': 1000, 'unlock_requirements': "a", 'flag_metadata': {}
+            'author': 'dave', 'score': 1000, 'unlock_requirements': "a", 'flag_metadata': {}
         }, format='json')
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
