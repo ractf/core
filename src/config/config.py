@@ -5,8 +5,6 @@ from django.conf import settings
 
 DEFAULT_CONFIG = {
     'config_version': 5,
-    "chaos_random_success": False,
-    "chaos_drop_request_chance": -1,
     'flag_prefix': 'ractf',
     'graph_members': 10,
     'register_start_time': time.time(),
