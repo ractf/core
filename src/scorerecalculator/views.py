@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 
 from backend.response import FormattedResponse
 from challenge.models import Score
-from config import config
 from team.models import Team
 
 

@@ -91,7 +91,7 @@ def allocate_instance(challenge_id, user):
         'user': str(user.id),
         'team': str(user.team.id)
     })
-    if not user.is_superuser:
+    if not user.is_staff:
         return censor_instance(response)
     return response
 
@@ -102,7 +102,7 @@ def reallocate_instance(challenge_id, user):
         'user': str(user.id),
         'team': str(user.team.id)
     })
-    if not user.is_superuser:
+    if not user.is_staff:
         return censor_instance(response)
     return response
 
