@@ -1,4 +1,8 @@
+import random
+
 from rest_framework.renderers import JSONRenderer
+
+from config import config
 
 
 class RACTFJSONRenderer(JSONRenderer):
@@ -27,4 +31,8 @@ class RACTFJSONRenderer(JSONRenderer):
             response = {'s': True, 'd': data, 'm': ''}
         else:
             response = data
+
+        if config.get("chaos_random_success"):
+            response["s"] = random.randint(1, 2) == 1
+
         return super(RACTFJSONRenderer, self).render(response, accepted_media_type, renderer_context)
