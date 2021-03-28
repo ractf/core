@@ -101,7 +101,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
 
     @classmethod
     def get_unlocked_annotated_queryset(cls, user):
-        if user.is_staff and user.should_deny_admin():
+        if user.is_superuser and user.should_deny_admin():
             return Challenge.objects.none()
         if user.team is not None:
             solves = Solve.objects.filter(team=user.team, correct=True)

@@ -66,7 +66,7 @@ class MemberViewSetTestCase(APITestCase):
         user.save()
         self.user = user
         user = get_user_model()(username="test-admin", email="test-admin@example.org")
-        user.is_staff = True
+        user.is_superuser = True
         user.save()
         self.admin_user = user
 

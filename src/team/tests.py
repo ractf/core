@@ -63,7 +63,7 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
 
     def test_update_not_owner(self):
         self.admin_user.team = self.team
-        self.admin_user.is_staff = False
+        self.admin_user.is_superuser = False
         self.admin_user.save()
         self.client.force_authenticate(user=self.admin_user)
         print(self.team.owner == self.admin_user)
@@ -103,7 +103,7 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
         self.client.force_authenticate(user=self.user)
 
         self.admin_user.team = self.team
-        self.admin_user.is_staff = False
+        self.admin_user.is_superuser = False
         self.admin_user.save()
 
         config.set("enable_team_leave", True)
@@ -263,7 +263,7 @@ class TeamViewsetTestCase(TeamSetupMixin, APITestCase):
         self.assertTrue("password" in response.data)
 
     def test_view_password_not_admin(self):
-        self.admin_user.is_staff = False
+        self.admin_user.is_superuser = False
         self.admin_user.save()
         self.client.force_authenticate(self.admin_user)
         response = self.client.get(reverse("team-detail", kwargs={"pk": self.team.id}))

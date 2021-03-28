@@ -26,7 +26,7 @@ class HintSerializer(serializers.ModelSerializer):
 
     def get_text(self, instance):
         if (
-            self.context["request"].user.is_staff
+            self.context["request"].user.is_superuser
             and not self.context["request"].user.should_deny_admin()
         ) or is_used(self.context, instance):
             return instance.text

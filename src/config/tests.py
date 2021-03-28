@@ -10,7 +10,7 @@ class ConfigTestCase(APITestCase):
 
     def setUp(self):
         user = get_user_model()(username='config-test', email='config-test@example.org')
-        user.is_staff = True
+        user.is_superuser = True
         user.save()
         self.staff_user = user
         user2 = get_user_model()(username='config-test2', email='config-test2@example.org')

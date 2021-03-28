@@ -19,7 +19,7 @@ class RecalculateUserViewTestCase(APITestCase):
             username="recalculate-test-admin",
             email="recalculate-test-admin@example.org",
         )
-        admin_user.is_staff = True
+        admin_user.is_superuser = True
         admin_user.save()
         team = Team(name="recalculate-team", owner=user, password="a")
         team.save()
@@ -90,7 +90,7 @@ class RecalculateTeamViewTestCase(APITestCase):
             username="recalculate-test-admin",
             email="recalculate-test-admin@example.org",
         )
-        admin_user.is_staff = True
+        admin_user.is_superuser = True
         admin_user.save()
         team = Team(name="recalculate-team", owner=user, password="a")
         team.save()
@@ -157,7 +157,7 @@ class RecalculateAllViewTestCase(APITestCase):
             username="recalculate-test-admin",
             email="recalculate-test-admin@example.org",
         )
-        admin_user.is_staff = True
+        admin_user.is_superuser = True
         admin_user.save()
         team = Team(name="recalculate-team", owner=user, password="a")
         team.save()

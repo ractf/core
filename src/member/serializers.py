@@ -38,7 +38,7 @@ class AdminMemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         model = get_user_model()
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team',
                   'points', 'is_visible', 'is_active', 'solves', 'team_name', 'email', 'email_verified',
-                  'leaderboard_points', 'date_joined', 'state_actor', 'incorrect_solves', 'is_verified']
+                  'leaderboard_points', 'date_joined', 'state_actor', 'incorrect_solves', 'is_verified', 'is_superuser']
 
 
 class MinimalMemberSerializer(serializers.ModelSerializer):

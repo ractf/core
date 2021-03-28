@@ -108,7 +108,7 @@ class RegisterTestCase(APITestCase):
             'email': 'user6@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertTrue(get_user_model().objects.filter(username=data['username']).first().is_staff)
+        self.assertTrue(get_user_model().objects.filter(username=data['username']).first().is_superuser)
 
     def test_register_second(self):
         data = {
@@ -123,7 +123,7 @@ class RegisterTestCase(APITestCase):
             'email': 'user7@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertFalse(get_user_model().objects.filter(username=data['username']).first().is_staff)
+        self.assertFalse(get_user_model().objects.filter(username=data['username']).first().is_superuser)
 
     def test_register_malformed(self):
         data = {

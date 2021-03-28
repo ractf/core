@@ -116,7 +116,7 @@ class JoinTeamView(APIView):
                 team_join_reject.send(sender=self.__class__, user=request.user, name=name)
                 raise FormattedException(m='invalid_team', status=HTTP_404_NOT_FOUND)
             team_size = int(config.get('team_size'))
-            if not request.user.is_staff and not team.size_limit_exempt and 0 < team_size <= team.members.count():
+            if not request.user.is_superuser and not team.size_limit_exempt and 0 < team_size <= team.members.count():
                 return FormattedResponse(m='team_full', status=HTTP_403_FORBIDDEN)
             request.user.team = team
             request.user.save()

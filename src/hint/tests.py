@@ -19,7 +19,7 @@ class HintTestCase(ChallengeSetupMixin, APITestCase):
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_hint_view_admin(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("hint-detail", kwargs={"pk": self.hint1.id}))
@@ -36,14 +36,14 @@ class HintTestCase(ChallengeSetupMixin, APITestCase):
         self.assertEquals(response.data[0]["text"], "")
 
     def test_hint_list_admin(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("hint-list"))
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_hint_list_redaction_admin(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("hint-list"))
@@ -66,7 +66,7 @@ class HintTestCase(ChallengeSetupMixin, APITestCase):
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_hint_post_admin(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.post(
@@ -81,7 +81,7 @@ class HintTestCase(ChallengeSetupMixin, APITestCase):
         self.assertEquals(response.status_code, HTTP_201_CREATED)
 
     def test_hint_detail_patch_admin(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.patch(

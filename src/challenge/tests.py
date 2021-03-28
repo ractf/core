@@ -227,21 +227,21 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.assertFalse('description' in response.data['d'][0]['challenges'][0])
 
     def test_category_list_challenge_redacting_admin(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('categories-list'))
         self.assertTrue('description' in response.data['d'][0]['challenges'][0])
 
     def test_category_list_challenge_unlocked_admin(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('categories-list'))
         self.assertFalse(response.data['d'][0]['challenges'][0]['unlocked'])
 
     def test_category_create(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.post(reverse('categories-list'), data={
@@ -252,7 +252,7 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.assertTrue(response.status_code, HTTP_200_OK)
 
     def test_category_create_unauthorized(self):
-        self.user.is_staff = False
+        self.user.is_superuser = False
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.post(reverse('categories-list'), data={
@@ -291,56 +291,56 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.assertFalse('description' in response.data[0])
 
     def test_challenge_list_challenge_redacting_admin(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('challenges-list'))
         self.assertTrue('description' in response.data[0])
 
     def test_challenge_list_challenge_unlocked_admin(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('challenges-list'))
         self.assertFalse(response.data[0]['unlocked'])
 
     def test_single_challenge_redacting(self):
-        self.user.is_staff = False
+        self.user.is_superuser = False
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('challenges-detail', kwargs={'pk': self.challenge1.id}))
         self.assertFalse('description' in response.data)
 
     def test_single_challenge_admin_redacting(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('challenges-detail', kwargs={'pk': self.challenge1.id}))
         self.assertTrue('description' in response.data)
 
     def test_admin_unlocking(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('challenges-detail', kwargs={'pk': self.challenge1.id}))
         self.assertFalse(response.data['unlocked'])
 
     def test_user_post_detail(self):
-        self.user.is_staff = False
+        self.user.is_superuser = False
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.post(reverse('challenges-detail', kwargs={'pk': self.challenge1.id}))
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_user_post_list(self):
-        self.user.is_staff = False
+        self.user.is_superuser = False
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.post(reverse('challenges-list'))
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_create_challenge(self):
-        self.user.is_staff = True
+        self.user.is_superuser = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.post(reverse('challenges-list'), data={
@@ -352,7 +352,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.assertEquals(response.status_code, HTTP_201_CREATED)
 
     def test_create_challenge_unauthorized(self):
-        self.user.is_staff = False
+        self.user.is_superuser = False
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.post(reverse('challenges-list'), data={

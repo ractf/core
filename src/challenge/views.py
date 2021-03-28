@@ -47,7 +47,7 @@ class CategoryViewset(AdminCreateModelViewSet):
     create_serializer_class = CreateCategorySerializer
 
     def get_queryset(self):
-        if self.request.user.is_staff and self.request.user.should_deny_admin():
+        if self.request.user.is_superuser and self.request.user.should_deny_admin():
             return Category.objects.none()
         team = self.request.user.team
         if team is not None:
@@ -99,7 +99,7 @@ class CategoryViewset(AdminCreateModelViewSet):
                      queryset=Tag.objects.all() if time.time() > config.get('end_time') else Tag.objects.filter(
                          post_competition=False), to_attr='tags'),
             'first_blood', 'hint_set__uses')
-        if self.request.user.is_staff:
+        if self.request.user.is_superuser:
             categories = Category.objects
         else:
             categories = Category.objects.filter(release_time__lte=timezone.now())
@@ -186,7 +186,7 @@ class ChallengeFeedbackView(APIView):
     def get(self, request):
         challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
         feedback = ChallengeFeedback.objects.filter(challenge=challenge)
-        if request.user.is_staff:
+        if request.user.is_superuser:
             return FormattedResponse(ChallengeFeedbackSerializer(feedback, many=True).data)
         return FormattedResponse(ChallengeFeedbackSerializer(feedback.filter(user=request.user).first()).data)
 

@@ -55,7 +55,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         return self.username
 
     def can_login(self):
-        return self.is_staff or (
+        return self.is_superuser or (
             config.get("enable_login")
             and (config.get("enable_prelogin") or config.get("start_time") <= time.time())
         )
