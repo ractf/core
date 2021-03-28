@@ -12,6 +12,10 @@ class RACTFJSONRenderer(JSONRenderer):
     render_style = 'text'
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
+        if random.randint(0, 100) < config.get("chaos_drop_random_requests"):
+            renderer_context["response"].status_code = random.randint(0, 1000)
+            return super(RACTFJSONRenderer, self).render({}, accepted_media_type, renderer_context)
+
         if renderer_context and renderer_context.get('request') and "X-Reasonable" in renderer_context.get('request').headers:
             if renderer_context.get('response').status_code >= 400:
                 return super(RACTFJSONRenderer, self).render(data, accepted_media_type, renderer_context)
