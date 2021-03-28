@@ -12,7 +12,7 @@ class RACTFJSONRenderer(JSONRenderer):
     render_style = 'text'
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
-        if random.randint(0, 100) < config.get("chaos_drop_random_requests"):
+        if random.randint(0, 100) < config.get("chaos_drop_request_chance"):
             renderer_context["response"].status_code = random.randint(0, 1000)
             return super(RACTFJSONRenderer, self).render({}, accepted_media_type, renderer_context)
 
