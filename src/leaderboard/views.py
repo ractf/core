@@ -6,12 +6,13 @@ from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from backend.response import FormattedResponse
 from challenge.models import Score, Solve
 from config import config
 from leaderboard.serializers import LeaderboardUserScoreSerializer, LeaderboardTeamScoreSerializer, \
-    UserPointsSerializer, TeamPointsSerializer, CTFTimeSerializer
+    UserPointsSerializer, TeamPointsSerializer, CTFTimeSerializer, MatrixSerializer
 from team.models import Team
 
 
@@ -77,22 +78,14 @@ class TeamListView(ListAPIView):
         return super(TeamListView, self).list(request, *args, **kwargs)
 
 
-class MatrixScoreboardView(APIView):
+class MatrixScoreboardView(ReadOnlyModelViewSet):
     throttle_scope = 'leaderboard'
+    queryset = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score').prefetch_related(
+        Prefetch('solves', queryset=Solve.objects.filter(correct=True))
+    )
+    serializer_class = MatrixSerializer
 
-    def get(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):
         if should_hide_scoreboard():
             return FormattedResponse({})
-
-        scoreboard = []
-        teams = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score').prefetch_related(
-            Prefetch('solves', queryset=Solve.objects.filter(correct=True))
-        )
-        for team in teams:
-            scoreboard.append({
-                'id': team.id,
-                'name': team.name,
-                'points': team.leaderboard_points,
-                'solves': list(team.solves.values_list('challenge', flat=True))
-            })
-        return FormattedResponse(scoreboard)
+        return super(MatrixScoreboardView, self).list(request, *args, **kwargs)

@@ -207,36 +207,36 @@ class MatrixTestCase(APITestCase):
 
     def test_authenticated(self):
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse('leaderboard-matrix'))
+        response = self.client.get(reverse('leaderboard-matrix-list'))
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_unauthenticated(self):
-        response = self.client.get(reverse('leaderboard-matrix'))
+        response = self.client.get(reverse('leaderboard-matrix-list'))
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_length(self):
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse('leaderboard-matrix'))
-        self.assertEquals(len(response.data['d']), 15)
+        response = self.client.get(reverse('leaderboard-matrix-list'))
+        self.assertEquals(len(response.data['d']['results']), 15)
 
     def test_solves_present(self):
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse('leaderboard-matrix'))
-        self.assertEquals(len(response.data['d'][0]['solves']), 1)
+        response = self.client.get(reverse('leaderboard-matrix-list'))
+        self.assertEquals(len(response.data['d']['results'][0]['solve_ids']), 1)
 
     def test_solves_not_present(self):
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse('leaderboard-matrix'))
-        self.assertEquals(len(response.data['d'][1]['solves']), 0)
+        response = self.client.get(reverse('leaderboard-matrix-list'))
+        self.assertEquals(len(response.data['d']['results'][1]['solve_ids']), 0)
 
     def test_order(self):
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse('leaderboard-matrix'))
-        points = [x['points'] for x in response.data['d']]
+        response = self.client.get(reverse('leaderboard-matrix-list'))
+        points = [x['leaderboard_points'] for x in response.data['d']['results']]
         self.assertEquals(points, sorted(points, reverse=True))
 
     def test_disabled_scoreboard(self):
         config.set("enable_scoreboard", False)
-        response = self.client.get(reverse('leaderboard-matrix'))
+        response = self.client.get(reverse('leaderboard-matrix-list'))
         config.set("enable_scoreboard", True)
         self.assertEquals(response.data['d'], {})
