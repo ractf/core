@@ -33,7 +33,7 @@ class TeamQuerySet(models.QuerySet):
 
 
 class Team(ExportModelOperationsMixin("team"), models.Model):
-    """Represents a team of one or more competing Members."""
+    """Represents a team of one or more Members."""
 
     name = CICharField(max_length=36, unique=True, validators=[printable_name])
     is_visible = models.BooleanField(default=True)
