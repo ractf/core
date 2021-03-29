@@ -1,13 +1,14 @@
 import time
 
 from django.contrib.auth import get_user_model
+from django.db.models.query import Prefetch
 from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from backend.response import FormattedResponse
-from challenge.models import Score
+from challenge.models import Score, Solve
 from config import config
 from leaderboard.serializers import LeaderboardUserScoreSerializer, LeaderboardTeamScoreSerializer, \
     UserPointsSerializer, TeamPointsSerializer, CTFTimeSerializer
@@ -74,3 +75,24 @@ class TeamListView(ListAPIView):
         if should_hide_scoreboard():
             return FormattedResponse({})
         return super(TeamListView, self).list(request, *args, **kwargs)
+
+
+class MatrixScoreboardView(APIView):
+    throttle_scope = 'leaderboard'
+
+    def get(self, request, *args, **kwargs):
+        if should_hide_scoreboard():
+            return FormattedResponse({})
+
+        scoreboard = []
+        teams = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score').prefetch_related(
+            Prefetch('solves', queryset=Solve.objects.filter(correct=True))
+        )
+        for team in teams:
+            scoreboard.append({
+                'id': team.id,
+                'name': team.name,
+                'points': team.leaderboard_points,
+                'solves': list(team.solves.values_list('challenge', flat=True))
+            })
+        return FormattedResponse(scoreboard)
