@@ -234,3 +234,9 @@ class MatrixTestCase(APITestCase):
         response = self.client.get(reverse('leaderboard-matrix'))
         points = [x['points'] for x in response.data['d']]
         self.assertEquals(points, sorted(points, reverse=True))
+
+    def test_disabled_scoreboard(self):
+        config.set("enable_scoreboard", False)
+        response = self.client.get(reverse('leaderboard-matrix'))
+        config.set("enable_scoreboard", True)
+        self.assertEquals(response.data['d'], {})
