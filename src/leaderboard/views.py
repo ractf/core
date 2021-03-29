@@ -5,12 +5,13 @@ from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from backend.response import FormattedResponse
 from challenge.models import Score
 from config import config
 from leaderboard.serializers import LeaderboardUserScoreSerializer, LeaderboardTeamScoreSerializer, \
-    UserPointsSerializer, TeamPointsSerializer, CTFTimeSerializer
+    UserPointsSerializer, TeamPointsSerializer, CTFTimeSerializer, MatrixSerializer
 from team.models import Team
 
 
@@ -26,7 +27,7 @@ class CTFTimeListView(APIView):
     def get(self, request, *args, **kwargs):
         if should_hide_scoreboard() or not config.get('enable_ctftime'):
             return Response({})
-        teams = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
+        teams = Team.objects.visible().ranked()
         return Response({"standings": CTFTimeSerializer(teams, many=True).data})
 
 
@@ -38,7 +39,7 @@ class GraphView(APIView):
             return FormattedResponse({})
 
         graph_members = config.get('graph_members')
-        top_teams = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')[:graph_members]
+        top_teams = Team.objects.visible().ranked()[:graph_members]
         top_users = get_user_model().objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')[
                     :graph_members]
 
@@ -67,10 +68,21 @@ class UserListView(ListAPIView):
 
 class TeamListView(ListAPIView):
     throttle_scope = 'leaderboard'
-    queryset = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
+    queryset = Team.objects.visible().ranked()
     serializer_class = TeamPointsSerializer
 
     def list(self, request, *args, **kwargs):
         if should_hide_scoreboard():
             return FormattedResponse({})
         return super(TeamListView, self).list(request, *args, **kwargs)
+
+
+class MatrixScoreboardView(ReadOnlyModelViewSet):
+    throttle_scope = 'leaderboard'
+    queryset = Team.objects.visible().ranked().prefetch_solves()
+    serializer_class = MatrixSerializer
+
+    def list(self, request, *args, **kwargs):
+        if should_hide_scoreboard():
+            return FormattedResponse({})
+        return super(MatrixScoreboardView, self).list(request, *args, **kwargs)
