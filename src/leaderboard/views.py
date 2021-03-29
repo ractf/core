@@ -28,7 +28,7 @@ class CTFTimeListView(APIView):
     def get(self, request, *args, **kwargs):
         if should_hide_scoreboard() or not config.get('enable_ctftime'):
             return Response({})
-        teams = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
+        teams = Team.objects.display_order()
         return Response({"standings": CTFTimeSerializer(teams, many=True).data})
 
 
@@ -40,7 +40,7 @@ class GraphView(APIView):
             return FormattedResponse({})
 
         graph_members = config.get('graph_members')
-        top_teams = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')[:graph_members]
+        top_teams = Team.objects.display_order()[:graph_members]
         top_users = get_user_model().objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')[
                     :graph_members]
 
@@ -69,7 +69,7 @@ class UserListView(ListAPIView):
 
 class TeamListView(ListAPIView):
     throttle_scope = 'leaderboard'
-    queryset = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
+    queryset = Team.objects.display_order()
     serializer_class = TeamPointsSerializer
 
     def list(self, request, *args, **kwargs):
@@ -80,9 +80,7 @@ class TeamListView(ListAPIView):
 
 class MatrixScoreboardView(ReadOnlyModelViewSet):
     throttle_scope = 'leaderboard'
-    queryset = Team.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score').prefetch_related(
-        Prefetch('solves', queryset=Solve.objects.filter(correct=True))
-    )
+    queryset = Team.objects.display_order().prefetch_solves()
     serializer_class = MatrixSerializer
 
     def list(self, request, *args, **kwargs):

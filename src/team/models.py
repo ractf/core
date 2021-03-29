@@ -1,12 +1,21 @@
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import CICharField
 from django.db import models
-from django.db.models import CASCADE
+from django.db.models import CASCADE, Prefetch
 from django.utils import timezone
 
 from django_prometheus.models import ExportModelOperationsMixin
 
 from backend.validators import printable_name
+from challenge.models import Solve
+
+
+class TeamQuerySet(models.QuerySet):
+    def display_order(self):
+        return self.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
+
+    def prefetch_solves(self):
+        return self.prefetch_related(Prefetch('solves', queryset=Solve.objects.filter(correct=True)))
 
 
 class Team(ExportModelOperationsMixin("team"), models.Model):
@@ -19,3 +28,4 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
     leaderboard_points = models.IntegerField(default=0)
     last_score = models.DateTimeField(default=timezone.now)
     size_limit_exempt = models.BooleanField(default=False)
+    objects = TeamQuerySet.as_manager()
