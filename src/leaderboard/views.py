@@ -1,7 +1,6 @@
 import time
 
 from django.contrib.auth import get_user_model
-from django.db.models.query import Prefetch
 from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
@@ -9,7 +8,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from backend.response import FormattedResponse
-from challenge.models import Score, Solve
+from challenge.models import Score
 from config import config
 from leaderboard.serializers import LeaderboardUserScoreSerializer, LeaderboardTeamScoreSerializer, \
     UserPointsSerializer, TeamPointsSerializer, CTFTimeSerializer, MatrixSerializer
@@ -28,7 +27,7 @@ class CTFTimeListView(APIView):
     def get(self, request, *args, **kwargs):
         if should_hide_scoreboard() or not config.get('enable_ctftime'):
             return Response({})
-        teams = Team.objects.display_order()
+        teams = Team.objects.visible().display_order()
         return Response({"standings": CTFTimeSerializer(teams, many=True).data})
 
 
@@ -40,7 +39,7 @@ class GraphView(APIView):
             return FormattedResponse({})
 
         graph_members = config.get('graph_members')
-        top_teams = Team.objects.display_order()[:graph_members]
+        top_teams = Team.objects.visible().display_order()[:graph_members]
         top_users = get_user_model().objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')[
                     :graph_members]
 
@@ -69,7 +68,7 @@ class UserListView(ListAPIView):
 
 class TeamListView(ListAPIView):
     throttle_scope = 'leaderboard'
-    queryset = Team.objects.display_order()
+    queryset = Team.objects.visible().display_order()
     serializer_class = TeamPointsSerializer
 
     def list(self, request, *args, **kwargs):
@@ -80,7 +79,7 @@ class TeamListView(ListAPIView):
 
 class MatrixScoreboardView(ReadOnlyModelViewSet):
     throttle_scope = 'leaderboard'
-    queryset = Team.objects.display_order().prefetch_solves()
+    queryset = Team.objects.visible().display_order().prefetch_solves()
     serializer_class = MatrixSerializer
 
     def list(self, request, *args, **kwargs):

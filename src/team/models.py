@@ -11,10 +11,23 @@ from challenge.models import Solve
 
 
 class TeamQuerySet(models.QuerySet):
+    def visible(self):
+        """
+        Returns a QuerySet of teams that are visible.
+        """
+        return self.filter(is_visible=True)
+
     def display_order(self):
-        return self.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
+        """
+        Returns a QuerySet of teams ordered how they should be displayed on frontend, first by points,
+        then by how long they've been at that amount of points.
+        """
+        return self.order_by('-leaderboard_points', 'last_score')
 
     def prefetch_solves(self):
+        """
+        Prefetch the solves for the team.
+        """
         return self.prefetch_related(Prefetch('solves', queryset=Solve.objects.filter(correct=True)))
 
 
