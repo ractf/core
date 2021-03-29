@@ -27,7 +27,7 @@ class CTFTimeListView(APIView):
     def get(self, request, *args, **kwargs):
         if should_hide_scoreboard() or not config.get('enable_ctftime'):
             return Response({})
-        teams = Team.objects.visible().display_order()
+        teams = Team.objects.visible().ranked()
         return Response({"standings": CTFTimeSerializer(teams, many=True).data})
 
 
@@ -39,7 +39,7 @@ class GraphView(APIView):
             return FormattedResponse({})
 
         graph_members = config.get('graph_members')
-        top_teams = Team.objects.visible().display_order()[:graph_members]
+        top_teams = Team.objects.visible().ranked()[:graph_members]
         top_users = get_user_model().objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')[
                     :graph_members]
 
@@ -68,7 +68,7 @@ class UserListView(ListAPIView):
 
 class TeamListView(ListAPIView):
     throttle_scope = 'leaderboard'
-    queryset = Team.objects.visible().display_order()
+    queryset = Team.objects.visible().ranked()
     serializer_class = TeamPointsSerializer
 
     def list(self, request, *args, **kwargs):
@@ -79,7 +79,7 @@ class TeamListView(ListAPIView):
 
 class MatrixScoreboardView(ReadOnlyModelViewSet):
     throttle_scope = 'leaderboard'
-    queryset = Team.objects.visible().display_order().prefetch_solves()
+    queryset = Team.objects.visible().ranked().prefetch_solves()
     serializer_class = MatrixSerializer
 
     def list(self, request, *args, **kwargs):

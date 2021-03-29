@@ -17,7 +17,7 @@ class TeamQuerySet(models.QuerySet):
         """
         return self.filter(is_visible=True)
 
-    def display_order(self):
+    def ranked(self):
         """
         Returns a QuerySet of teams ordered how they should be displayed on frontend, first by points,
         then by how long they've been at that amount of points.
