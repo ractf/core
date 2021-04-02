@@ -36,3 +36,14 @@ class UserPointsSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ["username", "id", "leaderboard_points"]
+
+
+class MatrixSerializer(serializers.ModelSerializer):
+    solve_ids = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Team
+        fields = ['id', 'name', 'leaderboard_points', 'solve_ids']
+
+    def get_solve_ids(self, instance):
+        return list(instance.solves.values_list('challenge', flat=True))
