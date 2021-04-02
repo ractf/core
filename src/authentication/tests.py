@@ -10,7 +10,8 @@ from rest_framework.test import APITestCase
 
 from authentication.models import PasswordResetToken, TOTPDevice, InviteCode, BackupCode, Token
 from authentication.views import VerifyEmailView, DoPasswordResetView, AddTwoFactorView, VerifyTwoFactorView, LoginView, \
-    RegistrationView, ChangePasswordView, LoginTwoFactorView, RequestPasswordResetView, RegenerateBackupCodesView
+    RegistrationView, ChangePasswordView, LoginTwoFactorView, RequestPasswordResetView, RegenerateBackupCodesView, \
+    CreateBotView
 from config import config
 from team.models import Team
 
@@ -185,16 +186,6 @@ class SudoTestCase(APITestCase):
         self.client.force_authenticate(user)
         req = self.client.post(reverse('sudo'), {"id": user2.id})
         self.assertEquals(req.status_code, HTTP_200_OK)
-
-
-
-class BotTestCase(APITestCase):
-    def test_create_bot(self):
-        user = get_user_model()(username="resend-email", is_staff=True, email="tvu@example.com", is_superuser=True)
-        user.save()
-        self.client.force_authenticate(user=user)
-        response = self.client.post(reverse("create-bot"), {"username": "bot", "is_visible": False, "is_staff": False, "is_superuser": False})
-        self.assertEquals(response.status_code, HTTP_200_OK)
 
 
 class GenerateInvitesTestCase(APITestCase):
@@ -820,3 +811,59 @@ class RegerateBackupCodesTestCase(APITestCase):
         self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
         response = self.client.post(reverse('regenerate-backup-codes'))
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+
+
+class CreateBotUserTestCase(APITestCase):
+
+    def setUp(self):
+        user = get_user_model()(username='bot-test', email='bot-test@example.org', is_staff=True,
+                                is_superuser=True)
+        user.set_password('password')
+        user.save()
+        self.user = user
+        CreateBotView.throttle_scope = ''
+
+    def test_unauthenticated(self):
+        response = self.client.post(reverse('create-bot'), data={
+            'username': 'bottest',
+            'is_visible': False,
+            'is_staff': True,
+            'is_superuser': True,
+        })
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+
+    def test_authenticated_admin(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse('create-bot'), data={
+            'username': 'bottest',
+            'is_visible': False,
+            'is_staff': True,
+            'is_superuser': True,
+        })
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+    def test_authenticated_not_admin(self):
+        self.user.is_staff = False
+        self.user.is_superuser = False
+        self.user.save()
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse('create-bot'), data={
+            'username': 'bottest',
+            'is_visible': False,
+            'is_staff': True,
+            'is_superuser': True,
+        })
+        self.user.is_staff = True
+        self.user.is_superuser = True
+        self.user.save()
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_issues_token(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse('create-bot'), data={
+            'username': 'bottest',
+            'is_visible': False,
+            'is_staff': True,
+            'is_superuser': True,
+        })
+        self.assertTrue('token' in response.data['d'])
