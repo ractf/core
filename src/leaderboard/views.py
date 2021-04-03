@@ -5,11 +5,13 @@ from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ReadOnlyModelViewSet
+from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
 
+from backend.permissions import AdminOrReadOnly
 from backend.response import FormattedResponse
 from challenge.models import Score
 from config import config
+from leaderboard.models import Scoreboard
 from leaderboard.serializers import LeaderboardUserScoreSerializer, LeaderboardTeamScoreSerializer, \
     UserPointsSerializer, TeamPointsSerializer, CTFTimeSerializer, MatrixSerializer
 from team.models import Team
@@ -88,3 +90,9 @@ class MatrixScoreboardView(ReadOnlyModelViewSet):
             return FormattedResponse({})
         self.queryset = self.queryset.is_in_scoreboard(scoreboard)
         return super(MatrixScoreboardView, self).list(request, *args, **kwargs)
+
+
+class SubscoreboardModelView(ModelViewSet):
+    throttle_scope = 'leaderboard'
+    queryset = Scoreboard.objects.all()
+    permission_classes = AdminOrReadOnly

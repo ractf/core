@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from challenge.models import Score
+from leaderboard.models import Scoreboard
 from team.models import Team
 
 
@@ -47,3 +48,9 @@ class MatrixSerializer(serializers.ModelSerializer):
 
     def get_solve_ids(self, instance):
         return list(instance.solves.values_list('challenge', flat=True))
+
+
+class ScoreboardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Scoreboard
+        fields = ['name']
