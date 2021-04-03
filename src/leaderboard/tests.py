@@ -5,7 +5,8 @@ from rest_framework.test import APITestCase
 
 from challenge.models import Score, Solve, Category, Challenge
 from config import config
-from leaderboard.views import UserListView, TeamListView, GraphView, CTFTimeListView
+from leaderboard.models import Scoreboard, ScoreboardEntry
+from leaderboard.views import UserListView, TeamListView, GraphView, CTFTimeListView, MatrixScoreboardView
 from team.models import Team
 
 
@@ -16,6 +17,8 @@ def populate():
                            challenge_metadata={}, flag_type='plaintext', flag_metadata={'flag': 'ractf{a}'},
                            author='aaa', score=1000, auto_unlock=False)
     challenge.save()
+    scoreboard = Scoreboard(name='uni')
+    scoreboard.save()
     for i in range(15):
         user = get_user_model()(username=f'scorelist-test{i}', email=f'scorelist-test{i}@example.org', is_visible=True)
         user.save()
@@ -30,6 +33,7 @@ def populate():
         Score(team=team, user=user, reason='test', points=i * 100).save()
         if i % 2 == 0:
             Solve(team=team, solved_by=user, challenge=challenge).save()
+            ScoreboardEntry(scoreboard=scoreboard, team=team).save()
 
 
 class ScoreListTestCase(APITestCase):
@@ -81,6 +85,17 @@ class ScoreListTestCase(APITestCase):
         self.assertEquals(response.data['d']['user'][0]['points'], 1400)
         self.assertNotIn("team", response.data['d'].keys())
 
+    def test_subscoreboard_team(self):
+        populate()
+        response = self.client.get(reverse('leaderboard-graph-subscoreboard', kwargs={'scoreboard': 'uni'}))
+        self.assertEqual(len(response.data['d']['team']), 8)
+
+    def test_subscoreboard_valid(self):
+        populate()
+        response = self.client.get(reverse('leaderboard-graph-subscoreboard', kwargs={'scoreboard': 'uni'}))
+        team_name = response.data['d']['team'][0]['team_name']
+        team = Team.objects.get(name=team_name)
+        self.assertEqual(len(ScoreboardEntry.objects.filter(team=team)), 1)
 
 
 class UserListTestCase(APITestCase):
@@ -154,6 +169,18 @@ class TeamListTestCase(APITestCase):
         points = [x['leaderboard_points'] for x in response.data['d']['results']]
         self.assertEquals(points, sorted(points, reverse=True))
 
+    def test_subscoreboard_team(self):
+        populate()
+        response = self.client.get(reverse('leaderboard-team-subscoreboard', kwargs={'scoreboard': 'uni'}))
+        self.assertEqual(len(response.data['d']['results']), 8)
+
+    def test_subscoreboard_valid(self):
+        populate()
+        response = self.client.get(reverse('leaderboard-team-subscoreboard', kwargs={'scoreboard': 'uni'}))
+        team_name = response.data['d']['results'][0]['name']
+        team = Team.objects.get(name=team_name)
+        self.assertEqual(len(ScoreboardEntry.objects.filter(team=team)), 1)
+
 
 class CTFTimeListTestCase(APITestCase):
 
@@ -202,7 +229,7 @@ class MatrixTestCase(APITestCase):
         user = get_user_model()(username='matrix-test', email='matrix-test@example.org')
         user.save()
         self.user = user
-        TeamListView.throttle_scope = None
+        MatrixScoreboardView.throttle_scope = None
         populate()
 
     def test_authenticated(self):

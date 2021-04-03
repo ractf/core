@@ -34,12 +34,12 @@ class CTFTimeListView(APIView):
 class GraphView(APIView):
     throttle_scope = 'leaderboard'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, scoreboard='', *args, **kwargs):
         if should_hide_scoreboard():
             return FormattedResponse({})
 
         graph_members = config.get('graph_members')
-        top_teams = Team.objects.visible().ranked()[:graph_members]
+        top_teams = Team.objects.visible().ranked().is_in_scoreboard(scoreboard)[:graph_members]
         top_users = get_user_model().objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')[
                     :graph_members]
 
@@ -71,9 +71,10 @@ class TeamListView(ListAPIView):
     queryset = Team.objects.visible().ranked()
     serializer_class = TeamPointsSerializer
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, scoreboard='', *args, **kwargs):
         if should_hide_scoreboard():
             return FormattedResponse({})
+        self.queryset = self.queryset.is_in_scoreboard(scoreboard)
         return super(TeamListView, self).list(request, *args, **kwargs)
 
 
@@ -82,7 +83,8 @@ class MatrixScoreboardView(ReadOnlyModelViewSet):
     queryset = Team.objects.visible().ranked().prefetch_solves()
     serializer_class = MatrixSerializer
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, scoreboard='', *args, **kwargs):
         if should_hide_scoreboard():
             return FormattedResponse({})
+        self.queryset = self.queryset.is_in_scoreboard(scoreboard)
         return super(MatrixScoreboardView, self).list(request, *args, **kwargs)

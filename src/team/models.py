@@ -7,6 +7,7 @@ from django_prometheus.models import ExportModelOperationsMixin
 
 from backend.validators import printable_name
 from challenge.models import Solve
+from leaderboard.models import Scoreboard, ScoreboardEntry
 from member.models import Member
 
 
@@ -30,6 +31,17 @@ class TeamQuerySet(models.QuerySet):
         return self.prefetch_related(
             Prefetch("solves", queryset=Solve.objects.filter(correct=True))
         )
+
+    def is_in_scoreboard(self, scoreboard: str) -> "models.QuerySet[Team]":
+        """Returns a QuerySet of teams that appear in a specific scoreboard"""
+        from rest_framework.generics import get_object_or_404
+        if scoreboard == '':
+            return self
+        print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+        scoreboard = get_object_or_404(Scoreboard, name=scoreboard)
+        teams = ScoreboardEntry.objects.filter(scoreboard=scoreboard).values_list('team_id', flat=True)
+        print(teams)
+        return self.filter(id__in=teams)
 
 
 class Team(ExportModelOperationsMixin("team"), models.Model):
