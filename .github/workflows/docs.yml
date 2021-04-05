@@ -5,6 +5,43 @@ on: push
 jobs:
   docs:
     runs-on: ubuntu-latest
+    env:
+      DJANGO_SETTINGS_MODULE: 'backend.settings.test'
+      REDIS_PORT: 6379
+      REDIS_CONFIG_DB: 1
+      REDIS_CACHE_DB: 2
+      REDIS_HOST: localhost
+      SQL_PORT: 5432
+      SQL_USER: ractf
+      SQL_HOST: localhost
+      SQL_DATABASE: ractf
+      SQL_PASSWORD: postgres
+    services:
+      postgres:
+        image: postgres:12-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_EXTENSIONS: citext
+          POSTGRES_HOST_AUTH_METHOD: trust
+          POSTGRES_DB: ractf
+          POSTGRES_USER: ractf
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      redis:
+        image: redis:5
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -52,6 +89,10 @@ jobs:
       run: $HOME/.poetry/bin/poetry install --no-interaction --no-ansi
       env:
         PIP_CACHE_DIR: ~/.pip
+
+    - name: Run Migrations
+      run: ./manage.py migrate
+      working-directory: ./src
 
     - name: Generate OpenAPI schema
       run: ./src/manage.py getschema | tee openapi-schema.yml
