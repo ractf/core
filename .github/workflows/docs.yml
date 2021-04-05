@@ -96,8 +96,6 @@ jobs:
 
     - name: Generate OpenAPI schema
       run: ./src/manage.py getschema | tee openapi-schema.yml
-      env:
-        DJANGO_SETTINGS_MODULE: 'backend.settings.docs'
 
     - name: Publish API documentation to GitHub
       uses: actions/upload-artifact@v2
