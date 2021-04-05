@@ -95,7 +95,7 @@ jobs:
       working-directory: ./src
 
     - name: Generate OpenAPI schema
-      run: ./src/manage.py getschema | tee openapi-schema.yml
+      run: set -eo pipefail && ./src/manage.py getschema | tee openapi-schema.yml
 
     - name: Publish API documentation to GitHub
       uses: actions/upload-artifact@v2
