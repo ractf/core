@@ -27,7 +27,7 @@ class Command(BaseCommand):
                 "description": "The API for RACTF.",
                 "contact": {
                     "name": "Support",
-                    "email": "support@reallyawesome.atlassian.net",
+                    "email": "support@ractf.co.uk",
                     "url": "https://reallyawesome.atlassian.net/servicedesk/customer/portals",
                 },
                 "x-logo": {
