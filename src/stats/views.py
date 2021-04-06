@@ -46,7 +46,7 @@ def stats(request):
 @permission_classes([IsAdminUser])
 def full(request):
     challenge_data = {}
-    for challenge in Challenge.objects.prefetch('solves').all():
+    for challenge in Challenge.objects.prefetch_related('solves').all():
         challenge_data[challenge.id] = {}
         challenge_data[challenge.id]["correct"] = challenge.solves.filter(correct=True).count()
         challenge_data[challenge.id]["incorrect"] = challenge.solves.filter(correct=False).count()
