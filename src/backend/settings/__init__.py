@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     "channels",
     "storages",
     "corsheaders",
+    "cachahalot",
     "django_prometheus",
     "django.contrib.auth",
     "django.contrib.contenttypes",
