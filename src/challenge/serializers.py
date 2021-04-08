@@ -1,6 +1,8 @@
+from collections import Counter
+
 from rest_framework import serializers
 
-from challenge.models import Challenge, Category, File, Solve, Score, ChallengeFeedback, Tag
+from challenge.models import Challenge, Category, File, Solve, Score, ChallengeFeedback, Tag, ChallengeVote
 from hint.serializers import HintSerializer
 
 
@@ -23,22 +25,24 @@ class ChallengeSerializerMixin:
         return instance.unlocked
 
     def get_solved(self, instance):
+        if not getattr(instance, "solved", None):
+            return instance.is_solved(self.context["request"].user, solves=self.context.get("solves", None))
         return instance.solved
 
     def get_solve_count(self, instance):
-        return instance.solve_count
+        return instance.get_solve_count(self.context.get("solve_counter", None))
 
     def get_unlock_time_surpassed(self, instance):
         return instance.unlock_time_surpassed
 
     def get_votes(self, instance):
         return {
-            "positive": instance.votes_positive,
-            "negative": instance.votes_negative
+            "positive": self.context["votes_positive_counter"][instance.id],
+            "negative": self.context["votes_negative_counter"][instance.id]
         }
 
     def get_post_score_explanation(self, instance):
-        if instance.solved:
+        if self.get_unlocked(instance):
             return instance.post_score_explanation
         return None
 
@@ -67,7 +71,7 @@ class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer)
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
-                  'author', 'auto_unlock', 'score', 'unlock_requirements', 'hints', 'files', 'solved', 'unlocked',
+                  'author', 'score', 'unlock_requirements', 'hints', 'files', 'solved', 'unlocked',
                   'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'votes', 'tags', 'unlock_time_surpassed',
                   'post_score_explanation']
 
@@ -91,7 +95,10 @@ class CategorySerializer(serializers.ModelSerializer):
             "request": self.context["request"],
             "solves": list(
                 self.context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
-            )
+            ),
+            "solve_counter": Counter(Solve.objects.filter(correct=True).values_list("challenge", flat=True)),
+            "votes_positive_counter": Counter(ChallengeVote.objects.filter(positive=True).values_list("challenge", flat=True)),
+            "votes_negative_counter": Counter(ChallengeVote.objects.filter(positive=False).values_list("challenge", flat=True)),
         })
 
 
@@ -125,7 +132,7 @@ class AdminChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerial
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
-                  'author', 'auto_unlock', 'score', 'unlock_requirements', 'flag_metadata', 'hints', 'files', 'solved',
+                  'author', 'score', 'unlock_requirements', 'flag_metadata', 'hints', 'files', 'solved',
                   'unlocked', 'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'release_time', 'votes',
                   'post_score_explanation', 'tags']
 
@@ -136,7 +143,7 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
-                  'author', 'auto_unlock', 'score', 'unlock_requirements', 'flag_metadata', 'hidden', 'release_time',
+                  'author', 'score', 'unlock_requirements', 'flag_metadata', 'hidden', 'release_time',
                   'post_score_explanation', 'tags']
         read_only_fields = ['id']
 

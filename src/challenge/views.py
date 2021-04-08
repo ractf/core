@@ -1,6 +1,7 @@
 import time
 import hashlib
 from typing import Union
+from collections import Counter
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -51,15 +52,7 @@ class CategoryViewset(AdminCreateModelViewSet):
             return Category.objects.none()
         team = self.request.user.team
         if team is not None:
-            solves = Solve.objects.filter(team=team, correct=True)
-            solved_challenges = solves.values_list('challenge')
             challenges = Challenge.objects.annotate(
-                solved=Case(
-                    When(Q(id__in=Subquery(solved_challenges)), then=Value(True)),
-                    default=Value(False),
-                    output_field=models.BooleanField()
-                ),
-                solve_count=Count('solves', filter=Q(solves__correct=True)),
                 unlock_time_surpassed=Case(
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),
@@ -71,13 +64,7 @@ class CategoryViewset(AdminCreateModelViewSet):
         else:
             challenges = (
                 Challenge.objects.annotate(
-                    unlocked=Case(
-                        When(auto_unlock=True, then=Value(True)),
-                        default=Value(False),
-                        output_field=models.BooleanField()
-                    ),
                     solved=Value(False, models.BooleanField()),
-                    solve_count=Count('solves'),
                     unlock_time_surpassed=Case(
                         When(release_time__lte=timezone.now(), then=Value(True)),
                         default=Value(False),

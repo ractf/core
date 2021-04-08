@@ -45,7 +45,6 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     flag_type = models.CharField(max_length=64, default="plaintext")
     flag_metadata = JSONField()
     author = models.CharField(max_length=36)
-    auto_unlock = models.BooleanField(default=False)
     hidden = models.BooleanField(default=False)
     score = models.IntegerField()
     unlock_requirements = models.CharField(max_length=255, null=True, blank=True)
@@ -60,12 +59,12 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     release_time = models.DateTimeField(default=timezone.now)
 
     def is_unlocked(self, user, solves=None):
+        if not self.unlock_requirements:
+            return True
         if user is None:
             return False
         if not user.is_authenticated:
             return False
-        if self.auto_unlock:
-            return True
         if user.team is None:
             return False
         if solves is None:
@@ -91,51 +90,42 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             return False
         return state[0]
 
-    def is_solved(self, user):
+    def is_solved(self, user, solves=None):
         if not user.is_authenticated:
             return False
         if user.team is None:
             return False
-        return user.team.solves.filter(challenge=self).exists()
+        if solves is None:
+            solves = list(
+                user.team.solves.filter(correct=True).values_list("challenge", flat=True)
+            )
+        return self.id in solves
+
+    def get_solve_count(self, solve_counter):
+        return solve_counter[self.id]
 
     @classmethod
     def get_unlocked_annotated_queryset(cls, user):
         if user.is_staff and user.should_deny_admin():
             return Challenge.objects.none()
         if user.team is not None:
-            solves = Solve.objects.filter(team=user.team, correct=True)
-            solved_challenges = solves.values_list("challenge")
             challenges = Challenge.objects.annotate(
-                solved=Case(
-                    When(Q(id__in=Subquery(solved_challenges)), then=Value(True)),
-                    default=Value(False),
-                    output_field=models.BooleanField(),
-                ),
                 solve_count=Count("solves", filter=Q(solves__correct=True)),
                 unlock_time_surpassed=Case(
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),
                     output_field=models.BooleanField(),
-                ),
-                votes_positive=Count("votes", filter=Q(votes__positive=True), distinct=True),
-                votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
+                )
             )
         else:
             challenges = Challenge.objects.annotate(
-                unlocked=Case(
-                    When(auto_unlock=True, then=Value(True)),
-                    default=Value(False),
-                    output_field=models.BooleanField(),
-                ),
                 solved=Value(False, models.BooleanField()),
                 solve_count=Count("solves"),
                 unlock_time_surpassed=Case(
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),
                     output_field=models.BooleanField(),
-                ),
-                votes_positive=Count("votes", filter=Q(votes__positive=True), distinct=True),
-                votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
+                )
             )
         from hint.models import Hint
         from hint.models import HintUse

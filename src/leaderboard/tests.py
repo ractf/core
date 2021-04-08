@@ -14,7 +14,7 @@ def populate():
     category.save()
     challenge = Challenge(name='test3', category=category, description='a', challenge_type='basic',
                            challenge_metadata={}, flag_type='plaintext', flag_metadata={'flag': 'ractf{a}'},
-                           author='aaa', score=1000, auto_unlock=False)
+                           author='aaa', score=1000, unlock_requirements="")
     challenge.save()
     for i in range(15):
         user = get_user_model()(username=f'scorelist-test{i}', email=f'scorelist-test{i}@example.org', is_visible=True)

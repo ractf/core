@@ -51,7 +51,7 @@ class Command(BaseCommand):
                         challenge = Challenge(name='cat-' + str(i) + '-chal-' + str(j), category=category,
                                               description='An example challenge ' + str(j),
                                               flag_metadata={'flag': f'ractf{{{j}}}'}, author='dave',
-                                              auto_unlock=auto_unlock, score=j, challenge_metadata={},
+                                              score=j, challenge_metadata={},
                                               unlock_requirements=random_rpn_op() if not auto_unlock else "")
                         challenge.save()
 
