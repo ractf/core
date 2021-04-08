@@ -1,3 +1,4 @@
+import serpy
 from rest_framework import serializers
 
 from hint.models import Hint, HintUse
@@ -16,18 +17,11 @@ class HintUseSerializer(serializers.ModelSerializer):
         fields = ["id", "hint", "team", "user", "timestamp"]
 
 
-class HintSerializer(serializers.ModelSerializer):
-    text = serializers.SerializerMethodField()
-    used = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Hint
-        fields = ["id", "name", "penalty", "challenge", "text", "used"]
-
+class HintSerializerMixin:
     def get_text(self, instance):
         if (
-            self.context["request"].user.is_staff
-            and not self.context["request"].user.should_deny_admin()
+                self.context["request"].user.is_staff
+                and not self.context["request"].user.should_deny_admin()
         ) or is_used(self.context, instance):
             return instance.text
         else:
@@ -35,6 +29,23 @@ class HintSerializer(serializers.ModelSerializer):
 
     def get_used(self, instance):
         return is_used(self.context, instance)
+
+
+class HintSerializer(serializers.ModelSerializer, HintSerializerMixin):
+    text = serializers.SerializerMethodField()
+    used = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Hint
+        fields = ["id", "name", "penalty", "challenge", "text", "used"]
+
+
+class FastHintSerializer(serpy.Serializer):
+    id = serpy.IntField()
+    name = serpy.StrField()
+    penalty = serpy.IntField()
+    text = serpy.StrField()
+    used = serpy.BoolField()
 
 
 class CreateHintSerializer(serializers.ModelSerializer):

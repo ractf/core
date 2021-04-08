@@ -29,7 +29,7 @@ from challenge.serializers import (
     ChallengeSerializer, CategorySerializer, AdminCategorySerializer,
     AdminChallengeSerializer, FileSerializer, CreateCategorySerializer,
     CreateChallengeSerializer, ChallengeFeedbackSerializer, TagSerializer,
-    AdminScoreSerializer
+    AdminScoreSerializer, FastCategorySerializer
 )
 from config import config
 from hint.models import Hint, HintUse
@@ -43,7 +43,7 @@ class CategoryViewset(AdminCreateModelViewSet):
     permission_classes = (CompetitionOpen & AdminOrReadOnly,)
     throttle_scope = 'challenges'
     pagination_class = None
-    serializer_class = CategorySerializer
+    serializer_class = FastCategorySerializer
     admin_serializer_class = AdminCategorySerializer
     create_serializer_class = CreateCategorySerializer
 
@@ -57,9 +57,7 @@ class CategoryViewset(AdminCreateModelViewSet):
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),
                     output_field=models.BooleanField(),
-                ),
-                votes_positive=Count("votes", filter=Q(votes__positive=True), distinct=True),
-                votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
+                )
             )
         else:
             challenges = (
@@ -69,9 +67,7 @@ class CategoryViewset(AdminCreateModelViewSet):
                         When(release_time__lte=timezone.now(), then=Value(True)),
                         default=Value(False),
                         output_field=models.BooleanField(),
-                    ),
-                    votes_positive=Count("votes", filter=Q(votes__positive=True), distinct=True),
-                    votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
+                    )
                 )
             )
         x = challenges.prefetch_related(
