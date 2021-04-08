@@ -25,10 +25,7 @@ class HintSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "penalty", "challenge", "text", "used"]
 
     def get_text(self, instance):
-        if (
-            self.context["request"].user.is_staff
-            and not self.context["request"].user.should_deny_admin()
-        ) or is_used(self.context, instance):
+        if self.context["request"].user.has_admin_permissions() or is_used(self.context, instance):
             return instance.text
         else:
             return ""

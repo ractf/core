@@ -73,6 +73,9 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
     def should_deny_admin(self):
         return not self.has_2fa() and config.get("enable_force_admin_2fa")
 
+    def has_admin_permissions(self):
+        return self.is_staff and not self.should_deny_admin()
+
 
 class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=SET_NULL, null=True)

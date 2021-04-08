@@ -10,7 +10,7 @@ class AdminCreateModelViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request is None:
             return self.admin_serializer_class
-        if self.request.user.is_staff and not self.request.user.should_deny_admin():
+        if self.request.user.has_admin_permissions():
             if self.request.method in permissions.SAFE_METHODS:
                 return self.admin_serializer_class
             return self.create_serializer_class
@@ -21,7 +21,7 @@ class AdminModelViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request is None:
             return self.admin_serializer_class
-        if self.request.user.is_staff and not self.request.user.should_deny_admin():
+        if self.request.user.has_admin_permissions():
             return self.admin_serializer_class
         return self.serializer_class
 
@@ -31,9 +31,9 @@ class AdminListModelViewSet(ModelViewSet):
         if self.request is None:
             return self.admin_serializer_class
         if self.action == 'list' and not is_exporting(self.request):
-            if self.request.user.is_staff and not self.request.user.should_deny_admin():
+            if self.request.user.has_admin_permissions():
                 return self.list_admin_serializer_class
             return self.list_serializer_class
-        if self.request.user.is_staff and not self.request.user.should_deny_admin():
+        if self.request.user.has_admin_permissions():
             return self.admin_serializer_class
         return self.serializer_class

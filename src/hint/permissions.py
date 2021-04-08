@@ -3,7 +3,7 @@ from rest_framework import permissions
 
 class HasUsedHint(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.user.is_staff and not request.user.should_deny_admin():
+        if request.user.has_admin_permissions():
             return True
         return (
             request.method in permissions.SAFE_METHODS
@@ -11,6 +11,4 @@ class HasUsedHint(permissions.BasePermission):
         )
 
     def has_permission(self, request, view):
-        return request.method in permissions.SAFE_METHODS or (
-            request.user.is_staff and not request.user.should_deny_admin()
-        )
+        return request.method in permissions.SAFE_METHODS or request.user.has_admin_permissions()

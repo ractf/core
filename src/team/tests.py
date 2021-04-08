@@ -231,8 +231,6 @@ class TeamViewsetTestCase(TeamSetupMixin, APITestCase):
         self.team.save()
         self.client.force_authenticate(self.admin_user)
         response = self.client.get(reverse("team-list"))
-        print(response.data)
-        print(self.user.should_deny_admin())
         self.assertEquals(len(response.data['d']["results"]), 1)
 
     def test_visible_not_admin(self):

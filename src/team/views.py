@@ -66,7 +66,7 @@ class TeamViewSet(AdminListModelViewSet):
             if self.request.user.is_superuser:
                 return Team.objects.order_by("id").prefetch_related("members")
             return Team.objects.filter(is_visible=True).order_by("id").prefetch_related("members")
-        if self.request.user.is_superuser and not self.request.user.should_deny_admin():
+        if self.request.user.has_admin_permissions():
             return Team.objects.order_by("id").prefetch_related(
                 "solves",
                 "members",

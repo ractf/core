@@ -7,7 +7,7 @@ from config import config
 
 class AdminOrReadOnlyVisible(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.user.is_staff and not request.user.should_deny_admin():
+        if request.user.has_admin_permissions():
             return True
         return (
             request.user.is_authenticated
@@ -19,14 +19,14 @@ class AdminOrReadOnlyVisible(permissions.BasePermission):
 class AdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method not in permissions.SAFE_METHODS:
-            return request.user.is_staff and not request.user.should_deny_admin()
+            return request.has_admin_permissions()
         return request.user.is_authenticated
 
 
 class AdminOrAnonymousReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method not in permissions.SAFE_METHODS:
-            return request.user.is_staff and not request.user.should_deny_admin()
+            return request.user.has_admin_permissions()
         return True
 
 

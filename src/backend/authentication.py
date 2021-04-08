@@ -12,7 +12,7 @@ class RactfTokenAuthentication(authentication.TokenAuthentication):
         if x is None:
             return None
         user, token = x
-        if user.is_staff and not user.should_deny_admin():
+        if user.has_admin_permissions():
             return user, token
         if config.get("enable_maintenance_mode"):
             return None
