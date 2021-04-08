@@ -19,6 +19,12 @@ class ForeignKeyField(serpy.Field):
         return None
 
 
+class DateTimeField(serpy.Field):
+    """A :class:`Field` that transforms a datetime into ISO string."""
+    def to_value(self, value):
+        return value.isoformat()
+
+
 class FileSerializer(serializers.ModelSerializer):
     class Meta:
         model = File
@@ -74,6 +80,20 @@ class ChallengeSerializerMixin:
         return None
 
 
+class FastLockedChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
+    id = serpy.IntField()
+    unlock_requirements = serpy.StrField()
+    challenge_metadata = serpy.DictSerializer()
+    challenge_type = serpy.StrField()
+    release_time = DateTimeField()
+    unlock_time_surpassed = serpy.MethodField()
+
+    class Meta:
+        model = Challenge
+        fields = ['id', 'unlock_requirements', 'challenge_metadata', 'challenge_type', 'hidden',
+                  'unlock_time_surpassed', 'release_time']
+
+
 class LockedChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
     unlock_time_surpassed = serializers.SerializerMethodField()
 
@@ -109,11 +129,16 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
         if 'context' in kwargs:
             self.context = kwargs['context']
 
-    def to_representation(self, instance):
+    def serialize(self, instance):
         if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and \
                 not instance.hidden and instance.unlock_time_surpassed:
-            return super(FastChallengeSerializer, self).to_representation(instance)
-        return LockedChallengeSerializer(instance).to_representation(instance)
+            return super(FastChallengeSerializer, FastChallengeSerializer(instance, context=self.context)).to_value(instance)
+        return FastLockedChallengeSerializer(instance).data
+
+    def to_value(self, instance):
+        if self.many:
+            return [self.serialize(o) for o in instance]
+        return self.serialize(instance)
 
 
 class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
