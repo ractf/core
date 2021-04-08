@@ -1,11 +1,11 @@
-from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
+from rest_framework.status import HTTP_200_OK
 from rest_framework.test import APITestCase
 
 from challenge.models import Score, Solve, Category, Challenge
 from config import config
 from leaderboard.views import UserListView, TeamListView, GraphView, CTFTimeListView
+from member.models import Member
 from team.models import Team
 
 
@@ -17,7 +17,7 @@ def populate():
                            author='aaa', score=1000, auto_unlock=False)
     challenge.save()
     for i in range(15):
-        user = get_user_model()(username=f'scorelist-test{i}', email=f'scorelist-test{i}@example.org', is_visible=True)
+        user = Member(username=f'scorelist-test{i}', email=f'scorelist-test{i}@example.org', is_visible=True)
         user.save()
         team = Team(name=f'scorelist-test{i}', password=f'scorelist-test{i}', owner=user, is_visible=True)
         team.points = i * 100
@@ -36,7 +36,7 @@ class ScoreListTestCase(APITestCase):
 
     def setUp(self):
         GraphView.throttle_scope = ''
-        user = get_user_model()(username='scorelist-test', email='scorelist-test@example.org')
+        user = Member(username='scorelist-test', email='scorelist-test@example.org')
         user.save()
         self.user = user
 
@@ -86,7 +86,7 @@ class ScoreListTestCase(APITestCase):
 class UserListTestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='userlist-test', email='userlist-test@example.org')
+        user = Member(username='userlist-test', email='userlist-test@example.org')
         user.save()
         self.user = user
         UserListView.throttle_scope = None
@@ -123,7 +123,7 @@ class UserListTestCase(APITestCase):
 class TeamListTestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='userlist-test', email='userlist-test@example.org')
+        user = Member(username='userlist-test', email='userlist-test@example.org')
         user.save()
         self.user = user
         TeamListView.throttle_scope = None
@@ -158,7 +158,7 @@ class TeamListTestCase(APITestCase):
 class CTFTimeListTestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='userlist-test', email='userlist-test@example.org')
+        user = Member(username='userlist-test', email='userlist-test@example.org')
         user.save()
         self.user = user
         CTFTimeListView.throttle_scope = None
@@ -199,7 +199,7 @@ class CTFTimeListTestCase(APITestCase):
 class MatrixTestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='matrix-test', email='matrix-test@example.org')
+        user = Member(username='matrix-test', email='matrix-test@example.org')
         user.save()
         self.user = user
         TeamListView.throttle_scope = None

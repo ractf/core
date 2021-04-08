@@ -1,9 +1,9 @@
-from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
 from challenge.models import Category, Challenge, Solve, Score
 from challenge.tests import ChallengeSetupMixin
 from config import config
+from member.models import Member
 from plugins import plugins
 from plugins.flag.hashed import HashedFlagPlugin
 from plugins.flag.lenient import LenientFlagPlugin
@@ -195,9 +195,9 @@ class DecayPointsPluginTestCase(ChallengeSetupMixin, APITestCase):
         self.team2.save()
         self.user3.save()
         self.plugin.recalculate(teams=Team.objects.filter(solves__challenge=self.challenge2),
-                                users=get_user_model().objects.filter(solves__challenge=self.challenge2),
+                                users=Member.objects.filter(solves__challenge=self.challenge2),
                                 solves=Solve.objects.filter(challenge=self.challenge2))
-        self.assertTrue(get_user_model().objects.get(id=self.user.id).points < points)
+        self.assertTrue(Member.objects.get(id=self.user.id).points < points)
 
     def test_score(self):
         self.plugin.score(self.user, self.team, '', Solve.objects.filter(challenge=self.challenge2))

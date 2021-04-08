@@ -1,6 +1,5 @@
 import time
 
-from django.contrib.auth import get_user_model
 from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
@@ -12,6 +11,7 @@ from challenge.models import Score
 from config import config
 from leaderboard.serializers import LeaderboardUserScoreSerializer, LeaderboardTeamScoreSerializer, \
     UserPointsSerializer, TeamPointsSerializer, CTFTimeSerializer, MatrixSerializer
+from member.models import Member
 from team.models import Team
 
 
@@ -40,7 +40,7 @@ class GraphView(APIView):
 
         graph_members = config.get('graph_members')
         top_teams = Team.objects.visible().ranked()[:graph_members]
-        top_users = get_user_model().objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')[
+        top_users = Member.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')[
                     :graph_members]
 
         team_scores = Score.objects.filter(team__in=top_teams, leaderboard=True).select_related('team') \
@@ -57,7 +57,7 @@ class GraphView(APIView):
 
 class UserListView(ListAPIView):
     throttle_scope = 'leaderboard'
-    queryset = get_user_model().objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
+    queryset = Member.objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')
     serializer_class = UserPointsSerializer
 
     def list(self, request, *args, **kwargs):

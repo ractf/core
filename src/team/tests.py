@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework.status import (
     HTTP_200_OK,
@@ -12,12 +11,13 @@ from rest_framework.test import APITestCase
 
 from challenge.models import Solve, Category, Challenge
 from config import config
+from member.models import Member
 from team.models import Team
 
 
 class TeamSetupMixin:
     def setUp(self):
-        self.user = get_user_model()(
+        self.user = Member(
             username="team-test", email="team-test@example.org", is_visible=True
         )
         self.user.save()
@@ -27,7 +27,7 @@ class TeamSetupMixin:
         self.team.save()
         self.user.team = self.team
         self.user.save()
-        self.admin_user = get_user_model()(
+        self.admin_user = Member(
             username="team-test-admin", email="team-test-admin@example.org", is_visible=True
         )
         self.admin_user.is_staff = True
@@ -172,7 +172,7 @@ class JoinTeamTestCase(TeamSetupMixin, APITestCase):
         self.assertEquals(response.status_code, HTTP_404_NOT_FOUND)
 
     def test_join_team_full(self):
-        user2 = get_user_model()(
+        user2 = Member(
             username="team-test2", email="team-test2@example.org", is_visible=True
         )
         user2.save()

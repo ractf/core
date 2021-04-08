@@ -1,7 +1,7 @@
-from django.contrib.auth import get_user_model
 from django.db.models import F
 
 from challenge.models import Score
+from member.models import Member
 from plugins.points.base import PointsPlugin
 from team.models import Team
 
@@ -25,6 +25,6 @@ class DecayPointsPlugin(PointsPlugin):
         Team.objects.filter(solves__challenge=challenge).update(
             points=F("points") - delta
         )
-        get_user_model().objects.filter(solves__challenge=challenge).update(
+        Member.objects.filter(solves__challenge=challenge).update(
             points=F("points") - delta
         )

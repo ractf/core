@@ -1,21 +1,21 @@
 import random
 
-from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_200_OK, HTTP_401_UNAUTHORIZED
 from rest_framework.test import APITestCase
 
 from challenge.models import Score
+from member.models import Member
 from team.models import Team
 
 
 class RecalculateUserViewTestCase(APITestCase):
     def setUp(self):
-        user = get_user_model()(
+        user = Member(
             username="recalculate-test", email="recalculate-test@example.org"
         )
         user.save()
-        admin_user = get_user_model()(
+        admin_user = Member(
             username="recalculate-test-admin",
             email="recalculate-test-admin@example.org",
         )
@@ -61,7 +61,7 @@ class RecalculateUserViewTestCase(APITestCase):
         self.client.force_authenticate(self.admin_user)
         self.client.post(reverse("recalculate-user", kwargs={"id": self.user.id}))
         self.assertEquals(
-            get_user_model().objects.get(id=self.user.id).points, total + 100
+            Member.objects.get(id=self.user.id).points, total + 100
         )
 
     def test_recalculate_leaderboard(self):
@@ -76,17 +76,17 @@ class RecalculateUserViewTestCase(APITestCase):
         self.client.force_authenticate(self.admin_user)
         self.client.post(reverse("recalculate-user", kwargs={"id": self.user.id}))
         self.assertEquals(
-            get_user_model().objects.get(id=self.user.id).leaderboard_points, total
+            Member.objects.get(id=self.user.id).leaderboard_points, total
         )
 
 
 class RecalculateTeamViewTestCase(APITestCase):
     def setUp(self):
-        user = get_user_model()(
+        user = Member(
             username="recalculate-test", email="recalculate-test@example.org"
         )
         user.save()
-        admin_user = get_user_model()(
+        admin_user = Member(
             username="recalculate-test-admin",
             email="recalculate-test-admin@example.org",
         )
@@ -149,11 +149,11 @@ class RecalculateTeamViewTestCase(APITestCase):
 
 class RecalculateAllViewTestCase(APITestCase):
     def setUp(self):
-        user = get_user_model()(
+        user = Member(
             username="recalculate-test", email="recalculate-test@example.org"
         )
         user.save()
-        admin_user = get_user_model()(
+        admin_user = Member(
             username="recalculate-test-admin",
             email="recalculate-test-admin@example.org",
         )
@@ -194,7 +194,7 @@ class RecalculateAllViewTestCase(APITestCase):
         self.client.post(reverse("recalculate-all"))
         self.assertEquals(Team.objects.get(id=self.team.id).points, total + 100)
         self.assertEquals(
-            get_user_model().objects.get(id=self.user.id).points, total + 100
+            Member.objects.get(id=self.user.id).points, total + 100
         )
 
     def test_recalculate_leaderboard(self):
@@ -210,5 +210,5 @@ class RecalculateAllViewTestCase(APITestCase):
         self.client.post(reverse("recalculate-all"))
         self.assertEquals(Team.objects.get(id=self.team.id).leaderboard_points, total)
         self.assertEquals(
-            get_user_model().objects.get(id=self.user.id).leaderboard_points, total
+            Member.objects.get(id=self.user.id).leaderboard_points, total
         )

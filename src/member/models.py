@@ -2,7 +2,6 @@ import secrets
 import time
 from enum import IntEnum
 
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import CICharField
 from django.db import models
@@ -78,7 +77,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
 
 
 class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=SET_NULL, null=True)
+    user = models.ForeignKey(Member, on_delete=SET_NULL, null=True)
     ip = models.CharField(max_length=255)
     seen = models.IntegerField(default=1)
     last_seen = models.DateTimeField(default=timezone.now)

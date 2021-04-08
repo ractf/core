@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_401_UNAUTHORIZED, HTTP_201_CREATED, \
@@ -8,6 +7,7 @@ from rest_framework.test import APITestCase
 from challenge.models import Category, Challenge, Solve
 from config import config
 from hint.models import Hint, HintUse
+from member.models import Member
 from team.models import Team
 
 
@@ -36,16 +36,16 @@ class ChallengeSetupMixin:
         hint1.save()
         hint2.save()
         hint3.save()
-        user = get_user_model()(username='challenge-test', email='challenge-test@example.org')
+        user = Member(username='challenge-test', email='challenge-test@example.org')
         user.save()
         team = Team(name='team', password='password', owner=user)
         team.save()
         user.team = team
         user.save()
-        user2 = get_user_model()(username='challenge-test-2', email='challenge-test-2@example.org')
+        user2 = Member(username='challenge-test-2', email='challenge-test-2@example.org')
         user2.team = team
         user2.save()
-        user3 = get_user_model()(username='challenge-test-3', email='challenge-test-3@example.org')
+        user3 = Member(username='challenge-test-3', email='challenge-test-3@example.org')
         user3.save()
         team2 = Team(name='team2', password='password', owner=user3)
         team2.save()
@@ -103,10 +103,10 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
     def test_challenge_unlocks(self):
         self.solve_challenge()
         self.challenge1.unlock_requirements = str(self.challenge2.id)
-        self.assertTrue(self.challenge1.is_unlocked(get_user_model().objects.get(id=self.user.id)))
+        self.assertTrue(self.challenge1.is_unlocked(Member.objects.get(id=self.user.id)))
 
     def test_challenge_unlocks_no_team(self):
-        user4 = get_user_model()(username='challenge-test-4', email='challenge-test-4@example.org')
+        user4 = Member(username='challenge-test-4', email='challenge-test-4@example.org')
         user4.save()
         self.assertFalse(self.challenge1.is_unlocked(user4))
 
@@ -193,7 +193,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.assertFalse(self.challenge2.is_unlocked(AnonymousUser()))
 
     def test_challenge_solved_no_team(self):
-        user4 = get_user_model()(username='challenge-test-4', email='challenge-test-4@example.org')
+        user4 = Member(username='challenge-test-4', email='challenge-test-4@example.org')
         user4.save()
         self.assertFalse(self.challenge2.is_solved(user4))
 

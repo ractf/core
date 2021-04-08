@@ -2,7 +2,7 @@ import time
 import secrets
 
 from django.conf import settings
-from django.contrib.auth import get_user_model, password_validation
+from django.contrib.auth import password_validation
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
@@ -11,9 +11,9 @@ from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_401_UNAUTHORIZED, HTT
 from authentication.models import InviteCode, PasswordResetToken
 from backend.exceptions import FormattedException
 from backend.mail import send_email
-from backend.response import FormattedResponse
 from backend.signals import register
 from config import config
+from member.models import Member
 from plugins import providers
 from team.models import Team
 
@@ -56,7 +56,7 @@ class RegistrationSerializer(serializers.Serializer):
     def create(self, validated_data):
         user = providers.get_provider('registration').register_user(**validated_data, context=self.context)
 
-        if not get_user_model().objects.all().exists():
+        if not Member.objects.all().exists():
             user.is_staff = True
             user.is_superuser = True
 
@@ -115,7 +115,7 @@ class PasswordResetSerializer(serializers.Serializer):
         uid = data.get('uid')
         token = data.get('token')
         password = data.get('password')
-        user = get_object_or_404(get_user_model(), id=uid)
+        user = get_object_or_404(Member, id=uid)
         reset_token = get_object_or_404(PasswordResetToken, token=token, user_id=uid, expires__gt=timezone.now())
         password_validation.validate_password(password, reset_token)
         data['user'] = user
@@ -130,7 +130,7 @@ class EmailVerificationSerializer(serializers.Serializer):
     def validate(self, data):
         uid = int(data.get('uid'))
         token = data.get('token')
-        user = get_object_or_404(get_user_model(), id=uid, email_token=token)
+        user = get_object_or_404(Member, id=uid, email_token=token)
         if user.email_verified:
             raise FormattedException(m='email_already_verified', status=HTTP_403_FORBIDDEN)
         data['user'] = user
@@ -141,7 +141,7 @@ class EmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
     def validate(self, data):
-        user = get_object_or_404(get_user_model(), email=data.get('email'))
+        user = get_object_or_404(Member, email=data.get('email'))
         if user.email_verified:
             raise FormattedException(m='email_already_verified', status=HTTP_403_FORBIDDEN)
         data['user'] = user

@@ -3,7 +3,6 @@ import hashlib
 from typing import Union
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.db import transaction, models
 from django.db.models import Prefetch, Case, When, Value, Count, Subquery, Q, Sum
 from django.utils import timezone
@@ -32,6 +31,7 @@ from challenge.serializers import (
 )
 from config import config
 from hint.models import Hint, HintUse
+from member.models import Member
 from plugins import plugins
 from team.models import Team
 from team.permissions import HasTeam
@@ -147,7 +147,7 @@ class ScoresViewset(ModelViewSet):
 
     def recalculate_scores(self, user, team):
         if user:
-            user = get_object_or_404(get_user_model(), id=user)
+            user = get_object_or_404(Member, id=user)
             user.leaderboard_points = Score.objects.filter(user=user, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
             user.points = Score.objects.filter(user=user).aggregate(Sum("points"))["points__sum"] or 0
             user.last_score = Score.objects.filter(user=user, leaderboard=True).order_by("timestamp").first().timestamp
@@ -234,7 +234,7 @@ class FlagSubmitView(APIView):
 
         with transaction.atomic():
             team = Team.objects.select_for_update().get(id=request.user.team.id)
-            user = get_user_model().objects.select_for_update().get(id=request.user.id)
+            user = Member.objects.select_for_update().get(id=request.user.id)
             flag = request.data.get('flag')
             challenge_id = request.data.get('challenge')
             if not flag or not challenge_id:
@@ -286,7 +286,7 @@ class FlagCheckView(APIView):
                 (not config.get('enable_flag_submission_after_competition') and time.time() > config.get('end_time')):
             return FormattedResponse(m='flag_submission_disabled', status=HTTP_403_FORBIDDEN)
         team = Team.objects.get(id=request.user.team.id)
-        user = get_user_model().objects.get(id=request.user.id)
+        user = Member.objects.get(id=request.user.id)
         flag = request.data.get('flag')
         challenge_id = request.data.get('challenge')
         if not flag or not challenge_id:

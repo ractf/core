@@ -26,6 +26,7 @@ from backend.response import FormattedResponse
 from backend.signals import logout, add_2fa, verify_2fa, password_reset_start, password_reset_start_reject, \
     email_verified, change_password, password_reset, remove_2fa
 from backend.viewsets import AdminListModelViewSet
+from member.models import Member
 from plugins import providers
 from team.models import Team
 
@@ -54,7 +55,7 @@ class LoginView(APIView):
 
 
 class RegistrationView(CreateAPIView):
-    model = get_user_model()
+    model = Member
     permission_classes = (~permissions.IsAuthenticated,)
     serializer_class = RegistrationSerializer
     throttle_scope = "register"
@@ -174,13 +175,13 @@ class RequestPasswordResetView(APIView):
         email_validator(email)
         # prevent timing attack - is this necessary?
         try:
-            user = get_user_model().objects.get(email=email, email_verified=True)
+            user = Member.objects.get(email=email, email_verified=True)
             token = PasswordResetToken(user=user, token=secrets.token_hex())
             token.save()
             uid = user.id
             token = token.token
             password_reset_start.send(sender=self.__class__, user=user)
-        except get_user_model().DoesNotExist:
+        except Member.DoesNotExist:
             password_reset_start_reject.send(sender=self.__class__, email=email)
             uid = -1
             token = ""
@@ -342,7 +343,7 @@ class CreateBotView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        bot = get_user_model()(username=serializer.data["username"], email_verified=True,
+        bot = Member(username=serializer.data["username"], email_verified=True,
                                is_visible=serializer.data["is_visible"], is_staff=serializer.data["is_staff"],
                                is_superuser=serializer.data["is_superuser"], is_bot=True,
                                email=serializer.data["username"] + "@bot.ractf")
@@ -355,7 +356,7 @@ class SudoView(APIView):
 
     def post(self, request):
         id = request.data['id']
-        user = get_object_or_404(get_user_model(), id=id)
+        user = get_object_or_404(Member, id=id)
         return FormattedResponse(d={'token': user.issue_token(owner=request.user)})
 
 

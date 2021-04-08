@@ -1,8 +1,6 @@
 from unittest import mock
-from unittest.mock import patch
 
 import pyotp
-from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_403_FORBIDDEN, \
     HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
@@ -13,6 +11,7 @@ from authentication.views import VerifyEmailView, DoPasswordResetView, AddTwoFac
     RegistrationView, ChangePasswordView, LoginTwoFactorView, RequestPasswordResetView, RegenerateBackupCodesView, \
     CreateBotView
 from config import config
+from member.models import Member
 from team.models import Team
 
 
@@ -109,7 +108,7 @@ class RegisterTestCase(APITestCase):
             'email': 'user6@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertTrue(get_user_model().objects.filter(username=data['username']).first().is_staff)
+        self.assertTrue(Member.objects.filter(username=data['username']).first().is_staff)
 
     def test_register_second(self):
         data = {
@@ -124,7 +123,7 @@ class RegisterTestCase(APITestCase):
             'email': 'user7@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertFalse(get_user_model().objects.filter(username=data['username']).first().is_staff)
+        self.assertFalse(Member.objects.filter(username=data['username']).first().is_staff)
 
     def test_register_malformed(self):
         data = {
@@ -152,20 +151,20 @@ class RegisterTestCase(APITestCase):
         response = self.client.post(reverse('register'), data)
         config.set('enable_teams', True)
         self.assertEquals(response.status_code, HTTP_201_CREATED)
-        self.assertEquals(get_user_model().objects.get(username='user10').team.name, 'user10')
+        self.assertEquals(Member.objects.get(username='user10').team.name, 'user10')
 
 
 class EmailResendTestCase(APITestCase):
     def test_email_resend(self):
         with self.settings(RATELIMIT_ENABLE=False):
-            user = get_user_model()(username="test_verify_user", email_verified=False, email="tvu@example.com")
+            user = Member(username="test_verify_user", email_verified=False, email="tvu@example.com")
             user.save()
             response = self.client.post(reverse('resend-email'), {"email": "tvu@example.com"})
             self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_already_verified_email_resend(self):
         with self.settings(RATELIMIT_ENABLE=False):
-            user = get_user_model()(username="resend-email", email_verified=True, email="tvu@example.com")
+            user = Member(username="resend-email", email_verified=True, email="tvu@example.com")
             user.save()
             response = self.client.post(reverse('resend-email'), {"email": "tvu@example.com"})
             self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
@@ -178,9 +177,9 @@ class EmailResendTestCase(APITestCase):
 
 class SudoTestCase(APITestCase):
     def test_sudo(self):
-        user = get_user_model()(username="sudotest", is_staff=True, email="sudotest@example.com", is_superuser=True)
+        user = Member(username="sudotest", is_staff=True, email="sudotest@example.com", is_superuser=True)
         user.save()
-        user2 = get_user_model()(username="sudotest2", email="sudotest2@example.com")
+        user2 = Member(username="sudotest2", email="sudotest2@example.com")
         user2.save()
 
         self.client.force_authenticate(user)
@@ -190,7 +189,7 @@ class SudoTestCase(APITestCase):
 
 class GenerateInvitesTestCase(APITestCase):
     def test_response_length(self):
-        user = get_user_model()(username="resend-email", is_staff=True, email="tvu@example.com", is_superuser=True)
+        user = Member(username="resend-email", is_staff=True, email="tvu@example.com", is_superuser=True)
         user.save()
         self.client.force_authenticate(user=user)
         team = Team.objects.create(owner=user, name=user.username, password='123123')
@@ -198,7 +197,7 @@ class GenerateInvitesTestCase(APITestCase):
         self.assertEquals(len(response.data["d"]["invite_codes"]), 15)
 
     def test_invites_viewset(self):
-        user = get_user_model()(username="resend-email", is_staff=True, email="tvu@example.com", is_superuser=True)
+        user = Member(username="resend-email", is_staff=True, email="tvu@example.com", is_superuser=True)
         user.save()
         self.client.force_authenticate(user=user)
         self.client.post(reverse('generate-invites'), {"amount": 15, "max_uses": 1})
@@ -215,7 +214,7 @@ class InviteRequiredRegistrationTestCase(APITestCase):
         InviteCode(code='test1', max_uses=10).save()
         InviteCode(code='test2', max_uses=1).save()
         InviteCode(code='test3', max_uses=1).save()
-        user = get_user_model()(username='invtestadmin', email='invtestadmin@example.org', email_verified=True,
+        user = Member(username='invtestadmin', email='invtestadmin@example.org', email_verified=True,
                                 is_superuser=True, is_staff=True)
         user.set_password('password')
         user.save()
@@ -292,13 +291,13 @@ class InviteRequiredRegistrationTestCase(APITestCase):
             'invite': 'test4',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(get_user_model().objects.get(username='user12').team.id, self.team.id)
+        self.assertEquals(Member.objects.get(username='user12').team.id, self.team.id)
 
 
 class LogoutTestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='logout-test', email='logout-test@example.org')
+        user = Member(username='logout-test', email='logout-test@example.org')
         user.set_password('password')
         user.email_verified = True
         user.save()
@@ -318,7 +317,7 @@ class LogoutTestCase(APITestCase):
 class LoginTestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='login-test', email='login-test@example.org')
+        user = Member(username='login-test', email='login-test@example.org')
         user.set_password('password')
         user.email_verified = True
         user.save()
@@ -429,7 +428,7 @@ class LoginTestCase(APITestCase):
 class Login2FATestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='login-test', email='login-test@example.org')
+        user = Member(username='login-test', email='login-test@example.org')
         user.set_password('password')
         user.email_verified = True
         user.save()
@@ -458,7 +457,7 @@ class Login2FATestCase(APITestCase):
         self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_login_2fa_without_2fa(self):
-        user = get_user_model()(username='login-test-no-2fa', email='login-test-no-2fa@example.org')
+        user = Member(username='login-test-no-2fa', email='login-test-no-2fa@example.org')
         user.set_password('password')
         user.email_verified = True
         user.save()
@@ -491,7 +490,7 @@ class Login2FATestCase(APITestCase):
 
 class TokenTestCase(APITestCase):
     def test_token_str(self):
-        user = get_user_model()(username='token-test', email='token-test@example.org')
+        user = Member(username='token-test', email='token-test@example.org')
         user.save()
         tok = Token(key="a"*40, user=user)
         self.assertEquals(str(tok), "a"*40)
@@ -500,7 +499,7 @@ class TokenTestCase(APITestCase):
 class TFATestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='2fa-test', email='2fa-test@example.org')
+        user = Member(username='2fa-test', email='2fa-test@example.org')
         user.set_password('password')
         user.email_verified = True
         user.save()
@@ -551,10 +550,10 @@ class TFATestCase(APITestCase):
     def test_remove_2fa(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse('add-2fa'))
-        totp_device = get_user_model().objects.get(id=self.user.id).totp_device
+        totp_device = Member.objects.get(id=self.user.id).totp_device
         totp_device.verified = True
         totp_device.save()
-        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
+        self.client.force_authenticate(user=Member.objects.get(id=self.user.id))
         response = self.client.post(reverse('remove-2fa'), data={
             'otp': pyotp.TOTP(totp_device.totp_secret).now()
         })
@@ -563,10 +562,10 @@ class TFATestCase(APITestCase):
     def test_remove_2fa_fail(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse('add-2fa'))
-        totp_device = get_user_model().objects.get(id=self.user.id).totp_device
+        totp_device = Member.objects.get(id=self.user.id).totp_device
         totp_device.verified = True
         totp_device.save()
-        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
+        self.client.force_authenticate(user=Member.objects.get(id=self.user.id))
         response = self.client.post(reverse('remove-2fa'), data={
             'otp': "invalid_otp"
         })
@@ -575,19 +574,19 @@ class TFATestCase(APITestCase):
     def test_remove_2fa_removes_2fa(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse('add-2fa'))
-        totp_device = get_user_model().objects.get(id=self.user.id).totp_device
+        totp_device = Member.objects.get(id=self.user.id).totp_device
         totp_device.verified = True
         totp_device.save()
-        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
+        self.client.force_authenticate(user=Member.objects.get(id=self.user.id))
         response = self.client.post(reverse('remove-2fa'), data={
             'otp': pyotp.TOTP(totp_device.totp_secret).now()
         })
-        self.assertFalse(get_user_model().objects.get(id=self.user.id).has_2fa())
+        self.assertFalse(Member.objects.get(id=self.user.id).has_2fa())
 
     def test_remove_2fa_no_2fa(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse('add-2fa'))
-        user = get_user_model().objects.get(id=self.user.id)
+        user = Member.objects.get(id=self.user.id)
         user.totp_device = None
         user.save()
         response = self.client.post(reverse('remove-2fa'))
@@ -610,7 +609,7 @@ class RequestPasswordResetTestCase(APITestCase):
             "SEND": True,
             "SEND_MODE": "SES"
         }):
-            get_user_model()(username='test-password-rest', email='user10@example.org', email_verified=True).save()
+            Member(username='test-password-rest', email='user10@example.org', email_verified=True).save()
             response = self.client.post(reverse('request-password-reset'), data={'email': 'user10@example.org'})
             self.assertEquals(response.status_code, HTTP_200_OK)
 
@@ -618,7 +617,7 @@ class RequestPasswordResetTestCase(APITestCase):
 class DoPasswordResetTestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='pr-test', email='pr-test@example.org')
+        user = Member(username='pr-test', email='pr-test@example.org')
         user.set_password('password')
         user.email_verified = True
         user.save()
@@ -689,7 +688,7 @@ class DoPasswordResetTestCase(APITestCase):
 class VerifyEmailTestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='ev-test', email='ev-test@example.org')
+        user = Member(username='ev-test', email='ev-test@example.org')
         user.set_password('password')
         user.save()
         self.user = user
@@ -743,7 +742,7 @@ class VerifyEmailTestCase(APITestCase):
 class ChangePasswordTestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='cp-test', email='cp-test@example.org')
+        user = Member(username='cp-test', email='cp-test@example.org')
         user.set_password('password')
         user.save()
         self.user = user
@@ -781,7 +780,7 @@ class ChangePasswordTestCase(APITestCase):
 class RegerateBackupCodesTestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='backupcode-test', email='backupcode-test@example.org')
+        user = Member(username='backupcode-test', email='backupcode-test@example.org')
         user.set_password('password')
         user.save()
         TOTPDevice(user=user, verified=True).save()
@@ -805,10 +804,10 @@ class RegerateBackupCodesTestCase(APITestCase):
         self.assertFalse(set(first_response.data['d']['backup_codes']) & set(second_response.data['d']['backup_codes']))
 
     def test_regenerate_backup_codes_no_2fa(self):
-        user = get_user_model().objects.get(id=self.user.id)
+        user = Member.objects.get(id=self.user.id)
         user.totp_device.delete()
         user.save()
-        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
+        self.client.force_authenticate(user=Member.objects.get(id=self.user.id))
         response = self.client.post(reverse('regenerate-backup-codes'))
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
@@ -816,7 +815,7 @@ class RegerateBackupCodesTestCase(APITestCase):
 class CreateBotUserTestCase(APITestCase):
 
     def setUp(self):
-        user = get_user_model()(username='bot-test', email='bot-test@example.org', is_staff=True,
+        user = Member(username='bot-test', email='bot-test@example.org', is_staff=True,
                                 is_superuser=True)
         user.set_password('password')
         user.save()

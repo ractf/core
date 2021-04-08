@@ -1,23 +1,23 @@
-from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_403_FORBIDDEN,
     HTTP_401_UNAUTHORIZED,
     HTTP_400_BAD_REQUEST,
-    HTTP_404_NOT_FOUND,
 )
 from rest_framework.test import APITestCase
+
+from member.models import Member
 
 
 class MemberTestCase(APITestCase):
     def setUp(self):
-        user = get_user_model()(username="test-self", email="test-self@example.org")
+        user = Member(username="test-self", email="test-self@example.org")
         user.save()
         self.user = user
 
     def test_str(self):
-        user = get_user_model()(username="test-str", email="test-str@example.org")
+        user = Member(username="test-str", email="test-str@example.org")
         self.assertEquals(str(user), user.username)
 
     def test_self_status(self):
@@ -36,7 +36,7 @@ class MemberTestCase(APITestCase):
         )
         print(response.data)
         self.assertEquals(response.status_code, HTTP_200_OK)
-        self.assertEquals(get_user_model().objects.get(id=self.user.id).email, "test-self2@example.org")
+        self.assertEquals(Member.objects.get(id=self.user.id).email, "test-self2@example.org")
 
     def test_self_change_email_invalid(self):
         self.client.force_authenticate(self.user)
@@ -50,7 +50,7 @@ class MemberTestCase(APITestCase):
         response = self.client.put(
             reverse("member-self"), data={"email": "test-self3@example.org"}
         )
-        user = get_user_model().objects.get(id=self.user.id)
+        user = Member.objects.get(id=self.user.id)
         self.assertNotEquals(pr_token, user.password_reset_token)
         self.assertNotEquals(ev_token, user.email_token)
 
@@ -62,16 +62,16 @@ class MemberTestCase(APITestCase):
 
 class MemberViewSetTestCase(APITestCase):
     def setUp(self):
-        user = get_user_model()(username="test-member", email="test-member@example.org")
+        user = Member(username="test-member", email="test-member@example.org")
         user.save()
         self.user = user
-        user = get_user_model()(username="test-admin", email="test-admin@example.org")
+        user = Member(username="test-admin", email="test-admin@example.org")
         user.is_staff = True
         user.save()
         self.admin_user = user
 
     def test_visible_admin(self):
-        user = get_user_model()(
+        user = Member(
             username="test-member-invisible", email="test-member-invisible@example.org"
         )
         user.is_visible = False
@@ -81,7 +81,7 @@ class MemberViewSetTestCase(APITestCase):
         self.assertEquals(len(response.data["d"]["results"]), 3)
 
     def test_visible_not_admin(self):
-        user = get_user_model()(
+        user = Member(
             username="test-member-invisible", email="test-member-invisible@example.org"
         )
         user.is_visible = False
@@ -91,7 +91,7 @@ class MemberViewSetTestCase(APITestCase):
         self.assertEquals(len(response.data["d"]["results"]), 0)
 
     def test_visible_detail_admin(self):
-        user = get_user_model()(
+        user = Member(
             username="test-member-invisible", email="test-member-invisible@example.org"
         )
         user.is_visible = False
@@ -101,7 +101,7 @@ class MemberViewSetTestCase(APITestCase):
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_visible_detail_not_admin(self):
-        user = get_user_model()(
+        user = Member(
             username="test-member-invisible", email="test-member-invisible@example.org"
         )
         user.is_visible = False

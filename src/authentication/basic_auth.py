@@ -1,10 +1,11 @@
-from django.contrib.auth import authenticate, get_user_model, password_validation
+from django.contrib.auth import authenticate, password_validation
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST
 from rest_framework.exceptions import ValidationError
 
 from authentication.providers import LoginProvider, TokenProvider, RegistrationProvider
 from backend.exceptions import FormattedException
 from backend.signals import login_reject, login
+from member.models import Member
 
 
 class BasicAuthRegistrationProvider(RegistrationProvider):
@@ -21,7 +22,7 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
         return {key: data[key] for key in self.required_fields}
 
     def register_user(self, username, email, password, **kwargs):
-        user = get_user_model()(
+        user = Member(
             username=username,
             email=email
         )

@@ -1,11 +1,10 @@
 import secrets
 
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from backend.mixins import IncorrectSolvesMixin
 from challenge.serializers import SolveSerializer
-from member.models import UserIP
+from member.models import UserIP, Member
 from config import config
 
 
@@ -15,7 +14,7 @@ class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     incorrect_solves = serializers.SerializerMethodField()
 
     class Meta:
-        model = get_user_model()
+        model = Member
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'state_actor', 'twitter', 'reddit',
                   'team', 'points', 'is_visible', 'is_active', 'solves', 'team_name', 'leaderboard_points',
                   'date_joined', 'incorrect_solves', 'is_verified']
@@ -25,7 +24,7 @@ class ListMemberSerializer(serializers.ModelSerializer):
     team_name = serializers.ReadOnlyField(source='team.name')
 
     class Meta:
-        model = get_user_model()
+        model = Member
         fields = ['id', 'username', 'team', 'team_name']
 
 
@@ -35,7 +34,7 @@ class AdminMemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     incorrect_solves = serializers.SerializerMethodField()
 
     class Meta:
-        model = get_user_model()
+        model = Member
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team',
                   'points', 'is_visible', 'is_active', 'solves', 'team_name', 'email', 'email_verified',
                   'leaderboard_points', 'date_joined', 'state_actor', 'incorrect_solves', 'is_verified']
@@ -45,7 +44,7 @@ class MinimalMemberSerializer(serializers.ModelSerializer):
     team_name = serializers.ReadOnlyField(source='team.name')
 
     class Meta:
-        model = get_user_model()
+        model = Member
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team',
                   'points', 'is_visible', 'is_active', 'team_name', 'leaderboard_points', 'state_actor', 'date_joined',
                   'is_verified']
@@ -61,7 +60,7 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     has_2fa = serializers.BooleanField()
 
     class Meta:
-        model = get_user_model()
+        model = Member
         fields = ['id', 'username', 'is_staff', 'bio', 'discord', 'discordid', 'twitter', 'reddit', 'team', 'email',
                   'has_2fa', 'points', 'solves', 'team_name', 'leaderboard_points', 'date_joined',
                   'incorrect_solves', 'is_verified']

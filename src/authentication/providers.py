@@ -1,10 +1,10 @@
 import abc
 
-from django.contrib.auth import get_user_model
 from django.core.validators import EmailValidator
 from rest_framework.exceptions import ValidationError
 
 from config import config
+from member.models import Member
 from plugins.providers import Provider
 
 
@@ -29,7 +29,7 @@ class RegistrationProvider(Provider, abc.ABC):  # pragma: no cover
             raise ValidationError('invalid_email')
 
     def check_email_or_username_in_use(self, email=None, username=None):
-        if get_user_model().objects.filter(username=username) or get_user_model().objects.filter(email=email):
+        if Member.objects.filter(username=username) or Member.objects.filter(email=email):
             raise ValidationError('email_or_username_in_use')
 
 
