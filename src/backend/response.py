@@ -1,10 +1,12 @@
+from typing import Union
+
 from rest_framework.response import Response
 
 
 class FormattedResponse(Response):
 
-    def __init__(self, d: str = '', m: str = '', s: bool = True, status: int = None, template_name: str = None,
-                 headers: list = None, exception: bool = False, content_type: str = None):
+    def __init__(self, d: Union[str, dict, list] = '', m: str = '', s: bool = True, status: int = None,
+                 template_name: str = None, headers: list = None, exception: bool = False, content_type: str = None):
         if status and status >= 400:
             s = False
         data = {'s': s, 'm': m, 'd': d}
