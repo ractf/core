@@ -2,7 +2,7 @@ version: '3.5'
 
 services:
   backend:
-    image: ghcr.io/ractf/core
+    build: .
     entrypoint: /app/entrypoints/backend.sh
     command: 'gunicorn -w 12 -b 0.0.0.0:8000 backend.wsgi:application'
     restart: always
@@ -37,7 +37,6 @@ services:
       - traefik.http.routers.${deployment['name']}backend.tls.certresolver=resolver
       - traefik.http.middlewares.${deployment['name']}stripbackend.stripprefix.prefixes=/api/v2
       - traefik.http.routers.${deployment['name']}backend.middlewares=${deployment['name']}stripbackend@docker
-      - com.centurylinklabs.watchtower.enable
       - traefik.http.routers.${deployment['name']}backend.tls=true
       - "traefik.docker.network=${deployment['name']}_${deployment['name']}_external"
     depends_on:
@@ -46,16 +45,12 @@ services:
     networks:
       - "${deployment['name']}_internal"
       - "${deployment['name']}_external"
-    volumes:
-      - /etc/newrelic.ini:/etc/newrelic.ini
 
 redis:
   image: 'redis:5'
   restart: always
   volumes:
     - 'redis:/data'
-  labels:
-    - com.centurylinklabs.watchtower.enable
   networks:
     - "${deployment['name']}_internal"
 
@@ -69,13 +64,11 @@ postgres:
     - POSTGRES_USER=ractf
   volumes:
     - 'postgres:/var/lib/postgresql/data/'
-  labels:
-    - com.centurylinklabs.watchtower.enable
   networks:
     - "${deployment['name']}_internal"
 
 websockets:
-  image: ghcr.io/ractf/core
+  build: .
   entrypoint: /app/entrypoints/sockets.sh
   command: 'daphne -b 0.0.0.0 -p 8000 backend.asgi:application'
   restart: always
@@ -110,7 +103,6 @@ websockets:
     - traefik.http.routers.${deployment['name']}websockets.tls.certresolver=resolver
     - traefik.http.middlewares.${deployment['name']}stripwebsockets.stripprefix.prefixes=/api/v2
     - traefik.http.routers.${deployment['name']}websockets.middlewares=${deployment['name']}stripwebsockets@docker
-    - com.centurylinklabs.watchtower.enable
     - traefik.http.routers.${deployment['name']}websockets.tls=true
     - "traefik.docker.network=${deployment['name']}_${deployment['name']}_external"
   depends_on:
@@ -120,14 +112,11 @@ websockets:
   networks:
     - "${deployment['name']}_internal"
     - "${deployment['name']}_external"
-  volumes:
-    - /etc/newrelic.ini:/etc/newrelic.ini
 
 errors:
   image: ghcr.io/ractf/error-handler
   restart: always
   labels:
-    - com.centurylinklabs.watchtower.enable
     - traefik.enable=true
     - traefik.http.routers.${deployment['name']}error-router.rule=Host(`${domains['api']}`)
     - traefik.http.routers.${deployment['name']}error-router.entrypoints=https
