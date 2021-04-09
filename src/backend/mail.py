@@ -13,6 +13,7 @@ if settings.MAIL["SEND"]:  # pragma: no cover
 
 
 def send_email(send_to: str, subject_line: str, template_name: str, **template_details):
+    """Sends an email via the configured email service."""
     if settings.MAIL["SEND"]:  # pragma: no cover
         if settings.MAIL["SEND_MODE"] == "AWS":  # pragma: no cover
             client.send_email(

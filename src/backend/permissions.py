@@ -9,6 +9,9 @@ from config import config
 
 
 class AdminOrReadOnlyVisible(permissions.BasePermission):
+    """
+    Allows the user to access a given object if the object's is_visible attribute is True, 
+    """
     def has_object_permission(self, request: Request, view: APIView, obj: Any) -> bool:
         if request.user.has_admin_permissions():
             return True
