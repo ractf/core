@@ -1,0 +1,145 @@
+version: '3.5'
+
+services:
+  backend:
+    image: ghcr.io/ractf/core
+    entrypoint: /app/entrypoints/backend.sh
+    command: 'gunicorn -w 12 -b 0.0.0.0:8000 backend.wsgi:application'
+    restart: always
+    environment:
+      - DOMAIN=${domains['api']}
+      - 'FRONTEND_URL=https://${domains['frontend']}/'
+      - SECRET_KEY=${secret_key}
+      - DJANGO_SETTINGS_MODULE=backend.settings.production
+      - REDIS_PORT=6379
+      - REDIS_CONFIG_DB=1
+      - REDIS_CACHE_DB=2
+      - REDIS_HOST=redis
+      - SQL_PORT=5432
+      - SQL_USER=ractf
+      - SQL_HOST=postgres
+      - SQL_DATABASE=ractf
+      - SQL_PASSWORD=password
+      - EMAIL_PROVIDER=AWS
+      - EMAIL_ADDRESS=noreply@ractf.co.uk
+      - "EMAIL_NAME=${deployment['name']} - RACTF (Yakrazor)"
+      - USE_AWS_S3_FILE_STORAGE=false
+      - CHALLENGE_SERVER_TYPE=POLARIS
+      - POLARIS_URL=${polaris['url']}
+      - POLARIS_USERNAME=${polaris['username']}
+      - POLARIS_PASSWORD=${polaris['password']}
+    labels:
+      - traefik.enable=true
+      - >-
+        traefik.http.routers.${deployment['name']}backend.rule=Host(`${domains['api']}`) &&
+        PathPrefix(`/api/v2`)
+      - traefik.http.routers.${deployment['name']}backend.entrypoints=https
+      - traefik.http.routers.${deployment['name']}backend.tls.certresolver=resolver
+      - traefik.http.middlewares.${deployment['name']}stripbackend.stripprefix.prefixes=/api/v2
+      - traefik.http.routers.${deployment['name']}backend.middlewares=${deployment['name']}stripbackend@docker
+      - com.centurylinklabs.watchtower.enable
+      - traefik.http.routers.${deployment['name']}backend.tls=true
+      - "traefik.docker.network=${deployment['name']}_${deployment['name']}_external"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - "${deployment['name']}_internal"
+      - "${deployment['name']}_external"
+    volumes:
+      - /etc/newrelic.ini:/etc/newrelic.ini
+
+redis:
+  image: 'redis:5'
+  restart: always
+  volumes:
+    - 'redis:/data'
+  labels:
+    - com.centurylinklabs.watchtower.enable
+  networks:
+    - "${deployment['name']}_internal"
+
+postgres:
+  image: 'postgres:12-alpine'
+  restart: always
+  environment:
+    - POSTGRES_EXTENSIONS=citext
+    - POSTGRES_HOST_AUTH_METHOD=trust
+    - POSTGRES_DB=ractf
+    - POSTGRES_USER=ractf
+  volumes:
+    - 'postgres:/var/lib/postgresql/data/'
+  labels:
+    - com.centurylinklabs.watchtower.enable
+  networks:
+    - "${deployment['name']}_internal"
+
+websockets:
+  image: ghcr.io/ractf/core
+  entrypoint: /app/entrypoints/sockets.sh
+  command: 'daphne -b 0.0.0.0 -p 8000 backend.asgi:application'
+  restart: always
+  environment:
+    - DOMAIN=${domains['api']}
+    - 'FRONTEND_URL=https://${domains['frontend']}/'
+    - SECRET_KEY=${secret_key}
+    - DJANGO_SETTINGS_MODULE=backend.settings.production
+    - REDIS_PORT=6379
+    - REDIS_CONFIG_DB=1
+    - REDIS_CACHE_DB=2
+    - REDIS_HOST=redis
+    - SQL_PORT=5432
+    - SQL_USER=ractf
+    - SQL_HOST=postgres
+    - SQL_DATABASE=ractf
+    - SQL_PASSWORD=password
+    - EMAIL_PROVIDER=AWS
+    - EMAIL_ADDRESS=noreply@ractf.co.uk
+    - "EMAIL_NAME=${deployment['name']} - RACTF (Yakrazor)"
+    - USE_AWS_S3_FILE_STORAGE=false
+    - CHALLENGE_SERVER_TYPE=POLARIS
+    - POLARIS_URL=${polaris['url']}
+    - POLARIS_USERNAME=${polaris['username']}
+    - POLARIS_PASSWORD=${polaris['password']}
+  labels:
+    - traefik.enable=true
+    - >-
+      traefik.http.routers.${deployment['name']}websockets.rule=Host(`${domains['api']}`) &&
+      PathPrefix(`/api/v2/ws`)
+    - traefik.http.routers.${deployment['name']}websockets.entrypoints=https
+    - traefik.http.routers.${deployment['name']}websockets.tls.certresolver=resolver
+    - traefik.http.middlewares.${deployment['name']}stripwebsockets.stripprefix.prefixes=/api/v2
+    - traefik.http.routers.${deployment['name']}websockets.middlewares=${deployment['name']}stripwebsockets@docker
+    - com.centurylinklabs.watchtower.enable
+    - traefik.http.routers.${deployment['name']}websockets.tls=true
+    - "traefik.docker.network=${deployment['name']}_${deployment['name']}_external"
+  depends_on:
+    - postgres
+    - redis
+    - backend
+  networks:
+    - "${deployment['name']}_internal"
+    - "${deployment['name']}_external"
+  volumes:
+    - /etc/newrelic.ini:/etc/newrelic.ini
+
+errors:
+  image: ghcr.io/ractf/error-handler
+  restart: always
+  labels:
+    - com.centurylinklabs.watchtower.enable
+    - traefik.enable=true
+    - traefik.http.routers.${deployment['name']}error-router.rule=Host(`${domains['api']}`)
+    - traefik.http.routers.${deployment['name']}error-router.entrypoints=https
+    - traefik.http.routers.${deployment['name']}error-router.tls.certresolver=resolver
+    - "traefik.docker.network=${deployment['name']}_${deployment['name']}_external"
+  networks:
+    - "${deployment['name']}_external"
+
+volumes:
+  redis: null
+  postgres: null
+
+networks:
+  "${deployment['name']}_internal": null
+  "${deployment['name']}_external": null
