@@ -1,13 +1,20 @@
+from typing import Type
+
 from rest_framework import permissions
+from rest_framework.request import Request
+from rest_framework.serializers import Serializer
 from rest_framework.viewsets import ModelViewSet
 
 
-def is_exporting(request):
+def is_exporting(request: Request):
     return request.user.is_staff and (request.headers.get('exporting') or request.headers.get('x-exporting'))
 
 
 class AdminCreateModelViewSet(ModelViewSet):
-    def get_serializer_class(self):
+    admin_serializer_class: Type[Serializer] = None
+    create_serializer_class: Type[Serializer] = None
+
+    def get_serializer_class(self) -> Type[Serializer]:
         if self.request is None:
             return self.admin_serializer_class
         if self.request.user.has_admin_permissions():
@@ -18,7 +25,9 @@ class AdminCreateModelViewSet(ModelViewSet):
 
 
 class AdminModelViewSet(ModelViewSet):
-    def get_serializer_class(self):
+    admin_serializer_class: Type[Serializer] = None
+
+    def get_serializer_class(self) -> Type[Serializer]:
         if self.request is None:
             return self.admin_serializer_class
         if self.request.user.has_admin_permissions():
@@ -27,7 +36,12 @@ class AdminModelViewSet(ModelViewSet):
 
 
 class AdminListModelViewSet(ModelViewSet):
-    def get_serializer_class(self):
+    admin_serializer_class: Type[Serializer] = None
+    create_serializer_class: Type[Serializer] = None
+    list_serializer_class: Type[Serializer] = None
+    list_admin_serializer_class: Type[Serializer] = None
+
+    def get_serializer_class(self) -> Type[Serializer]:
         if self.request is None:
             return self.admin_serializer_class
         if self.action == 'list' and not is_exporting(self.request):

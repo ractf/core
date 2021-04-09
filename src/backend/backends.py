@@ -1,4 +1,7 @@
+from typing import Union
+
 from django.contrib.auth.backends import ModelBackend
+from rest_framework.request import Request
 
 from member.models import Member
 
@@ -7,10 +10,10 @@ UserModel = Member
 
 class EmailOrUsernameBackend(ModelBackend):
     """
-    Authenticates against settings.AUTH_USER_MODEL.
+    Authenticates against members.models.Member.
     """
 
-    def authenticate(self, request, username=None, password=None, **kwargs):
+    def authenticate(self, request: Request, username: str = None, password: str = None, **kwargs) -> Union[Member, None]:
         try:
             if "@" in username:
                 user = UserModel.objects.get(email=username)

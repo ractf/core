@@ -12,7 +12,7 @@ if settings.MAIL["SEND"]:  # pragma: no cover
         sg = sendgrid.SendGridAPIClient(settings.MAIL["SENDGRID_API_KEY"])
 
 
-def send_email(send_to, subject_line, template_name, **template_details):
+def send_email(send_to: str, subject_line: str, template_name: str, **template_details):
     if settings.MAIL["SEND"]:  # pragma: no cover
         if settings.MAIL["SEND_MODE"] == "AWS":  # pragma: no cover
             client.send_email(

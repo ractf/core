@@ -3,8 +3,8 @@ from rest_framework.response import Response
 
 class FormattedResponse(Response):
 
-    def __init__(self, d='', m='', s=True, status=None, template_name=None, headers=None, exception=False,
-                 content_type=None):
+    def __init__(self, d: str = '', m: str = '', s: bool = True, status: int = None, template_name: str = None,
+                 headers: list = None, exception: bool = False, content_type: str = None):
         if status and status >= 400:
             s = False
         data = {'s': s, 'm': m, 'd': d}

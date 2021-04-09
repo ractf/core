@@ -1,3 +1,5 @@
+from typing import Union
+
 from rest_framework.renderers import JSONRenderer
 
 
@@ -7,7 +9,7 @@ class RACTFJSONRenderer(JSONRenderer):
     charset = 'utf-8'
     render_style = 'text'
 
-    def render(self, data, accepted_media_type=None, renderer_context=None):
+    def render(self, data: Union[list, dict], accepted_media_type: str = None, renderer_context: dict = None) -> dict:
         if renderer_context and renderer_context.get('request') and "X-Reasonable" in renderer_context.get('request').headers:
             if renderer_context.get('response').status_code >= 400:
                 return super(RACTFJSONRenderer, self).render(data, accepted_media_type, renderer_context)
