@@ -231,6 +231,7 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('categories-list'))
+        print(response.data)
         self.assertTrue('description' in response.data['d'][0]['challenges'][0])
 
     def test_category_list_challenge_unlocked_admin(self):
@@ -349,6 +350,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
             'author': 'dave', 'auto_unlock': True, 'score': 1000, 'unlock_requirements': "", 'flag_metadata': {},
             'tags': [],
         }, format='json')
+        print(response.data)
         self.assertEquals(response.status_code, HTTP_201_CREATED)
 
     def test_create_challenge_unauthorized(self):

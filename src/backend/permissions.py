@@ -19,7 +19,7 @@ class AdminOrReadOnlyVisible(permissions.BasePermission):
 class AdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method not in permissions.SAFE_METHODS:
-            return request.has_admin_permissions()
+            return request.user.has_admin_permissions()
         return request.user.is_authenticated
 
 

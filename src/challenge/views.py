@@ -47,7 +47,7 @@ class CategoryViewset(AdminCreateModelViewSet):
     create_serializer_class = CreateCategorySerializer
 
     def get_queryset(self):
-        if self.request.user.has_admin_permissions():
+        if self.request.user.is_staff and self.request.user.should_deny_admin():
             return Category.objects.none()
         team = self.request.user.team
         if team is not None:

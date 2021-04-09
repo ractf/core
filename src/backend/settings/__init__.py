@@ -229,6 +229,7 @@ REST_FRAMEWORK = {
     },
     "DEFAULT_PAGINATION_CLASS": "backend.pagination.FastPagination",
     "PAGE_SIZE": 100,
+    "UNAUTHENTICATED_USER": "member.models.AnonymousMember",
 }
 
 MAIL_SOCK_URL = "http+unix://%2Ftmp%2Fmailusv.sock/send"

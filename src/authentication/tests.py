@@ -641,6 +641,7 @@ class DoPasswordResetTestCase(APITestCase):
             'password': 'uO7*$E@0ngqL',
         }
         response = self.client.post(reverse('do-password-reset'), data)
+        print(response.data)
         self.assertTrue('token' in response.data['d'])
 
     def test_password_reset_bad_token(self):

@@ -2,7 +2,7 @@ import secrets
 import time
 from enum import IntEnum
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, AnonymousUser
 from django.contrib.postgres.fields import CICharField
 from django.db import models
 from django.db.models import SET_NULL
@@ -21,7 +21,13 @@ class TOTPStatus(IntEnum):
     ENABLED = 2
 
 
-class Member(ExportModelOperationsMixin("member"), AbstractUser):
+class MemberMixin:
+
+    def has_admin_permissions(self):
+        return self.is_staff and not self.should_deny_admin()
+
+
+class Member(ExportModelOperationsMixin("member"), AbstractUser, MemberMixin):
     username_validator = printable_name
 
     username = CICharField(
@@ -72,8 +78,9 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
     def should_deny_admin(self):
         return not self.has_2fa() and config.get("enable_force_admin_2fa")
 
-    def has_admin_permissions(self):
-        return self.is_staff and not self.should_deny_admin()
+
+class AnonymousMember(AnonymousUser, MemberMixin):
+    pass
 
 
 class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):
