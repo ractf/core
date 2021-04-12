@@ -8,6 +8,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
+from challenge.serializers import get_solve_counts, get_incorrect_solve_counts
 from member.models import UserIP
 from backend.response import FormattedResponse
 from challenge.models import Solve, Score, Challenge
@@ -46,10 +47,13 @@ def stats(request):
 @permission_classes([IsAdminUser])
 def full(request):
     challenge_data = {}
-    for challenge in Challenge.objects.prefetch_related('solves').all():
-        challenge_data[challenge.id] = {}
-        challenge_data[challenge.id]["correct"] = challenge.solves.filter(correct=True).count()
-        challenge_data[challenge.id]["incorrect"] = challenge.solves.filter(correct=False).count()
+    correct_solve_counts = get_solve_counts()
+    incorrect_solve_counts = get_incorrect_solve_counts()
+    for challenge in correct_solve_counts:
+        challenge_data[challenge] = {}
+        challenge_data[challenge]["correct"] = correct_solve_counts[challenge]
+    for challenge in incorrect_solve_counts:
+        challenge_data[challenge]["incorrect"] = incorrect_solve_counts[challenge]
 
     point_distribution = {}
     for team in Team.objects.all():
