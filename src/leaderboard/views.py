@@ -1,6 +1,7 @@
 import time
 
 from django.contrib.auth import get_user_model
+from django.core.cache import caches
 from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
@@ -38,6 +39,11 @@ class GraphView(APIView):
         if should_hide_scoreboard():
             return FormattedResponse({})
 
+        cache = caches['default']
+        cached_leaderboard = cache.get('leaderboard_graph')
+        if cached_leaderboard is not None:
+            return FormattedResponse(cached_leaderboard)
+
         graph_members = config.get('graph_members')
         top_teams = Team.objects.visible().ranked()[:graph_members]
         top_users = get_user_model().objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')[
@@ -50,9 +56,12 @@ class GraphView(APIView):
 
         user_serializer = LeaderboardUserScoreSerializer(user_scores, many=True)
         team_serializer = LeaderboardTeamScoreSerializer(team_scores, many=True)
+        response = {'user': user_serializer.data}
         if config.get('enable_teams'):
-            return FormattedResponse({'team': team_serializer.data, 'user': user_serializer.data})
-        return FormattedResponse({'user': user_serializer.data})
+            response['team'] = team_serializer.data
+
+        cache.set('leaderboard_graph', response, 15)
+        return FormattedResponse(response)
 
 
 class UserListView(ListAPIView):
