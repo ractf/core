@@ -34,11 +34,15 @@ def stats(request):
         average = users / teams
     else:
         average = 0
+
+    solve_count = sum(get_solve_counts().values())
+    total_solve_count = solve_count + sum(get_incorrect_solve_counts().values())
+
     return FormattedResponse({
         "user_count": users,
         "team_count": teams,
-        "solve_count": Solve.objects.count(),
-        "correct_solve_count": Solve.objects.filter(correct=True).count(),
+        "solve_count": total_solve_count,
+        "correct_solve_count": solve_count,
         "avg_members": average,
     })
 
