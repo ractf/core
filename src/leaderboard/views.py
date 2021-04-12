@@ -41,7 +41,7 @@ class GraphView(APIView):
 
         cache = caches['default']
         cached_leaderboard = cache.get('leaderboard_graph')
-        if cached_leaderboard is not None:
+        if cached_leaderboard is not None and config.get('enable_caching'):
             return FormattedResponse(cached_leaderboard)
 
         graph_members = config.get('graph_members')

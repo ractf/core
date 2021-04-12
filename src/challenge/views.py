@@ -88,7 +88,7 @@ class CategoryViewset(AdminCreateModelViewSet):
         cache = caches['default']
         categories = cache.get(get_cache_key(request.user))
         cache_hit = categories is not None
-        if categories is None:
+        if categories is None or not config.get('enable_caching'):
             queryset = self.filter_queryset(self.get_queryset())
             serializer = self.get_serializer(queryset, many=True)
             categories = serializer.data

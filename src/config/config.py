@@ -17,6 +17,7 @@ DEFAULT_CONFIG = {
     'registration_provider': 'basic_auth',
     'token_provider': 'basic_auth',
     'enable_bot_users': True,
+    'enable_caching': True,
     'enable_ctftime': True,
     'enable_flag_submission': True,
     'enable_flag_submission_after_competition': True,
