@@ -57,26 +57,13 @@ class CategoryViewset(AdminCreateModelViewSet):
         if self.request.user.is_staff and self.request.user.should_deny_admin():
             return Category.objects.none()
         team = self.request.user.team
-        if team is not None:
-            challenges = Challenge.objects.annotate(
-                unlock_time_surpassed=Case(
-                    When(release_time__lte=timezone.now(), then=Value(True)),
-                    default=Value(False),
-                    output_field=models.BooleanField(),
-                )
+        challenges = Challenge.objects.annotate(
+            unlock_time_surpassed=Case(
+                When(release_time__lte=timezone.now(), then=Value(True)),
+                default=Value(False),
+                output_field=models.BooleanField(),
             )
-        else:
-            challenges = (
-                Challenge.objects.annotate(
-                    solved=Value(False, models.BooleanField()),
-                    unlock_time_surpassed=Case(
-                        When(release_time__lte=timezone.now(), then=Value(True)),
-                        default=Value(False),
-                        output_field=models.BooleanField(),
-                    )
-                )
-            )
-        x = challenges.prefetch_related(
+        ).prefetch_related(
             Prefetch('hint_set', queryset=Hint.objects.annotate(
                 used=Case(
                     When(id__in=HintUse.objects.filter(team=team).values_list('hint_id'), then=Value(True)),
@@ -93,7 +80,7 @@ class CategoryViewset(AdminCreateModelViewSet):
         else:
             categories = Category.objects.filter(release_time__lte=timezone.now())
         qs = categories.prefetch_related(
-            Prefetch('category_challenges', queryset=x, to_attr='challenges')
+            Prefetch('category_challenges', queryset=challenges, to_attr='challenges')
         )
         return qs
 
