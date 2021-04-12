@@ -100,13 +100,13 @@ class CategoryViewset(AdminCreateModelViewSet):
 
     def list(self, request, *args, **kwargs):
         cache = caches['default']
-        category_data = cache.get(get_cache_key(request.user))
-        if category_data is None:
-           queryset = self.filter_queryset(self.get_queryset())
-           category_data = list(queryset)
-           cache.set(get_cache_key(request.user), category_data, 30)
-        serializer = self.get_serializer(category_data, many=True)
-        categories = serializer.data
+        categories = cache.get(get_cache_key(request.user))
+        if categories is None:
+            queryset = self.filter_queryset(self.get_queryset())
+            category_data = list(queryset)
+            serializer = self.get_serializer(category_data, many=True)
+            categories = serializer.data
+            cache.set(get_cache_key(request.user), categories, 30)
 
         # This is to fix an issue with django duplicating challenges on .annotate.
         # If you want to clean this up, good luck.
