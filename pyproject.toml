@@ -25,6 +25,7 @@ sendgrid = "^6.4.7"
 newrelic = "^5.22.1"
 django-prometheus = "^2.1.0"
 django-cachalot = "^2.3.5"
+cachalot = "^1.5.0"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.19.0"

@@ -309,12 +309,12 @@ class SolveSerializer(serializers.ModelSerializer):
         return None
 
     def get_points(self, instance):
-        if instance.correct:
+        if instance.correct and instance.score is not None:
             return instance.score.points - instance.score.penalty
         return 0
 
     def get_scored(self, instance):
-        if instance.correct:
+        if instance.correct and instance.score is not None:
             return instance.score.leaderboard
         return False
 

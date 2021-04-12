@@ -16,10 +16,10 @@ class Command(BaseCommand):
                                author='dave', score=1000)
         challenge2 = Challenge(name='test2', category=category, description='a', challenge_type='basic',
                                challenge_metadata={}, flag_type='plaintext', flag_metadata={'flag': 'ractf{a}'},
-                               author='dave', score=1000, auto_unlock=True)
+                               author='dave', score=1000)
         challenge3 = Challenge(name='test3', category=category, description='a', challenge_type='basic',
                                challenge_metadata={}, flag_type='plaintext', flag_metadata={'flag': 'ractf{a}'},
-                               author='dave', score=1000, auto_unlock=False)
+                               author='dave', score=1000)
         challenge1.save()
         challenge2.save()
         challenge3.save()
