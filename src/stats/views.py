@@ -8,11 +8,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
-from challenge.serializers import get_solve_counts, get_incorrect_solve_counts
-from member.models import UserIP
 from backend.response import FormattedResponse
-from challenge.models import Solve, Score, Challenge
+from challenge.models import Score
+from challenge.sql import get_incorrect_solve_counts, get_solve_counts
 from config import config
+from member.models import UserIP
 from team.models import Team
 
 
