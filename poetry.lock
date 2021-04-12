@@ -443,7 +443,7 @@ description = "Silky smooth profiling for the Django Framework"
 name = "django-silk"
 optional = false
 python-versions = ">=3.5"
-version = "4.0.1"
+version = "4.1.0"
 
 [package.dependencies]
 Django = ">=2.2"
@@ -1226,7 +1226,7 @@ python-versions = "*"
 version = "4.4.28"
 
 [metadata]
-content-hash = "2f533a625e2d7574d952a7918aa3954cade5a9f81b3dbbf3b45b4849933fdb47"
+content-hash = "4f00dc7966e89a916217e0c953484c9d8ea16a3c4e611cda6b39450c39c58518"
 lock-version = "1.0"
 python-versions = "^3.8"
 
@@ -1464,7 +1464,7 @@ django-redis-cache = [
     {file = "django_redis_cache-2.1.1-py3-none-any.whl", hash = "sha256:b19ee6654cc2f2c89078c99255e07e19dc2dba8792351d76ba7ea899d465fbb0"},
 ]
 django-silk = [
-    {file = "django_silk-4.0.1-py2.py3-none-any.whl", hash = "sha256:56c2c5aefd1c65161df61e49cf2674862a748a43e81c7c470bcbc4c35c53491c"},
+    {file = "django_silk-4.1.0-py2.py3-none-any.whl", hash = "sha256:a331e55618fa62eaf3cf5a63f31bc1e91205efbeeca5e587c577498b0e251ed8"},
 ]
 django-storages = [
     {file = "django-storages-1.9.1.tar.gz", hash = "sha256:a59e9923cbce7068792f75344ed7727021ee4ac20f227cf17297d0d03d141e91"},

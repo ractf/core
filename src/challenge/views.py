@@ -1,12 +1,11 @@
 import hashlib
 import time
-from collections import Counter
 from typing import Union
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import caches
-from django.db import transaction, models, connection
+from django.db import transaction, models
 from django.db.models import Prefetch, Case, When, Value, Sum
 from django.utils import timezone
 from rest_framework import permissions
@@ -29,7 +28,7 @@ from challenge.serializers import (
     ChallengeSerializer, AdminCategorySerializer,
     AdminChallengeSerializer, FileSerializer, CreateCategorySerializer,
     CreateChallengeSerializer, ChallengeFeedbackSerializer, TagSerializer,
-    AdminScoreSerializer, FastCategorySerializer
+    AdminScoreSerializer, FastCategorySerializer, get_solve_counts, get_positive_votes, get_negative_votes
 )
 from config import config
 from hint.models import Hint, HintUse
@@ -88,7 +87,7 @@ class CategoryViewset(AdminCreateModelViewSet):
             Prefetch('tag_set',
                      queryset=Tag.objects.all() if time.time() > config.get('end_time') else Tag.objects.filter(
                          post_competition=False), to_attr='tags'),
-            'first_blood', 'hint_set__uses')
+            'hint_set__uses').select_related('first_blood')
         if self.request.user.is_staff:
             categories = Category.objects
         else:
@@ -101,12 +100,24 @@ class CategoryViewset(AdminCreateModelViewSet):
     def list(self, request, *args, **kwargs):
         cache = caches['default']
         categories = cache.get(get_cache_key(request.user))
+        cache_hit = categories is not None
         if categories is None:
             queryset = self.filter_queryset(self.get_queryset())
-            category_data = list(queryset)
-            serializer = self.get_serializer(category_data, many=True)
+            serializer = self.get_serializer(queryset, many=True)
             categories = serializer.data
-            cache.set(get_cache_key(request.user), categories, 30)
+            cache.set(get_cache_key(request.user), categories, 3600)
+
+        if cache_hit:
+            solve_counts = get_solve_counts()
+            positive_votes = get_positive_votes()
+            negative_votes = get_negative_votes()
+            for category in categories:
+                for challenge in category['challenges']:
+                    challenge['votes'] = {
+                        'positive': positive_votes.get(challenge['id'], 0),
+                        'negative': negative_votes.get(challenge['id'], 0)
+                    }
+                    challenge['solve_count'] = solve_counts.get(challenge['id'], 0)
 
         # This is to fix an issue with django duplicating challenges on .annotate.
         # If you want to clean this up, good luck.
@@ -271,6 +282,7 @@ class FlagSubmitView(APIView):
             user.save()
             team.save()
             flag_score.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag, solve=solve)
+            caches['default'].delete(get_cache_key(request.user))
             ret = {'correct': True}
             if challenge.post_score_explanation:
                 ret["explanation"] = challenge.post_score_explanation

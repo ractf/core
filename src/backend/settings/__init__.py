@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "storages",
     "corsheaders",
     "cachalot",
+    #"silk",
     "django_prometheus",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -91,8 +92,11 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    #'silk.middleware.SilkyMiddleware',
     "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
+
+#SILKY_PYTHON_PROFILER = True
 
 ROOT_URLCONF = "backend.urls"
 

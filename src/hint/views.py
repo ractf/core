@@ -1,3 +1,4 @@
+from django.core.cache import caches
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN
@@ -7,7 +8,7 @@ from backend.permissions import IsBot
 from backend.response import FormattedResponse
 from backend.viewsets import AdminCreateModelViewSet
 from challenge.permissions import CompetitionOpen
-from config import config
+from challenge.views import get_cache_key
 from hint.models import Hint, HintUse
 from hint.permissions import HasUsedHint
 from hint.serializers import (
@@ -57,4 +58,5 @@ class UseHintView(APIView):
             challenge=hint.challenge,
         ).save()
         serializer = FullHintSerializer(hint, context={"request": request})
+        caches['default'].delete(get_cache_key(request.user))
         return FormattedResponse(d=serializer.data)

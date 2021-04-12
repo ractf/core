@@ -1,6 +1,7 @@
 from collections import Counter
 
 import serpy
+from django.core.cache import caches
 from django.db import connection
 from rest_framework import serializers
 
@@ -9,27 +10,42 @@ from hint.serializers import HintSerializer, FastHintSerializer
 
 
 def get_solve_counts():
+    cache = caches['default']
+    solve_counts = cache.get('solve_counts')
+    if solve_counts is not None:
+        return solve_counts
     with connection.cursor() as cursor:
         cursor.execute(
             'SELECT challenge_id, COUNT(*) FROM challenge_solve WHERE correct=true GROUP BY challenge_id;')
         solve_counts = {i[0]: i[1] for i in cursor.fetchall()}
+    cache.set('solve_counts', solve_counts, 15)
     return solve_counts
 
 
 def get_positive_votes():
+    cache = caches['default']
+    positive_votes = cache.get('positive_votes')
+    if positive_votes is not None:
+        return positive_votes
     with connection.cursor() as cursor:
         cursor.execute(
             'SELECT challenge_id, COUNT(*) FROM challenge_challengevote WHERE positive=true GROUP BY challenge_id;')
-        solve_counts = {i[0]: i[1] for i in cursor.fetchall()}
-    return solve_counts
+        positive_votes = {i[0]: i[1] for i in cursor.fetchall()}
+    cache.set('positive_votes', cache.get('positive_votes'), 15)
+    return positive_votes
 
 
 def get_negative_votes():
+    cache = caches['default']
+    negative_votes = cache.get('negative_votes')
+    if negative_votes is not None:
+        return negative_votes
     with connection.cursor() as cursor:
         cursor.execute(
             'SELECT challenge_id, COUNT(*) FROM challenge_challengevote WHERE positive=false GROUP BY challenge_id;')
-        solve_counts = {i[0]: i[1] for i in cursor.fetchall()}
-    return solve_counts
+        negative_votes = {i[0]: i[1] for i in cursor.fetchall()}
+    cache.set('negative_votes', cache.get('negative_votes'), 15)
+    return negative_votes
 
 
 class ForeignKeyField(serpy.Field):
