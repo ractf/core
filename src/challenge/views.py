@@ -40,80 +40,9 @@ from team.permissions import HasTeam
 
 def get_cache_key(user):
     if user.team is None:
-        return 'categoryvs_user_' + str(user.id)
+        return 'categoryvs_no_team'
     else:
         return 'categoryvs_team_' + str(user.team.id)
-
-
-def serialize_categories(categories, context):
-    solve_counts = {}
-    with connection.cursor() as cursor:
-        cursor.execute('SELECT challenge_id, COUNT(*) FROM challenge_solve WHERE correct=true GROUP BY challenge_id;')
-        for row in cursor.fetchall():
-            solve_counts[row[0]] = row[1]
-    serialized = []
-    for category in categories:
-        serialized_category = {
-            'id': category.id,
-            'name': category.name,
-            'display_order': category.display_order,
-            'contained_type': category.contained_type,
-            'description': category.description,
-            'metadata': category.metadata,
-            'challenges': []
-        }
-        for challenge in category.challenges:
-            serialized_challenge = {
-                'id': challenge.id,
-                'name': challenge.name,
-                'description': challenge.description,
-                'challenge_type': challenge.challenge_type,
-                'flag_type': challenge.flag_type,
-                'author': challenge.author,
-                'score': challenge.score,
-                'unlock_requirements': challenge.unlock_requirements,
-                'hints': [],
-                'files': [],
-                'solved': challenge.is_solved(context["request"].user, solves=context.get("solves", None)),
-                'unlocked': challenge.is_unlocked(context["request"].user, solves=context.get("solves", None)),
-                'first_blood': challenge.first_blood_id,
-                'solve_count': solve_counts.get(challenge.id, 0),
-                'hidden': challenge.hidden,
-                'votes': {
-                    "positive": context["votes_positive_counter"][challenge.id],
-                    "negative": context["votes_negative_counter"][challenge.id]
-                },
-                'tags': [],
-                'unlock_time_surpassed': challenge.unlock_time_surpassed,
-                'post_score_explanation': challenge.post_score_explanation,
-            }
-            if serialized_challenge['solved'] is None:
-                serialized_challenge['solved'] = challenge.is_solved(context["request"].user,
-                                                                     solves=context.get("solves", None))
-            for hint in challenge.hints:
-                serialized_challenge['hints'].append({
-                    'id': hint.id,
-                    'name': hint.name,
-                    'penalty': hint.penalty,
-                    'text': hint.text,
-                    'used': hint.used
-                })
-            for file in challenge.files:
-                serialized_challenge['files'].append({
-                    'id': file.id,
-                    'name': file.name,
-                    'url': file.url,
-                    'size': file.size,
-                })
-            for tag in challenge.tags:
-                serialized_challenge['tags'].append({
-                    'type': tag.type,
-                    'text': tag.text,
-                })
-
-            serialized_category['challenges'].append(serialized_challenge)
-        serialized.append(serialized_category)
-    return serialized
 
 
 class CategoryViewset(AdminCreateModelViewSet):
@@ -176,17 +105,8 @@ class CategoryViewset(AdminCreateModelViewSet):
            queryset = self.filter_queryset(self.get_queryset())
            category_data = list(queryset)
            cache.set(get_cache_key(request.user), category_data, 30)
-        #serializer = self.get_serializer(category_data, many=True)
-        categories = serialize_categories(category_data, {
-            "request": request,
-            "solves": list(
-                request.user.team.solves.filter(correct=True).values_list("challenge", flat=True)
-            ),
-            "votes_positive_counter": Counter(
-                ChallengeVote.objects.filter(positive=True).values_list("challenge", flat=True)),
-            "votes_negative_counter": Counter(
-                ChallengeVote.objects.filter(positive=False).values_list("challenge", flat=True)),
-        })
+        serializer = self.get_serializer(category_data, many=True)
+        categories = serializer.data
 
         # This is to fix an issue with django duplicating challenges on .annotate.
         # If you want to clean this up, good luck.

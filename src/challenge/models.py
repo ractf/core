@@ -102,7 +102,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         return self.id in solves
 
     def get_solve_count(self, solve_counter):
-        return solve_counter[self.id]
+        return solve_counter.get(self.id, 0)
 
     @classmethod
     def get_unlocked_annotated_queryset(cls, user):

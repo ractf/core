@@ -1,6 +1,7 @@
 from collections import Counter
 
 import serpy
+from django.db import connection
 from rest_framework import serializers
 
 from challenge.models import Challenge, Category, File, Solve, Score, ChallengeFeedback, Tag, ChallengeVote
@@ -170,12 +171,16 @@ class CategorySerializer(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'SELECT challenge_id, COUNT(*) FROM challenge_solve WHERE correct=true GROUP BY challenge_id;')
+            solve_counts = {i[0]: i[1] for i in cursor.fetchall()}
         self.fields['challenges'].context.update({
             "request": self.context["request"],
             "solves": list(
                 self.context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
             ),
-            "solve_counter": Counter(Solve.objects.filter(correct=True).values_list("challenge", flat=True)),
+            "solve_counter": solve_counts,
             "votes_positive_counter": Counter(ChallengeVote.objects.filter(positive=True).values_list("challenge", flat=True)),
             "votes_negative_counter": Counter(ChallengeVote.objects.filter(positive=False).values_list("challenge", flat=True)),
         })
@@ -201,12 +206,16 @@ class FastCategorySerializer(serpy.Serializer):
         super().__init__(*args, **kwargs)
         if "context" in kwargs:
             self.context = kwargs["context"]
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'SELECT challenge_id, COUNT(*) FROM challenge_solve WHERE correct=true GROUP BY challenge_id;')
+                solve_counts = {i[0]: i[1] for i in cursor.fetchall()}
             self.context.update({
                 "request": self.context["request"],
                 "solves": list(
                     self.context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
                 ),
-                "solve_counter": Counter(Solve.objects.filter(correct=True).values_list("challenge", flat=True)),
+                "solve_counter": solve_counts,
                 "votes_positive_counter": Counter(ChallengeVote.objects.filter(positive=True).values_list("challenge", flat=True)),
                 "votes_negative_counter": Counter(ChallengeVote.objects.filter(positive=False).values_list("challenge", flat=True)),
             })
