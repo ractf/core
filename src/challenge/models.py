@@ -59,12 +59,12 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     release_time = models.DateTimeField(default=timezone.now)
 
     def is_unlocked(self, user, solves=None):
-        if not self.unlock_requirements:
-            return True
         if user is None:
             return False
         if not user.is_authenticated:
             return False
+        if not self.unlock_requirements:
+            return True
         if user.team is None:
             return False
         if solves is None:

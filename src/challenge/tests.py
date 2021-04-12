@@ -21,10 +21,10 @@ class ChallengeSetupMixin:
                                author='dave', score=1000)
         challenge2 = Challenge(name='test2', category=category, description='a', challenge_type='basic',
                                challenge_metadata={}, flag_type='plaintext', flag_metadata={'flag': 'ractf{a}'},
-                               author='dave', score=1000, auto_unlock=True)
+                               author='dave', score=1000)
         challenge3 = Challenge(name='test3', category=category, description='a', challenge_type='basic',
                                challenge_metadata={}, flag_type='plaintext', flag_metadata={'flag': 'ractf{a}'},
-                               author='dave', score=1000, auto_unlock=False)
+                               author='dave', score=1000)
         challenge1.save()
         challenge2.save()
         challenge3.save()
@@ -346,7 +346,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         response = self.client.post(reverse('challenges-list'), data={
             'name': 'test4', 'category': self.category.id, 'description': 'abc',
             'challenge_type': 'test', 'challenge_metadata': {}, 'flag_type': 'plaintext',
-            'author': 'dave', 'auto_unlock': True, 'score': 1000, 'unlock_requirements': "", 'flag_metadata': {},
+            'author': 'dave', 'score': 1000, 'unlock_requirements': "", 'flag_metadata': {},
             'tags': [],
         }, format='json')
         self.assertEquals(response.status_code, HTTP_201_CREATED)
@@ -358,7 +358,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         response = self.client.post(reverse('challenges-list'), data={
             'name': 'test4', 'category': self.category.id, 'description': 'abc',
             'challenge_type': 'test', 'challenge_metadata': {}, 'flag_type': 'plaintext',
-            'author': 'dave', 'auto_unlock': True, 'score': 1000, 'unlock_requirements': "a", 'flag_metadata': {}
+            'author': 'dave', 'score': 1000, 'unlock_requirements': "a", 'flag_metadata': {}
         }, format='json')
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
