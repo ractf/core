@@ -8,6 +8,30 @@ from challenge.models import Challenge, Category, File, Solve, Score, ChallengeF
 from hint.serializers import HintSerializer, FastHintSerializer
 
 
+def get_solve_counts():
+    with connection.cursor() as cursor:
+        cursor.execute(
+            'SELECT challenge_id, COUNT(*) FROM challenge_solve WHERE correct=true GROUP BY challenge_id;')
+        solve_counts = {i[0]: i[1] for i in cursor.fetchall()}
+    return solve_counts
+
+
+def get_positive_votes():
+    with connection.cursor() as cursor:
+        cursor.execute(
+            'SELECT challenge_id, COUNT(*) FROM challenge_challengevote WHERE positive=true GROUP BY challenge_id;')
+        solve_counts = {i[0]: i[1] for i in cursor.fetchall()}
+    return solve_counts
+
+
+def get_negative_votes():
+    with connection.cursor() as cursor:
+        cursor.execute(
+            'SELECT challenge_id, COUNT(*) FROM challenge_challengevote WHERE positive=false GROUP BY challenge_id;')
+        solve_counts = {i[0]: i[1] for i in cursor.fetchall()}
+    return solve_counts
+
+
 class ForeignKeyField(serpy.Field):
     """A :class:`Field` that gets a given attribute from a foreign object."""
     def __init__(self, *args, attr_name="id", **kwargs):
@@ -71,8 +95,8 @@ class ChallengeSerializerMixin:
 
     def get_votes(self, instance):
         return {
-            "positive": self.context["votes_positive_counter"][instance.id],
-            "negative": self.context["votes_negative_counter"][instance.id]
+            "positive": self.context["votes_positive_counter"].get(instance.id, 0),
+            "negative": self.context["votes_negative_counter"].get(instance.id, 0)
         }
 
     def get_post_score_explanation(self, instance):
@@ -206,18 +230,14 @@ class FastCategorySerializer(serpy.Serializer):
         super().__init__(*args, **kwargs)
         if "context" in kwargs:
             self.context = kwargs["context"]
-            with connection.cursor() as cursor:
-                cursor.execute(
-                    'SELECT challenge_id, COUNT(*) FROM challenge_solve WHERE correct=true GROUP BY challenge_id;')
-                solve_counts = {i[0]: i[1] for i in cursor.fetchall()}
             self.context.update({
                 "request": self.context["request"],
                 "solves": list(
                     self.context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
                 ),
-                "solve_counter": solve_counts,
-                "votes_positive_counter": Counter(ChallengeVote.objects.filter(positive=True).values_list("challenge", flat=True)),
-                "votes_negative_counter": Counter(ChallengeVote.objects.filter(positive=False).values_list("challenge", flat=True)),
+                "solve_counter": get_solve_counts(),
+                "votes_positive_counter": get_positive_votes(),
+                "votes_negative_counter": get_negative_votes(),
             })
 
     def get_challenges(self, instance):
