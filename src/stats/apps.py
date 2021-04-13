@@ -15,3 +15,4 @@ class StatsConfig(AppConfig):
             # Don't run stats-related logic if we haven't migrated yet
             return
 
+        import stats.signals
