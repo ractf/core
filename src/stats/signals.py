@@ -1,5 +1,5 @@
 from django.dispatch import receiver
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete
 from prometheus_client import Gauge
 
 from backend.signals import websocket_disconnect, websocket_connect, team_create, flag_score, register

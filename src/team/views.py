@@ -1,4 +1,3 @@
-from django.db.models import Prefetch
 from django.http import Http404
 from rest_framework import filters
 from rest_framework.generics import (

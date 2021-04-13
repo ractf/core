@@ -12,7 +12,6 @@ from django.db.models import (
     Value,
     UniqueConstraint,
     Q,
-    Subquery,
     JSONField,
 )
 from django.db.models.aggregates import Count

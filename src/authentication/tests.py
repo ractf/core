@@ -1,5 +1,4 @@
 from unittest import mock
-from unittest.mock import patch
 
 import pyotp
 from django.contrib.auth import get_user_model

@@ -1,8 +1,6 @@
 from collections import Counter
 
 import serpy
-from django.core.cache import caches
-from django.db import connection
 from rest_framework import serializers
 
 from challenge.models import Challenge, Category, File, Solve, Score, ChallengeFeedback, Tag, ChallengeVote

@@ -8,7 +8,6 @@ from django.contrib.postgres.operations import CITextExtension
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
-import member.models
 import secrets
 
 

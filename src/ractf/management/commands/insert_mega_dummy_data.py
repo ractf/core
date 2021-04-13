@@ -3,7 +3,6 @@ import time
 
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
-from django.db import transaction
 
 from challenge.models import Challenge, Category, Score, Solve
 from team.models import Team

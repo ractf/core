@@ -6,4 +6,4 @@ class WebsocketsConfig(AppConfig):
 
     def ready(self):
         # noinspection PyUnresolvedReferences
-        import websockets.signals
+        pass

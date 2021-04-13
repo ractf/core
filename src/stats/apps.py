@@ -1,12 +1,8 @@
 import sys
 
-from django.apps import AppConfig, apps
-from django.db.models.signals import post_delete, post_save
-from django.dispatch import receiver
+from django.apps import AppConfig
 
-from prometheus_client import Gauge
 
-from backend.signals import websocket_connect, websocket_disconnect
 
 
 class StatsConfig(AppConfig):
@@ -19,4 +15,3 @@ class StatsConfig(AppConfig):
             # Don't run stats-related logic if we haven't migrated yet
             return
 
-        import stats.signals

@@ -12,7 +12,6 @@ import config
 from authentication.models import InviteCode, PasswordResetToken
 from backend.exceptions import FormattedException
 from backend.mail import send_email
-from backend.response import FormattedResponse
 from backend.signals import register
 from plugins import providers
 from team.models import Team
