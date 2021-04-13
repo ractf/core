@@ -12,8 +12,8 @@ from django.utils.translation import gettext_lazy as _
 
 from django_prometheus.models import ExportModelOperationsMixin
 
+import config
 from backend.validators import printable_name
-from config import config
 
 
 class TOTPStatus(IntEnum):
@@ -56,8 +56,8 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
 
     def can_login(self):
         return self.is_staff or (
-            config.get("enable_login")
-            and (config.get("enable_prelogin") or config.get("start_time") <= time.time())
+            config.config.get("enable_login")
+            and (config.config.get("enable_prelogin") or config.config.get("start_time") <= time.time())
         )
 
     def issue_token(self, owner=None):
@@ -71,7 +71,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         return hasattr(self, "totp_device") and self.totp_device.verified
 
     def should_deny_admin(self):
-        return config.get("enable_force_admin_2fa") and not self.has_2fa()
+        return config.config.get("enable_force_admin_2fa") and not self.has_2fa()
 
 
 class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):

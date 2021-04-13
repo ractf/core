@@ -1,7 +1,7 @@
 from rest_framework import authentication
 
 from authentication.models import Token
-from config import config
+import config
 
 
 class RactfTokenAuthentication(authentication.TokenAuthentication):

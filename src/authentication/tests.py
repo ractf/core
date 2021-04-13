@@ -8,11 +8,11 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_2
     HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
 from rest_framework.test import APITestCase
 
+import config
 from authentication.models import PasswordResetToken, TOTPDevice, InviteCode, BackupCode, Token
 from authentication.views import VerifyEmailView, DoPasswordResetView, AddTwoFactorView, VerifyTwoFactorView, LoginView, \
     RegistrationView, ChangePasswordView, LoginTwoFactorView, RequestPasswordResetView, RegenerateBackupCodesView, \
     CreateBotView
-from config import config
 from team.models import Team
 
 

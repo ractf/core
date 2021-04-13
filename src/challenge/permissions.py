@@ -2,7 +2,7 @@ import time
 
 from rest_framework import permissions
 
-from config import config
+import config
 
 
 class CompetitionOpen(permissions.BasePermission):

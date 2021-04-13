@@ -3,7 +3,7 @@ from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT
 from rest_framework.test import APITestCase
 
-from config import config
+import config
 
 
 class ConfigTestCase(APITestCase):
@@ -49,4 +49,4 @@ class ConfigTestCase(APITestCase):
         response = self.client.patch(reverse('config-pk', kwargs={'name': 'test'}),
                                      data={'value': 'test2'}, format='json')
         self.assertEquals(response.status_code, HTTP_204_NO_CONTENT)
-        self.assertEquals(config.get('test'), 'test2')
+        self.assertEquals(config.config.get('test'), 'test2')

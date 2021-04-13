@@ -6,7 +6,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_401_UNAU
 from rest_framework.test import APITestCase
 
 from challenge.models import Category, Challenge, Solve
-from config import config
+import config
 from hint.models import Hint, HintUse
 from team.models import Team
 

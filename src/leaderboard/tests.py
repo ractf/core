@@ -4,7 +4,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN
 from rest_framework.test import APITestCase
 
 from challenge.models import Score, Solve, Category, Challenge
-from config import config
+import config
 from leaderboard.views import UserListView, TeamListView, GraphView, CTFTimeListView
 from team.models import Team
 

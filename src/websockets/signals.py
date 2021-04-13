@@ -6,7 +6,7 @@ from django.dispatch import receiver
 from announcements.models import Announcement
 from announcements.serializers import AnnouncementSerializer
 from backend.signals import flag_score, flag_reject, use_hint, team_join
-from config import config
+import config
 
 
 def get_team_channel(user):

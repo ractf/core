@@ -10,12 +10,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from rest_framework.views import APIView
 
+import config
 from backend.exceptions import FormattedException
 from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
 from backend.response import FormattedResponse
 from backend.signals import team_join_attempt, team_join_reject, team_join
 from backend.viewsets import AdminListModelViewSet
-from config import config
 from team.models import Team
 from challenge.models import Solve
 from member.models import Member
@@ -101,7 +101,7 @@ class JoinTeamView(APIView):
     throttle_scope = "team_join"
 
     def post(self, request):
-        if not config.get("enable_team_join"):
+        if not config.config.get("enable_team_join"):
             return FormattedResponse(m="join_disabled", status=HTTP_403_FORBIDDEN)
         name = request.data.get("name")
         password = request.data.get("password")
@@ -115,7 +115,7 @@ class JoinTeamView(APIView):
             except Http404:
                 team_join_reject.send(sender=self.__class__, user=request.user, name=name)
                 raise FormattedException(m='invalid_team', status=HTTP_404_NOT_FOUND)
-            team_size = int(config.get('team_size'))
+            team_size = int(config.config.get('team_size'))
             if not request.user.is_staff and not team.size_limit_exempt and 0 < team_size <= team.members.count():
                 return FormattedResponse(m='team_full', status=HTTP_403_FORBIDDEN)
             request.user.team = team
@@ -133,7 +133,7 @@ class LeaveTeamView(APIView):
     permission_classes = (IsAuthenticated & HasTeam & TeamsEnabled,)
 
     def post(self, request):
-        if not config.get('enable_team_leave'):
+        if not config.config.get('enable_team_leave'):
             return FormattedResponse(m='leave_disabled', status=HTTP_403_FORBIDDEN)
         if Solve.objects.filter(solved_by=request.user).exists():
             return FormattedResponse(m='challenge_solved', status=HTTP_403_FORBIDDEN)

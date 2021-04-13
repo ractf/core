@@ -30,7 +30,7 @@ from challenge.serializers import (
     CreateChallengeSerializer, ChallengeFeedbackSerializer, TagSerializer,
     AdminScoreSerializer, FastCategorySerializer, get_solve_counts, get_positive_votes, get_negative_votes
 )
-from config import config
+import config
 from hint.models import Hint, HintUse
 from plugins import plugins
 from team.models import Team

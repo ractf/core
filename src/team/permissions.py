@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from config import config
+import config
 
 
 class IsTeamOwnerOrReadOnly(permissions.BasePermission):

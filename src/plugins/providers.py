@@ -1,7 +1,7 @@
 import abc
 from collections import defaultdict
 
-from config import config
+import config
 
 providers = defaultdict(dict)
 

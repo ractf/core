@@ -6,7 +6,7 @@ from rest_framework import serializers
 from backend.mixins import IncorrectSolvesMixin
 from challenge.serializers import SolveSerializer
 from member.models import UserIP
-from config import config
+import config
 
 
 class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):

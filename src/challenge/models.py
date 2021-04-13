@@ -23,7 +23,7 @@ from django.utils import timezone
 
 from django_prometheus.models import ExportModelOperationsMixin
 
-from config import config
+import config
 
 
 class Category(ExportModelOperationsMixin("category"), models.Model):
@@ -149,7 +149,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             Prefetch(
                 "tag_set",
                 queryset=Tag.objects.all()
-                if time.time() > config.get("end_time")
+                if time.time() > config.config.get("end_time")
                 else Tag.objects.filter(post_competition=False),
                 to_attr="tags",
             ),

@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase
 
 from challenge.models import Category, Challenge, Solve, Score
 from challenge.tests import ChallengeSetupMixin
-from config import config
+import config
 from plugins import plugins
 from plugins.flag.hashed import HashedFlagPlugin
 from plugins.flag.lenient import LenientFlagPlugin

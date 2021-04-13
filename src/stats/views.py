@@ -8,10 +8,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
+import config
 from backend.response import FormattedResponse
 from challenge.models import Score
 from challenge.sql import get_incorrect_solve_counts, get_solve_counts
-from config import config
 from member.models import UserIP
 from team.models import Team
 
@@ -19,9 +19,9 @@ from team.models import Team
 @api_view(['GET'])
 def countdown(request):
     return FormattedResponse({
-        "countdown_timestamp": config.get('start_time'),
-        "registration_open": config.get('register_start_time'),
-        "competition_end": config.get('end_time'),
+        "countdown_timestamp": config.config.get('start_time'),
+        "registration_open": config.config.get('register_start_time'),
+        "competition_end": config.config.get('end_time'),
         "server_timestamp": datetime.now(timezone.utc).isoformat(),
     })
 

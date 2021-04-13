@@ -1,4 +1,4 @@
-from config import config
+import config
 from plugins.flag.base import FlagPlugin
 import unicodedata
 

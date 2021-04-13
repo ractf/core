@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import EmailValidator
 from rest_framework.exceptions import ValidationError
 
-from config import config
+import config
 from plugins.providers import Provider
 
 
@@ -20,7 +20,7 @@ class RegistrationProvider(Provider, abc.ABC):  # pragma: no cover
         pass
 
     def validate_email(self, email):
-        allow_domain = config.get('email_allow')
+        allow_domain = config.config.get('email_allow')
         if allow_domain:
             email_validator = EmailValidator(allow_domain)
         else:
