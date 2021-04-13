@@ -7,8 +7,8 @@ services:
     command: 'gunicorn -w 12 -b 0.0.0.0:8000 backend.wsgi:application'
     restart: always
     environment:
-      - DOMAIN=[(${domains['api']})]
-      - 'FRONTEND_URL=https://[(${domains['frontend']})]/'
+      - DOMAIN=[(${deployment['name']})]-api.ractf.dev
+      - 'FRONTEND_URL=https://[(${deployment['name']})].ractf.dev/'
       - SECRET_KEY=[(${secret_key})]
       - DJANGO_SETTINGS_MODULE=backend.settings.production
       - REDIS_PORT=6379
@@ -31,7 +31,7 @@ services:
     labels:
       - traefik.enable=true
       - >-
-        traefik.http.routers.[(${deployment['name']})]backend.rule=Host(`[(${domains['api']})]`) &&
+        traefik.http.routers.[(${deployment['name']})]backend.rule=Host(`[(${deployment['name']})].ractf.dev`) &&
         PathPrefix(`/api/v2`)
       - traefik.http.routers.[(${deployment['name']})]backend.entrypoints=https
       - traefik.http.routers.[(${deployment['name']})]backend.tls.certresolver=resolver
@@ -73,8 +73,8 @@ services:
     command: 'daphne -b 0.0.0.0 -p 8000 backend.asgi:application'
     restart: always
     environment:
-      - DOMAIN=[(${domains['api']})]
-      - 'FRONTEND_URL=https://[(${domains['frontend']})]/'
+      - DOMAIN=[(${deployment['name']})]-api.ractf.dev
+      - 'FRONTEND_URL=https://[(${deployment['name']})].ractf.dev/'
       - SECRET_KEY=[(${secret_key})]
       - DJANGO_SETTINGS_MODULE=backend.settings.production
       - REDIS_PORT=6379
@@ -97,7 +97,7 @@ services:
     labels:
       - traefik.enable=true
       - >-
-        traefik.http.routers.[(${deployment['name']})]websockets.rule=Host(`[(${domains['api']})]`) &&
+        traefik.http.routers.[(${deployment['name']})]websockets.rule=Host(`[(${deployment['name']})]-api.ractf.dev`) &&
         PathPrefix(`/api/v2/ws`)
       - traefik.http.routers.[(${deployment['name']})]websockets.entrypoints=https
       - traefik.http.routers.[(${deployment['name']})]websockets.tls.certresolver=resolver
@@ -118,7 +118,7 @@ services:
     restart: always
     labels:
       - traefik.enable=true
-      - traefik.http.routers.[(${deployment['name']})]error-router.rule=Host(`[(${domains['api']})]`)
+      - traefik.http.routers.[(${deployment['name']})]error-router.rule=Host(`[(${deployment['name']})]-api.ractf.dev`)
       - traefik.http.routers.[(${deployment['name']})]error-router.entrypoints=https
       - traefik.http.routers.[(${deployment['name']})]error-router.tls.certresolver=resolver
       - "traefik.docker.network=[(${deployment['name']})]_[(${deployment['name']})]_external"
