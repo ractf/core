@@ -12,7 +12,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions
 from rest_framework.generics import CreateAPIView, GenericAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_201_CREATED
 from rest_framework.views import APIView
 
 from authentication import serializers
@@ -344,9 +344,10 @@ class CreateBotView(APIView):
         serializer.is_valid(raise_exception=True)
         bot = get_user_model()(username=serializer.data["username"], email_verified=True,
                                is_visible=serializer.data["is_visible"], is_staff=serializer.data["is_staff"],
-                               is_superuser=serializer.data["is_superuser"], is_bot=True)
+                               is_superuser=serializer.data["is_superuser"], is_bot=True,
+                               email=serializer.data["username"] + "@bot.ractf")
         bot.save()
-        return FormattedResponse(d={'token': bot.issue_token()})
+        return FormattedResponse(d={'token': bot.issue_token()}, status=HTTP_201_CREATED)
 
 
 class SudoView(APIView):

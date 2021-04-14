@@ -24,7 +24,6 @@ from django.utils import timezone
 from django_prometheus.models import ExportModelOperationsMixin
 
 from config import config
-from team.models import Team
 
 
 class Category(ExportModelOperationsMixin("category"), models.Model):
@@ -181,7 +180,7 @@ def on_challenge_update(sender, instance, created, **kwargs):
 
 
 class Score(ExportModelOperationsMixin("score"), models.Model):
-    team = models.ForeignKey(Team, related_name="scores", on_delete=CASCADE, null=True)
+    team = models.ForeignKey('team.Team', related_name="scores", on_delete=CASCADE, null=True)
     user = models.ForeignKey(
         get_user_model(), related_name="scores", on_delete=SET_NULL, null=True
     )
@@ -194,7 +193,7 @@ class Score(ExportModelOperationsMixin("score"), models.Model):
 
 
 class Solve(ExportModelOperationsMixin("solve"), models.Model):
-    team = models.ForeignKey(Team, related_name="solves", on_delete=CASCADE, null=True)
+    team = models.ForeignKey('team.Team', related_name="solves", on_delete=CASCADE, null=True)
     challenge = models.ForeignKey(Challenge, related_name="solves", on_delete=CASCADE)
     solved_by = models.ForeignKey(
         get_user_model(), related_name="solves", on_delete=SET_NULL, null=True
