@@ -9,8 +9,8 @@ router.register('deployment/', views.DeploymentViewset, basename='polaris-deploy
 router.register('host/', views.HostViewset, basename='polaris-host')
 
 urlpatterns = [
-    path('get_instance/', views.GetInstanceView.as_view(), name='polaris-get-instance'),
-    path('new_instance/', views.ResetInstanceView.as_view(), name='polaris-reset-instance'),
+    path('get_instance/<int:challenge_id>/', views.GetInstanceView.as_view(), name='polaris-get-instance'),
+    path('new_instance/<int:challenge_id>/', views.ResetInstanceView.as_view(), name='polaris-reset-instance'),
     path('', include(router.urls), name='polaris'),
     path('instances/', views.ListInstancesView.as_view(), name='polaris-list-instances'),
 ]
