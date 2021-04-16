@@ -71,11 +71,6 @@ class CategoryViewset(AdminCreateModelViewSet):
         else:
             challenges = (
                 Challenge.objects.annotate(
-                    unlocked=Case(
-                        When(auto_unlock=True, then=Value(True)),
-                        default=Value(False),
-                        output_field=models.BooleanField()
-                    ),
                     solved=Value(False, models.BooleanField()),
                     solve_count=Count('solves'),
                     unlock_time_surpassed=Case(
@@ -242,9 +237,10 @@ class FlagSubmitView(APIView):
 
             challenge = get_object_or_404(Challenge.objects.select_for_update(), id=challenge_id)
             solve_set = Solve.objects.filter(challenge=challenge)
-            if solve_set.filter(team=team, correct=True).exists() \
-                    or not challenge.is_unlocked(user):
+            if solve_set.filter(team=team, correct=True).exists():
                 return FormattedResponse(m='already_solved_challenge', status=HTTP_403_FORBIDDEN)
+            if not challenge.is_unlocked(user):
+                return FormattedResponse(m='challenge_not_unlocked', status=HTTP_403_FORBIDDEN)
 
             if challenge.challenge_metadata.get("attempt_limit"):
                 count = solve_set.filter(team=team).count()

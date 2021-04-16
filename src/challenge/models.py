@@ -45,7 +45,6 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     flag_type = models.CharField(max_length=64, default="plaintext")
     flag_metadata = JSONField()
     author = models.CharField(max_length=36)
-    auto_unlock = models.BooleanField(default=False)
     hidden = models.BooleanField(default=False)
     score = models.IntegerField()
     unlock_requirements = models.CharField(max_length=255, null=True, blank=True)
@@ -64,8 +63,6 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             return False
         if not user.is_authenticated:
             return False
-        if self.auto_unlock:
-            return True
         if user.team is None:
             return False
         if solves is None:
@@ -75,7 +72,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         requirements = self.unlock_requirements
         state = []
         if not requirements:
-            return False
+            return True
         for i in requirements.split():
             if i.isdigit():
                 state.append(int(i) in solves)
@@ -122,11 +119,6 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             )
         else:
             challenges = Challenge.objects.annotate(
-                unlocked=Case(
-                    When(auto_unlock=True, then=Value(True)),
-                    default=Value(False),
-                    output_field=models.BooleanField(),
-                ),
                 solved=Value(False, models.BooleanField()),
                 solve_count=Count("solves"),
                 unlock_time_surpassed=Case(

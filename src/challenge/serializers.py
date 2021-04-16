@@ -67,7 +67,7 @@ class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer)
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
-                  'author', 'auto_unlock', 'score', 'unlock_requirements', 'hints', 'files', 'solved', 'unlocked',
+                  'author', 'score', 'unlock_requirements', 'hints', 'files', 'solved', 'unlocked',
                   'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'votes', 'tags', 'unlock_time_surpassed',
                   'post_score_explanation']
 
@@ -125,7 +125,7 @@ class AdminChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerial
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
-                  'author', 'auto_unlock', 'score', 'unlock_requirements', 'flag_metadata', 'hints', 'files', 'solved',
+                  'author', 'score', 'unlock_requirements', 'flag_metadata', 'hints', 'files', 'solved',
                   'unlocked', 'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'release_time', 'votes',
                   'post_score_explanation', 'tags']
 
@@ -136,7 +136,7 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Challenge
         fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
-                  'author', 'auto_unlock', 'score', 'unlock_requirements', 'flag_metadata', 'hidden', 'release_time',
+                  'author', 'score', 'unlock_requirements', 'flag_metadata', 'hidden', 'release_time',
                   'post_score_explanation', 'tags']
         read_only_fields = ['id']
 
