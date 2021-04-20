@@ -2,7 +2,7 @@ import os
 from datetime import timezone, datetime
 
 from django.contrib.auth import get_user_model
-from django.core.cache import caches
+from django.core.cache import cache
 from django.db.models import Sum
 from django_prometheus.exports import ExportToDjangoView
 from prometheus_client import Gauge
@@ -91,13 +91,12 @@ def version(request):
 
 class PrometheusMetricsView(APIView):
     permission_classes = [IsAdminUser]
-    cache = caches["default"]
 
     def get(self, request, format=None):
-        member_count.set(self.cache.get("prom_member_count"))
-        team_count.set(self.cache.get("prom_team_count"))
-        solve_count.set(self.cache.get("prom_solve_count"))
-        correct_solve_count.set(self.cache.get("prom_correct_solve_count"))
-        connected_websocket_users.set(self.cache.get("prom_connected_websocket_users"))
+        member_count.set(cache.get("member_count"))
+        team_count.set(cache.get("team_count"))
+        solve_count.set(cache.get("solve_count"))
+        correct_solve_count.set(cache.get("correct_solve_count"))
+        connected_websocket_users.set(cache.get("connected_websocket_users"))
 
         return ExportToDjangoView(request)
