@@ -49,6 +49,7 @@ else:
     MEDIA_ROOT = os.path.join(BASE_DIR, "publicmedia")
 
 INSTALLED_APPS = [
+    "admin.apps.AdminConfig",
     "announcements.apps.AnnouncementsConfig",
     "authentication.apps.AuthConfig",
     "challenge.apps.ChallengeConfig",

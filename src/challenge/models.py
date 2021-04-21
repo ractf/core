@@ -58,6 +58,26 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     points_type = models.CharField(max_length=64, default="basic")
     release_time = models.DateTimeField(default=timezone.now)
 
+    def self_check(self):
+        """Check the challenge doesn't have any configuration issues."""
+        issues = []
+
+        if not self.score:
+            issues.append({"issue": "missing_points", "challenge": self.id})
+
+            if not self.flag_type:
+                issues.append({"issue": "missing_flag_type", "challenge": self.id})
+            else:
+                if not self.flag_metadata:
+                    issues.append({"issue": "missing_flag_data", "challenge": self.id})
+                else:
+                    if self.flag_type == "basic":
+                        challenge_flag = self.flag_metadata.get("flag", "")
+                        if not challenge_flag.startswith("ractf{") or not challenge_flag.endswith("}"):
+                            issues.append({"issue": "invalid_flag_data", "challenge": self.id})
+
+        return issues
+
     def is_unlocked(self, user, solves=None):
         if user is None:
             return False
