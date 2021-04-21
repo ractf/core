@@ -291,9 +291,7 @@ class FlagCheckView(APIView):
         if not solve_set.filter(team=team, correct=True).exists():
             return FormattedResponse(m='havent_solved_challenge', status=HTTP_403_FORBIDDEN)
 
-        plugin = plugins.plugins['flag'][challenge.flag_type](challenge)
-
-        if not plugin.check(flag, user=user, team=team):
+        if not challenge.flag_plugin.check(flag, user=user, team=team):
             return FormattedResponse(d={'correct': False}, m='incorrect_flag')
 
         ret = {'correct': True}
