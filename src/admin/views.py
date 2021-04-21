@@ -15,6 +15,6 @@ class SelfCheckView(APIView):
         issues = []
 
         for challenge in Challenge.objects.all():
-            challenge.self_check()
+            issues += challenge.self_check()
 
         return FormattedResponse(issues)

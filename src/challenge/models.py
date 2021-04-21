@@ -67,16 +67,16 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         if not self.score:
             issues.append({"issue": "missing_points", "challenge": self.id})
 
-            if not self.flag_type:
-                issues.append({"issue": "missing_flag_type", "challenge": self.id})
-            else:
-                if not self.flag_metadata:
-                    issues.append({"issue": "missing_flag_data", "challenge": self.id})
-                else:
-                    if self.flag_type == "basic":
-                        challenge_flag = self.flag_metadata.get("flag", "")
-                        if not challenge_flag.startswith("ractf{") or not challenge_flag.endswith("}"):
-                            issues.append({"issue": "invalid_flag_data", "challenge": self.id})
+        if not self.flag_type:
+            issues.append({"issue": "missing_flag_type", "challenge": self.id})
+        elif type(self.flag_metadata) != dict:
+            issues.append({"issue": "invalid_flag_data_type", "challenge": self.id})
+        else:
+            issues += [{
+                "issue": "invalid_flag_data",
+                "extra": issue,
+                "challenge": self.id
+            } for issue in self.flag_plugin.self_check()]
 
         return issues
 
