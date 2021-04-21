@@ -250,16 +250,14 @@ class FlagSubmitView(APIView):
                     return FormattedResponse(d={'correct': False}, m='attempt_limit_reached')
 
             flag_submit.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag)
-            plugin = plugins.plugins['flag'][challenge.flag_type](challenge)
-            points_plugin = plugins.plugins['points'][challenge.points_type](challenge)
 
-            if not plugin.check(flag, user=user, team=team):
+            if not challenge.flag_plugin.check(flag, user=user, team=team):
                 flag_reject.send(sender=self.__class__, user=user, team=team,
                                  challenge=challenge, flag=flag, reason='incorrect_flag')
-                points_plugin.register_incorrect_attempt(user, team, flag, solve_set)
+                challenge.points_plugin.register_incorrect_attempt(user, team, flag, solve_set)
                 return FormattedResponse(d={'correct': False}, m='incorrect_flag')
 
-            solve = points_plugin.score(user, team, flag, solve_set)
+            solve = challenge.points_plugin.score(user, team, flag, solve_set)
             if challenge.first_blood is None:
                 challenge.first_blood = user
                 challenge.save()

@@ -1,7 +1,9 @@
 import abc
 
+from plugins.base import Plugin
 
-class FlagPlugin(abc.ABC):
+
+class FlagPlugin(Plugin, abc.ABC):
     plugin_type = "flag"
 
     def __init__(self, challenge):
