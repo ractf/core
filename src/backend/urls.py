@@ -22,6 +22,7 @@ from django.conf.urls.static import static
 from backend.views import CatchAllView
 
 urlpatterns = [
+    path("admin/", include("admin.urls")),
     path("announcements/", include("announcements.urls")),
     path("auth/", include("authentication.urls")),
     path("challenges/", include("challenge.urls")),
