@@ -1,6 +1,7 @@
 from django.core.cache import cache
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+from prometheus_client import Gauge
 
 from backend.signals import websocket_disconnect, websocket_connect, team_create, flag_score, register
 from challenge.models import Solve
@@ -12,7 +13,12 @@ cache.set("member_count", Member.objects.count(), timeout=None)
 cache.set("team_count", Team.objects.count(), timeout=None)
 cache.set("solve_count", Solve.objects.count(), timeout=None)
 cache.set("correct_solve_count", Solve.objects.filter(correct=True).count(), timeout=None)
-cache.set("connected_websocket_users", 0, timeout=None)
+
+connected_websocket_users = Gauge(
+    "connected_websocket_users",
+    "The number of users connected to the websocket",
+    multiprocess_mode="livesum"
+)
 
 
 @receiver(register)
@@ -51,9 +57,9 @@ def on_solve_delete(sender, instance, **kwargs):
 
 @receiver(websocket_connect)
 def on_ws_connect(**kwargs):
-    cache.set("connected_websocket_users", cache.get("connected_websocket_users") + 1, timeout=None)
+    connected_websocket_users.inc()
 
 
 @receiver(websocket_disconnect)
 def on_ws_disconnect(**kwargs):
-    cache.set("connected_websocket_users", cache.get("connected_websocket_users") - 1, timeout=None)
+    connected_websocket_users.dec()
