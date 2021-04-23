@@ -10,6 +10,7 @@ omit =
     websockets/routing.py
     backend/settings/*
     ractf/management/*
+    gunicorn_conf.py
 [report]
 fail_under = 100
 show_missing = True
