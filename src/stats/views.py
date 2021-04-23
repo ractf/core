@@ -20,9 +20,6 @@ member_count = Gauge("member_count", "The number of members currently registered
 team_count = Gauge("team_count", "The number of teams currently registered")
 solve_count = Gauge("solve_count", "The count of both correct and incorrect solves")
 correct_solve_count = Gauge("correct_solve_count", "The count of correct solves")
-connected_websocket_users = Gauge(
-    "connected_websocket_users", "The number of users connected to the Websocket"
-)
 
 
 @api_view(['GET'])
@@ -97,6 +94,5 @@ class PrometheusMetricsView(APIView):
         team_count.set(cache.get("team_count"))
         solve_count.set(cache.get("solve_count"))
         correct_solve_count.set(cache.get("correct_solve_count"))
-        connected_websocket_users.set(cache.get("connected_websocket_users"))
 
         return ExportToDjangoView(request)
