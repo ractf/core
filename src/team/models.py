@@ -37,10 +37,8 @@ class TeamQuerySet(models.QuerySet):
         from rest_framework.generics import get_object_or_404
         if scoreboard == '':
             return self
-        print('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
         scoreboard = get_object_or_404(Scoreboard, name=scoreboard)
         teams = ScoreboardEntry.objects.filter(scoreboard=scoreboard).values_list('team_id', flat=True)
-        print(teams)
         return self.filter(id__in=teams)
 
 
