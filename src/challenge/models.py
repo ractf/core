@@ -140,7 +140,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
                     default=Value(False),
                     output_field=models.BooleanField(),
                 ),
-                solve_count=Count("solves", filter=Q(solves__correct=True)),
+                solve_count=Count("solves", filter=Q(solves__correct=True), distinct=True),
                 unlock_time_surpassed=Case(
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),
@@ -152,7 +152,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         else:
             challenges = Challenge.objects.annotate(
                 solved=Value(False, models.BooleanField()),
-                solve_count=Count("solves"),
+                solve_count=Count("solves", distinct=True),
                 unlock_time_surpassed=Case(
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),

@@ -12,6 +12,27 @@ SEND_MAIL = True
 
 ALLOWED_HOSTS.extend(("ractf.co.uk", "api-elite.ractf.co.uk"))
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG",
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+    },
+}
+
 TEMPLATES.insert(
     0,
     {
