@@ -1,9 +1,8 @@
 import abc
-import pickle
-from unittest.mock import MagicMock
 
 from django.core.cache import caches
 from django.db.models.query import QuerySet
+from django.db.utils import ProgrammingError
 
 from config.models import Config
 
@@ -57,19 +56,14 @@ class CachedBackend(ConfigBackend):
         self.keys = set()
 
     def get(self, key):
-        value = self.cache.get(f"config_{key}")
-        if value is None:
-            return None
-        return pickle.loads(value)
+        return self.cache.get(f"config_{key}")
 
     def set(self, key, value):
-        if type(self.config_set) is MagicMock:
-            return
         db_config = self.config_set.filter(key="config").first()
         if db_config:
             db_config.value[key] = value
             db_config.save()
-        self.cache.set(f"config_{key}", pickle.dumps(value), timeout=None)
+        self.cache.set(f"config_{key}", value, timeout=None)
         self.keys.add(f"config_{key}")
 
     def get_all(self):
@@ -83,10 +77,15 @@ class CachedBackend(ConfigBackend):
             self.keys.add(f"config_{key}")
 
     def load(self, defaults):
-        if type(self.config_set) is MagicMock:
-            return
         db_config = self.config_set.filter(key="config")
-        if db_config.exists():
+
+        config_exists, migrations_needed = False, False
+        try:
+            config_exists = db_config.exists()
+        except ProgrammingError:
+            migrations_needed = True
+
+        if config_exists:
             config = db_config[0].value
             if "config_version" not in config or config["config_version"] < defaults["config_version"]:
                 for key, value in defaults.items():
@@ -96,7 +95,10 @@ class CachedBackend(ConfigBackend):
                 self.set_if_not_exists(key, value)
             for key, value in config.items():
                 self.set(key, value)
-        else:
+
+        elif not migrations_needed:
             Config.objects.create(key="config", value=defaults)
             for key, value in defaults.items():
                 self.set(key, value)
+
+        self.cache.set("migrations_needed", migrations_needed)
