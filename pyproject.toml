@@ -25,10 +25,7 @@ sendgrid = "^6.4.7"
 newrelic = "^5.22.1"
 django-prometheus = "^2.1.0"
 Twisted = "20.3.0"
-wsproto = "^1.0.0"
-uvicorn = "^0.13.4"
-httptools = "^0.2.0"
-uvloop = "^0.15.2"
+uvicorn = {extras = ["standard"], version = "^0.13.4"}
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.19.0"
