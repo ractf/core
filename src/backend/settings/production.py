@@ -6,6 +6,7 @@ from . import *
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 
 SEND_MAIL = True
@@ -59,7 +60,7 @@ DEFAULT_SENTRY_DSN = "https://1fb04d3b9f8b4343bccea1c9f5b6d08b@o104250.ingest.se
 
 sentry_sdk.init(
     dsn=os.getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN),
-    integrations=[DjangoIntegration()],
+    integrations=[DjangoIntegration(), RedisIntegration()],
     send_default_pii=False,
     server_name=DOMAIN,
 )
