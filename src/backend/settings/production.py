@@ -22,12 +22,12 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "DEBUG",
+        "level": "INFO",
     },
     "loggers": {
         "django": {
             "handlers": ["console"],
-            "level": "DEBUG",
+            "level": "INFO",
             "propagate": False,
         },
     },
@@ -54,8 +54,10 @@ MAIL = {
     "SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY"),
 }
 
+DEFAULT_SENTRY_DSN = "https://1fb04d3b9f8b4343bccea1c9f5b6d08b@o104250.ingest.sentry.io/5374671"
+
 sentry_sdk.init(
-    dsn="https://beaf099a91144f74afac77c0afe70518@o430159.ingest.sentry.io/5378144",
+    dsn=os.getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN),
     integrations=[DjangoIntegration()],
     send_default_pii=False,
     server_name=DOMAIN,
