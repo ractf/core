@@ -10,6 +10,7 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 SEND_MAIL = True
 
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 ALLOWED_HOSTS.extend(("ractf.co.uk", "api-elite.ractf.co.uk"))
 
 LOGGING = {
@@ -22,12 +23,12 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "INFO",
+        "level": LOG_LEVEL,
     },
     "loggers": {
         "django": {
             "handlers": ["console"],
-            "level": "INFO",
+            "level": LOG_LEVEL,
             "propagate": False,
         },
     },
