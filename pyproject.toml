@@ -24,6 +24,7 @@ django-filter = "^2.3.0"
 sendgrid = "^6.4.7"
 newrelic = "^5.22.1"
 django-prometheus = "^2.1.0"
+uvicorn = "^0.13.4"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.19.0"
