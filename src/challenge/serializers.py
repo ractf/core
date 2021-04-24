@@ -53,6 +53,7 @@ class LockedChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSeria
             "hidden",
             "unlock_time_surpassed",
             "release_time",
+            "score"
         ]
 
 
