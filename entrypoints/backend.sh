@@ -1,7 +1,8 @@
 #! /bin/sh
 
 
-if [[ -z "${prometheus_multiproc_dir}"]]; then
+if [ -z "$prometheus_multiproc_dir" ]
+then
   echo "No Prometheus directory set."
 else
   echo "Deleting the contents of ${prometheus_multiproc_dir}"
