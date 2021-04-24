@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     "ractf.apps.RactfConfig",
     "scorerecalculator.apps.ScorerecalculatorConfig",
     "team.apps.TeamConfig",
-    "websockets.apps.WebsocketsConfig",
+    "sockets.apps.SocketsConfig",
     "stats.apps.StatsConfig",
     "rest_framework",
     "rest_framework.authtoken",
@@ -117,7 +117,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "backend.wsgi.application"
-ASGI_APPLICATION = "websockets.routing.application"
+ASGI_APPLICATION = "sockets.routing.application"
 
 CHANNEL_LAYERS = {
     "default": {
