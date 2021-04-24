@@ -36,6 +36,7 @@ PyYAML = "^5.4.1"
 
 [tool.black]
 exclude = 'migrations'
+line_length = 120
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]
