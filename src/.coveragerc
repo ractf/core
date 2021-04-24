@@ -7,7 +7,7 @@ omit =
     backend/wsgi.py
     backend/exception_handler.py
     manage.py
-    websockets/routing.py
+    sockets/routing.py
     backend/settings/*
     ractf/management/*
     gunicorn_conf.py

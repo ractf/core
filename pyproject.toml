@@ -24,6 +24,8 @@ django-filter = "^2.3.0"
 sendgrid = "^6.4.7"
 newrelic = "^5.22.1"
 django-prometheus = "^2.1.0"
+Twisted = "20.3.0"
+uvicorn = {extras = ["standard"], version = "^0.13.4"}
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.19.0"
@@ -35,6 +37,7 @@ PyYAML = "^5.4.1"
 
 [tool.black]
 exclude = 'migrations'
+line_length = 120
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]

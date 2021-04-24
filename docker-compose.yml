@@ -34,6 +34,7 @@ services:
     volumes:
       - .:/app
     environment:
+      - DOMAIN=localhost
       - FRONTEND_URL=http://localhost:8000/
       - SECRET_KEY=CorrectHorseBatteryStaple
       - DJANGO_SETTINGS_MODULE=backend.settings.local
@@ -57,7 +58,7 @@ services:
   sockets:
     <<: *backend
     entrypoint: /app/entrypoints/sockets.sh
-    command: daphne -b 0.0.0.0 -p 8000 backend.asgi:application
+    command: gunicorn -w 12 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker backend.asgi:application
     depends_on:
       - backend
 
