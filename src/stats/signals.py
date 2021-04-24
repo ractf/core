@@ -9,15 +9,14 @@ from member.models import Member
 from team.models import Team
 
 # When the worker starts up, set these in the cache to stay in sync
-cache.set("member_count", Member.objects.count(), timeout=None)
-cache.set("team_count", Team.objects.count(), timeout=None)
-cache.set("solve_count", Solve.objects.count(), timeout=None)
-cache.set("correct_solve_count", Solve.objects.filter(correct=True).count(), timeout=None)
+if not cache.get("migrations_needed"):
+    cache.set("member_count", Member.objects.count(), timeout=None)
+    cache.set("team_count", Team.objects.count(), timeout=None)
+    cache.set("solve_count", Solve.objects.count(), timeout=None)
+    cache.set("correct_solve_count", Solve.objects.filter(correct=True).count(), timeout=None)
 
 connected_websocket_users = Gauge(
-    "connected_websocket_users",
-    "The number of users connected to the websocket",
-    multiprocess_mode="livesum"
+    "connected_websocket_users", "The number of users connected to the websocket", multiprocess_mode="livesum"
 )
 
 
