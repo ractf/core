@@ -1,9 +1,10 @@
 import abc
-import sys
 import pickle
 from unittest.mock import MagicMock
 
 from django.core.cache import caches
+from django.db.models.query import QuerySet
+
 from config.models import Config
 
 
@@ -31,43 +32,44 @@ class DatabaseBackend(ConfigBackend):
     """Only use this if you absolutely have to"""
 
     def get(self, key):
-        value = Config.objects.get(key=key).value['value']
+        value = Config.objects.get(key=key).value["value"]
         return value
 
     def set(self, key, value):
         setting = Config.objects.get(key=key)
-        setting.value['value'] = value
+        setting.value["value"] = value
         setting.save()
 
     def get_all(self):
         config = {}
         for item in Config.objects.all():
-            config[item.key] = item.value['value']
+            config[item.key] = item.value["value"]
         return config
 
 
 class CachedBackend(ConfigBackend):
-
-    CONFIG_SET = Config.objects if "migrate" not in sys.argv else MagicMock()
+    @property
+    def config_set(self) -> "QuerySet[Config]":
+        return Config.objects
 
     def __init__(self):
         self.cache = caches["default"]
         self.keys = set()
 
     def get(self, key):
-        value = self.cache.get(f'config_{key}')
+        value = self.cache.get(f"config_{key}")
         if value is None:
             return None
         return pickle.loads(value)
 
     def set(self, key, value):
-        if type(self.CONFIG_SET) is MagicMock:
+        if type(self.config_set) is MagicMock:
             return
-        db_config = self.CONFIG_SET.filter(key='config').first()
+        db_config = self.config_set.filter(key="config").first()
         if db_config:
             db_config.value[key] = value
             db_config.save()
-        self.cache.set(f'config_{key}', pickle.dumps(value), timeout=None)
+        self.cache.set(f"config_{key}", pickle.dumps(value), timeout=None)
         self.keys.add(f"config_{key}")
 
     def get_all(self):
@@ -77,16 +79,16 @@ class CachedBackend(ConfigBackend):
         return config
 
     def set_if_not_exists(self, key, value):
-        if self.cache.add('config_' + key, value, timeout=None):
+        if self.cache.add("config_" + key, value, timeout=None):
             self.keys.add(f"config_{key}")
 
     def load(self, defaults):
-        if type(self.CONFIG_SET) is MagicMock:
+        if type(self.config_set) is MagicMock:
             return
-        db_config = self.CONFIG_SET.filter(key='config')
+        db_config = self.config_set.filter(key="config")
         if db_config.exists():
             config = db_config[0].value
-            if 'config_version' not in config or config['config_version'] < defaults['config_version']:
+            if "config_version" not in config or config["config_version"] < defaults["config_version"]:
                 for key, value in defaults.items():
                     self.set(key, value)
                 return
@@ -95,6 +97,6 @@ class CachedBackend(ConfigBackend):
             for key, value in config.items():
                 self.set(key, value)
         else:
-            Config.objects.create(key='config', value=defaults)
+            Config.objects.create(key="config", value=defaults)
             for key, value in defaults.items():
                 self.set(key, value)
