@@ -1,7 +1,7 @@
 from django.apps import AppConfig
 
 
-class WebsocketsConfig(AppConfig):
+class SocketsConfig(AppConfig):
     name = "sockets"
 
     def ready(self):

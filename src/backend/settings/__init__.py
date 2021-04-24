@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     "ractf.apps.RactfConfig",
     "scorerecalculator.apps.ScorerecalculatorConfig",
     "team.apps.TeamConfig",
-    "sockets.apps.WebsocketsConfig",
+    "sockets.apps.SocketsConfig",
     "stats.apps.StatsConfig",
     "rest_framework",
     "rest_framework.authtoken",
