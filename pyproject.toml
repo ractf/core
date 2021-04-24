@@ -26,6 +26,7 @@ newrelic = "^5.22.1"
 django-prometheus = "^2.1.0"
 Twisted = "20.3.0"
 uvicorn = {extras = ["standard"], version = "^0.13.4"}
+websockets = "^8.1"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.19.0"
