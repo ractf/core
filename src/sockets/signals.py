@@ -93,9 +93,8 @@ def on_announcement_create(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Challenge)
 def on_challenge_edit(sender, instance, **kwargs):
-    data = {
+    broadcast({
         "type": "send_json",
         "event_code": 6,
         "challenge_id": instance.id
-    }
-    broadcast(data)
+    })
