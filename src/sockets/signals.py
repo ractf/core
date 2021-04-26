@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from announcements.models import Announcement
 from announcements.serializers import AnnouncementSerializer
 from backend.signals import flag_score, flag_reject, use_hint, team_join
+from challenge.models import Challenge
 from config import config
 
 
@@ -88,3 +89,12 @@ def on_announcement_create(sender, instance, **kwargs):
     data['type'] = 'send_json'
     data['event_code'] = 5
     broadcast(data)
+
+
+@receiver(post_save, sender=Challenge)
+def on_challenge_edit(sender, instance, **kwargs):
+    broadcast({
+        "type": "send_json",
+        "event_code": 6,
+        "challenge_id": instance.id
+    })
