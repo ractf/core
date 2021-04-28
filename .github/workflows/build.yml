@@ -17,6 +17,14 @@ jobs:
     - name: Build Docker Container
       run: docker build -t ractf/core:${{ steps.branch.outputs.name }} -t ghcr.io/ractf/core:${{ steps.branch.outputs.name }} .
 
+    - name: Create Sentry release
+      uses: getsentry/action-release@v1
+      if: github.ref == 'refs/heads/master'
+      env:
+        SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+        SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+
     - name: Login to Docker Hub
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
       run: docker login --username ractf --password ${{ secrets.password }}
