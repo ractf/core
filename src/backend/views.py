@@ -6,4 +6,4 @@ from django.views.generic import TemplateView
 class CatchAllView(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        return render(template_name='404.html', context={'link': settings.FRONTEND_URL}, request=request)
+        return render(template_name='404.html', context={'link': settings.FRONTEND_URL}, request=request, status=404)
