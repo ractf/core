@@ -5,7 +5,7 @@ ARG BUILD_DEPS="build-essential curl"
 RUN set -ex \
   && apt-get update && apt-get -y --no-install-recommends install $BUILD_DEPS libpq-dev netcat git \
   && rm -rf /var/lib/apt/lists/* \
-  && curl -sSL "https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py" | POETRY_PREVIEW=1 python \
+  && curl -sSL "https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py" | python \
   && . $HOME/.poetry/env \
   && poetry config virtualenvs.create false
 
