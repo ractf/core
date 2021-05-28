@@ -32,7 +32,7 @@ class AdminOrAnonymousReadOnly(permissions.BasePermission):
 
 class IsCompetitionOpen(permissions.BasePermission):
     def has_permission(self, request, view):
-        return config.get("start_time") <= time.time()
+        return config.config.get("start_time") <= time.time()
 
 
 class IsBot(permissions.BasePermission):

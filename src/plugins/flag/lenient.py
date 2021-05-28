@@ -16,7 +16,7 @@ def strip_whitespace(s):
 
 
 def fix_format(s):
-    prefix = config.get('flag_prefix')
+    prefix = config.config.get('flag_prefix')
     return s if prefix + '{' in s else prefix + '{' + s + '}'
 
 

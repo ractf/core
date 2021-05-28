@@ -147,9 +147,9 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.assertFalse(self.challenge1.is_solved(user=self.user))
 
     def test_submission_disabled(self):
-        config.set('enable_flag_submission', False)
+        config.config.set('enable_flag_submission', False)
         response = self.solve_challenge()
-        config.set('enable_flag_submission', True)
+        config.config.set('enable_flag_submission', True)
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_submission_malformed(self):

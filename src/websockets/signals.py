@@ -25,7 +25,7 @@ def broadcast(data):
 
 @receiver(flag_score)
 def on_flag_score(user, team, challenge, flag, solve, **kwargs):
-    if not config.get('enable_solve_broadcast'):
+    if not config.config.get('enable_solve_broadcast'):
         return
     broadcast({
         'type': 'send_json',

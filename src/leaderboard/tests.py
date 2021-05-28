@@ -50,9 +50,9 @@ class ScoreListTestCase(APITestCase):
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
-        config.set("enable_scoreboard", False)
+        config.config.set("enable_scoreboard", False)
         response = self.client.get(reverse('leaderboard-graph'))
-        config.set("enable_scoreboard", True)
+        config.config.set("enable_scoreboard", True)
         self.assertEquals(response.data["d"], {})
 
     def test_format(self):
@@ -74,9 +74,9 @@ class ScoreListTestCase(APITestCase):
 
     def test_user_only(self):
         populate()
-        config.set("enable_teams", False)
+        config.config.set("enable_teams", False)
         response = self.client.get(reverse('leaderboard-graph'))
-        config.set("enable_teams", True)
+        config.config.set("enable_teams", True)
         self.assertEquals(len(response.data['d']['user']), 10)
         self.assertEquals(response.data['d']['user'][0]['points'], 1400)
         self.assertNotIn("team", response.data['d'].keys())
@@ -101,9 +101,9 @@ class UserListTestCase(APITestCase):
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
-        config.set("enable_scoreboard", False)
+        config.config.set("enable_scoreboard", False)
         response = self.client.get(reverse('leaderboard-user'))
-        config.set("enable_scoreboard", True)
+        config.config.set("enable_scoreboard", True)
         self.assertEquals(response.data["d"], {})
 
     def test_length(self):
@@ -138,9 +138,9 @@ class TeamListTestCase(APITestCase):
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
-        config.set("enable_scoreboard", False)
+        config.config.set("enable_scoreboard", False)
         response = self.client.get(reverse('leaderboard-team'))
-        config.set("enable_scoreboard", True)
+        config.config.set("enable_scoreboard", True)
         self.assertEquals(response.data["d"], {})
 
     def test_length(self):
@@ -173,15 +173,15 @@ class CTFTimeListTestCase(APITestCase):
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
-        config.set("enable_scoreboard", False)
+        config.config.set("enable_scoreboard", False)
         response = self.client.get(reverse('leaderboard-ctftime'))
-        config.set("enable_scoreboard", True)
+        config.config.set("enable_scoreboard", True)
         self.assertEquals(response.data, {})
 
     def test_disabled_ctftime(self):
-        config.set("enable_ctftime", False)
+        config.config.set("enable_ctftime", False)
         response = self.client.get(reverse('leaderboard-ctftime'))
-        config.set("enable_ctftime", True)
+        config.config.set("enable_ctftime", True)
         self.assertEquals(response.data, {})
 
     def test_length(self):
@@ -236,7 +236,7 @@ class MatrixTestCase(APITestCase):
         self.assertEquals(points, sorted(points, reverse=True))
 
     def test_disabled_scoreboard(self):
-        config.set("enable_scoreboard", False)
+        config.config.set("enable_scoreboard", False)
         response = self.client.get(reverse('leaderboard-matrix-list'))
-        config.set("enable_scoreboard", True)
+        config.config.set("enable_scoreboard", True)
         self.assertEquals(response.data['d'], {})

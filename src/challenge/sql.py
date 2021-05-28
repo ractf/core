@@ -1,13 +1,13 @@
 from django.core.cache import caches
 from django.db import connection
 
-from config import config
+import config
 
 
 def get_solve_counts():
     cache = caches['default']
     solve_counts = cache.get('solve_counts')
-    if solve_counts is not None and config.get('enable_caching'):
+    if solve_counts is not None and config.config.get('enable_caching'):
         return solve_counts
     with connection.cursor() as cursor:
         cursor.execute('SELECT challenge_id, COUNT(*) FROM challenge_solve WHERE correct=true GROUP BY challenge_id;')
@@ -19,7 +19,7 @@ def get_solve_counts():
 def get_incorrect_solve_counts():
     cache = caches['default']
     solve_counts = cache.get('incorrect_solve_counts')
-    if solve_counts is not None and config.get('enable_caching'):
+    if solve_counts is not None and config.config.get('enable_caching'):
         return solve_counts
     with connection.cursor() as cursor:
         cursor.execute('SELECT challenge_id, COUNT(*) FROM challenge_solve WHERE correct=false GROUP BY challenge_id;')
@@ -31,7 +31,7 @@ def get_incorrect_solve_counts():
 def get_positive_votes():
     cache = caches['default']
     positive_votes = cache.get('positive_votes')
-    if positive_votes is not None and config.get('enable_caching'):
+    if positive_votes is not None and config.config.get('enable_caching'):
         return positive_votes
     with connection.cursor() as cursor:
         cursor.execute(
@@ -44,7 +44,7 @@ def get_positive_votes():
 def get_negative_votes():
     cache = caches['default']
     negative_votes = cache.get('negative_votes')
-    if negative_votes is not None and config.get('enable_caching'):
+    if negative_votes is not None and config.config.get('enable_caching'):
         return negative_votes
     with connection.cursor() as cursor:
         cursor.execute(

@@ -18,4 +18,4 @@ class HasTeam(permissions.BasePermission):
 
 class TeamsEnabled(permissions.BasePermission):
     def has_permission(self, request, view):
-        return config.get("enable_teams")
+        return config.config.get("enable_teams")

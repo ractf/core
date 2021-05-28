@@ -14,9 +14,9 @@ class RactfTokenAuthentication(authentication.TokenAuthentication):
         user, token = x
         if user.is_staff and not user.should_deny_admin():
             return user, token
-        if config.get("enable_maintenance_mode"):
+        if config.config.get("enable_maintenance_mode"):
             return None
-        if not config.get("enable_bot_users") and user.is_bot:
+        if not config.config.get("enable_bot_users") and user.is_bot:
             return None
         if token.user_id != token.owner_id:
             request.sudo = True

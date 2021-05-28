@@ -7,18 +7,10 @@ from challenge.models import Solve
 from member.models import Member
 from team.models import Team
 
-member_count = Gauge("member_count", "The number of members currently registered")
-member_count.set(Member.objects.count())
-
 team_count = Gauge("team_count", "The number of teams currently registered")
-team_count.set(Team.objects.count())
-
-solve_count = Gauge("solve_count", "The count of both correct and incorrect solves")
-solve_count.set(Solve.objects.count())
-
 correct_solve_count = Gauge("correct_solve_count", "The count of correct solves")
-correct_solve_count.set(Solve.objects.filter(correct=True).count())
-
+member_count = Gauge("member_count", "The number of members currently registered")
+solve_count = Gauge("solve_count", "The count of both correct and incorrect solves")
 connected_websocket_users = Gauge(
     "connected_websocket_users", "The number of users connected to the Websocket"
 )

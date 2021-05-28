@@ -17,16 +17,16 @@ from team.models import Team
 
 
 def should_hide_scoreboard():
-    return not config.get('enable_scoreboard') and (config.get('hide_scoreboard_at') == -1 or
-                                                    config.get('hide_scoreboard_at') > time.time() or
-                                                    config.get('end_time') > time.time())
+    return not config.config.get('enable_scoreboard') and (config.config.get('hide_scoreboard_at') == -1 or
+                                                    config.config.get('hide_scoreboard_at') > time.time() or
+                                                    config.config.get('end_time') > time.time())
 
 
 class CTFTimeListView(APIView):
     renderer_classes = (JSONRenderer, BrowsableAPIRenderer,)
 
     def get(self, request, *args, **kwargs):
-        if should_hide_scoreboard() or not config.get('enable_ctftime'):
+        if should_hide_scoreboard() or not config.config.get('enable_ctftime'):
             return Response({})
         teams = Team.objects.visible().ranked()
         return Response({"standings": CTFTimeSerializer(teams, many=True).data})
@@ -41,10 +41,10 @@ class GraphView(APIView):
 
         cache = caches['default']
         cached_leaderboard = cache.get('leaderboard_graph')
-        if cached_leaderboard is not None and config.get('enable_caching'):
+        if cached_leaderboard is not None and config.config.get('enable_caching'):
             return FormattedResponse(cached_leaderboard)
 
-        graph_members = config.get('graph_members')
+        graph_members = config.config.get('graph_members')
         top_teams = Team.objects.visible().ranked()[:graph_members]
         top_users = get_user_model().objects.filter(is_visible=True).order_by('-leaderboard_points', 'last_score')[
                     :graph_members]
@@ -57,7 +57,7 @@ class GraphView(APIView):
         user_serializer = LeaderboardUserScoreSerializer(user_scores, many=True)
         team_serializer = LeaderboardTeamScoreSerializer(team_scores, many=True)
         response = {'user': user_serializer.data}
-        if config.get('enable_teams'):
+        if config.config.get('enable_teams'):
             response['team'] = team_serializer.data
 
         cache.set('leaderboard_graph', response, 15)
