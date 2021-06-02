@@ -89,20 +89,6 @@ class FastLockedChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     release_time = DateTimeField()
     unlock_time_surpassed = serpy.MethodField()
 
-    class Meta:
-        model = Challenge
-        fields = ['id', 'unlock_requirements', 'challenge_metadata', 'challenge_type', 'hidden',
-                  'unlock_time_surpassed', 'release_time']
-
-
-class LockedChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
-    unlock_time_surpassed = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Challenge
-        fields = ['id', 'unlock_requirements', 'challenge_metadata', 'challenge_type', 'hidden',
-                  'unlock_time_surpassed', 'release_time']
-
 
 class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     id = serpy.IntField()
@@ -129,6 +115,17 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
         super(FastChallengeSerializer, self).__init__(*args, **kwargs)
         if 'context' in kwargs:
             self.context = kwargs['context']
+            if 'solve_counter' not in self.context:
+                self.context.update({
+                    "request": self.context["request"],
+                    "solves": list(
+                        self.context["request"].user.team.solves.filter(correct=True).values_list("challenge",
+                                                                                                  flat=True)
+                    ),
+                    "solve_counter": get_solve_counts(),
+                    "votes_positive_counter": get_positive_votes(),
+                    "votes_negative_counter": get_negative_votes(),
+                })
 
     def serialize(self, instance):
         if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and \
@@ -142,49 +139,6 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
         return self.serialize(instance)
 
 
-class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
-    hints = HintSerializer(many=True, read_only=True)
-    files = FileSerializer(many=True, read_only=True)
-    solved = serializers.SerializerMethodField()
-    unlocked = serializers.SerializerMethodField()
-    unlock_time_surpassed = serializers.SerializerMethodField()
-    votes = serializers.SerializerMethodField()
-    first_blood_name = serializers.ReadOnlyField(source='first_blood.username')
-    solve_count = serializers.SerializerMethodField()
-    tags = NestedTagSerializer(many=True, read_only=True)
-    post_score_explanation = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Challenge
-        fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
-                  'author', 'score', 'unlock_requirements', 'hints', 'files', 'solved', 'unlocked',
-                  'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'votes', 'tags', 'unlock_time_surpassed',
-                  'post_score_explanation']
-
-
-class CategorySerializer(serializers.ModelSerializer):
-    challenges = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Category
-        fields = ['id', 'name', 'display_order', 'contained_type', 'description', 'metadata', 'challenges']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['challenges'].context.update({
-            "request": self.context["request"],
-            "solves": list(
-                self.context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
-            ),
-            "solve_counter": get_solve_counts(),
-            "votes_positive_counter": Counter(ChallengeVote.objects.filter(positive=True).values_list("challenge", flat=True)),
-            "votes_negative_counter": Counter(ChallengeVote.objects.filter(positive=False).values_list("challenge", flat=True)),
-        })
-
-    def get_challenges(self, instance):
-        return FastChallengeSerializer(instance.challenges, many=True, context=self.context).data
-
-
 class FastCategorySerializer(serpy.Serializer):
     id = serpy.IntField()
     name = serpy.StrField()
@@ -193,10 +147,6 @@ class FastCategorySerializer(serpy.Serializer):
     description = serpy.StrField()
     metadata = serpy.DictSerializer()
     challenges = serpy.MethodField()
-
-    class Meta:
-        model = Category
-        fields = ['id', 'name', 'display_order', 'contained_type', 'description', 'metadata', 'challenges']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -231,6 +181,52 @@ class CreateCategorySerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Category.objects.create(**validated_data, display_order=Category.objects.count())
+
+
+class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
+    id = serpy.IntField()
+    name = serpy.StrField()
+    description = serpy.StrField()
+    challenge_type = serpy.StrField()
+    flag_type = serpy.StrField()
+    author = serpy.StrField()
+    score = serpy.IntField()
+    unlock_requirements = serpy.StrField()
+    hints = FastHintSerializer(many=True)
+    files = FastFileSerializer(many=True)
+    solved = serpy.MethodField()
+    unlocked = serpy.MethodField()
+    first_blood = ForeignKeyField()
+    solve_count = serpy.MethodField()
+    hidden = serpy.BoolField()
+    votes = serpy.MethodField()
+    tags = FastNestedTagSerializer(many=True)
+    unlock_time_surpassed = serpy.MethodField()
+    post_score_explanation = serpy.StrField()
+
+    def __init__(self, *args, **kwargs):
+        super(FastAdminChallengeSerializer, self).__init__(*args, **kwargs)
+        if 'context' in kwargs:
+            self.context = kwargs['context']
+            if 'nested' not in kwargs:
+                self.context.update({
+                    "request": self.context["request"],
+                    "solves": list(
+                        self.context["request"].user.team.solves.filter(correct=True).values_list("challenge",
+                                                                                                  flat=True)
+                    ),
+                    "solve_counter": get_solve_counts(),
+                    "votes_positive_counter": get_positive_votes(),
+                    "votes_negative_counter": get_negative_votes(),
+                })
+
+    def serialize(self, instance):
+            return super(FastAdminChallengeSerializer, FastAdminChallengeSerializer(instance, context=self.context)).to_value(instance)
+
+    def to_value(self, instance):
+        if self.many:
+            return [self.serialize(o) for o in instance]
+        return self.serialize(instance)
 
 
 class AdminChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
@@ -284,6 +280,33 @@ class AdminCategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id', 'name', 'display_order', 'contained_type', 'description', 'metadata', 'challenges',
                   'release_time']
+
+
+class FastAdminCategorySerializer(serpy.Serializer):
+    id = serpy.IntField()
+    name = serpy.StrField()
+    display_order = serpy.StrField()
+    contained_type = serpy.StrField()
+    description = serpy.StrField()
+    metadata = serpy.DictSerializer()
+    challenges = serpy.MethodField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if "context" in kwargs:
+            self.context = kwargs["context"]
+            self.context.update({
+                "request": self.context["request"],
+                "solves": list(
+                    self.context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
+                ),
+                "solve_counter": get_solve_counts(),
+                "votes_positive_counter": get_positive_votes(),
+                "votes_negative_counter": get_negative_votes(),
+            })
+
+    def get_challenges(self, instance):
+        return FastAdminChallengeSerializer(instance.challenges, many=True, context=self.context).data
 
 
 class AdminScoreSerializer(serializers.ModelSerializer):

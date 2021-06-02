@@ -6,7 +6,7 @@ from plugins.points.base import PointsPlugin
 from team.models import Team
 
 
-class DecayPointsPlugin(object):
+class DecayPointsPlugin(PointsPlugin):
     name = "decay"
     recalculate_type = "custom"
 

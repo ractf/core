@@ -28,7 +28,7 @@ class ChallengeSetupMixin:
         challenge1.save()
         challenge2.save()
         challenge3.save()
-        challenge1.unlock_requirements = "2"
+        challenge1.unlock_requirements = str(challenge2.id)
         challenge1.save()
         hint1 = Hint(name='hint1', challenge=challenge1, text='a', penalty=100)
         hint2 = Hint(name='hint2', challenge=challenge1, text='a', penalty=100)
@@ -111,7 +111,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.assertFalse(self.challenge1.is_unlocked(user4))
 
     def test_challenge_unlocks_locked(self):
-        self.assertFalse(self.challenge3.is_unlocked(self.user))
+        self.assertFalse(self.challenge1.is_unlocked(self.user))
 
     def test_hint_scoring(self):
         HintUse(hint=self.hint3, team=self.team, user=self.user, challenge=self.challenge2).save()
@@ -288,7 +288,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
     def test_challenge_list_challenge_redacting(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('challenges-list'))
-        self.assertFalse('description' in response.data[0])
+        self.assertFalse('description' in response.data[-1])
 
     def test_challenge_list_challenge_redacting_admin(self):
         self.user.is_staff = True
@@ -302,7 +302,8 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('challenges-list'))
-        self.assertFalse(response.data[0]['unlocked'])
+        # TODO: Don't depend on order
+        self.assertFalse(response.data[-1]['unlocked'])
 
     def test_single_challenge_redacting(self):
         self.user.is_staff = False

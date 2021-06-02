@@ -11,7 +11,7 @@ def register_provider(provider_type, provider):
 
 
 def get_provider(provider_type):
-    return providers[provider_type][config.get(provider_type + '_provider')]
+    return providers[provider_type][config.config.get(provider_type + '_provider')]
 
 
 class Provider(abc.ABC):

@@ -25,10 +25,10 @@ from backend.viewsets import AdminCreateModelViewSet
 from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag, Score
 from challenge.permissions import CompetitionOpen
 from challenge.serializers import (
-    ChallengeSerializer, AdminCategorySerializer,
-    AdminChallengeSerializer, FileSerializer, CreateCategorySerializer,
+    AdminCategorySerializer, FileSerializer, CreateCategorySerializer,
     CreateChallengeSerializer, ChallengeFeedbackSerializer, TagSerializer,
-    AdminScoreSerializer, FastCategorySerializer, get_solve_counts, get_positive_votes, get_negative_votes
+    AdminScoreSerializer, FastCategorySerializer, get_solve_counts, get_positive_votes, get_negative_votes,
+    FastChallengeSerializer, FastAdminChallengeSerializer, FastAdminCategorySerializer
 )
 import config
 from hint.models import Hint, HintUse
@@ -50,7 +50,7 @@ class CategoryViewset(AdminCreateModelViewSet):
     throttle_scope = 'challenges'
     pagination_class = None
     serializer_class = FastCategorySerializer
-    admin_serializer_class = AdminCategorySerializer
+    admin_serializer_class = FastAdminCategorySerializer
     create_serializer_class = CreateCategorySerializer
 
     def get_queryset(self):
@@ -126,8 +126,8 @@ class ChallengeViewset(AdminCreateModelViewSet):
     permission_classes = (CompetitionOpen & AdminOrReadOnly,)
     throttle_scope = 'challenges'
     pagination_class = None
-    serializer_class = ChallengeSerializer
-    admin_serializer_class = AdminChallengeSerializer
+    serializer_class = FastChallengeSerializer
+    admin_serializer_class = FastAdminChallengeSerializer
     create_serializer_class = CreateChallengeSerializer
 
     def get_queryset(self):

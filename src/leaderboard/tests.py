@@ -41,46 +41,59 @@ class ScoreListTestCase(APITestCase):
         self.user = user
 
     def test_unauthed_access(self):
+        config.config.set('enable_caching', False)
         response = self.client.get(reverse('leaderboard-graph'))
+        config.config.set('enable_caching', True)
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_authed_access(self):
         self.client.force_authenticate(self.user)
+        config.config.set('enable_caching', False)
         response = self.client.get(reverse('leaderboard-graph'))
+        config.config.set('enable_caching', True)
         self.assertEquals(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
+        config.config.set('enable_caching', False)
         config.config.set("enable_scoreboard", False)
         response = self.client.get(reverse('leaderboard-graph'))
         config.config.set("enable_scoreboard", True)
+        config.config.set('enable_caching', True)
         self.assertEquals(response.data["d"], {})
 
     def test_format(self):
+        config.config.set('enable_caching', False)
         response = self.client.get(reverse('leaderboard-graph'))
+        config.config.set('enable_caching', True)
         self.assertTrue('user' in response.data['d'])
         self.assertTrue('team' in response.data['d'])
 
     def test_list_size(self):
+        config.config.set('enable_caching', False)
         populate()
         response = self.client.get(reverse('leaderboard-graph'))
+        config.config.set('enable_caching', True)
         self.assertEquals(len(response.data['d']['user']), 10)
         self.assertEquals(len(response.data['d']['team']), 10)
 
     def test_list_sorting(self):
+        config.config.set('enable_caching', False)
         populate()
         response = self.client.get(reverse('leaderboard-graph'))
+        config.config.set('enable_caching', True)
         self.assertEquals(response.data['d']['user'][0]['points'], 1400)
         self.assertEquals(response.data['d']['team'][0]['points'], 1400)
 
     def test_user_only(self):
         populate()
         config.config.set("enable_teams", False)
+        config.config.set('enable_caching', False)
         response = self.client.get(reverse('leaderboard-graph'))
         config.config.set("enable_teams", True)
+        config.config.set('enable_caching', True)
         self.assertEquals(len(response.data['d']['user']), 10)
         self.assertEquals(response.data['d']['user'][0]['points'], 1400)
         self.assertNotIn("team", response.data['d'].keys())
-
 
 
 class UserListTestCase(APITestCase):
@@ -108,9 +121,7 @@ class UserListTestCase(APITestCase):
 
     def test_length(self):
         populate()
-        print(Score.objects.all())
         response = self.client.get(reverse('leaderboard-user'))
-        print(response.content)
         self.assertEquals(len(response.data['d']['results']), 15)
 
     def test_order(self):

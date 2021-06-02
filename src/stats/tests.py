@@ -3,6 +3,7 @@ from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_401_UNAUTHORIZED
 from rest_framework.test import APITestCase
 
+import config
 from challenge.models import Challenge, Category, Solve
 from team.models import Team
 
@@ -104,7 +105,9 @@ class FullStatsTestCase(APITestCase):
         Solve.objects.create(challenge=chall, flag="", correct=False)
 
         self.client.force_authenticate(user)
+        config.config.set('enable_caching', False)
         response = self.client.get(reverse("full"))
+        config.config.set('enable_caching', True)
         self.assertEquals(response.data["d"]["challenges"][chall.id]["incorrect"], 1)
         self.assertEquals(response.data["d"]["challenges"][chall.id]["correct"], 1)
 
