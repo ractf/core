@@ -33,7 +33,6 @@ class MemberTestCase(APITestCase):
         response = self.client.put(
             reverse("member-self"), data={"email": "test-self2@example.org", "username": "test-self"}
         )
-        print(response.data)
         self.assertEquals(response.status_code, HTTP_200_OK)
         self.assertEquals(get_user_model().objects.get(id=self.user.id).email, "test-self2@example.org")
 

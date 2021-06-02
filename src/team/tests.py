@@ -66,7 +66,6 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
         self.admin_user.is_staff = False
         self.admin_user.save()
         self.client.force_authenticate(user=self.admin_user)
-        print(self.team.owner == self.admin_user)
         response = self.client.patch(reverse("team-self"), data={"name": "name-change"})
         self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
 
@@ -231,8 +230,6 @@ class TeamViewsetTestCase(TeamSetupMixin, APITestCase):
         self.team.save()
         self.client.force_authenticate(self.admin_user)
         response = self.client.get(reverse("team-list"))
-        print(response.data)
-        print(self.user.should_deny_admin())
         self.assertEquals(len(response.data['d']["results"]), 1)
 
     def test_visible_not_admin(self):
@@ -240,7 +237,7 @@ class TeamViewsetTestCase(TeamSetupMixin, APITestCase):
         self.team.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("team-list"))
-        print(response.data)
+
         self.assertEquals(len(response.data["d"]["results"]), 0)
 
     def test_visible_detail_admin(self):
