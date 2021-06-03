@@ -35,7 +35,7 @@ class ChallengeSetupMixin:
             flag_metadata={"flag": "ractf{a}"},
             author="dave",
             score=1000,
-            unlock_requirements=self.challenge2.id,
+            unlock_requirements=str(self.challenge2.id),
         )
         self.challenge3 = Challenge.objects.create(
             name="test3",
