@@ -44,14 +44,14 @@ class ScoreListTestCase(APITestCase):
         config.config.set('enable_caching', False)
         response = self.client.get(reverse('leaderboard-graph'))
         config.config.set('enable_caching', True)
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed_access(self):
         self.client.force_authenticate(self.user)
         config.config.set('enable_caching', False)
         response = self.client.get(reverse('leaderboard-graph'))
         config.config.set('enable_caching', True)
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
         config.config.set('enable_caching', False)
@@ -59,7 +59,7 @@ class ScoreListTestCase(APITestCase):
         response = self.client.get(reverse('leaderboard-graph'))
         config.config.set("enable_scoreboard", True)
         config.config.set('enable_caching', True)
-        self.assertEquals(response.data["d"], {})
+        self.assertEqual(response.data["d"], {})
 
     def test_format(self):
         config.config.set('enable_caching', False)
@@ -73,16 +73,16 @@ class ScoreListTestCase(APITestCase):
         populate()
         response = self.client.get(reverse('leaderboard-graph'))
         config.config.set('enable_caching', True)
-        self.assertEquals(len(response.data['d']['user']), 10)
-        self.assertEquals(len(response.data['d']['team']), 10)
+        self.assertEqual(len(response.data['d']['user']), 10)
+        self.assertEqual(len(response.data['d']['team']), 10)
 
     def test_list_sorting(self):
         config.config.set('enable_caching', False)
         populate()
         response = self.client.get(reverse('leaderboard-graph'))
         config.config.set('enable_caching', True)
-        self.assertEquals(response.data['d']['user'][0]['points'], 1400)
-        self.assertEquals(response.data['d']['team'][0]['points'], 1400)
+        self.assertEqual(response.data['d']['user'][0]['points'], 1400)
+        self.assertEqual(response.data['d']['team'][0]['points'], 1400)
 
     def test_user_only(self):
         populate()
@@ -91,8 +91,8 @@ class ScoreListTestCase(APITestCase):
         response = self.client.get(reverse('leaderboard-graph'))
         config.config.set("enable_teams", True)
         config.config.set('enable_caching', True)
-        self.assertEquals(len(response.data['d']['user']), 10)
-        self.assertEquals(response.data['d']['user'][0]['points'], 1400)
+        self.assertEqual(len(response.data['d']['user']), 10)
+        self.assertEqual(response.data['d']['user'][0]['points'], 1400)
         self.assertNotIn("team", response.data['d'].keys())
 
 
@@ -106,29 +106,29 @@ class UserListTestCase(APITestCase):
 
     def test_unauthed(self):
         response = self.client.get(reverse('leaderboard-user'))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('leaderboard-user'))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
         config.config.set("enable_scoreboard", False)
         response = self.client.get(reverse('leaderboard-user'))
         config.config.set("enable_scoreboard", True)
-        self.assertEquals(response.data["d"], {})
+        self.assertEqual(response.data["d"], {})
 
     def test_length(self):
         populate()
         response = self.client.get(reverse('leaderboard-user'))
-        self.assertEquals(len(response.data['d']['results']), 15)
+        self.assertEqual(len(response.data['d']['results']), 15)
 
     def test_order(self):
         populate()
         response = self.client.get(reverse('leaderboard-user'))
         points = [x['leaderboard_points'] for x in response.data['d']['results']]
-        self.assertEquals(points, sorted(points, reverse=True))
+        self.assertEqual(points, sorted(points, reverse=True))
 
 
 class TeamListTestCase(APITestCase):
@@ -141,29 +141,29 @@ class TeamListTestCase(APITestCase):
 
     def test_unauthed(self):
         response = self.client.get(reverse('leaderboard-team'))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('leaderboard-team'))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
         config.config.set("enable_scoreboard", False)
         response = self.client.get(reverse('leaderboard-team'))
         config.config.set("enable_scoreboard", True)
-        self.assertEquals(response.data["d"], {})
+        self.assertEqual(response.data["d"], {})
 
     def test_length(self):
         populate()
         response = self.client.get(reverse('leaderboard-team'))
-        self.assertEquals(len(response.data["d"]["results"]), 15)
+        self.assertEqual(len(response.data["d"]["results"]), 15)
 
     def test_order(self):
         populate()
         response = self.client.get(reverse('leaderboard-team'))
         points = [x['leaderboard_points'] for x in response.data['d']['results']]
-        self.assertEquals(points, sorted(points, reverse=True))
+        self.assertEqual(points, sorted(points, reverse=True))
 
 
 class CTFTimeListTestCase(APITestCase):
@@ -176,35 +176,35 @@ class CTFTimeListTestCase(APITestCase):
 
     def test_unauthed(self):
         response = self.client.get(reverse('leaderboard-ctftime'))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('leaderboard-ctftime'))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
         config.config.set("enable_scoreboard", False)
         response = self.client.get(reverse('leaderboard-ctftime'))
         config.config.set("enable_scoreboard", True)
-        self.assertEquals(response.data, {})
+        self.assertEqual(response.data, {})
 
     def test_disabled_ctftime(self):
         config.config.set("enable_ctftime", False)
         response = self.client.get(reverse('leaderboard-ctftime'))
         config.config.set("enable_ctftime", True)
-        self.assertEquals(response.data, {})
+        self.assertEqual(response.data, {})
 
     def test_length(self):
         populate()
         response = self.client.get(reverse('leaderboard-ctftime'))
-        self.assertEquals(len(response.data["standings"]), 15)
+        self.assertEqual(len(response.data["standings"]), 15)
 
     def test_order(self):
         populate()
         response = self.client.get(reverse('leaderboard-ctftime'))
         points = [x['score'] for x in response.data['standings']]
-        self.assertEquals(points, sorted(points, reverse=True))
+        self.assertEqual(points, sorted(points, reverse=True))
 
 
 class MatrixTestCase(APITestCase):
@@ -219,35 +219,35 @@ class MatrixTestCase(APITestCase):
     def test_authenticated(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('leaderboard-matrix-list'))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_unauthenticated(self):
         response = self.client.get(reverse('leaderboard-matrix-list'))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_length(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('leaderboard-matrix-list'))
-        self.assertEquals(len(response.data['d']['results']), 15)
+        self.assertEqual(len(response.data['d']['results']), 15)
 
     def test_solves_present(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('leaderboard-matrix-list'))
-        self.assertEquals(len(response.data['d']['results'][0]['solve_ids']), 1)
+        self.assertEqual(len(response.data['d']['results'][0]['solve_ids']), 1)
 
     def test_solves_not_present(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('leaderboard-matrix-list'))
-        self.assertEquals(len(response.data['d']['results'][1]['solve_ids']), 0)
+        self.assertEqual(len(response.data['d']['results'][1]['solve_ids']), 0)
 
     def test_order(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('leaderboard-matrix-list'))
         points = [x['leaderboard_points'] for x in response.data['d']['results']]
-        self.assertEquals(points, sorted(points, reverse=True))
+        self.assertEqual(points, sorted(points, reverse=True))
 
     def test_disabled_scoreboard(self):
         config.config.set("enable_scoreboard", False)
         response = self.client.get(reverse('leaderboard-matrix-list'))
         config.config.set("enable_scoreboard", True)
-        self.assertEquals(response.data['d'], {})
+        self.assertEqual(response.data['d'], {})

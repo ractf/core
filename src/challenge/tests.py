@@ -77,8 +77,8 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
 
     def test_challenge_solve(self):
         response = self.solve_challenge()
-        self.assertEquals(response.status_code, HTTP_200_OK)
-        self.assertEquals(response.data['d']['correct'], True)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data['d']['correct'], True)
 
     def test_challenge_solve_incorrect_flag(self):
         self.client.force_authenticate(user=self.user)
@@ -87,8 +87,8 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
             'challenge': self.challenge2.id,
         }
         response = self.client.post(reverse('submit-flag'), data)
-        self.assertEquals(response.status_code, HTTP_200_OK)
-        self.assertEquals(response.data['d']['correct'], False)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data['d']['correct'], False)
 
     def test_challenge_double_solve(self):
         self.solve_challenge()
@@ -98,7 +98,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
             'challenge': self.challenge2.id,
         }
         response = self.client.post(reverse('submit-flag'), data)
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_challenge_unlocks(self):
         self.solve_challenge()
@@ -117,27 +117,27 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         HintUse(hint=self.hint3, team=self.team, user=self.user, challenge=self.challenge2).save()
         self.solve_challenge()
         response = self.client.get(reverse('team-self'))
-        self.assertEquals(response.data['solves'][0]['points'], 900)
+        self.assertEqual(response.data['solves'][0]['points'], 900)
 
     def test_solve_first_blood(self):
         self.solve_challenge()
         response = self.client.get(reverse('team-self'))
-        self.assertEquals(response.data['solves'][0]['first_blood'], True)
+        self.assertEqual(response.data['solves'][0]['first_blood'], True)
 
     def test_solve_solved_by_name(self):
         self.solve_challenge()
         response = self.client.get(reverse('team-self'))
-        self.assertEquals(response.data['solves'][0]['solved_by_name'], 'challenge-test')
+        self.assertEqual(response.data['solves'][0]['solved_by_name'], 'challenge-test')
 
     def test_solve_team_name(self):
         self.solve_challenge()
         response = self.client.get(reverse('team-self'))
-        self.assertEquals(response.data['solves'][0]['team_name'], 'team')
+        self.assertEqual(response.data['solves'][0]['team_name'], 'team')
 
     def test_normal_scoring(self):
         self.solve_challenge()
         response = self.client.get(reverse('team-self'))
-        self.assertEquals(response.data['solves'][0]['points'], 1000)
+        self.assertEqual(response.data['solves'][0]['points'], 1000)
 
     def test_is_solved(self):
         self.solve_challenge()
@@ -150,7 +150,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         config.config.set('enable_flag_submission', False)
         response = self.solve_challenge()
         config.config.set('enable_flag_submission', True)
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_submission_malformed(self):
         self.client.force_authenticate(user=self.user)
@@ -158,7 +158,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
             'flag': 'ractf{a}',
         }
         response = self.client.post(reverse('submit-flag'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_challenge_score_same_team(self):
         self.client.force_authenticate(user=self.user)
@@ -173,7 +173,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
             'challenge': self.challenge2.id,
         }
         response = self.client.post(reverse('submit-flag'), data)
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_challenge_score_not_first_blood(self):
         self.solve_challenge()
@@ -183,7 +183,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
             'challenge': self.challenge2.id,
         }
         response = self.client.post(reverse('submit-flag'), data)
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertFalse(Solve.objects.get(team=self.team2, challenge=self.challenge2).first_blood)
 
     def test_challenge_solved_unauthed(self):
@@ -202,24 +202,24 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
 
     def test_category_list_unauthenticated_permission(self):
         response = self.client.get(reverse('categories-list'))
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_category_list_authenticated_permission(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('categories-list'))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_category_list_unauthenticated_content(self):
         response = self.client.get(reverse('categories-list'))
         self.assertFalse(response.data['s'])
-        self.assertEquals(response.data['m'], 'not_authenticated')
-        self.assertEquals(response.data['d'], '')
+        self.assertEqual(response.data['m'], 'not_authenticated')
+        self.assertEqual(response.data['d'], '')
 
     def test_category_list_authenticated_content(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('categories-list'))
-        self.assertEquals(len(response.data['d']), 1)
-        self.assertEquals(len(response.data['d'][0]['challenges']), 3)
+        self.assertEqual(len(response.data['d']), 1)
+        self.assertEqual(len(response.data['d'][0]['challenges']), 3)
 
     def test_category_list_challenge_redacting(self):
         self.client.force_authenticate(self.user)
@@ -267,23 +267,23 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
     
     def test_challenge_list_unauthenticated_permission(self):
         response = self.client.get(reverse('challenges-list'))
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_challenge_list_authenticated_permission(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('challenges-list'))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_challenge_list_unauthenticated_content(self):
         response = self.client.get(reverse('challenges-list'))
         self.assertFalse(response.data['s'])
-        self.assertEquals(response.data['m'], 'not_authenticated')
-        self.assertEquals(response.data['d'], '')
+        self.assertEqual(response.data['m'], 'not_authenticated')
+        self.assertEqual(response.data['d'], '')
 
     def test_challenge_list_authenticated_content(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse('challenges-list'))
-        self.assertEquals(len(response.data), 3)
+        self.assertEqual(len(response.data), 3)
 
     def test_challenge_list_challenge_redacting(self):
         self.client.force_authenticate(self.user)
@@ -331,14 +331,14 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.post(reverse('challenges-detail', kwargs={'pk': self.challenge1.id}))
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_user_post_list(self):
         self.user.is_staff = False
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.post(reverse('challenges-list'))
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_create_challenge(self):
         self.user.is_staff = True
@@ -350,7 +350,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
             'author': 'dave', 'score': 1000, 'unlock_requirements': "", 'flag_metadata': {},
             'tags': [],
         }, format='json')
-        self.assertEquals(response.status_code, HTTP_201_CREATED)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
 
     def test_create_challenge_unauthorized(self):
         self.user.is_staff = False
@@ -361,5 +361,5 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
             'challenge_type': 'test', 'challenge_metadata': {}, 'flag_type': 'plaintext',
             'author': 'dave', 'score': 1000, 'unlock_requirements': "a", 'flag_metadata': {}
         }, format='json')
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 

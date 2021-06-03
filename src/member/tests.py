@@ -17,29 +17,29 @@ class MemberTestCase(APITestCase):
 
     def test_str(self):
         user = get_user_model()(username="test-str", email="test-str@example.org")
-        self.assertEquals(str(user), user.username)
+        self.assertEqual(str(user), user.username)
 
     def test_self_status(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("member-self"))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_self_status_unauth(self):
         response = self.client.get(reverse("member-self"))
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_self_change_email(self):
         self.client.force_authenticate(self.user)
         response = self.client.put(
             reverse("member-self"), data={"email": "test-self2@example.org", "username": "test-self"}
         )
-        self.assertEquals(response.status_code, HTTP_200_OK)
-        self.assertEquals(get_user_model().objects.get(id=self.user.id).email, "test-self2@example.org")
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(get_user_model().objects.get(id=self.user.id).email, "test-self2@example.org")
 
     def test_self_change_email_invalid(self):
         self.client.force_authenticate(self.user)
         response = self.client.put(reverse("member-self"), data={"email": "test-self"})
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_self_change_email_token_change(self):
         pr_token = self.user.password_reset_token
@@ -55,7 +55,7 @@ class MemberTestCase(APITestCase):
     def test_self_get_email(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("member-self"))
-        self.assertEquals(response.data["email"], "test-self@example.org")
+        self.assertEqual(response.data["email"], "test-self@example.org")
 
 
 class MemberViewSetTestCase(APITestCase):
@@ -76,7 +76,7 @@ class MemberViewSetTestCase(APITestCase):
         user.save()
         self.client.force_authenticate(self.admin_user)
         response = self.client.get(reverse("member-list"))
-        self.assertEquals(len(response.data["d"]["results"]), 3)
+        self.assertEqual(len(response.data["d"]["results"]), 3)
 
     def test_visible_not_admin(self):
         user = get_user_model()(
@@ -86,7 +86,7 @@ class MemberViewSetTestCase(APITestCase):
         user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("member-list"))
-        self.assertEquals(len(response.data["d"]["results"]), 0)
+        self.assertEqual(len(response.data["d"]["results"]), 0)
 
     def test_visible_detail_admin(self):
         user = get_user_model()(
@@ -96,7 +96,7 @@ class MemberViewSetTestCase(APITestCase):
         user.save()
         self.client.force_authenticate(self.admin_user)
         response = self.client.get(reverse("member-detail", kwargs={"pk": user.id}))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_visible_detail_not_admin(self):
         user = get_user_model()(
@@ -106,7 +106,7 @@ class MemberViewSetTestCase(APITestCase):
         user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("member-detail", kwargs={"pk": user.id}))
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_view_email_admin(self):
         self.client.force_authenticate(self.admin_user)
@@ -129,7 +129,7 @@ class MemberViewSetTestCase(APITestCase):
         response = self.client.get(
             reverse("member-detail", kwargs={"pk": self.admin_user.id})
         )
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_patch_member(self):
         self.admin_user.is_visible = True
@@ -139,7 +139,7 @@ class MemberViewSetTestCase(APITestCase):
             reverse("member-detail", kwargs={"pk": self.admin_user.id}),
             data={"username": "test"},
         )
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_patch_member_admin(self):
         self.client.force_authenticate(self.admin_user)
@@ -147,4 +147,4 @@ class MemberViewSetTestCase(APITestCase):
             reverse("member-detail", kwargs={"pk": self.user.id}),
             data={"username": "test"},
         )
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)

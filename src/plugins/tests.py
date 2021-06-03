@@ -147,7 +147,7 @@ class BasicPointsPluginTestCase(APITestCase):
         self.plugin = BasicPointsPlugin(challenge)
 
     def test_points(self):
-        self.assertEquals(self.plugin.get_points(None, None, None), 1000)
+        self.assertEqual(self.plugin.get_points(None, None, None), 1000)
 
 
 class DecayPointsPluginTestCase(ChallengeSetupMixin, APITestCase):
@@ -161,13 +161,13 @@ class DecayPointsPluginTestCase(ChallengeSetupMixin, APITestCase):
         self.plugin = DecayPointsPlugin(self.challenge2)
 
     def test_base_points(self):
-        self.assertEquals(self.plugin.get_points(None, None, 0), 1000)
+        self.assertEqual(self.plugin.get_points(None, None, 0), 1000)
 
     def test_min_points(self):
-        self.assertEquals(self.plugin.get_points(None, None, 1000000000), 100)
+        self.assertEqual(self.plugin.get_points(None, None, 1000000000), 100)
 
     def test_first_solve_points(self):
-        self.assertEquals(self.plugin.get_points(None, None, 1), 1000)
+        self.assertEqual(self.plugin.get_points(None, None, 1), 1000)
 
     def test_decaying_points(self):
         self.assertTrue(self.plugin.get_points(None, None, 1) > self.plugin.get_points(None, None, 5))
@@ -201,14 +201,14 @@ class DecayPointsPluginTestCase(ChallengeSetupMixin, APITestCase):
 
     def test_score(self):
         self.plugin.score(self.user, self.team, '', Solve.objects.filter(challenge=self.challenge2))
-        self.assertEquals(self.team.points, 1000)
-        self.assertEquals(self.team.leaderboard_points, 1000)
+        self.assertEqual(self.team.points, 1000)
+        self.assertEqual(self.team.leaderboard_points, 1000)
 
     def test_score_lb_disabled(self):
         config.config.set('enable_scoring', False)
         self.plugin.score(self.user, self.team, '', Solve.objects.filter(challenge=self.challenge2))
-        self.assertEquals(self.team.points, 1000)
-        self.assertEquals(self.team.leaderboard_points, 0)
+        self.assertEqual(self.team.points, 1000)
+        self.assertEqual(self.team.leaderboard_points, 0)
 
 
 class PluginLoaderTestCase(APITestCase):
@@ -216,6 +216,6 @@ class PluginLoaderTestCase(APITestCase):
     def test_plugin_loader(self):
         plugins.load_plugins(['plugins.tests'])
         # TODO: why is this loading 5
-        # self.assertEquals(len(plugins.plugins['flag']), 4)
-        self.assertEquals(len(plugins.plugins['points']), 2)
+        # self.assertEqual(len(plugins.plugins['flag']), 4)
+        self.assertEqual(len(plugins.plugins['points']), 2)
 

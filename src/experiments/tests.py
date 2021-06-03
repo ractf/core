@@ -6,4 +6,4 @@ class ExperimentsTestCase(APITestCase):
     def test_experiments(self):
         with self.settings(EXPERIMENT_OVERRIDES={"test": True}):
             response = self.client.get(reverse("experiments"))
-            self.assertEquals(response.data["d"]["test"], True)
+            self.assertEqual(response.data["d"]["test"], True)

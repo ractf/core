@@ -31,7 +31,7 @@ class RegisterTestCase(APITestCase):
             'email': 'user@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_201_CREATED)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
 
     def test_register_with_mail(self):
         with self.settings(MAIL={
@@ -46,7 +46,7 @@ class RegisterTestCase(APITestCase):
                 'email': 'user@example.org',
             }
             response = self.client.post(reverse('register'), data)
-            self.assertEquals(response.status_code, HTTP_201_CREATED)
+            self.assertEqual(response.status_code, HTTP_201_CREATED)
 
     def test_register_weak_password(self):
         data = {
@@ -55,7 +55,7 @@ class RegisterTestCase(APITestCase):
             'email': 'user2@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_register_duplicate_username(self):
         data = {
@@ -64,14 +64,14 @@ class RegisterTestCase(APITestCase):
             'email': 'user3@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_201_CREATED)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
         data = {
             'username': 'user3',
             'password': 'uO7*$E@0ngqL',
             'email': 'user4@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_register_duplicate_email(self):
         data = {
@@ -80,14 +80,14 @@ class RegisterTestCase(APITestCase):
             'email': 'user4@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_201_CREATED)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
         data = {
             'username': 'user5',
             'password': 'uO7*$E@0ngqL',
             'email': 'user4@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     @mock.patch('time.time', side_effect=get_fake_time)
     def test_register_closed(self, mock_obj):
@@ -98,7 +98,7 @@ class RegisterTestCase(APITestCase):
             'email': 'user6@example.org',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
         config.config.set('enable_prelogin', True)
 
     def test_register_admin(self):
@@ -130,7 +130,7 @@ class RegisterTestCase(APITestCase):
             'username': 'user6',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_register_invalid_email(self):
         data = {
@@ -139,7 +139,7 @@ class RegisterTestCase(APITestCase):
             'email': 'user6',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_register_teams_disabled(self):
         config.config.set('enable_teams', False)
@@ -150,8 +150,8 @@ class RegisterTestCase(APITestCase):
         }
         response = self.client.post(reverse('register'), data)
         config.config.set('enable_teams', True)
-        self.assertEquals(response.status_code, HTTP_201_CREATED)
-        self.assertEquals(get_user_model().objects.get(username='user10').team.name, 'user10')
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+        self.assertEqual(get_user_model().objects.get(username='user10').team.name, 'user10')
 
 
 class EmailResendTestCase(APITestCase):
@@ -160,19 +160,19 @@ class EmailResendTestCase(APITestCase):
             user = get_user_model()(username="test_verify_user", email_verified=False, email="tvu@example.com")
             user.save()
             response = self.client.post(reverse('resend-email'), {"email": "tvu@example.com"})
-            self.assertEquals(response.status_code, HTTP_200_OK)
+            self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_already_verified_email_resend(self):
         with self.settings(RATELIMIT_ENABLE=False):
             user = get_user_model()(username="resend-email", email_verified=True, email="tvu@example.com")
             user.save()
             response = self.client.post(reverse('resend-email'), {"email": "tvu@example.com"})
-            self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+            self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_non_existing_email_resend(self):
         with self.settings(RATELIMIT_ENABLE=False):
             response = self.client.post(reverse('resend-email'), {"email": "nonexisting@example.com"})
-            self.assertEquals(response.status_code, HTTP_404_NOT_FOUND)
+            self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
 
 
 class SudoTestCase(APITestCase):
@@ -184,7 +184,7 @@ class SudoTestCase(APITestCase):
 
         self.client.force_authenticate(user)
         req = self.client.post(reverse('sudo'), {"id": user2.id})
-        self.assertEquals(req.status_code, HTTP_200_OK)
+        self.assertEqual(req.status_code, HTTP_200_OK)
 
 
 class GenerateInvitesTestCase(APITestCase):
@@ -194,7 +194,7 @@ class GenerateInvitesTestCase(APITestCase):
         self.client.force_authenticate(user=user)
         team = Team.objects.create(owner=user, name=user.username, password='123123')
         response = self.client.post(reverse('generate-invites'), {"amount": 15, "auto_team": team.id, "max_uses": 1})
-        self.assertEquals(len(response.data["d"]["invite_codes"]), 15)
+        self.assertEqual(len(response.data["d"]["invite_codes"]), 15)
 
     def test_invites_viewset(self):
         user = get_user_model()(username="resend-email", is_staff=True, email="tvu@example.com", is_superuser=True)
@@ -202,7 +202,7 @@ class GenerateInvitesTestCase(APITestCase):
         self.client.force_authenticate(user=user)
         self.client.post(reverse('generate-invites'), {"amount": 15, "max_uses": 1})
         response = self.client.get(reverse('invites-list'))
-        self.assertEquals(len(response.data["d"]["results"]), 15)
+        self.assertEqual(len(response.data["d"]["results"]), 15)
 
 
 
@@ -234,7 +234,7 @@ class InviteRequiredRegistrationTestCase(APITestCase):
             'email': 'user7@example.com',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_register_invite_required_valid(self):
         data = {
@@ -244,7 +244,7 @@ class InviteRequiredRegistrationTestCase(APITestCase):
             'invite': 'test1',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_201_CREATED)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
 
     def test_register_invite_required_invalid(self):
         data = {
@@ -254,7 +254,7 @@ class InviteRequiredRegistrationTestCase(APITestCase):
             'invite': 'test1---',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_register_invite_required_already_used(self):
         data = {
@@ -271,7 +271,7 @@ class InviteRequiredRegistrationTestCase(APITestCase):
             'invite': 'test2',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_register_invite_required_valid_maxing_uses(self):
         data = {
@@ -281,7 +281,7 @@ class InviteRequiredRegistrationTestCase(APITestCase):
             'invite': 'test3',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(response.status_code, HTTP_201_CREATED)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
 
     def test_register_invite_required_auto_team(self):
         data = {
@@ -291,7 +291,7 @@ class InviteRequiredRegistrationTestCase(APITestCase):
             'invite': 'test4',
         }
         response = self.client.post(reverse('register'), data)
-        self.assertEquals(get_user_model().objects.get(username='user12').team.id, self.team.id)
+        self.assertEqual(get_user_model().objects.get(username='user12').team.id, self.team.id)
 
 
 class LogoutTestCase(APITestCase):
@@ -307,11 +307,11 @@ class LogoutTestCase(APITestCase):
         self.client.post(reverse('login'), data={'username': self.user.username, 'password': 'password', 'otp': ''})
         self.client.force_authenticate(user=self.user)
         response = self.client.post(reverse('logout'))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_logout_not_logged_in(self):
         response = self.client.post(reverse('logout'))
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
 
 class LoginTestCase(APITestCase):
@@ -330,7 +330,7 @@ class LoginTestCase(APITestCase):
             'password': 'password',
         }
         response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_login_invalid(self):
         data = {
@@ -338,14 +338,14 @@ class LoginTestCase(APITestCase):
             'password': 'a',
         }
         response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_login_missing_data(self):
         data = {
             'username': 'login-test',
         }
         response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_login_email_not_verified(self):
         self.user.email_verified = False
@@ -355,7 +355,7 @@ class LoginTestCase(APITestCase):
             'password': 'password',
         }
         response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     @mock.patch('time.time', side_effect=get_fake_time)
     def test_login_login_closed(self, mock_obj):
@@ -366,7 +366,7 @@ class LoginTestCase(APITestCase):
         config.config.set('enable_prelogin', False)
         response = self.client.post(reverse('login'), data)
         config.config.set('enable_prelogin', True)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_login_inactive(self):
         self.user.is_active = False
@@ -376,7 +376,7 @@ class LoginTestCase(APITestCase):
             'password': 'password',
         }
         response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
         self.user.is_active = True
         self.user.save()
 
@@ -387,7 +387,7 @@ class LoginTestCase(APITestCase):
             'otp': '',
         }
         response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_login_wrong_user(self):
         data = {
@@ -396,7 +396,7 @@ class LoginTestCase(APITestCase):
             'otp': '',
         }
         response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_login_wrong_password(self):
         data = {
@@ -405,7 +405,7 @@ class LoginTestCase(APITestCase):
             'otp': '',
         }
         response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_login_malformed(self):
         data = {
@@ -413,7 +413,7 @@ class LoginTestCase(APITestCase):
             'otp': '',
         }
         response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_login_2fa_required(self):
         TOTPDevice(user=self.user, verified=True).save()
@@ -422,7 +422,7 @@ class LoginTestCase(APITestCase):
             'password': 'password',
         }
         response = self.client.post(reverse('login'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
 
 class Login2FATestCase(APITestCase):
@@ -445,7 +445,7 @@ class Login2FATestCase(APITestCase):
             'tfa': totp.now(),
         }
         response = self.client.post(reverse('login-2fa'), data)
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_login_2fa_invalid(self):
         data = {
@@ -454,7 +454,7 @@ class Login2FATestCase(APITestCase):
             'tfa': '123456',
         }
         response = self.client.post(reverse('login-2fa'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_login_2fa_without_2fa(self):
         user = get_user_model()(username='login-test-no-2fa', email='login-test-no-2fa@example.org')
@@ -467,7 +467,7 @@ class Login2FATestCase(APITestCase):
             'tfa': '123456'
         }
         response = self.client.post(reverse('login-2fa'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_login_2fa_missing(self):
         data = {
@@ -475,7 +475,7 @@ class Login2FATestCase(APITestCase):
             'password': 'password',
         }
         response = self.client.post(reverse('login-2fa'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_login_2fa_backup_cde(self):
         BackupCode(user=self.user, code='12345678').save()
@@ -485,7 +485,7 @@ class Login2FATestCase(APITestCase):
             'tfa': '12345678',
         }
         response = self.client.post(reverse('login-2fa'), data)
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
 
 class TokenTestCase(APITestCase):
@@ -493,7 +493,7 @@ class TokenTestCase(APITestCase):
         user = get_user_model()(username='token-test', email='token-test@example.org')
         user.save()
         tok = Token(key="a"*40, user=user)
-        self.assertEquals(str(tok), "a"*40)
+        self.assertEqual(str(tok), "a"*40)
 
 
 class TFATestCase(APITestCase):
@@ -509,7 +509,7 @@ class TFATestCase(APITestCase):
 
     def test_add_2fa_unauthenticated(self):
         response = self.client.post(reverse('add-2fa'))
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
         self.assertFalse(self.user.has_2fa())
 
     def test_add_2fa(self):
@@ -522,7 +522,7 @@ class TFATestCase(APITestCase):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse('add-2fa'))
         response = self.client.post(reverse('add-2fa'))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_verify_2fa(self):
         self.client.force_authenticate(user=self.user)
@@ -545,7 +545,7 @@ class TFATestCase(APITestCase):
         totp = pyotp.TOTP(secret)
         self.client.post(reverse('verify-2fa'), data={'otp': totp.now()})
         response = self.client.post(reverse('add-2fa'))
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_remove_2fa(self):
         self.client.force_authenticate(user=self.user)
@@ -557,7 +557,7 @@ class TFATestCase(APITestCase):
         response = self.client.post(reverse('remove-2fa'), data={
             'otp': pyotp.TOTP(totp_device.totp_secret).now()
         })
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_remove_2fa_fail(self):
         self.client.force_authenticate(user=self.user)
@@ -569,7 +569,7 @@ class TFATestCase(APITestCase):
         response = self.client.post(reverse('remove-2fa'), data={
             'otp': "invalid_otp"
         })
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_remove_2fa_removes_2fa(self):
         self.client.force_authenticate(user=self.user)
@@ -590,7 +590,7 @@ class TFATestCase(APITestCase):
         user.totp_device = None
         user.save()
         response = self.client.post(reverse('remove-2fa'))
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
 
 class RequestPasswordResetTestCase(APITestCase):
@@ -600,7 +600,7 @@ class RequestPasswordResetTestCase(APITestCase):
 
     def test_password_reset_request_invalid(self):
         response = self.client.post(reverse('request-password-reset'), data={'email': 'user10@example.org'})
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_password_reset_request_valid(self):
         with self.settings(MAIL={
@@ -611,7 +611,7 @@ class RequestPasswordResetTestCase(APITestCase):
         }):
             get_user_model()(username='test-password-rest', email='user10@example.org', email_verified=True).save()
             response = self.client.post(reverse('request-password-reset'), data={'email': 'user10@example.org'})
-            self.assertEquals(response.status_code, HTTP_200_OK)
+            self.assertEqual(response.status_code, HTTP_200_OK)
 
 
 class DoPasswordResetTestCase(APITestCase):
@@ -632,7 +632,7 @@ class DoPasswordResetTestCase(APITestCase):
             'password': 'uO7*$E@0ngqL',
         }
         response = self.client.post(reverse('do-password-reset'), data)
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_password_reset_issues_token(self):
         data = {
@@ -650,7 +650,7 @@ class DoPasswordResetTestCase(APITestCase):
             'password': 'uO7*$E@0ngqL',
         }
         response = self.client.post(reverse('do-password-reset'), data)
-        self.assertEquals(response.status_code, HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
 
     def test_password_reset_weak_password(self):
         data = {
@@ -659,7 +659,7 @@ class DoPasswordResetTestCase(APITestCase):
             'password': 'password',
         }
         response = self.client.post(reverse('do-password-reset'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_password_reset_login_disabled(self):
         config.config.set('enable_login', False)
@@ -700,7 +700,7 @@ class VerifyEmailTestCase(APITestCase):
             'token': self.user.email_token,
         }
         response = self.client.post(reverse('verify-email'), data)
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_email_verify_invalid(self):
         data = {
@@ -708,7 +708,7 @@ class VerifyEmailTestCase(APITestCase):
             'token': 'haha brr',
         }
         response = self.client.post(reverse('verify-email'), data)
-        self.assertEquals(response.status_code, HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
 
     def test_email_verify_nologin(self):
         config.config.set("enable_login", False)
@@ -719,7 +719,7 @@ class VerifyEmailTestCase(APITestCase):
         }
         response = self.client.post(reverse('verify-email'), data)
         config.config.set("enable_login", False)
-        self.assertEquals(response.data["d"], "")
+        self.assertEqual(response.data["d"], "")
 
     def test_email_verify_twice(self):
         data = {
@@ -728,7 +728,7 @@ class VerifyEmailTestCase(APITestCase):
         }
         response = self.client.post(reverse('verify-email'), data)
         response = self.client.post(reverse('verify-email'), data)
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_email_verify_bad_token(self):
         data = {
@@ -736,7 +736,7 @@ class VerifyEmailTestCase(APITestCase):
             'token': 'abc',
         }
         response = self.client.post(reverse('verify-email'), data)
-        self.assertEquals(response.status_code, HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
 
 
 class ChangePasswordTestCase(APITestCase):
@@ -756,7 +756,7 @@ class ChangePasswordTestCase(APITestCase):
         }
         response = self.client.post(reverse('change-password'), data)
 
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_change_password_weak(self):
         self.client.force_authenticate(user=self.user)
@@ -765,7 +765,7 @@ class ChangePasswordTestCase(APITestCase):
             'password': 'password',
         }
         response = self.client.post(reverse('change-password'), data)
-        self.assertEquals(response.status_code, HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_change_password_invalid_old(self):
         self.client.force_authenticate(user=self.user)
@@ -774,7 +774,7 @@ class ChangePasswordTestCase(APITestCase):
             'password': 'password',
         }
         response = self.client.post(reverse('change-password'), data)
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
 
 class RegerateBackupCodesTestCase(APITestCase):
@@ -790,12 +790,12 @@ class RegerateBackupCodesTestCase(APITestCase):
     def test_regenerate_backup_codes_count(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(reverse('regenerate-backup-codes'))
-        self.assertEquals(len(response.data['d']['backup_codes']), 10)
+        self.assertEqual(len(response.data['d']['backup_codes']), 10)
 
     def test_regenerate_backup_codes_length(self):
         self.client.force_authenticate(user=self.user)
         response = self.client.post(reverse('regenerate-backup-codes'))
-        self.assertEquals(sum([len(x) for x in response.data['d']['backup_codes']]), 80)
+        self.assertEqual(sum([len(x) for x in response.data['d']['backup_codes']]), 80)
 
     def test_regenerate_backup_codes_unique(self):
         self.client.force_authenticate(user=self.user)
@@ -809,7 +809,7 @@ class RegerateBackupCodesTestCase(APITestCase):
         user.save()
         self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
         response = self.client.post(reverse('regenerate-backup-codes'))
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
 
 class CreateBotUserTestCase(APITestCase):

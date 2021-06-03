@@ -33,21 +33,21 @@ class RecalculateUserViewTestCase(APITestCase):
         response = self.client.post(
             reverse("recalculate-user", kwargs={"id": self.user.id})
         )
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_authed(self):
         self.client.force_authenticate(self.admin_user)
         response = self.client.post(
             reverse("recalculate-user", kwargs={"id": self.user.id})
         )
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed_not_admin(self):
         self.client.force_authenticate(self.user)
         response = self.client.post(
             reverse("recalculate-user", kwargs={"id": self.user.id})
         )
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_recalculate(self):
         total = 0
@@ -60,7 +60,7 @@ class RecalculateUserViewTestCase(APITestCase):
         ).save()
         self.client.force_authenticate(self.admin_user)
         self.client.post(reverse("recalculate-user", kwargs={"id": self.user.id}))
-        self.assertEquals(
+        self.assertEqual(
             get_user_model().objects.get(id=self.user.id).points, total + 100
         )
 
@@ -75,7 +75,7 @@ class RecalculateUserViewTestCase(APITestCase):
         ).save()
         self.client.force_authenticate(self.admin_user)
         self.client.post(reverse("recalculate-user", kwargs={"id": self.user.id}))
-        self.assertEquals(
+        self.assertEqual(
             get_user_model().objects.get(id=self.user.id).leaderboard_points, total
         )
 
@@ -104,21 +104,21 @@ class RecalculateTeamViewTestCase(APITestCase):
         response = self.client.post(
             reverse("recalculate-team", kwargs={"id": self.team.id})
         )
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_authed(self):
         self.client.force_authenticate(self.admin_user)
         response = self.client.post(
             reverse("recalculate-team", kwargs={"id": self.team.id})
         )
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed_not_admin(self):
         self.client.force_authenticate(self.user)
         response = self.client.post(
             reverse("recalculate-team", kwargs={"id": self.team.id})
         )
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_recalculate(self):
         total = 0
@@ -131,7 +131,7 @@ class RecalculateTeamViewTestCase(APITestCase):
         ).save()
         self.client.force_authenticate(self.admin_user)
         self.client.post(reverse("recalculate-team", kwargs={"id": self.team.id}))
-        self.assertEquals(Team.objects.get(id=self.team.id).points, total + 100)
+        self.assertEqual(Team.objects.get(id=self.team.id).points, total + 100)
 
     def test_recalculate_leaderboard(self):
         total = 0
@@ -144,7 +144,7 @@ class RecalculateTeamViewTestCase(APITestCase):
         ).save()
         self.client.force_authenticate(self.admin_user)
         self.client.post(reverse("recalculate-team", kwargs={"id": self.team.id}))
-        self.assertEquals(Team.objects.get(id=self.team.id).leaderboard_points, total)
+        self.assertEqual(Team.objects.get(id=self.team.id).leaderboard_points, total)
 
 
 class RecalculateAllViewTestCase(APITestCase):
@@ -169,17 +169,17 @@ class RecalculateAllViewTestCase(APITestCase):
 
     def test_unauthed(self):
         response = self.client.post(reverse("recalculate-all"))
-        self.assertEquals(response.status_code, HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_authed(self):
         self.client.force_authenticate(self.admin_user)
         response = self.client.post(reverse("recalculate-all"))
-        self.assertEquals(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed_not_admin(self):
         self.client.force_authenticate(self.user)
         response = self.client.post(reverse("recalculate-all"))
-        self.assertEquals(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_recalculate(self):
         total = 0
@@ -192,8 +192,8 @@ class RecalculateAllViewTestCase(APITestCase):
         ).save()
         self.client.force_authenticate(self.admin_user)
         self.client.post(reverse("recalculate-all"))
-        self.assertEquals(Team.objects.get(id=self.team.id).points, total + 100)
-        self.assertEquals(
+        self.assertEqual(Team.objects.get(id=self.team.id).points, total + 100)
+        self.assertEqual(
             get_user_model().objects.get(id=self.user.id).points, total + 100
         )
 
@@ -208,7 +208,7 @@ class RecalculateAllViewTestCase(APITestCase):
         ).save()
         self.client.force_authenticate(self.admin_user)
         self.client.post(reverse("recalculate-all"))
-        self.assertEquals(Team.objects.get(id=self.team.id).leaderboard_points, total)
-        self.assertEquals(
+        self.assertEqual(Team.objects.get(id=self.team.id).leaderboard_points, total)
+        self.assertEqual(
             get_user_model().objects.get(id=self.user.id).leaderboard_points, total
         )
