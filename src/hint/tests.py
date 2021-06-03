@@ -108,7 +108,7 @@ class HintTestCase(ChallengeSetupMixin, APITestCase):
         self.client.post(reverse("hint-use"), data={"id": self.hint3.id})
         response = self.client.get(reverse("hint-detail", kwargs={"pk": self.hint3.id}))
         self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertNotEquals(response.data["text"], "")
+        self.assertNotEqual(response.data["text"], "")
 
     def test_hint_use_duplicate(self):
         self.client.force_authenticate(self.user)

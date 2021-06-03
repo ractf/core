@@ -49,8 +49,8 @@ class MemberTestCase(APITestCase):
             reverse("member-self"), data={"email": "test-self3@example.org"}
         )
         user = get_user_model().objects.get(id=self.user.id)
-        self.assertNotEquals(pr_token, user.password_reset_token)
-        self.assertNotEquals(ev_token, user.email_token)
+        self.assertNotEqual(pr_token, user.password_reset_token)
+        self.assertNotEqual(ev_token, user.email_token)
 
     def test_self_get_email(self):
         self.client.force_authenticate(self.user)

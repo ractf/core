@@ -516,7 +516,7 @@ class TFATestCase(APITestCase):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse('add-2fa'))
         self.assertFalse(self.user.has_2fa())
-        self.assertNotEquals(self.user.totp_device, None)
+        self.assertNotEqual(self.user.totp_device, None)
 
     def test_add_2fa_twice(self):
         self.client.force_authenticate(user=self.user)
