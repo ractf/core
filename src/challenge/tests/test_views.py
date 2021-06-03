@@ -14,8 +14,8 @@ from rest_framework.test import APITestCase
 import config
 
 from challenge.models import Solve
-from challenge.tests.mixins import ChallengeSetupMixin
 from hint.models import HintUse
+from challenge.tests.mixins import ChallengeSetupMixin
 
 
 class ChallengeTestCase(ChallengeSetupMixin, APITestCase):

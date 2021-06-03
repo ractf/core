@@ -2,16 +2,15 @@ from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_200_OK, HTTP_201_CREATED
 from rest_framework.test import APITestCase
 
-from challenge.tests import ChallengeSetupMixin
+from challenge.tests.mixins import ChallengeSetupMixin
 from hint.views import HintViewSet, UseHintView
 
 
 class HintTestCase(ChallengeSetupMixin, APITestCase):
-
     def setUp(self):
         super().setUp()
-        HintViewSet.throttle_scope = ''
-        UseHintView.throttle_scope = ''
+        HintViewSet.throttle_scope = ""
+        UseHintView.throttle_scope = ""
 
     def test_hint_view(self):
         self.client.force_authenticate(self.user)
