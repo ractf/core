@@ -58,7 +58,6 @@ class CachedBackend(ConfigBackend):
         value = self.cache.get(f'config_{key}')
         if value is None:
             return None
-        print(value)
         return pickle.loads(value)
 
     def set(self, key, value):
