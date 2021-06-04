@@ -39,9 +39,9 @@ from team.permissions import HasTeam
 
 def get_cache_key(user):
     if user.team is None:
-        return 'categoryvs_no_team'
+        return str(caches['default'].get('challenge_mod_index', 0)) + 'categoryvs_no_team'
     else:
-        return 'categoryvs_team_' + str(user.team.id)
+        return str(caches['default'].get('challenge_mod_index', 0)) + 'categoryvs_team_' + str(user.team.id)
 
 
 class CategoryViewset(AdminCreateModelViewSet):
