@@ -140,4 +140,3 @@ class Command(BaseCommand):
                     Team.objects.bulk_update(teams_to_update, ["leaderboard_points"])
                 with TimedLog("[4/4] Saving Scores in database..."):
                     Score.objects.bulk_create(scores_to_create)
-

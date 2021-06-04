@@ -19,10 +19,12 @@ from django.db.models.query import Prefetch
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
+from django.utils.functional import cached_property
 
 from django_prometheus.models import ExportModelOperationsMixin
 
 import config
+from plugins import plugins
 
 
 class Category(ExportModelOperationsMixin("category"), models.Model):
@@ -57,6 +59,36 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     points_type = models.CharField(max_length=64, default="basic")
     release_time = models.DateTimeField(default=timezone.now)
 
+    def self_check(self):
+        """Check the challenge doesn't have any configuration issues."""
+        issues = []
+
+        if not self.score:
+            issues.append({"issue": "missing_points", "challenge": self.id})
+
+        if not self.flag_type:
+            issues.append({"issue": "missing_flag_type", "challenge": self.id})
+        elif type(self.flag_metadata) != dict:
+            issues.append({"issue": "invalid_flag_data_type", "challenge": self.id})
+        else:
+            issues += [{
+                "issue": "invalid_flag_data",
+                "extra": issue,
+                "challenge": self.id
+            } for issue in self.flag_plugin.self_check()]
+
+        return issues
+
+    @cached_property
+    def flag_plugin(self):
+        """Return the flag plugin responsible for validating flags sent to this challenge"""
+        return plugins.plugins['flag'][self.flag_type](self)
+
+    @cached_property
+    def points_plugin(self):
+        """Return the points plugin responsible for granting points from this challenge"""
+        return plugins.plugins['points'][self.points_type](self)
+
     def is_unlocked(self, user, solves=None):
         if user is None:
             return False
@@ -73,7 +105,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         requirements = self.unlock_requirements
         state = []
         if not requirements:
-            return False
+            return True
         for i in requirements.split():
             if i.isdigit():
                 state.append(int(i) in solves)
@@ -119,7 +151,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         else:
             challenges = Challenge.objects.annotate(
                 solved=Value(False, models.BooleanField()),
-                solve_count=Count("solves"),
+                solve_count=Count("solves", distinct=True),
                 unlock_time_surpassed=Case(
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),

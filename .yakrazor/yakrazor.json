@@ -1,0 +1,4 @@
+{
+  "name": "ractf-core",
+  "engine": "docker-compose"
+}

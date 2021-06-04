@@ -6,11 +6,34 @@ from . import *
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
 
 
 SEND_MAIL = True
 
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 ALLOWED_HOSTS.extend(("ractf.co.uk", "api-elite.ractf.co.uk"))
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": LOG_LEVEL,
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+    },
+}
 
 TEMPLATES.insert(
     0,
@@ -33,9 +56,11 @@ MAIL = {
     "SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY"),
 }
 
+DEFAULT_SENTRY_DSN = "https://1fb04d3b9f8b4343bccea1c9f5b6d08b@o104250.ingest.sentry.io/5374671"
+
 sentry_sdk.init(
-    dsn="https://beaf099a91144f74afac77c0afe70518@o430159.ingest.sentry.io/5378144",
-    integrations=[DjangoIntegration()],
+    dsn=os.getenv("SENTRY_DSN", DEFAULT_SENTRY_DSN),
+    integrations=[DjangoIntegration(), RedisIntegration()],
     send_default_pii=False,
     server_name=DOMAIN,
 )

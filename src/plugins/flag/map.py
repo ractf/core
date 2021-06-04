@@ -23,3 +23,21 @@ class MapFlagPlugin(FlagPlugin):
         distance = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a)) * r
 
         return self.challenge.flag_metadata["radius"] > distance
+
+    def self_check(self):
+        """Ensure the set flag metadata has the required properties"""
+        issues = []
+
+        if not self.challenge.flag_metadata.get("radius", ""):
+            issues.append("property 'radius' must be set!")
+        elif not self.challenge.flag_metadata.get("radius", "").replace(".", "").isnumeric():
+            issues.append("property 'radius' must be numeric!")
+
+        if not self.challenge.flag_metadata.get("location", []):
+            issues.append("property 'location' must be set!")
+        elif type(self.challenge.flag_metadata.get("location", None)) is not list:
+            issues.append("property 'location' must be an array of len 2!")
+        elif len(self.challenge.flag_metadata.get("location", [])) != 2:
+            issues.append("property 'location' must be an array of len 2!")
+
+        return issues

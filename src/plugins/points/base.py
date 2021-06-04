@@ -7,9 +7,10 @@ from django.utils import timezone
 import config
 from challenge.models import Score, Solve
 from hint.models import HintUse
+from plugins.base import Plugin
 
 
-class PointsPlugin(abc.ABC):
+class PointsPlugin(Plugin, abc.ABC):
     plugin_type = 'points'
     recalculate_type = 'none'
 

@@ -240,9 +240,10 @@ class FlagSubmitView(APIView):
 
             challenge = get_object_or_404(Challenge.objects.select_for_update(), id=challenge_id)
             solve_set = Solve.objects.filter(challenge=challenge)
-            if solve_set.filter(team=team, correct=True).exists() \
-                    or not challenge.is_unlocked(user):
+            if solve_set.filter(team=team, correct=True).exists():
                 return FormattedResponse(m='already_solved_challenge', status=HTTP_403_FORBIDDEN)
+            if not challenge.is_unlocked(user):
+                return FormattedResponse(m='challenge_not_unlocked', status=HTTP_403_FORBIDDEN)
 
             if challenge.challenge_metadata.get("attempt_limit"):
                 count = solve_set.filter(team=team).count()
@@ -252,16 +253,14 @@ class FlagSubmitView(APIView):
                     return FormattedResponse(d={'correct': False}, m='attempt_limit_reached')
 
             flag_submit.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag)
-            plugin = plugins.plugins['flag'][challenge.flag_type](challenge)
-            points_plugin = plugins.plugins['points'][challenge.points_type](challenge)
 
-            if not plugin.check(flag, user=user, team=team):
+            if not challenge.flag_plugin.check(flag, user=user, team=team):
                 flag_reject.send(sender=self.__class__, user=user, team=team,
                                  challenge=challenge, flag=flag, reason='incorrect_flag')
-                points_plugin.register_incorrect_attempt(user, team, flag, solve_set)
+                challenge.points_plugin.register_incorrect_attempt(user, team, flag, solve_set)
                 return FormattedResponse(d={'correct': False}, m='incorrect_flag')
 
-            solve = points_plugin.score(user, team, flag, solve_set)
+            solve = challenge.points_plugin.score(user, team, flag, solve_set)
             if challenge.first_blood is None:
                 challenge.first_blood = user
                 challenge.save()
@@ -296,9 +295,7 @@ class FlagCheckView(APIView):
         if not solve_set.filter(team=team, correct=True).exists():
             return FormattedResponse(m='havent_solved_challenge', status=HTTP_403_FORBIDDEN)
 
-        plugin = plugins.plugins['flag'][challenge.flag_type](challenge)
-
-        if not plugin.check(flag, user=user, team=team):
+        if not challenge.flag_plugin.check(flag, user=user, team=team):
             return FormattedResponse(d={'correct': False}, m='incorrect_flag')
 
         ret = {'correct': True}

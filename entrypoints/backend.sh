@@ -1,6 +1,14 @@
 #! /bin/sh
 
 
+if [ -z "$prometheus_multiproc_dir" ]
+then
+  echo "No Prometheus directory set."
+else
+  echo "Deleting the contents of ${prometheus_multiproc_dir}"
+  rm $prometheus_multiproc_dir/* -rf
+fi
+
 stdbuf -o 0 echo -n "Waiting for postgres... "
 while ! nc -z $SQL_HOST $SQL_PORT
 do

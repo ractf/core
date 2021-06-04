@@ -3,10 +3,11 @@ from channels.layers import get_channel_layer
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+import config
 from announcements.models import Announcement
 from announcements.serializers import AnnouncementSerializer
 from backend.signals import flag_score, flag_reject, use_hint, team_join
-import config
+from challenge.models import Challenge
 
 
 def get_team_channel(user):
@@ -88,3 +89,12 @@ def on_announcement_create(sender, instance, **kwargs):
     data['type'] = 'send_json'
     data['event_code'] = 5
     broadcast(data)
+
+
+@receiver(post_save, sender=Challenge)
+def on_challenge_edit(sender, instance, **kwargs):
+    broadcast({
+        "type": "send_json",
+        "event_code": 6,
+        "challenge_id": instance.id
+    })
