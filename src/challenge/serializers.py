@@ -8,6 +8,21 @@ from challenge.sql import get_solve_counts, get_positive_votes, get_negative_vot
 from hint.serializers import HintSerializer, FastHintSerializer
 
 
+def setup_context(context):
+    context.update({
+        "request": context["request"],
+        "solve_counter": get_solve_counts(),
+        "votes_positive_counter": get_positive_votes(),
+        "votes_negative_counter": get_negative_votes(),
+    })
+    if context["request"].user.team is not None:
+        context.update({
+            "solves": list(
+                context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
+            ),
+        })
+
+
 class ForeignKeyField(serpy.Field):
     """A :class:`Field` that gets a given attribute from a foreign object."""
     def __init__(self, *args, attr_name="id", **kwargs):
@@ -116,16 +131,7 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
         if 'context' in kwargs:
             self.context = kwargs['context']
             if 'solve_counter' not in self.context:
-                self.context.update({
-                    "request": self.context["request"],
-                    "solves": list(
-                        self.context["request"].user.team.solves.filter(correct=True).values_list("challenge",
-                                                                                                  flat=True)
-                    ),
-                    "solve_counter": get_solve_counts(),
-                    "votes_positive_counter": get_positive_votes(),
-                    "votes_negative_counter": get_negative_votes(),
-                })
+                setup_context(self.context)
 
     def serialize(self, instance):
         if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and \
@@ -152,15 +158,7 @@ class FastCategorySerializer(serpy.Serializer):
         super().__init__(*args, **kwargs)
         if "context" in kwargs:
             self.context = kwargs["context"]
-            self.context.update({
-                "request": self.context["request"],
-                "solves": list(
-                    self.context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
-                ),
-                "solve_counter": get_solve_counts(),
-                "votes_positive_counter": get_positive_votes(),
-                "votes_negative_counter": get_negative_votes(),
-            })
+            setup_context(self.context)
 
     def get_challenges(self, instance):
         return FastChallengeSerializer(instance.challenges, many=True, context=self.context).data
@@ -208,20 +206,12 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
         super(FastAdminChallengeSerializer, self).__init__(*args, **kwargs)
         if 'context' in kwargs:
             self.context = kwargs['context']
-            if 'nested' not in kwargs:
-                self.context.update({
-                    "request": self.context["request"],
-                    "solves": list(
-                        self.context["request"].user.team.solves.filter(correct=True).values_list("challenge",
-                                                                                                  flat=True)
-                    ),
-                    "solve_counter": get_solve_counts(),
-                    "votes_positive_counter": get_positive_votes(),
-                    "votes_negative_counter": get_negative_votes(),
-                })
+            if 'solve_counter' not in self.context:
+                setup_context(self.context)
 
     def serialize(self, instance):
-            return super(FastAdminChallengeSerializer, FastAdminChallengeSerializer(instance, context=self.context)).to_value(instance)
+        return super(FastAdminChallengeSerializer, FastAdminChallengeSerializer(instance, context=self.context))\
+            .to_value(instance)
 
     def to_value(self, instance):
         if self.many:
@@ -295,15 +285,7 @@ class FastAdminCategorySerializer(serpy.Serializer):
         super().__init__(*args, **kwargs)
         if "context" in kwargs:
             self.context = kwargs["context"]
-            self.context.update({
-                "request": self.context["request"],
-                "solves": list(
-                    self.context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
-                ),
-                "solve_counter": get_solve_counts(),
-                "votes_positive_counter": get_positive_votes(),
-                "votes_negative_counter": get_negative_votes(),
-            })
+            setup_context(self.context)
 
     def get_challenges(self, instance):
         return FastAdminChallengeSerializer(instance.challenges, many=True, context=self.context).data
