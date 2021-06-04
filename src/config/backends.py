@@ -58,6 +58,7 @@ class CachedBackend(ConfigBackend):
         value = self.cache.get(f'config_{key}')
         if value is None:
             return None
+        print(value)
         return pickle.loads(value)
 
     def set(self, key, value):
@@ -77,7 +78,7 @@ class CachedBackend(ConfigBackend):
         return config
 
     def set_if_not_exists(self, key, value):
-        if self.cache.add('config_' + key, value, timeout=None):
+        if self.cache.add('config_' + key, pickle.dumps(value), timeout=None):
             self.keys.add(f"config_{key}")
 
     def load(self, defaults):
