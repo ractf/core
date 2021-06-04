@@ -59,18 +59,12 @@ class RegistrationSerializer(serializers.Serializer):
             user.is_staff = True
             user.is_superuser = True
 
+        invite_code = None
         if config.config.get("invite_required"):
             if InviteCode.objects.filter(code=validated_data["invite"]):
-                code = InviteCode.objects.get(code=validated_data["invite"])
-                if code:
-                    if code.uses >= code.max_uses:
-                        raise FormattedException(m="invite_already_used", status=HTTP_403_FORBIDDEN)
-                code.uses += 1
-                if code.uses >= code.max_uses:
-                    code.fully_used = True
-                code.save()
-                if code.auto_team:
-                    user.team = code.auto_team
+                invite_code = InviteCode.objects.get(code=validated_data["invite"])
+                if invite_code.uses >= invite_code.max_uses:
+                    raise FormattedException(m="invite_already_used", status=HTTP_403_FORBIDDEN)
             else:
                 raise FormattedException(m="invalid_invite", status=HTTP_403_FORBIDDEN)
 
@@ -79,8 +73,20 @@ class RegistrationSerializer(serializers.Serializer):
             user.is_visible = True
         else:
             user.save()
-            send_email(user.email, 'RACTF - Verify your email', 'verify',
-                       url=settings.FRONTEND_URL + 'verify?id={}&secret={}'.format(user.id, user.email_token))
+            try:
+                send_email(user.email, 'RACTF - Verify your email', 'verify',
+                           url=settings.FRONTEND_URL + 'verify?id={}&secret={}'.format(user.id, user.email_token))
+            except:
+                user.delete()
+                raise FormattedException(m="creation_failed")
+
+        if invite_code:
+            invite_code.uses += 1
+            if invite_code.uses >= invite_code.max_uses:
+                invite_code.fully_used = True
+            invite_code.save()
+            if invite_code.auto_team:
+                user.team = invite_code.auto_team
 
         if not config.config.get("enable_teams"):
             user.save()
