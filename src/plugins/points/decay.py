@@ -22,9 +22,5 @@ class DecayPointsPlugin(PointsPlugin):
         delta = self.get_points(None, None, solves.count() - 1) - points
         scores = Score.objects.filter(solve__in=solves)
         scores.update(points=points)
-        Team.objects.filter(solves__challenge=challenge).update(
-            points=F("points") - delta
-        )
-        get_user_model().objects.filter(solves__challenge=challenge).update(
-            points=F("points") - delta
-        )
+        Team.objects.filter(solves__challenge=challenge).update(points=F("points") - delta)
+        get_user_model().objects.filter(solves__challenge=challenge).update(points=F("points") - delta)
