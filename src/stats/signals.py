@@ -10,27 +10,23 @@ from team.models import Team
 
 
 member_count = Gauge("member_count", "The number of members currently registered")
-member_count.set(Member.objects.count())
-
 team_count = Gauge("team_count", "The number of teams currently registered")
-team_count.set(Team.objects.count())
-
 solve_count = Gauge("solve_count", "The count of both correct and incorrect solves")
-solve_count.set(Solve.objects.count())
-
 correct_solve_count = Gauge("correct_solve_count", "The count of correct solves")
-correct_solve_count.set(Solve.objects.filter(correct=True).count())
+connected_websocket_users = Gauge("connected_websocket_users", "The number of users connected to the websocket", multiprocess_mode="livesum")
 
-# When the worker starts up, set these in the cache to stay in sync
 if not cache.get("migrations_needed"):
     cache.set("member_count", Member.objects.count(), timeout=None)
-    cache.set("team_count", Team.objects.count(), timeout=None)
-    cache.set("solve_count", Solve.objects.count(), timeout=None)
-    cache.set("correct_solve_count", Solve.objects.filter(correct=True).count(), timeout=None)
+    member_count.set(cache.get("member_count"))
 
-connected_websocket_users = Gauge(
-    "connected_websocket_users", "The number of users connected to the websocket", multiprocess_mode="livesum"
-)
+    cache.set("team_count", Team.objects.count(), timeout=None)
+    team_count.set(cache.get("team_count"))
+
+    cache.set("solve_count", Solve.objects.count(), timeout=None)
+    solve_count.set(cache.get("solve_count"))
+
+    cache.set("correct_solve_count", Solve.objects.filter(correct=True).count(), timeout=None)
+    correct_solve_count.set(cache.get("correct_solve_count"))
 
 
 @receiver(register)
