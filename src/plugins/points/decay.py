@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.db.models import F
 
+import team
 from challenge.models import Score
 from plugins.points.base import PointsPlugin
-from team.models import Team
 
 
 class DecayPointsPlugin(PointsPlugin):
@@ -22,5 +22,5 @@ class DecayPointsPlugin(PointsPlugin):
         delta = self.get_points(None, None, solves.count() - 1) - points
         scores = Score.objects.filter(solve__in=solves)
         scores.update(points=points)
-        Team.objects.filter(solves__challenge=challenge).update(points=F("points") - delta)
+        team.models.Team.objects.filter(solves__challenge=challenge).update(points=F("points") - delta)
         get_user_model().objects.filter(solves__challenge=challenge).update(points=F("points") - delta)
