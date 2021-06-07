@@ -56,9 +56,9 @@ profile = "black"
 multi_line_output = 3
 
 [tool.flake8]
+exclude = "*migrations*,*settings*"
 max-line-length = 200
 max-complexity = 25
-hang-closing = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]
