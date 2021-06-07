@@ -105,7 +105,6 @@ class Command(BaseCommand):
                     z = team.members.all()
                     user = z[0]
                     user2 = z[1]
-                    used = []
                     for j in range(50):
                         points = random.randint(0, 999)
                         score = Score(team=team, reason="challenge", points=points, penalty=0, leaderboard=True)
