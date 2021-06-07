@@ -303,7 +303,7 @@ class InviteRequiredRegistrationTestCase(APITestCase):
             "email": "user12@example.com",
             "invite": "test4",
         }
-        response = self.client.post(reverse("register"), data)
+        self.client.post(reverse("register"), data)
         self.assertEqual(get_user_model().objects.get(username="user12").team.id, self.team.id)
 
 
