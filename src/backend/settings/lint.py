@@ -13,7 +13,7 @@ for scope in REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]:
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": "/tmp/db.sqlite3",
+        "NAME": "/tmp/ractf-linting.db",
         "USER": "",
         "PASSWORD": "",
         "HOST": "",
@@ -27,7 +27,8 @@ CONFIG = {
 
 CACHES = {
     "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "dead-beef",
-    }
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": "/tmp/ractf-linting.db",
+        "OPTIONS": {"MAX_ENTRIES": 1000},
+    },
 }
