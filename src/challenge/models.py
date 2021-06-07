@@ -192,8 +192,7 @@ class ChallengeFeedback(ExportModelOperationsMixin("challenge_feedback"), models
 
 @receiver(post_save, sender=Challenge)
 def on_challenge_update(sender, instance, created, **kwargs):
-    if not created:
-        new_score = instance.score
+    ...
 
 
 class Score(ExportModelOperationsMixin("score"), models.Model):
