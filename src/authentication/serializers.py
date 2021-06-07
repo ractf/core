@@ -6,8 +6,7 @@ from django.contrib.auth import get_user_model, password_validation
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
-from rest_framework.status import (HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED,
-                                   HTTP_403_FORBIDDEN)
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 
 from authentication.models import InviteCode, PasswordResetToken
 from backend.exceptions import FormattedException

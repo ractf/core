@@ -1,10 +1,8 @@
-from django.contrib.auth import (authenticate, get_user_model,
-                                 password_validation)
+from django.contrib.auth import authenticate, get_user_model, password_validation
 from rest_framework.exceptions import ValidationError
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
 
-from authentication.providers import (LoginProvider, RegistrationProvider,
-                                      TokenProvider)
+from authentication.providers import LoginProvider, RegistrationProvider, TokenProvider
 from backend.exceptions import FormattedException
 from backend.signals import login, login_reject
 

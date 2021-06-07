@@ -1,10 +1,8 @@
 from django.http import Http404
 from rest_framework import filters
-from rest_framework.generics import (CreateAPIView, RetrieveUpdateAPIView,
-                                     get_object_or_404)
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.status import (HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN,
-                                   HTTP_404_NOT_FOUND)
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 from rest_framework.views import APIView
 
 from backend.exceptions import FormattedException
@@ -17,9 +15,7 @@ from config import config
 from member.models import Member
 from team.models import Team
 from team.permissions import HasTeam, IsTeamOwnerOrReadOnly, TeamsEnabled
-from team.serializers import (AdminTeamSerializer, CreateTeamSerializer,
-                              ListTeamSerializer, SelfTeamSerializer,
-                              TeamSerializer)
+from team.serializers import AdminTeamSerializer, CreateTeamSerializer, ListTeamSerializer, SelfTeamSerializer, TeamSerializer
 
 
 class SelfView(RetrieveUpdateAPIView):

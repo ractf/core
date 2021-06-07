@@ -12,8 +12,7 @@ from challenge.permissions import CompetitionOpen
 from challenge.views import get_cache_key
 from hint.models import Hint, HintUse
 from hint.permissions import HasUsedHint
-from hint.serializers import (CreateHintSerializer, FullHintSerializer,
-                              HintSerializer, UseHintSerializer)
+from hint.serializers import CreateHintSerializer, FullHintSerializer, HintSerializer, UseHintSerializer
 from team.permissions import HasTeam
 
 

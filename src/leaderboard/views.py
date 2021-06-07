@@ -11,18 +11,12 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from backend.response import FormattedResponse
 from challenge.models import Score
 from config import config
-from leaderboard.serializers import (CTFTimeSerializer,
-                                     LeaderboardTeamScoreSerializer,
-                                     LeaderboardUserScoreSerializer,
-                                     MatrixSerializer, TeamPointsSerializer,
-                                     UserPointsSerializer)
+from leaderboard.serializers import CTFTimeSerializer, LeaderboardTeamScoreSerializer, LeaderboardUserScoreSerializer, MatrixSerializer, TeamPointsSerializer, UserPointsSerializer
 from team.models import Team
 
 
 def should_hide_scoreboard():
-    return not config.get("enable_scoreboard") and (
-        config.get("hide_scoreboard_at") == -1 or config.get("hide_scoreboard_at") > time.time() or config.get("end_time") > time.time()
-    )
+    return not config.get("enable_scoreboard") and (config.get("hide_scoreboard_at") == -1 or config.get("hide_scoreboard_at") > time.time() or config.get("end_time") > time.time())
 
 
 class CTFTimeListView(APIView):

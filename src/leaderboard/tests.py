@@ -5,8 +5,7 @@ from rest_framework.test import APITestCase
 
 from challenge.models import Category, Challenge, Score, Solve
 from config import config
-from leaderboard.views import (CTFTimeListView, GraphView, TeamListView,
-                               UserListView)
+from leaderboard.views import CTFTimeListView, GraphView, TeamListView, UserListView
 from team.models import Team
 
 

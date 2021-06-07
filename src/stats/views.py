@@ -14,8 +14,7 @@ from challenge.models import Score
 from challenge.sql import get_incorrect_solve_counts, get_solve_counts
 from config import config
 from member.models import UserIP
-from stats.signals import (correct_solve_count, member_count, solve_count,
-                           team_count)
+from stats.signals import correct_solve_count, member_count, solve_count, team_count
 from team.models import Team
 
 

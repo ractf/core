@@ -7,9 +7,7 @@ from rest_framework.viewsets import ModelViewSet
 from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
 from backend.viewsets import AdminListModelViewSet
 from member.models import UserIP
-from member.serializers import (AdminMemberSerializer, ListMemberSerializer,
-                                MemberSerializer, SelfSerializer,
-                                UserIPSerializer)
+from member.serializers import AdminMemberSerializer, ListMemberSerializer, MemberSerializer, SelfSerializer, UserIPSerializer
 
 
 class SelfView(RetrieveUpdateAPIView):
