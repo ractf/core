@@ -131,6 +131,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
 ]
+if DEBUG:
+    MIDDLEWARE.insert(0, "better_exceptions.integrations.django.BetterExceptionsMiddleware")
 
 if os.getenv("ENABLE_SILK"):
     INSTALLED_APPS.insert(len(INSTALLED_APPS) - 6, "silk")

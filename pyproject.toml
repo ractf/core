@@ -42,6 +42,7 @@ pytest-django = "^4.3.0"
 isort = "^5.8.0"
 pre-commit = "^2.13.0"
 flake9 = "^3.8.3"
+better-exceptions = "^0.3.3"
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "backend.settings.local"
