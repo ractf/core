@@ -579,7 +579,7 @@ class TFATestCase(APITestCase):
         totp_device.verified = True
         totp_device.save()
         self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
-        response = self.client.post(reverse("remove-2fa"), data={"otp": pyotp.TOTP(totp_device.totp_secret).now()})
+        self.client.post(reverse("remove-2fa"), data={"otp": pyotp.TOTP(totp_device.totp_secret).now()})
         self.assertFalse(get_user_model().objects.get(id=self.user.id).has_2fa())
 
     def test_remove_2fa_no_2fa(self):
