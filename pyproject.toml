@@ -46,6 +46,10 @@ better-exceptions = "^0.3.3"
 
 [tool.pytest.ini_options]
 python_files = "tests.py test_*.py *_tests.py"
+filterwarnings = """
+ignore::django.utils.deprecation.RemovedInDjango40Warning
+ignore::django.utils.deprecation.RemovedInDjango41Warning
+"""
 
 [tool.black]
 exclude = 'migrations'
