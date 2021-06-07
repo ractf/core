@@ -1,6 +1,7 @@
 test:
 	cd src && \
 	DJANGO_SETTINGS_MODULE='backend.settings.lint' \
+	BETTER_EXCEPTIONS=1 \
 	python manage.py migrate && \
 	pytest --cov=. --cov-report=xml
 
