@@ -45,7 +45,6 @@ flake9 = "^3.8.3"
 better-exceptions = "^0.3.3"
 
 [tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "backend.settings.local"
 python_files = "tests.py test_*.py *_tests.py"
 
 [tool.black]
