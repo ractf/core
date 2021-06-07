@@ -1,13 +1,12 @@
 from pydoc import locate
 
 from django.conf import settings
+from django.utils.functional import SimpleLazyObject
 
-backend = None
+backend = SimpleLazyObject(lambda: locate(settings.CONFIG["BACKEND"])())
 
 
 def load():
-    global backend
-    backend = locate(settings.CONFIG["BACKEND"])()
     backend.load(defaults=settings.DEFAULT_CONFIG)
 
 
