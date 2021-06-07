@@ -51,6 +51,10 @@ python_files = "tests.py test_*.py *_tests.py"
 exclude = 'migrations'
 line_length = 200
 
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]
 build-backend = "poetry.core.masonry.api"
