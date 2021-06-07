@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
         ),
     ]
 
-    if not settings.DATABASES.get("default", {}).get("ENGINE", "").endswith("postgresql"):
+    if settings.DATABASES.get("default", {}).get("ENGINE", "").endswith("postgresql"):
         operations.append(
             migrations.AddIndex(
                 model_name="solve",
