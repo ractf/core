@@ -1,11 +1,9 @@
-from collections import Counter
-
 import serpy
 from rest_framework import serializers
 
-from challenge.models import Challenge, Category, File, Solve, Score, ChallengeFeedback, Tag, ChallengeVote
+from challenge.models import Challenge, Category, File, Solve, Score, ChallengeFeedback, Tag
 from challenge.sql import get_solve_counts, get_positive_votes, get_negative_votes
-from hint.serializers import HintSerializer, FastHintSerializer
+from hint.serializers import FastHintSerializer
 
 
 def setup_context(context):
@@ -58,12 +56,6 @@ class FastFileSerializer(serpy.Serializer):
     size = serpy.IntField()
     md5 = serpy.StrField()
     challenge = ForeignKeyField()
-
-
-class NestedTagSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Tag
-        fields = ["text", "type"]
 
 
 class FastNestedTagSerializer(serpy.Serializer):
@@ -126,112 +118,6 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     tags = FastNestedTagSerializer(many=True)
     unlock_time_surpassed = serpy.MethodField()
     post_score_explanation = serpy.StrField()
-
-
-class LockedChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
-    unlock_time_surpassed = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Challenge
-        fields = ["id", "unlock_requirements", "challenge_metadata", "challenge_type", "hidden", "unlock_time_surpassed", "release_time"]
-
-
-class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
-    hints = HintSerializer(many=True, read_only=True)
-    files = FileSerializer(many=True, read_only=True)
-    solved = serializers.SerializerMethodField()
-    unlocked = serializers.SerializerMethodField()
-    unlock_time_surpassed = serializers.SerializerMethodField()
-    votes = serializers.SerializerMethodField()
-    first_blood_name = serializers.ReadOnlyField(source="first_blood.username")
-    solve_count = serializers.SerializerMethodField()
-    tags = NestedTagSerializer(many=True, read_only=True)
-    post_score_explanation = serializers.SerializerMethodField()
-
-
-class LockedChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
-    unlock_time_surpassed = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Challenge
-        fields = ["id", "unlock_requirements", "challenge_metadata", "challenge_type", "hidden", "unlock_time_surpassed", "release_time", "score"]
-
-    def __init__(self, *args, **kwargs):
-        super(FastChallengeSerializer, self).__init__(*args, **kwargs)
-        if "context" in kwargs:
-            self.context = kwargs["context"]
-            if "solve_counter" not in self.context:
-                setup_context(self.context)
-
-    class Meta:
-        model = Challenge
-        fields = [
-            "id",
-            "name",
-            "category",
-            "description",
-            "challenge_type",
-            "challenge_metadata",
-            "flag_type",
-            "author",
-            "auto_unlock",
-            "score",
-            "unlock_requirements",
-            "hints",
-            "files",
-            "solved",
-            "unlocked",
-            "first_blood",
-            "first_blood_name",
-            "solve_count",
-            "hidden",
-            "votes",
-            "tags",
-            "unlock_time_surpassed",
-            "post_score_explanation",
-        ]
-
-    class Meta:
-        model = Challenge
-        fields = [
-            "id",
-            "name",
-            "category",
-            "description",
-            "challenge_type",
-            "challenge_metadata",
-            "flag_type",
-            "author",
-            "score",
-            "unlock_requirements",
-            "hints",
-            "files",
-            "solved",
-            "unlocked",
-            "first_blood",
-            "first_blood_name",
-            "solve_count",
-            "hidden",
-            "votes",
-            "tags",
-            "unlock_time_surpassed",
-            "post_score_explanation",
-        ]
-
-    def serialize(self, instance):
-        if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and not instance.hidden and instance.unlock_time_surpassed:
-            return super(FastChallengeSerializer, FastChallengeSerializer(instance, context=self.context)).to_value(instance)
-        return FastLockedChallengeSerializer(instance).data
-
-    def to_representation(self, instance):
-        if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and not instance.hidden and instance.unlock_time_surpassed:
-            return super(ChallengeSerializer, self).to_representation(instance)
-        return LockedChallengeSerializer(instance).to_representation(instance)
-
-    def to_value(self, instance):
-        if self.many:
-            return [self.serialize(o) for o in instance]
-        return self.serialize(instance)
 
 
 class FastCategorySerializer(serpy.Serializer):
@@ -310,45 +196,6 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
         return self.serialize(instance)
 
 
-class AdminChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
-    hints = HintSerializer(many=True, read_only=True)
-    files = FileSerializer(many=True, read_only=True)
-    solved = serializers.SerializerMethodField()
-    unlocked = serializers.SerializerMethodField()
-    votes = serializers.SerializerMethodField()
-    first_blood_name = serializers.ReadOnlyField(source="first_blood.team.name")
-    solve_count = serializers.SerializerMethodField()
-    tags = NestedTagSerializer(many=True, read_only=False)
-
-    class Meta:
-        model = Challenge
-        fields = [
-            "id",
-            "name",
-            "category",
-            "description",
-            "challenge_type",
-            "challenge_metadata",
-            "flag_type",
-            "author",
-            "score",
-            "unlock_requirements",
-            "flag_metadata",
-            "hints",
-            "files",
-            "solved",
-            "unlocked",
-            "first_blood",
-            "first_blood_name",
-            "solve_count",
-            "hidden",
-            "release_time",
-            "votes",
-            "post_score_explanation",
-            "tags",
-        ]
-
-
 class CreateChallengeSerializer(serializers.ModelSerializer):
     tags = serializers.ListField(write_only=True)
 
@@ -387,23 +234,6 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
             for tag_data in tags:
                 Tag.objects.create(challenge=instance, **tag_data)
         return super().update(instance, validated_data)
-
-
-class AdminCategorySerializer(serializers.ModelSerializer):
-    challenges = AdminChallengeSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Category
-        fields = [
-            "id",
-            "name",
-            "display_order",
-            "contained_type",
-            "description",
-            "metadata",
-            "challenges",
-            "release_time",
-        ]
 
 
 class FastAdminCategorySerializer(serpy.Serializer):

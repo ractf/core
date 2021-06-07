@@ -25,7 +25,6 @@ from backend.viewsets import AdminCreateModelViewSet
 from challenge.models import Challenge, Category, Solve, File, ChallengeVote, ChallengeFeedback, Tag, Score
 from challenge.permissions import CompetitionOpen
 from challenge.serializers import (
-    AdminCategorySerializer,
     FileSerializer,
     CreateCategorySerializer,
     CreateChallengeSerializer,
@@ -42,7 +41,6 @@ from challenge.serializers import (
 )
 import config
 from hint.models import Hint, HintUse
-from plugins import plugins
 from team.models import Team
 from team.permissions import HasTeam
 
