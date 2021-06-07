@@ -82,7 +82,7 @@ class CachedBackend(ConfigBackend):
         config_exists, migrations_needed = False, False
         try:
             config_exists = db_config.exists()
-        except ProgrammingError, OperationalError:
+        except (ProgrammingError, OperationalError):
             migrations_needed = True
 
         if config_exists:
