@@ -22,7 +22,7 @@ DATABASES = {
 }
 
 CONFIG = {
-    "BACKEND": "config.backends.DatabaseBackend",
+    "BACKEND": "config.backends.CachedBackend",
 }
 
 CACHES = {
