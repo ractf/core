@@ -6,7 +6,7 @@ from django.urls import reverse
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
 from rest_framework.test import APITestCase
 
-import config
+from config import config
 from authentication.models import PasswordResetToken, TOTPDevice, InviteCode, BackupCode, Token
 from authentication.views import (
     VerifyEmailView,
@@ -94,7 +94,7 @@ class RegisterTestCase(APITestCase):
 
     @mock.patch("time.time", side_effect=get_fake_time)
     def test_register_closed(self, mock_obj):
-        config.config.set("enable_prelogin", False)
+        config.set("enable_prelogin", False)
         data = {
             "username": "user6",
             "password": "uO7*$E@0ngqL",
@@ -102,7 +102,7 @@ class RegisterTestCase(APITestCase):
         }
         response = self.client.post(reverse("register"), data)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
-        config.config.set("enable_prelogin", True)
+        config.set("enable_prelogin", True)
 
     def test_register_admin(self):
         data = {
@@ -145,14 +145,14 @@ class RegisterTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_register_teams_disabled(self):
-        config.config.set("enable_teams", False)
+        config.set("enable_teams", False)
         data = {
             "username": "user10",
             "password": "uO7*$E@0ngqL",
             "email": "user10@example.com",
         }
         response = self.client.post(reverse("register"), data)
-        config.config.set("enable_teams", True)
+        config.set("enable_teams", True)
         self.assertEqual(response.status_code, HTTP_201_CREATED)
         self.assertEqual(get_user_model().objects.get(username="user10").team.name, "user10")
 
@@ -211,7 +211,7 @@ class GenerateInvitesTestCase(APITestCase):
 class InviteRequiredRegistrationTestCase(APITestCase):
     def setUp(self):
         RegistrationView.throttle_scope = ""
-        config.config.set("invite_required", True)
+        config.set("invite_required", True)
         InviteCode(code="test1", max_uses=10).save()
         InviteCode(code="test2", max_uses=1).save()
         InviteCode(code="test3", max_uses=1).save()
@@ -225,7 +225,7 @@ class InviteRequiredRegistrationTestCase(APITestCase):
         InviteCode(code="test4", max_uses=1, auto_team=team).save()
 
     def tearDown(self):
-        config.config.set("invite_required", False)
+        config.set("invite_required", False)
 
     def test_register_invite_required_missing_invite(self):
         data = {
@@ -361,9 +361,9 @@ class LoginTestCase(APITestCase):
             "username": "login-test",
             "password": "password",
         }
-        config.config.set("enable_prelogin", False)
+        config.set("enable_prelogin", False)
         response = self.client.post(reverse("login"), data)
-        config.config.set("enable_prelogin", True)
+        config.set("enable_prelogin", True)
         self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_login_inactive(self):
@@ -641,26 +641,26 @@ class DoPasswordResetTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_password_reset_login_disabled(self):
-        config.config.set("enable_login", False)
+        config.set("enable_login", False)
         data = {
             "uid": self.user.id,
             "token": "testtoken",
             "password": "uO7*$E@0ngqL",
         }
         response = self.client.post(reverse("do-password-reset"), data)
-        config.config.set("enable_login", True)
+        config.set("enable_login", True)
         self.assertFalse("token" in response.data["d"])
 
     @mock.patch("time.time", side_effect=get_fake_time)
     def test_password_reset_cant_login_yet(self, obj):
-        config.config.set("enable_prelogin", False)
+        config.set("enable_prelogin", False)
         data = {
             "uid": self.user.id,
             "token": "testtoken",
             "password": "uO7*$E@0ngqL",
         }
         response = self.client.post(reverse("do-password-reset"), data)
-        config.config.set("enable_prelogin", True)
+        config.set("enable_prelogin", True)
         self.assertFalse("token" in response.data["d"])
 
 
@@ -689,14 +689,14 @@ class VerifyEmailTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
 
     def test_email_verify_nologin(self):
-        config.config.set("enable_login", False)
+        config.set("enable_login", False)
 
         data = {
             "uid": self.user.id,
             "token": self.user.email_token,
         }
         response = self.client.post(reverse("verify-email"), data)
-        config.config.set("enable_login", False)
+        config.set("enable_login", False)
         self.assertEqual(response.data["d"], "")
 
     def test_email_verify_twice(self):

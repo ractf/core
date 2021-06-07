@@ -3,7 +3,7 @@ from channels.layers import get_channel_layer
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-import config
+from config import config
 from announcements.models import Announcement
 from announcements.serializers import AnnouncementSerializer
 from backend.signals import flag_score, flag_reject, use_hint, team_join
@@ -26,7 +26,7 @@ def broadcast(data):
 
 @receiver(flag_score)
 def on_flag_score(user, team, challenge, flag, solve, **kwargs):
-    if not config.config.get("enable_solve_broadcast"):
+    if not config.get("enable_solve_broadcast"):
         return
     broadcast(
         {

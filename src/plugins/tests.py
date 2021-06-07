@@ -3,7 +3,7 @@ from rest_framework.test import APITestCase
 
 from challenge.models import Category, Challenge, Solve, Score
 from challenge.tests.mixins import ChallengeSetupMixin
-import config
+from config import config
 from plugins import plugins
 from plugins.flag.hashed import HashedFlagPlugin
 from plugins.flag.lenient import LenientFlagPlugin
@@ -212,7 +212,7 @@ class DecayPointsPluginTestCase(ChallengeSetupMixin, APITestCase):
         self.assertEqual(self.team.leaderboard_points, 1000)
 
     def test_score_lb_disabled(self):
-        config.config.set("enable_scoring", False)
+        config.set("enable_scoring", False)
         self.plugin.score(self.user, self.team, "", Solve.objects.filter(challenge=self.challenge2))
         self.assertEqual(self.team.points, 1000)
         self.assertEqual(self.team.leaderboard_points, 0)

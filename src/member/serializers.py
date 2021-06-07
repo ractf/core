@@ -6,7 +6,7 @@ from rest_framework import serializers
 from backend.mixins import IncorrectSolvesMixin
 from challenge.serializers import SolveSerializer
 from member.models import UserIP
-import config
+from config import config
 
 
 class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
@@ -146,7 +146,7 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
-        if not config.config.get("enable_teams"):
+        if not config.get("enable_teams"):
             if instance.team:
                 instance.team.name = validated_data.get("username", instance.username)
         return super(SelfSerializer, self).update(instance, validated_data)

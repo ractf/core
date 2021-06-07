@@ -23,7 +23,7 @@ from django.utils.functional import cached_property
 
 from django_prometheus.models import ExportModelOperationsMixin
 
-import config
+from config import config
 from plugins import plugins
 
 
@@ -171,7 +171,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             Prefetch("file_set", queryset=File.objects.all(), to_attr="files"),
             Prefetch(
                 "tag_set",
-                queryset=Tag.objects.all() if time.time() > config.config.get("end_time") else Tag.objects.filter(post_competition=False),
+                queryset=Tag.objects.all() if time.time() > config.get("end_time") else Tag.objects.filter(post_competition=False),
                 to_attr="tags",
             ),
             "first_blood",

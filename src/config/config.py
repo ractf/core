@@ -2,8 +2,13 @@ from pydoc import locate
 
 from django.conf import settings
 
-backend = locate(settings.CONFIG["BACKEND"])()
-backend.load(defaults=settings.DEFAULT_CONFIG)
+backend = None
+
+
+def load():
+    global backend
+    backend = locate(settings.CONFIG["BACKEND"])()
+    backend.load(defaults=settings.DEFAULT_CONFIG)
 
 
 def get(key):
@@ -28,12 +33,3 @@ def get_all_non_sensitive():
 
 def is_sensitive(key):
     return key in backend.get("sensitive_fields")
-
-
-def set_bulk(values: dict):
-    for key, value in values.items():
-        set(key, value)
-
-
-def add_plugin_config(name, config):
-    settings.DEFAULT_CONFIG[name] = config

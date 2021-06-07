@@ -39,7 +39,7 @@ from challenge.serializers import (
     FastAdminChallengeSerializer,
     FastAdminCategorySerializer,
 )
-import config
+from config import config
 from hint.models import Hint, HintUse
 from team.models import Team
 from team.permissions import HasTeam
@@ -82,7 +82,7 @@ class CategoryViewset(AdminCreateModelViewSet):
                     to_attr="hints",
                 ),
                 Prefetch("file_set", queryset=File.objects.all(), to_attr="files"),
-                Prefetch("tag_set", queryset=Tag.objects.all() if time.time() > config.config.get("end_time") else Tag.objects.filter(post_competition=False), to_attr="tags"),
+                Prefetch("tag_set", queryset=Tag.objects.all() if time.time() > config.get("end_time") else Tag.objects.filter(post_competition=False), to_attr="tags"),
                 "hint_set__uses",
             )
             .select_related("first_blood")
@@ -98,7 +98,7 @@ class CategoryViewset(AdminCreateModelViewSet):
         cache = caches["default"]
         categories = cache.get(get_cache_key(request.user))
         cache_hit = categories is not None
-        if categories is None or not config.config.get("enable_caching"):
+        if categories is None or not config.get("enable_caching"):
             queryset = self.filter_queryset(self.get_queryset())
             serializer = self.get_serializer(queryset, many=True)
             categories = serializer.data
@@ -231,7 +231,7 @@ class FlagSubmitView(APIView):
     throttle_scope = "flag_submit"
 
     def post(self, request):
-        if not config.config.get("enable_flag_submission") or (not config.config.get("enable_flag_submission_after_competition") and time.time() > config.config.get("end_time")):
+        if not config.get("enable_flag_submission") or (not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")):
             return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
 
         with transaction.atomic():
@@ -282,7 +282,7 @@ class FlagCheckView(APIView):
     throttle_scope = "flag_submit"
 
     def post(self, request):
-        if not config.config.get("enable_flag_submission") or (not config.config.get("enable_flag_submission_after_competition") and time.time() > config.config.get("end_time")):
+        if not config.get("enable_flag_submission") or (not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")):
             return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
         team = Team.objects.get(id=request.user.team.id)
         user = get_user_model().objects.get(id=request.user.id)

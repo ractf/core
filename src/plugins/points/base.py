@@ -4,7 +4,7 @@ import time
 from django.db.models import Sum, F
 from django.utils import timezone
 
-import config
+from config import config
 from challenge.models import Score, Solve
 from hint.models import HintUse
 from plugins.base import Plugin
@@ -33,7 +33,7 @@ class PointsPlugin(Plugin, abc.ABC):
             deducted = HintUse.objects.filter(user=user, challenge=challenge).aggregate(points=Sum(F("hint__penalty")))
         deducted = 0 if deducted["points"] is None else deducted["points"]
         deducted = min(points, deducted)
-        scored = config.config.get("end_time") >= time.time() and config.config.get("enable_scoring")
+        scored = config.get("end_time") >= time.time() and config.get("enable_scoring")
         score = Score(team=team, reason="challenge", points=points, penalty=deducted, leaderboard=scored, user=user)
         score.save()
         solve = Solve(team=team, solved_by=user, challenge=challenge, first_blood=challenge.first_blood is None, flag=flag, score=score)
@@ -50,5 +50,5 @@ class PointsPlugin(Plugin, abc.ABC):
         return solve
 
     def register_incorrect_attempt(self, user, team, flag, solves, *args, **kwargs):
-        if config.config.get("enable_track_incorrect_submissions"):
+        if config.get("enable_track_incorrect_submissions"):
             Solve(team=team, solved_by=user, challenge=self.challenge, flag=flag, correct=False, score=None).save()

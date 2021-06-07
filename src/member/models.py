@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 from django_prometheus.models import ExportModelOperationsMixin
 
-import config
+from config import config
 from backend.validators import printable_name
 
 

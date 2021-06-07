@@ -10,7 +10,7 @@ from rest_framework.status import (
 )
 from rest_framework.test import APITestCase
 
-import config
+from config import config
 from challenge.models import Solve, Category, Challenge
 from team.models import Team
 
@@ -65,13 +65,13 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
 
     def test_team_leave_disabled(self):
         self.client.force_authenticate(user=self.user)
-        config.config.set("enable_team_leave", False)
+        config.set("enable_team_leave", False)
         response = self.client.post(reverse("team-leave"))
-        config.config.set("enable_team_leave", True)
+        config.set("enable_team_leave", True)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_team_leave_challenge_solved(self):
-        config.config.set("enable_team_leave", True)
+        config.set("enable_team_leave", True)
         self.client.force_authenticate(user=self.user)
 
         category = Category.objects.create(name="test category", display_order=1, contained_type="test", description="test")
@@ -89,7 +89,7 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
 
         Solve.objects.create(solved_by=self.user, flag="", challenge=chall)
         response = self.client.post(reverse("team-leave"))
-        config.config.set("enable_team_leave", False)
+        config.set("enable_team_leave", False)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_team_leave_as_owner_with_members(self):
@@ -99,17 +99,17 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
         self.admin_user.is_staff = False
         self.admin_user.save()
 
-        config.config.set("enable_team_leave", True)
+        config.set("enable_team_leave", True)
         response = self.client.post(reverse("team-leave"))
-        config.config.set("enable_team_leave", False)
+        config.set("enable_team_leave", False)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_team_leave_as_owner_without_members(self):
         self.client.force_authenticate(user=self.user)
 
-        config.config.set("enable_team_leave", True)
+        config.set("enable_team_leave", True)
         response = self.client.post(reverse("team-leave"))
-        config.config.set("enable_team_leave", False)
+        config.set("enable_team_leave", False)
         self.assertEqual(response.status_code, HTTP_200_OK)
 
 
@@ -154,7 +154,7 @@ class JoinTeamTestCase(TeamSetupMixin, APITestCase):
         user2 = get_user_model()(username="team-test2", email="team-test2@example.org", is_visible=True)
         user2.save()
         self.client.force_authenticate(self.admin_user)
-        config.config.set("team_size", 1)
+        config.set("team_size", 1)
         self.client.post(reverse("team-join"), data={"name": "team-test", "password": "abc"})
         self.client.force_authenticate(user2)
         response = self.client.post(reverse("team-join"), data={"name": "team-test", "password": "abc"})
@@ -162,9 +162,9 @@ class JoinTeamTestCase(TeamSetupMixin, APITestCase):
 
     def test_join_team_disabled(self):
         self.client.force_authenticate(self.admin_user)
-        config.config.set("enable_team_join", False)
+        config.set("enable_team_join", False)
         response = self.client.post(reverse("team-join"), data={"name": "team-test", "password": "abc"})
-        config.config.set("enable_team_join", True)
+        config.set("enable_team_join", True)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_join_team_duplicate(self):

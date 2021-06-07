@@ -2,7 +2,7 @@ import time
 
 from rest_framework import permissions
 
-import config
+from config import config
 
 
 class AdminOrReadOnlyVisible(permissions.BasePermission):
@@ -28,7 +28,7 @@ class AdminOrAnonymousReadOnly(permissions.BasePermission):
 
 class IsCompetitionOpen(permissions.BasePermission):
     def has_permission(self, request, view):
-        return config.config.get("start_time") <= time.time()
+        return config.get("start_time") <= time.time()
 
 
 class IsBot(permissions.BasePermission):

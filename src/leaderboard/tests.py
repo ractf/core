@@ -4,7 +4,7 @@ from rest_framework.status import HTTP_200_OK
 from rest_framework.test import APITestCase
 
 from challenge.models import Score, Solve, Category, Challenge
-import config
+from config import config
 from leaderboard.views import UserListView, TeamListView, GraphView, CTFTimeListView
 from team.models import Team
 
@@ -49,56 +49,56 @@ class ScoreListTestCase(APITestCase):
         self.user = user
 
     def test_unauthed_access(self):
-        config.config.set("enable_caching", False)
+        config.set("enable_caching", False)
         response = self.client.get(reverse("leaderboard-graph"))
-        config.config.set("enable_caching", True)
+        config.set("enable_caching", True)
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed_access(self):
         self.client.force_authenticate(self.user)
-        config.config.set("enable_caching", False)
+        config.set("enable_caching", False)
         response = self.client.get(reverse("leaderboard-graph"))
-        config.config.set("enable_caching", True)
+        config.set("enable_caching", True)
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
-        config.config.set("enable_caching", False)
-        config.config.set("enable_scoreboard", False)
+        config.set("enable_caching", False)
+        config.set("enable_scoreboard", False)
         response = self.client.get(reverse("leaderboard-graph"))
-        config.config.set("enable_scoreboard", True)
-        config.config.set("enable_caching", True)
+        config.set("enable_scoreboard", True)
+        config.set("enable_caching", True)
         self.assertEqual(response.data["d"], {})
 
     def test_format(self):
-        config.config.set("enable_caching", False)
+        config.set("enable_caching", False)
         response = self.client.get(reverse("leaderboard-graph"))
-        config.config.set("enable_caching", True)
+        config.set("enable_caching", True)
         self.assertTrue("user" in response.data["d"])
         self.assertTrue("team" in response.data["d"])
 
     def test_list_size(self):
-        config.config.set("enable_caching", False)
+        config.set("enable_caching", False)
         populate()
         response = self.client.get(reverse("leaderboard-graph"))
-        config.config.set("enable_caching", True)
+        config.set("enable_caching", True)
         self.assertEqual(len(response.data["d"]["user"]), 10)
         self.assertEqual(len(response.data["d"]["team"]), 10)
 
     def test_list_sorting(self):
-        config.config.set("enable_caching", False)
+        config.set("enable_caching", False)
         populate()
         response = self.client.get(reverse("leaderboard-graph"))
-        config.config.set("enable_caching", True)
+        config.set("enable_caching", True)
         self.assertEqual(response.data["d"]["user"][0]["points"], 1400)
         self.assertEqual(response.data["d"]["team"][0]["points"], 1400)
 
     def test_user_only(self):
         populate()
-        config.config.set("enable_teams", False)
-        config.config.set("enable_caching", False)
+        config.set("enable_teams", False)
+        config.set("enable_caching", False)
         response = self.client.get(reverse("leaderboard-graph"))
-        config.config.set("enable_teams", True)
-        config.config.set("enable_caching", True)
+        config.set("enable_teams", True)
+        config.set("enable_caching", True)
         self.assertEqual(len(response.data["d"]["user"]), 10)
         self.assertEqual(response.data["d"]["user"][0]["points"], 1400)
         self.assertNotIn("team", response.data["d"].keys())
@@ -121,9 +121,9 @@ class UserListTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
-        config.config.set("enable_scoreboard", False)
+        config.set("enable_scoreboard", False)
         response = self.client.get(reverse("leaderboard-user"))
-        config.config.set("enable_scoreboard", True)
+        config.set("enable_scoreboard", True)
         self.assertEqual(response.data["d"], {})
 
     def test_length(self):
@@ -155,9 +155,9 @@ class TeamListTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
-        config.config.set("enable_scoreboard", False)
+        config.set("enable_scoreboard", False)
         response = self.client.get(reverse("leaderboard-team"))
-        config.config.set("enable_scoreboard", True)
+        config.set("enable_scoreboard", True)
         self.assertEqual(response.data["d"], {})
 
     def test_length(self):
@@ -189,15 +189,15 @@ class CTFTimeListTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_disabled_access(self):
-        config.config.set("enable_scoreboard", False)
+        config.set("enable_scoreboard", False)
         response = self.client.get(reverse("leaderboard-ctftime"))
-        config.config.set("enable_scoreboard", True)
+        config.set("enable_scoreboard", True)
         self.assertEqual(response.data, {})
 
     def test_disabled_ctftime(self):
-        config.config.set("enable_ctftime", False)
+        config.set("enable_ctftime", False)
         response = self.client.get(reverse("leaderboard-ctftime"))
-        config.config.set("enable_ctftime", True)
+        config.set("enable_ctftime", True)
         self.assertEqual(response.data, {})
 
     def test_length(self):
@@ -251,7 +251,7 @@ class MatrixTestCase(APITestCase):
         self.assertEqual(points, sorted(points, reverse=True))
 
     def test_disabled_scoreboard(self):
-        config.config.set("enable_scoreboard", False)
+        config.set("enable_scoreboard", False)
         response = self.client.get(reverse("leaderboard-matrix-list"))
-        config.config.set("enable_scoreboard", True)
+        config.set("enable_scoreboard", True)
         self.assertEqual(response.data["d"], {})

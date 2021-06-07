@@ -11,7 +11,7 @@ from rest_framework.status import (
 )
 from rest_framework.test import APITestCase
 
-import config
+from config import config
 
 from challenge.models import Solve
 from hint.models import HintUse
@@ -99,9 +99,9 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.assertFalse(self.challenge1.is_solved(user=self.user))
 
     def test_submission_disabled(self):
-        config.config.set("enable_flag_submission", False)
+        config.set("enable_flag_submission", False)
         response = self.solve_challenge()
-        config.config.set("enable_flag_submission", True)
+        config.set("enable_flag_submission", True)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_submission_malformed(self):

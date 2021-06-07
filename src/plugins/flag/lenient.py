@@ -1,4 +1,4 @@
-import config
+from config import config
 from plugins.flag.base import FlagPlugin
 import unicodedata
 
@@ -16,7 +16,7 @@ def strip_whitespace(s):
 
 
 def fix_format(s):
-    prefix = config.config.get("flag_prefix")
+    prefix = config.get("flag_prefix")
     return s if prefix + "{" in s else prefix + "{" + s + "}"
 
 

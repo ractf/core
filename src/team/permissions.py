@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-import config
+from config import config
 
 
 class IsTeamOwnerOrReadOnly(permissions.BasePermission):
@@ -15,4 +15,4 @@ class HasTeam(permissions.BasePermission):
 
 class TeamsEnabled(permissions.BasePermission):
     def has_permission(self, request, view):
-        return config.config.get("enable_teams")
+        return config.get("enable_teams")

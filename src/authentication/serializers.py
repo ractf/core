@@ -8,7 +8,7 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST
 
-import config
+from config import config
 from authentication.models import InviteCode, PasswordResetToken
 from backend.exceptions import FormattedException
 from backend.mail import send_email
@@ -40,12 +40,12 @@ class LoginTwoFactorSerializer(serializers.Serializer):
 
 class RegistrationSerializer(serializers.Serializer):
     def validate(self, _):
-        register_end_time = config.config.get("register_end_time")
-        if not (config.config.get("enable_registration") and time.time() >= config.config.get("register_start_time")) and (register_end_time < 0 or register_end_time > time.time()):
+        register_end_time = config.get("register_end_time")
+        if not (config.get("enable_registration") and time.time() >= config.get("register_start_time")) and (register_end_time < 0 or register_end_time > time.time()):
             raise FormattedException(m="registration_not_open", status=HTTP_403_FORBIDDEN)
 
         validated_data = providers.get_provider("registration").validate(self.initial_data)
-        if config.config.get("invite_required"):
+        if config.get("invite_required"):
             if not self.initial_data.get("invite", None):
                 raise FormattedException(m="invite_required", status=HTTP_400_BAD_REQUEST)
             validated_data["invite"] = self.initial_data["invite"]
@@ -59,7 +59,7 @@ class RegistrationSerializer(serializers.Serializer):
             user.is_superuser = True
 
         invite_code = None
-        if config.config.get("invite_required"):
+        if config.get("invite_required"):
             if InviteCode.objects.filter(code=validated_data["invite"]):
                 invite_code = InviteCode.objects.get(code=validated_data["invite"])
                 if invite_code.uses >= invite_code.max_uses:
@@ -86,7 +86,7 @@ class RegistrationSerializer(serializers.Serializer):
             if invite_code.auto_team:
                 user.team = invite_code.auto_team
 
-        if not config.config.get("enable_teams"):
+        if not config.get("enable_teams"):
             user.save()
             user.team = Team.objects.create(
                 owner=user,
