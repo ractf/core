@@ -54,8 +54,6 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         return self.username
 
     def can_login(self):
-        from config import config
-
         return self.is_staff or (config.get("enable_login") and (config.get("enable_prelogin") or config.get("start_time") <= time.time()))
 
     def issue_token(self, owner=None):
@@ -69,8 +67,6 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         return hasattr(self, "totp_device") and self.totp_device.verified
 
     def should_deny_admin(self):
-        from config import config
-
         return config.get("enable_force_admin_2fa") and not self.has_2fa()
 
 
