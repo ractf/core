@@ -2,7 +2,7 @@ import abc
 
 from django.core.cache import caches
 from django.db.models.query import QuerySet
-from django.db.utils import ProgrammingError
+from django.db.utils import OperationalError, ProgrammingError
 
 from config.models import Config
 
@@ -82,7 +82,7 @@ class CachedBackend(ConfigBackend):
         config_exists, migrations_needed = False, False
         try:
             config_exists = db_config.exists()
-        except ProgrammingError:
+        except ProgrammingError, OperationalError:
             migrations_needed = True
 
         if config_exists:
