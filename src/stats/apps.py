@@ -1,10 +1,10 @@
 import sys
+from importlib import import_module
 
 from django.apps import AppConfig
 
 import challenge
 import member
-import stats
 import team
 
 
@@ -18,9 +18,11 @@ class StatsConfig(AppConfig):
             # Don't run stats-related logic if we haven't migrated yet
             return
 
+        signals = import_module("stats.signals", "stats")
+
         Team, Solve, Member = team.models.Team, challenge.models.Solve, member.models.Member
 
-        stats.signals.team_count.set(Team.objects.count())
-        stats.signals.solve_count.set(Solve.objects.count())
-        stats.signals.member_count.set(Member.objects.count())
-        stats.signals.correct_solve_count.set(Solve.objects.filter(correct=True).count())
+        signals.team_count.set(Team.objects.count())
+        signals.solve_count.set(Solve.objects.count())
+        signals.member_count.set(Member.objects.count())
+        signals.correct_solve_count.set(Solve.objects.filter(correct=True).count())
