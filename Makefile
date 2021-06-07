@@ -11,4 +11,5 @@ format:
 
 lint:
 	flake8 && \
+	pre-commit run && \
 	isort --check-only src
