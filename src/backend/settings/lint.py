@@ -28,7 +28,7 @@ CONFIG = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
-        "LOCATION": "/tmp/ractf-linting.db",
+        "LOCATION": "/tmp/ractf-linting.cache",
         "OPTIONS": {"MAX_ENTRIES": 1000},
     },
 }
