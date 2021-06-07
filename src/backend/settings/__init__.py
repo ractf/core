@@ -8,6 +8,7 @@ from pathlib import Path
 
 from corsheaders.defaults import default_headers
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 CORS_ALLOW_HEADERS = [*default_headers, "x-exporting", "exporting"]
 
 DOMAIN = os.getenv("DOMAIN")
