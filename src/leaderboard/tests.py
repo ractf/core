@@ -3,9 +3,10 @@ from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK
 from rest_framework.test import APITestCase
 
-from challenge.models import Score, Solve, Category, Challenge
+from challenge.models import Category, Challenge, Score, Solve
 from config import config
-from leaderboard.views import UserListView, TeamListView, GraphView, CTFTimeListView
+from leaderboard.views import (CTFTimeListView, GraphView, TeamListView,
+                               UserListView)
 from team.models import Team
 
 

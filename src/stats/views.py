@@ -1,5 +1,5 @@
 import os
-from datetime import timezone, datetime
+from datetime import datetime, timezone
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -9,12 +9,13 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
-from config import config
 from backend.response import FormattedResponse
 from challenge.models import Score
 from challenge.sql import get_incorrect_solve_counts, get_solve_counts
+from config import config
 from member.models import UserIP
-from stats.signals import member_count, team_count, solve_count, correct_solve_count
+from stats.signals import (correct_solve_count, member_count, solve_count,
+                           team_count)
 from team.models import Team
 
 

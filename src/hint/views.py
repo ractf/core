@@ -6,18 +6,14 @@ from rest_framework.views import APIView
 
 from backend.permissions import IsBot
 from backend.response import FormattedResponse
+from backend.signals import use_hint
 from backend.viewsets import AdminCreateModelViewSet
 from challenge.permissions import CompetitionOpen
 from challenge.views import get_cache_key
 from hint.models import Hint, HintUse
 from hint.permissions import HasUsedHint
-from hint.serializers import (
-    FullHintSerializer,
-    HintSerializer,
-    UseHintSerializer,
-    CreateHintSerializer,
-)
-from backend.signals import use_hint
+from hint.serializers import (CreateHintSerializer, FullHintSerializer,
+                              HintSerializer, UseHintSerializer)
 from team.permissions import HasTeam
 
 

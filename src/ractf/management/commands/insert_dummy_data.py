@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 
-from challenge.models import Challenge, Category
+from challenge.models import Category, Challenge
 from hint.models import Hint
 from team.models import Team
 

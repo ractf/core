@@ -1,9 +1,10 @@
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_201_CREATED, HTTP_204_NO_CONTENT
+from rest_framework.status import (HTTP_201_CREATED, HTTP_204_NO_CONTENT,
+                                   HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN)
 from rest_framework.views import APIView
 
-from config import config
-from backend.response import FormattedResponse
 from backend.permissions import AdminOrAnonymousReadOnly
+from backend.response import FormattedResponse
+from config import config
 
 
 class ConfigView(APIView):

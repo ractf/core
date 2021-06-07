@@ -1,10 +1,9 @@
 import sys
 
 import psycopg2
+from django.conf import settings
 from django.core.management import BaseCommand
 from django.core.management.commands import migrate
-
-from django.conf import settings
 
 
 class Command(BaseCommand):

@@ -1,13 +1,15 @@
 from django.contrib.auth import get_user_model
 from rest_framework import filters
 from rest_framework.generics import RetrieveUpdateAPIView
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
 from backend.viewsets import AdminListModelViewSet
 from member.models import UserIP
-from member.serializers import SelfSerializer, MemberSerializer, AdminMemberSerializer, ListMemberSerializer, UserIPSerializer
+from member.serializers import (AdminMemberSerializer, ListMemberSerializer,
+                                MemberSerializer, SelfSerializer,
+                                UserIPSerializer)
 
 
 class SelfView(RetrieveUpdateAPIView):

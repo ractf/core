@@ -1,6 +1,6 @@
-from plugins.flag.base import FlagPlugin
-
 import math
+
+from plugins.flag.base import FlagPlugin
 
 
 class MapFlagPlugin(FlagPlugin):

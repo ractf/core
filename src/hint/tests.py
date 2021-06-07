@@ -1,5 +1,6 @@
 from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_200_OK, HTTP_201_CREATED
+from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
+                                   HTTP_403_FORBIDDEN)
 from rest_framework.test import APITestCase
 
 from challenge.tests.mixins import ChallengeSetupMixin

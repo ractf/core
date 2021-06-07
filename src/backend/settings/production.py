@@ -2,12 +2,11 @@
 
 # flake8: noqa
 
-from . import *
-
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.redis import RedisIntegration
 
+from . import *
 
 SEND_MAIL = True
 

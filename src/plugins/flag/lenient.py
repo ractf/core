@@ -1,6 +1,7 @@
+import unicodedata
+
 from config import config
 from plugins.flag.base import FlagPlugin
-import unicodedata
 
 
 def strip_accents(s):

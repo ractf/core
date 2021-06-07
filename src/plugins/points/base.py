@@ -1,11 +1,11 @@
 import abc
 import time
 
-from django.db.models import Sum, F
+from django.db.models import F, Sum
 from django.utils import timezone
 
-from config import config
 from challenge.models import Score, Solve
+from config import config
 from hint.models import HintUse
 from plugins.base import Plugin
 

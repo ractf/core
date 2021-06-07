@@ -1,31 +1,25 @@
 from django.http import Http404
 from rest_framework import filters
-from rest_framework.generics import (
-    RetrieveUpdateAPIView,
-    CreateAPIView,
-    get_object_or_404,
-)
+from rest_framework.generics import (CreateAPIView, RetrieveUpdateAPIView,
+                                     get_object_or_404)
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
+from rest_framework.status import (HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN,
+                                   HTTP_404_NOT_FOUND)
 from rest_framework.views import APIView
 
-from config import config
 from backend.exceptions import FormattedException
 from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
 from backend.response import FormattedResponse
-from backend.signals import team_join_attempt, team_join_reject, team_join
+from backend.signals import team_join, team_join_attempt, team_join_reject
 from backend.viewsets import AdminListModelViewSet
-from team.models import Team
 from challenge.models import Solve
+from config import config
 from member.models import Member
-from team.permissions import IsTeamOwnerOrReadOnly, HasTeam, TeamsEnabled
-from team.serializers import (
-    SelfTeamSerializer,
-    TeamSerializer,
-    CreateTeamSerializer,
-    AdminTeamSerializer,
-    ListTeamSerializer,
-)
+from team.models import Team
+from team.permissions import HasTeam, IsTeamOwnerOrReadOnly, TeamsEnabled
+from team.serializers import (AdminTeamSerializer, CreateTeamSerializer,
+                              ListTeamSerializer, SelfTeamSerializer,
+                              TeamSerializer)
 
 
 class SelfView(RetrieveUpdateAPIView):

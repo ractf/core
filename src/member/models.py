@@ -9,11 +9,10 @@ from django.db import models
 from django.db.models import SET_NULL
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
 from django_prometheus.models import ExportModelOperationsMixin
 
-from config import config
 from backend.validators import printable_name
+from config import config
 
 
 class TOTPStatus(IntEnum):

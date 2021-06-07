@@ -1,11 +1,11 @@
 from rest_framework.generics import get_object_or_404
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView
 
-from backend.response import FormattedResponse
-from challenge.models import Challenge
 from andromeda import client
 from andromeda.serializers import JobSubmitSerializer
+from backend.response import FormattedResponse
+from challenge.models import Challenge
 
 
 class GetInstanceView(APIView):

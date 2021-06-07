@@ -1,8 +1,8 @@
 from rest_framework.viewsets import ModelViewSet
 
+from backend.permissions import AdminOrAnonymousReadOnly
 from pages.models import Page
 from pages.serializers import PageSerializer
-from backend.permissions import AdminOrAnonymousReadOnly
 
 
 class TagViewSet(ModelViewSet):

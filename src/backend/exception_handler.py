@@ -1,17 +1,15 @@
 import traceback
 from typing import Optional
 
+import sentry_sdk
+from django.conf import settings
 from django.http import Http404
-
 from rest_framework import exceptions
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
 from rest_framework.views import exception_handler
 
-import sentry_sdk
-
-from django.conf import settings
 from backend.exceptions import FormattedException
 from backend.response import FormattedResponse
 

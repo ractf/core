@@ -3,7 +3,9 @@ from importlib import import_module
 
 from django.apps import AppConfig
 
-import team, member, challenge
+import challenge
+import member
+import team
 
 
 class StatsConfig(AppConfig):

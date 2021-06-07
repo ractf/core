@@ -3,24 +3,14 @@ import time
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.indexes import BrinIndex
 from django.db import models
-from django.db.models import (
-    SET_NULL,
-    CASCADE,
-    PROTECT,
-    Case,
-    When,
-    Value,
-    UniqueConstraint,
-    Q,
-    JSONField,
-)
+from django.db.models import (CASCADE, PROTECT, SET_NULL, Case, JSONField, Q,
+                              UniqueConstraint, Value, When)
 from django.db.models.aggregates import Count
 from django.db.models.query import Prefetch
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.functional import cached_property
-
 from django_prometheus.models import ExportModelOperationsMixin
 
 from config import config
@@ -150,8 +140,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
                     output_field=models.BooleanField(),
                 ),
             )
-        from hint.models import Hint
-        from hint.models import HintUse
+        from hint.models import Hint, HintUse
 
         x = challenges.prefetch_related(
             Prefetch(

@@ -1,8 +1,7 @@
 from importlib import import_module
-from django.template.loader import render_to_string
 
 from django.conf import settings
-
+from django.template.loader import render_to_string
 
 if settings.MAIL["SEND"]:  # pragma: no cover
     if settings.MAIL["SEND_MODE"] == "AWS":  # pragma: no cover

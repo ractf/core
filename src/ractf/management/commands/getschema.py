@@ -1,10 +1,8 @@
 import os
 from io import StringIO
 
-from django.core.management import BaseCommand
-from django.core.management import call_command
-
 import yaml
+from django.core.management import BaseCommand, call_command
 
 
 class Command(BaseCommand):

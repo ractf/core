@@ -3,7 +3,7 @@ import hashlib
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from challenge.models import Challenge, Category
+from challenge.models import Category, Challenge
 from member.models import Member
 
 

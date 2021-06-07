@@ -3,24 +3,20 @@ from unittest import mock
 import pyotp
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_401_UNAUTHORIZED
+from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
+                                   HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED,
+                                   HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND)
 from rest_framework.test import APITestCase
 
+from authentication.models import (BackupCode, InviteCode, PasswordResetToken,
+                                   Token, TOTPDevice)
+from authentication.views import (AddTwoFactorView, ChangePasswordView,
+                                  CreateBotView, DoPasswordResetView,
+                                  LoginTwoFactorView, LoginView,
+                                  RegenerateBackupCodesView, RegistrationView,
+                                  RequestPasswordResetView, VerifyEmailView,
+                                  VerifyTwoFactorView)
 from config import config
-from authentication.models import PasswordResetToken, TOTPDevice, InviteCode, BackupCode, Token
-from authentication.views import (
-    VerifyEmailView,
-    DoPasswordResetView,
-    AddTwoFactorView,
-    VerifyTwoFactorView,
-    LoginView,
-    RegistrationView,
-    ChangePasswordView,
-    LoginTwoFactorView,
-    RequestPasswordResetView,
-    RegenerateBackupCodesView,
-    CreateBotView,
-)
 from team.models import Team
 
 

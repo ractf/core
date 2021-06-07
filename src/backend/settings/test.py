@@ -1,6 +1,5 @@
 from . import *
 
-
 SECRET_KEY = "CorrectHorseBatteryStaple"
 
 MAIL["SEND"] = False

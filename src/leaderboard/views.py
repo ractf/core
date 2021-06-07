@@ -3,7 +3,7 @@ import time
 from django.contrib.auth import get_user_model
 from django.core.cache import caches
 from rest_framework.generics import ListAPIView
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -11,7 +11,11 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from backend.response import FormattedResponse
 from challenge.models import Score
 from config import config
-from leaderboard.serializers import LeaderboardUserScoreSerializer, LeaderboardTeamScoreSerializer, UserPointsSerializer, TeamPointsSerializer, CTFTimeSerializer, MatrixSerializer
+from leaderboard.serializers import (CTFTimeSerializer,
+                                     LeaderboardTeamScoreSerializer,
+                                     LeaderboardUserScoreSerializer,
+                                     MatrixSerializer, TeamPointsSerializer,
+                                     UserPointsSerializer)
 from team.models import Team
 
 

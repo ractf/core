@@ -1,10 +1,12 @@
-from django.contrib.auth import authenticate, get_user_model, password_validation
-from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST
+from django.contrib.auth import (authenticate, get_user_model,
+                                 password_validation)
 from rest_framework.exceptions import ValidationError
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
 
-from authentication.providers import LoginProvider, TokenProvider, RegistrationProvider
+from authentication.providers import (LoginProvider, RegistrationProvider,
+                                      TokenProvider)
 from backend.exceptions import FormattedException
-from backend.signals import login_reject, login
+from backend.signals import login, login_reject
 
 
 class BasicAuthRegistrationProvider(RegistrationProvider):

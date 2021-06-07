@@ -2,34 +2,37 @@ import random
 import secrets
 import string
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import EmailValidator
-from django.conf import settings
 from django.db import transaction
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions
-from rest_framework.generics import CreateAPIView, GenericAPIView, get_object_or_404
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_201_CREATED
+from rest_framework.generics import (CreateAPIView, GenericAPIView,
+                                     get_object_or_404)
+from rest_framework.status import (HTTP_201_CREATED, HTTP_400_BAD_REQUEST,
+                                   HTTP_401_UNAUTHORIZED)
 from rest_framework.views import APIView
 
 from authentication import serializers
-from authentication.models import InviteCode, PasswordResetToken, TOTPDevice, BackupCode
+from authentication.models import (BackupCode, InviteCode, PasswordResetToken,
+                                   TOTPDevice)
 from authentication.permissions import HasTwoFactor, VerifyingTwoFactor
-from authentication.serializers import (
-    RegistrationSerializer,
-    EmailVerificationSerializer,
-    ChangePasswordSerializer,
-    GenerateInvitesSerializer,
-    InviteCodeSerializer,
-    EmailSerializer,
-    CreateBotSerializer,
-)
+from authentication.serializers import (ChangePasswordSerializer,
+                                        CreateBotSerializer, EmailSerializer,
+                                        EmailVerificationSerializer,
+                                        GenerateInvitesSerializer,
+                                        InviteCodeSerializer,
+                                        RegistrationSerializer)
 from backend.mail import send_email
 from backend.permissions import IsBot, IsSudo
 from backend.response import FormattedResponse
-from backend.signals import logout, add_2fa, verify_2fa, password_reset_start, password_reset_start_reject, email_verified, change_password, password_reset, remove_2fa
+from backend.signals import (add_2fa, change_password, email_verified, logout,
+                             password_reset, password_reset_start,
+                             password_reset_start_reject, remove_2fa,
+                             verify_2fa)
 from backend.viewsets import AdminListModelViewSet
 from plugins import providers
 from team.models import Team

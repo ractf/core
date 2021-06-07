@@ -1,6 +1,6 @@
 from django.apps import AppConfig
-from django.core.checks import CheckMessage, register, WARNING, ERROR
 from django.conf import settings
+from django.core.checks import ERROR, WARNING, CheckMessage, register
 
 
 class RactfConfig(AppConfig):

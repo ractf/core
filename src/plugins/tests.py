@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
-from challenge.models import Category, Challenge, Solve, Score
+from challenge.models import Category, Challenge, Score, Solve
 from challenge.tests.mixins import ChallengeSetupMixin
 from config import config
 from plugins import plugins

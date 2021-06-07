@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import CASCADE, SET_NULL
 from django.utils import timezone
-
 from django_prometheus.models import ExportModelOperationsMixin
 
 from challenge.models import Challenge

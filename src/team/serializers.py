@@ -1,9 +1,9 @@
 from rest_framework import serializers
 
 from backend.mixins import IncorrectSolvesMixin
+from backend.signals import team_create
 from challenge.serializers import SolveSerializer
 from member.serializers import MinimalMemberSerializer
-from backend.signals import team_create
 from team.models import Team
 
 

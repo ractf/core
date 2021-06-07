@@ -1,18 +1,19 @@
-import time
 import secrets
+import time
 
 from django.conf import settings
 from django.contrib.auth import get_user_model, password_validation
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
-from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_401_UNAUTHORIZED, HTTP_400_BAD_REQUEST
+from rest_framework.status import (HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED,
+                                   HTTP_403_FORBIDDEN)
 
-from config import config
 from authentication.models import InviteCode, PasswordResetToken
 from backend.exceptions import FormattedException
 from backend.mail import send_email
 from backend.signals import register
+from config import config
 from plugins import providers
 from team.models import Team
 
