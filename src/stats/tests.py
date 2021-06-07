@@ -14,9 +14,7 @@ class CountdownTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed(self):
-        user = get_user_model()(
-            username="countdown-test", email="countdown-test@example.org"
-        )
+        user = get_user_model()(username="countdown-test", email="countdown-test@example.org")
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("countdown"))
@@ -98,16 +96,16 @@ class FullStatsTestCase(APITestCase):
             flag_type="none",
             flag_metadata={},
             author="test author",
-            score=5
+            score=5,
         )
 
         Solve.objects.create(challenge=chall, flag="", correct=True)
         Solve.objects.create(challenge=chall, flag="", correct=False)
 
         self.client.force_authenticate(user)
-        config.config.set('enable_caching', False)
+        config.config.set("enable_caching", False)
         response = self.client.get(reverse("full"))
-        config.config.set('enable_caching', True)
+        config.config.set("enable_caching", True)
         self.assertEqual(response.data["d"]["challenges"][chall.id]["incorrect"], 1)
         self.assertEqual(response.data["d"]["challenges"][chall.id]["correct"], 1)
 

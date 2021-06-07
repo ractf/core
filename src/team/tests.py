@@ -17,19 +17,13 @@ from team.models import Team
 
 class TeamSetupMixin:
     def setUp(self):
-        self.user = get_user_model()(
-            username="team-test", email="team-test@example.org", is_visible=True
-        )
+        self.user = get_user_model()(username="team-test", email="team-test@example.org", is_visible=True)
         self.user.save()
-        self.team = Team(
-            name="team-test", password="abc", description="", owner=self.user, is_visible=True
-        )
+        self.team = Team(name="team-test", password="abc", description="", owner=self.user, is_visible=True)
         self.team.save()
         self.user.team = self.team
         self.user.save()
-        self.admin_user = get_user_model()(
-            username="team-test-admin", email="team-test-admin@example.org", is_visible=True
-        )
+        self.admin_user = get_user_model()(username="team-test-admin", email="team-test-admin@example.org", is_visible=True)
         self.admin_user.is_staff = True
         self.admin_user.is_superuser = True
         self.admin_user.save()
@@ -59,7 +53,7 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.patch(reverse("team-self"), data={"name": "name-change"})
         self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(response.data['name'], "name-change")
+        self.assertEqual(response.data["name"], "name-change")
 
     def test_update_not_owner(self):
         self.admin_user.team = self.team
@@ -90,7 +84,7 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
             flag_type="none",
             flag_metadata={},
             author="test author",
-            score=5
+            score=5,
         )
 
         Solve.objects.create(solved_by=self.user, flag="", challenge=chall)
@@ -122,100 +116,70 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
 class CreateTeamTestCase(TeamSetupMixin, APITestCase):
     def test_create_team(self):
         self.client.force_authenticate(self.admin_user)
-        response = self.client.post(
-            reverse("team-create"), data={"name": "test-team", "password": "test"}
-        )
+        response = self.client.post(reverse("team-create"), data={"name": "test-team", "password": "test"})
         self.assertEqual(response.status_code, HTTP_201_CREATED)
 
     def test_create_team_in_team(self):
         self.client.force_authenticate(self.user)
-        response = self.client.post(
-            reverse("team-create"), data={"name": "test-team", "password": "test"}
-        )
+        response = self.client.post(reverse("team-create"), data={"name": "test-team", "password": "test"})
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_create_team_not_authed(self):
-        response = self.client.post(
-            reverse("team-create"), data={"name": "test-team", "password": "test"}
-        )
+        response = self.client.post(reverse("team-create"), data={"name": "test-team", "password": "test"})
         self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_create_duplicate_team(self):
         self.client.force_authenticate(self.admin_user)
-        response = self.client.post(
-            reverse("team-create"), data={"name": "team-test", "password": "test"}
-        )
+        response = self.client.post(reverse("team-create"), data={"name": "team-test", "password": "test"})
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
 
 class JoinTeamTestCase(TeamSetupMixin, APITestCase):
     def test_join_team(self):
         self.client.force_authenticate(self.admin_user)
-        response = self.client.post(
-            reverse("team-join"), data={"name": "team-test", "password": "abc"}
-        )
+        response = self.client.post(reverse("team-join"), data={"name": "team-test", "password": "abc"})
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_join_team_incorrect_password(self):
         self.client.force_authenticate(self.admin_user)
-        response = self.client.post(
-            reverse("team-join"), data={"name": "team-test", "password": "incorrect_pass"}
-        )
+        response = self.client.post(reverse("team-join"), data={"name": "team-test", "password": "incorrect_pass"})
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_join_team_incorrect_name(self):
         self.client.force_authenticate(self.admin_user)
-        response = self.client.post(
-            reverse("team-join"), data={"name": "incorrect-team-test", "password": "abc"}
-        )
+        response = self.client.post(reverse("team-join"), data={"name": "incorrect-team-test", "password": "abc"})
         self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
 
     def test_join_team_full(self):
-        user2 = get_user_model()(
-            username="team-test2", email="team-test2@example.org", is_visible=True
-        )
+        user2 = get_user_model()(username="team-test2", email="team-test2@example.org", is_visible=True)
         user2.save()
         self.client.force_authenticate(self.admin_user)
         config.config.set("team_size", 1)
-        self.client.post(
-            reverse("team-join"), data={"name": "team-test", "password": "abc"}
-        )
+        self.client.post(reverse("team-join"), data={"name": "team-test", "password": "abc"})
         self.client.force_authenticate(user2)
-        response = self.client.post(
-            reverse("team-join"), data={"name": "team-test", "password": "abc"}
-        )
+        response = self.client.post(reverse("team-join"), data={"name": "team-test", "password": "abc"})
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_join_team_disabled(self):
         self.client.force_authenticate(self.admin_user)
         config.config.set("enable_team_join", False)
-        response = self.client.post(
-            reverse("team-join"), data={"name": "team-test", "password": "abc"}
-        )
+        response = self.client.post(reverse("team-join"), data={"name": "team-test", "password": "abc"})
         config.config.set("enable_team_join", True)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_join_team_duplicate(self):
         self.client.force_authenticate(self.admin_user)
-        self.client.post(
-            reverse("team-join"), data={"name": "team-test", "password": "abc"}
-        )
-        response = self.client.post(
-            reverse("team-join"), data={"name": "team-test", "password": "abc"}
-        )
+        self.client.post(reverse("team-join"), data={"name": "team-test", "password": "abc"})
+        response = self.client.post(reverse("team-join"), data={"name": "team-test", "password": "abc"})
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_join_team_not_authed(self):
-        response = self.client.post(
-            reverse("team-join"), data={"name": "team-test", "password": "abc"}
-        )
+        response = self.client.post(reverse("team-join"), data={"name": "team-test", "password": "abc"})
         self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_join_team_team_owner(self):
         self.client.force_authenticate(self.user)
-        response = self.client.post(
-            reverse("team-join"), data={"name": "team-test", "password": "abc"}
-        )
+        response = self.client.post(reverse("team-join"), data={"name": "team-test", "password": "abc"})
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_join_team_malformed(self):
@@ -230,7 +194,7 @@ class TeamViewsetTestCase(TeamSetupMixin, APITestCase):
         self.team.save()
         self.client.force_authenticate(self.admin_user)
         response = self.client.get(reverse("team-list"))
-        self.assertEqual(len(response.data['d']["results"]), 1)
+        self.assertEqual(len(response.data["d"]["results"]), 1)
 
     def test_visible_not_admin(self):
         self.team.is_visible = False
@@ -273,14 +237,10 @@ class TeamViewsetTestCase(TeamSetupMixin, APITestCase):
 
     def test_patch_team(self):
         self.client.force_authenticate(self.user)
-        response = self.client.patch(
-            reverse("team-detail", kwargs={"pk": self.team.id}), data={"name": "test"}
-        )
+        response = self.client.patch(reverse("team-detail", kwargs={"pk": self.team.id}), data={"name": "test"})
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_patch_team_admin(self):
         self.client.force_authenticate(self.admin_user)
-        response = self.client.patch(
-            reverse("team-detail", kwargs={"pk": self.team.id}), data={"name": "test"}
-        )
+        response = self.client.patch(reverse("team-detail", kwargs={"pk": self.team.id}), data={"name": "test"})
         self.assertEqual(response.status_code, HTTP_200_OK)

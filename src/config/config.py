@@ -2,7 +2,7 @@ from pydoc import locate
 
 from django.conf import settings
 
-backend = locate(settings.CONFIG['BACKEND'])()
+backend = locate(settings.CONFIG["BACKEND"])()
 backend.load(defaults=settings.DEFAULT_CONFIG)
 
 
@@ -19,7 +19,7 @@ def get_all():
 
 
 def get_all_non_sensitive():
-    sensitive = backend.get('sensitive_fields')
+    sensitive = backend.get("sensitive_fields")
     config = backend.get_all()
     for field in sensitive:
         del config[field]
@@ -27,7 +27,7 @@ def get_all_non_sensitive():
 
 
 def is_sensitive(key):
-    return key in backend.get('sensitive_fields')
+    return key in backend.get("sensitive_fields")
 
 
 def set_bulk(values: dict):

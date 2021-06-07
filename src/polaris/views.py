@@ -29,7 +29,7 @@ class ChallengeViewset(viewsets.ViewSet):
     throttle_scope = "polaris_challenges"
 
     def list(self, request):
-        return FormattedResponse(client.list_challenges(request.GET.get('filter', '')))
+        return FormattedResponse(client.list_challenges(request.GET.get("filter", "")))
 
     def retrieve(self, request, pk):
         return FormattedResponse(client.get_challenge(pk))
@@ -38,12 +38,12 @@ class ChallengeViewset(viewsets.ViewSet):
         return FormattedResponse(client.delete_challenge(pk))
 
     def create(self, request):
-        challenge_id = request.GET.get('challenge_id', '')
-        if challenge_id == '':
+        challenge_id = request.GET.get("challenge_id", "")
+        if challenge_id == "":
             return FormattedResponse(client.submit_challenge(request.data))
         challenge = get_object_or_404(Challenge.objects, challenge_id)
         response = client.submit_challenge(challenge)
-        challenge.challenge_metadata['cserv_name'] = response.data['id']
+        challenge.challenge_metadata["cserv_name"] = response.data["id"]
         challenge.save()
         return response
 
@@ -53,8 +53,7 @@ class DeploymentViewset(viewsets.ViewSet):
     throttle_scope = "polaris_deployments"
 
     def list(self, request):
-        return FormattedResponse(client.list_deployments(request.GET.get('deploymentfilter', ''),
-                                                         request.GET.get('challengefilter', '')))
+        return FormattedResponse(client.list_deployments(request.GET.get("deploymentfilter", ""), request.GET.get("challengefilter", "")))
 
     def retrieve(self, request, pk):
         return FormattedResponse(client.get_deployment(pk))
@@ -71,7 +70,7 @@ class HostViewset(viewsets.ViewSet):
     throttle_scope = "polaris_hosts"
 
     def list(self, request):
-        return FormattedResponse(client.list_hosts(request.GET.get('filter', '')))
+        return FormattedResponse(client.list_hosts(request.GET.get("filter", "")))
 
     def retrieve(self, request, pk):
         return FormattedResponse(client.get_host(pk))
@@ -82,4 +81,4 @@ class ListInstancesView(APIView):
     throttle_scope = "polaris_view_instances"
 
     def get(self, request):
-        return FormattedResponse(client.list_instances(request.GET.get('hostfilter', ''), request.GET.get('challengefilter', '')))
+        return FormattedResponse(client.list_instances(request.GET.get("hostfilter", ""), request.GET.get("challengefilter", "")))

@@ -8,6 +8,6 @@ from backend.permissions import AdminOrAnonymousReadOnly
 class TagViewSet(ModelViewSet):
     queryset = Page.objects.all()
     permission_classes = (AdminOrAnonymousReadOnly,)
-    throttle_scope = 'pages'
+    throttle_scope = "pages"
     serializer_class = PageSerializer
     pagination_class = None

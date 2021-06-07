@@ -50,40 +50,40 @@ else:
     MEDIA_ROOT = os.path.join(BASE_DIR, "publicmedia")
 
 DEFAULT_CONFIG = {
-    'config_version': 5,
-    'flag_prefix': 'ractf',
-    'graph_members': 10,
-    'register_start_time': time.time(),
-    'register_end_time': -1,
-    'end_time': time.time() + 7 * 24 * 60 * 60,
-    'start_time': time.time(),
-    'team_size': -1,
-    'email_allow': "a",
-    'login_provider': 'basic_auth',
-    'registration_provider': 'basic_auth',
-    'token_provider': 'basic_auth',
-    'enable_bot_users': True,
-    'enable_caching': True,
-    'enable_ctftime': True,
-    'enable_flag_submission': True,
-    'enable_flag_submission_after_competition': True,
-    'enable_force_admin_2fa': False,
-    'enable_track_incorrect_submissions': True,
-    'enable_login': True,
-    'enable_prelogin': True,
-    'enable_maintenance_mode': False,
-    'enable_registration': True,
-    'enable_scoreboard': True,
-    'enable_scoring': True,
-    'enable_solve_broadcast': True,
-    'enable_teams': True,
-    'enable_team_join': True,
-    'enable_view_challenges_after_competion': True,
-    'enable_team_leave': False,
-    'invite_required': False,
-    'hide_scoreboard_at': -1,
-    'setup_wizard_complete': False,
-    'sensitive_fields': ['sensitive_fields', 'enable_force_admin_2fa']
+    "config_version": 5,
+    "flag_prefix": "ractf",
+    "graph_members": 10,
+    "register_start_time": time.time(),
+    "register_end_time": -1,
+    "end_time": time.time() + 7 * 24 * 60 * 60,
+    "start_time": time.time(),
+    "team_size": -1,
+    "email_allow": "a",
+    "login_provider": "basic_auth",
+    "registration_provider": "basic_auth",
+    "token_provider": "basic_auth",
+    "enable_bot_users": True,
+    "enable_caching": True,
+    "enable_ctftime": True,
+    "enable_flag_submission": True,
+    "enable_flag_submission_after_competition": True,
+    "enable_force_admin_2fa": False,
+    "enable_track_incorrect_submissions": True,
+    "enable_login": True,
+    "enable_prelogin": True,
+    "enable_maintenance_mode": False,
+    "enable_registration": True,
+    "enable_scoreboard": True,
+    "enable_scoring": True,
+    "enable_solve_broadcast": True,
+    "enable_teams": True,
+    "enable_team_join": True,
+    "enable_view_challenges_after_competion": True,
+    "enable_team_leave": False,
+    "invite_required": False,
+    "hide_scoreboard_at": -1,
+    "setup_wizard_complete": False,
+    "sensitive_fields": ["sensitive_fields", "enable_force_admin_2fa"],
 }
 
 INSTALLED_APPS = [
@@ -135,7 +135,7 @@ MIDDLEWARE = [
 
 if os.getenv("ENABLE_SILK"):
     INSTALLED_APPS.insert(len(INSTALLED_APPS) - 6, "silk")
-    MIDDLEWARE.insert(len(MIDDLEWARE) - 2, 'silk.middleware.SilkyMiddleware')
+    MIDDLEWARE.insert(len(MIDDLEWARE) - 2, "silk.middleware.SilkyMiddleware")
     SILKY_PYTHON_PROFILER = True
 
 

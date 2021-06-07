@@ -8,19 +8,18 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
 
-sentry_sdk.init(
-    dsn="https://965545cacdd14caca2d2a037af90e7a7@o104250.ingest.sentry.io/5374672",
-    integrations=[DjangoIntegration()],
-    send_default_pii=True
-)
+sentry_sdk.init(dsn="https://965545cacdd14caca2d2a037af90e7a7@o104250.ingest.sentry.io/5374672", integrations=[DjangoIntegration()], send_default_pii=True)
 
 SEND_MAIL = True
 
-TEMPLATES.insert(0, {
-    "BACKEND": "django.template.backends.jinja2.Jinja2",
-    "DIRS": [os.path.join(BASE_DIR, 'templates')],
-    "APP_DIRS": True,
-})
+TEMPLATES.insert(
+    0,
+    {
+        "BACKEND": "django.template.backends.jinja2.Jinja2",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+    },
+)
 
 MAIL = {
     "SEND_ADDRESS": "no-reply@ractf.co.uk",

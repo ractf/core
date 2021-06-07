@@ -17,18 +17,28 @@ from rest_framework.views import APIView
 from authentication import serializers
 from authentication.models import InviteCode, PasswordResetToken, TOTPDevice, BackupCode
 from authentication.permissions import HasTwoFactor, VerifyingTwoFactor
-from authentication.serializers import RegistrationSerializer, EmailVerificationSerializer, ChangePasswordSerializer, \
-    GenerateInvitesSerializer, InviteCodeSerializer, EmailSerializer, CreateBotSerializer
+from authentication.serializers import (
+    RegistrationSerializer,
+    EmailVerificationSerializer,
+    ChangePasswordSerializer,
+    GenerateInvitesSerializer,
+    InviteCodeSerializer,
+    EmailSerializer,
+    CreateBotSerializer,
+)
 from backend.mail import send_email
 from backend.permissions import IsBot, IsSudo
 from backend.response import FormattedResponse
-from backend.signals import logout, add_2fa, verify_2fa, password_reset_start, password_reset_start_reject, \
-    email_verified, change_password, password_reset, remove_2fa
+from backend.signals import logout, add_2fa, verify_2fa, password_reset_start, password_reset_start_reject, email_verified, change_password, password_reset, remove_2fa
 from backend.viewsets import AdminListModelViewSet
 from plugins import providers
 from team.models import Team
 
-hide_password = method_decorator(sensitive_post_parameters("password", ))
+hide_password = method_decorator(
+    sensitive_post_parameters(
+        "password",
+    )
+)
 
 
 class LoginView(APIView):
@@ -41,15 +51,15 @@ class LoginView(APIView):
         return super(LoginView, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer = self.serializer_class(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
+        user = serializer.validated_data["user"]
 
         if user.has_2fa():
-            return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': '2fa_required'}, m='2fa_required')
+            return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={"reason": "2fa_required"}, m="2fa_required")
 
-        token = providers.get_provider('token').issue_token(user)
-        return FormattedResponse({'token': token})
+        token = providers.get_provider("token").issue_token(user)
+        return FormattedResponse({"token": token})
 
 
 class RegistrationView(CreateAPIView):
@@ -104,16 +114,12 @@ class RemoveTwoFactorView(APIView):
     throttle_scope = "2fa"
 
     def post(self, request):
-        code = request.data['otp']
+        code = request.data["otp"]
         if request.user.totp_device.validate_token(code):
             request.user.totp_device.delete()
             request.user.save()
             remove_2fa.send(sender=self.__class__, user=request.user)
-            send_email(
-                request.user.email,
-                "RACTF - 2FA Has Been Disabled",
-                "2fa_removed"
-            )
+            send_email(request.user.email, "RACTF - 2FA Has Been Disabled", "2fa_removed")
             return FormattedResponse()
         return FormattedResponse(status=HTTP_401_UNAUTHORIZED, m="code_incorrect")
 
@@ -128,18 +134,18 @@ class LoginTwoFactorView(APIView):
         return super(LoginTwoFactorView, self).dispatch(*args, **kwargs)
 
     def issue_token(self, user):
-        token = providers.get_provider('token').issue_token(user)
-        return FormattedResponse({'token': token})
+        token = providers.get_provider("token").issue_token(user)
+        return FormattedResponse({"token": token})
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer = self.serializer_class(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        user = serializer.validated_data['user']
+        user = serializer.validated_data["user"]
 
         if not user.has_2fa():
-            return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': '2fa_not_enabled'}, m='2fa_not_enabled')
+            return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={"reason": "2fa_not_enabled"}, m="2fa_not_enabled")
 
-        token = serializer.data['tfa']
+        token = serializer.data["tfa"]
 
         if len(token) == 6:
             if user.totp_device is not None and user.totp_device.validate_token(token):
@@ -150,7 +156,7 @@ class LoginTwoFactorView(APIView):
                     code.delete()
                     return self.issue_token(user)
 
-        return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={'reason': 'login_failed'}, m='login_failed')
+        return FormattedResponse(status=HTTP_401_UNAUTHORIZED, d={"reason": "login_failed"}, m="login_failed")
 
 
 class RegenerateBackupCodesView(APIView):
@@ -205,20 +211,16 @@ class DoPasswordResetView(GenericAPIView):
         return super(DoPasswordResetView, self).dispatch(*args, **kwargs)
 
     def post(self, request):
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request}
-        )
+        serializer = self.serializer_class(data=request.data, context={"request": request})
         if not serializer.is_valid():
-            return FormattedResponse(
-                d=serializer.errors, m="bad_request", status=HTTP_400_BAD_REQUEST
-            )
+            return FormattedResponse(d=serializer.errors, m="bad_request", status=HTTP_400_BAD_REQUEST)
         data = serializer.validated_data
         user = data["user"]
         password = data["password"]
         user.set_password(password)
         user.save()
 
-        data['reset_token'].delete()
+        data["reset_token"].delete()
         password_reset.send(sender=self.__class__, user=user)
         if user.can_login():
             return FormattedResponse({"token": user.issue_token()})
@@ -232,9 +234,7 @@ class VerifyEmailView(GenericAPIView):
     serializer_class = EmailVerificationSerializer
 
     def post(self, request):
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request}
-        )
+        serializer = self.serializer_class(data=request.data, context={"request": request})
         if not serializer.is_valid():
             return FormattedResponse(
                 m="invalid_token_or_uid",
@@ -258,9 +258,7 @@ class ResendEmailView(GenericAPIView):
     serializer_class = EmailSerializer
 
     def post(self, request):
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request}
-        )
+        serializer = self.serializer_class(data=request.data, context={"request": request})
         if not serializer.is_valid():
             return FormattedResponse(
                 m="invalid_token_or_uid",
@@ -274,9 +272,8 @@ class ResendEmailView(GenericAPIView):
                 d=serializer.errors,
                 status=HTTP_400_BAD_REQUEST,
             )
-        send_email(user.email, 'RACTF - Verify your email', 'verify',
-                   url=settings.FRONTEND_URL + 'verify?id={}&secret={}'.format(user.id, user.email_token))
-        return FormattedResponse('email_resent')
+        send_email(user.email, "RACTF - Verify your email", "verify", url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token))
+        return FormattedResponse("email_resent")
 
 
 class ChangePasswordView(APIView):
@@ -289,9 +286,7 @@ class ChangePasswordView(APIView):
         return super(ChangePasswordView, self).dispatch(*args, **kwargs)
 
     def post(self, request):
-        serializer = self.serializer_class(
-            data=request.data, context={"request": request}
-        )
+        serializer = self.serializer_class(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         user = request.user
         password = serializer.validated_data["password"]
@@ -306,7 +301,7 @@ class GenerateInvitesView(APIView):
     serializer_class = GenerateInvitesSerializer
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer = self.serializer_class(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         codes = []
         active_codes = InviteCode.objects.count()
@@ -328,10 +323,10 @@ class InviteViewSet(AdminListModelViewSet):
     admin_serializer_class = InviteCodeSerializer
     list_admin_serializer_class = InviteCodeSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['code', 'fully_used', 'auto_team']
+    filterset_fields = ["code", "fully_used", "auto_team"]
 
     def get_queryset(self):
-        return InviteCode.objects.order_by('id')
+        return InviteCode.objects.order_by("id")
 
 
 class CreateBotView(APIView):
@@ -339,27 +334,32 @@ class CreateBotView(APIView):
     serializer_class = CreateBotSerializer
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer = self.serializer_class(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        bot = get_user_model()(username=serializer.data["username"], email_verified=True,
-                               is_visible=serializer.data["is_visible"], is_staff=serializer.data["is_staff"],
-                               is_superuser=serializer.data["is_superuser"], is_bot=True,
-                               email=serializer.data["username"] + "@bot.ractf")
+        bot = get_user_model()(
+            username=serializer.data["username"],
+            email_verified=True,
+            is_visible=serializer.data["is_visible"],
+            is_staff=serializer.data["is_staff"],
+            is_superuser=serializer.data["is_superuser"],
+            is_bot=True,
+            email=serializer.data["username"] + "@bot.ractf",
+        )
         bot.save()
-        return FormattedResponse(d={'token': bot.issue_token()}, status=HTTP_201_CREATED)
+        return FormattedResponse(d={"token": bot.issue_token()}, status=HTTP_201_CREATED)
 
 
 class SudoView(APIView):
     permission_classes = (permissions.IsAdminUser & ~IsBot & ~IsSudo,)
 
     def post(self, request):
-        id = request.data['id']
+        id = request.data["id"]
         user = get_object_or_404(get_user_model(), id=id)
-        return FormattedResponse(d={'token': user.issue_token(owner=request.user)})
+        return FormattedResponse(d={"token": user.issue_token(owner=request.user)})
 
 
 class DesudoView(APIView):
     permission_classes = (IsSudo,)
 
     def post(self, request):
-        return FormattedResponse(d={'token': request.sudo_from.issue_token()})
+        return FormattedResponse(d={"token": request.sudo_from.issue_token()})

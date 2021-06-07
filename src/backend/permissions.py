@@ -9,11 +9,7 @@ class AdminOrReadOnlyVisible(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.user.is_staff and not request.user.should_deny_admin():
             return True
-        return (
-            request.user.is_authenticated
-            and obj.is_visible
-            and request.method in permissions.SAFE_METHODS
-        )
+        return request.user.is_authenticated and obj.is_visible and request.method in permissions.SAFE_METHODS
 
 
 class AdminOrReadOnly(permissions.BasePermission):
@@ -49,4 +45,4 @@ class ReadOnlyBot(permissions.BasePermission):
 
 class IsSudo(permissions.BasePermission):
     def has_permission(self, request, view):
-        return hasattr(request, 'sudo')
+        return hasattr(request, "sudo")

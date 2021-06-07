@@ -13,9 +13,7 @@ class GetInstanceView(APIView):
     throttle_scope = "challenge_instance_get"
 
     def get(self, request, job_id):
-        return FormattedResponse(
-            client.get_instance(request.user.id, job_id)
-        )
+        return FormattedResponse(client.get_instance(request.user.id, job_id))
 
 
 class ResetInstanceView(APIView):
@@ -23,9 +21,7 @@ class ResetInstanceView(APIView):
     throttle_scope = "challenge_instance_reset"
 
     def get(self, request, job_id):
-        return FormattedResponse(
-            client.request_reset(request.user.id, job_id)
-        )
+        return FormattedResponse(client.request_reset(request.user.id, job_id))
 
 
 class ListJobsView(APIView):
@@ -33,9 +29,7 @@ class ListJobsView(APIView):
     throttle_scope = "andromeda_view_jobs"
 
     def get(self, request):
-        return FormattedResponse(
-            client.list_jobs()
-        )
+        return FormattedResponse(client.list_jobs())
 
 
 class RestartJobView(APIView):
@@ -43,9 +37,7 @@ class RestartJobView(APIView):
     throttle_scope = "andromeda_manage_jobs"
 
     def post(self, request):
-        return FormattedResponse(
-            client.restart_job(request.data["job_id"])
-        )
+        return FormattedResponse(client.restart_job(request.data["job_id"]))
 
 
 class ListInstancesView(APIView):
@@ -53,9 +45,7 @@ class ListInstancesView(APIView):
     throttle_scope = "andromeda_view_jobs"
 
     def get(self, request):
-        return FormattedResponse(
-            client.list_instances()
-        )
+        return FormattedResponse(client.list_instances())
 
 
 class SysinfoView(APIView):
@@ -63,9 +53,7 @@ class SysinfoView(APIView):
     throttle_scope = "andromeda_view_sysinfo"
 
     def get(self, request):
-        return FormattedResponse(
-            client.sysinfo()
-        )
+        return FormattedResponse(client.sysinfo())
 
 
 class JobSubmitView(APIView):
@@ -74,9 +62,9 @@ class JobSubmitView(APIView):
 
     def post(self, request):
         serializer = JobSubmitSerializer(request.data)
-        challenge = get_object_or_404(Challenge.objects, id=serializer.data['challenge_id'])
-        response = client.submit_job(serializer.data['job_spec'])
-        challenge.challenge_metadata['cserv_name'] = response['id']
+        challenge = get_object_or_404(Challenge.objects, id=serializer.data["challenge_id"])
+        response = client.submit_job(serializer.data["job_spec"])
+        challenge.challenge_metadata["cserv_name"] = response["id"]
         challenge.save()
         return FormattedResponse()
 
@@ -87,5 +75,5 @@ class JobSubmitRawView(APIView):
 
     def post(self, request):
         serializer = JobSubmitSerializer(request.data)
-        response = client.submit_job(serializer.data['job_spec'])
+        response = client.submit_job(serializer.data["job_spec"])
         return FormattedResponse(response)

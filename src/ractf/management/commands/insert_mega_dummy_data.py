@@ -22,13 +22,11 @@ class TimedLog:
 
 
 class Command(BaseCommand):
-
     def handle(self, *args, **options):
         with TimedLog("Inserting phat dummy data... ", ending="\n"):
             with TimedLog("Creating 10 categories..."):
                 for i in range(10):
-                    category = Category(name='category-' + str(i), display_order=i, contained_type='test',
-                                        description='Category ' + str(i))
+                    category = Category(name="category-" + str(i), display_order=i, contained_type="test", description="Category " + str(i))
                     category.save()
 
             def random_rpn_op(depth=0):
@@ -42,25 +40,29 @@ class Command(BaseCommand):
                 else:
                     return f"{random_rpn_op(depth)} {random_rpn_op(depth)} AND"
 
-            with TimedLog('Creating 100 challenges for each category...'):
+            with TimedLog("Creating 100 challenges for each category..."):
                 for i in range(10):
-                    category = Category.objects.get(name='category-' + str(i))
+                    category = Category.objects.get(name="category-" + str(i))
                     for j in range(100):
-                        auto_unlock = (random.randint(1, 5) == 1)
-                        challenge = Challenge(name='cat-' + str(i) + '-chal-' + str(j), category=category,
-                                              description='An example challenge ' + str(j),
-                                              flag_metadata={'flag': f'ractf{{{j}}}'}, author='dave',
-                                              score=j, challenge_metadata={},
-                                              unlock_requirements=random_rpn_op() if not auto_unlock else "")
+                        auto_unlock = random.randint(1, 5) == 1
+                        challenge = Challenge(
+                            name="cat-" + str(i) + "-chal-" + str(j),
+                            category=category,
+                            description="An example challenge " + str(j),
+                            flag_metadata={"flag": f"ractf{{{j}}}"},
+                            author="dave",
+                            score=j,
+                            challenge_metadata={},
+                            unlock_requirements=random_rpn_op() if not auto_unlock else "",
+                        )
                         challenge.save()
 
             with TimedLog("Creating 20k users in memory..."):
                 Member = get_user_model()
                 users_to_create = []
                 for i in range(10000):
-                    user = Member(username='user-' + str(i), email='user-' + str(i) + '@example.org')
-                    user2 = Member(username='user-' + str(i) + '-second',
-                                             email='user-' + str(i) + '-second@example.org')
+                    user = Member(username="user-" + str(i), email="user-" + str(i) + "@example.org")
+                    user2 = Member(username="user-" + str(i) + "-second", email="user-" + str(i) + "-second@example.org")
                     users_to_create.append(user)
                     users_to_create.append(user2)
 
@@ -71,7 +73,7 @@ class Command(BaseCommand):
                 teams_to_create = []
                 members = list(Member.objects.all())
                 for i in range(10000):
-                    team = Team(name='team-' + str(i), password='password', owner=members[i * 2])
+                    team = Team(name="team-" + str(i), password="password", owner=members[i * 2])
 
                     teams_to_create.append(team)
 
@@ -83,7 +85,7 @@ class Command(BaseCommand):
                 teams = list(Team.objects.all())
                 for i in range(0, len(members), 2):
                     owner = members[i]
-                    teammate = members[i+1]
+                    teammate = members[i + 1]
 
                     owner.team = teams[i // 2]
                     teammate.team = teams[i // 2]
@@ -106,10 +108,9 @@ class Command(BaseCommand):
                     used = []
                     for j in range(50):
                         points = random.randint(0, 999)
-                        score = Score(team=team, reason='challenge', points=points, penalty=0, leaderboard=True)
+                        score = Score(team=team, reason="challenge", points=points, penalty=0, leaderboard=True)
                         scores_to_create.append(score)
-                        solve = Solve(team=team, solved_by=user, challenge_id=(j * 19) + (team.id % 20) + 1, first_blood=False,
-                                      flag='ractf{}', score=score, correct=True)
+                        solve = Solve(team=team, solved_by=user, challenge_id=(j * 19) + (team.id % 20) + 1, first_blood=False, flag="ractf{}", score=score, correct=True)
                         solves_to_create.append(solve)
                         user.points += points
                         team.points += points
@@ -117,10 +118,9 @@ class Command(BaseCommand):
                         team.leaderboard_points += points
 
                         points = random.randint(0, 999)
-                        score = Score(team=team, reason='challenge', points=points, penalty=0, leaderboard=True)
+                        score = Score(team=team, reason="challenge", points=points, penalty=0, leaderboard=True)
                         scores_to_create.append(score)
-                        solve = Solve(team=team, solved_by=user2, challenge_id=(j * 19) + (team.id % 20) + 2,
-                                      first_blood=False, flag='ractf{}', score=score, correct=True)
+                        solve = Solve(team=team, solved_by=user2, challenge_id=(j * 19) + (team.id % 20) + 2, first_blood=False, flag="ractf{}", score=score, correct=True)
                         solves_to_create.append(solve)
                         user2.points += points
                         team.points += points

@@ -11,7 +11,7 @@ DOMAIN = "example.com"
 for scope in REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]:
     REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"][scope] = "9999999/minute"
 
-#DATABASES = {
+# DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',
 #        'NAME': 'db.sqlite3',
@@ -20,15 +20,15 @@ for scope in REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]:
 #        'HOST': '',
 #        'PORT': '',
 #    },
-#}
+# }
 
-#CONFIG = {
+# CONFIG = {
 #    "BACKEND": "config.backends.DatabaseBackend",
-#}
+# }
 
-#CACHES = {
+# CACHES = {
 #    'default': {
 #        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
 #        'LOCATION': 'dead-beef',
 #    }
-#}
+# }

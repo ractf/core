@@ -14,9 +14,7 @@ from team.models import Team
 
 class Token(ExportModelOperationsMixin("token"), models.Model):
     key = models.CharField(max_length=40, primary_key=True)
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="tokens", on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="tokens", on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -60,9 +58,7 @@ class PasswordResetToken(ExportModelOperationsMixin("password_reset_token"), mod
 
 
 class BackupCode(ExportModelOperationsMixin("backup_code"), models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, related_name="backup_codes", on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="backup_codes", on_delete=models.CASCADE)
     code = models.CharField(max_length=8)
 
     class Meta:

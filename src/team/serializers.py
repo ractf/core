@@ -101,9 +101,7 @@ class CreateTeamSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         name = validated_data["name"]
         password = validated_data["password"]
-        team = Team.objects.create(
-            name=name, password=password, owner=self.context["request"].user
-        )
+        team = Team.objects.create(name=name, password=password, owner=self.context["request"].user)
         self.context["request"].user.team = team
         self.context["request"].user.save()
         team_create.send(sender=self.__class__, team=team)

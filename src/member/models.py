@@ -56,10 +56,8 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
 
     def can_login(self):
         from config import config
-        return self.is_staff or (
-            config.get("enable_login")
-            and (config.get("enable_prelogin") or config.get("start_time") <= time.time())
-        )
+
+        return self.is_staff or (config.get("enable_login") and (config.get("enable_prelogin") or config.get("start_time") <= time.time()))
 
     def issue_token(self, owner=None):
         from authentication.models import Token
@@ -73,6 +71,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
 
     def should_deny_admin(self):
         from config import config
+
         return config.get("enable_force_admin_2fa") and not self.has_2fa()
 
 

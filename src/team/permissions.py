@@ -5,10 +5,7 @@ import config
 
 class IsTeamOwnerOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
-        return (
-            request.method in permissions.SAFE_METHODS
-            or request.user.team.owner == request.user
-        )
+        return request.method in permissions.SAFE_METHODS or request.user.team.owner == request.user
 
 
 class HasTeam(permissions.BasePermission):

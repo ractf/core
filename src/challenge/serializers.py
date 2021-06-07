@@ -9,22 +9,25 @@ from hint.serializers import HintSerializer, FastHintSerializer
 
 
 def setup_context(context):
-    context.update({
-        "request": context["request"],
-        "solve_counter": get_solve_counts(),
-        "votes_positive_counter": get_positive_votes(),
-        "votes_negative_counter": get_negative_votes(),
-    })
+    context.update(
+        {
+            "request": context["request"],
+            "solve_counter": get_solve_counts(),
+            "votes_positive_counter": get_positive_votes(),
+            "votes_negative_counter": get_negative_votes(),
+        }
+    )
     if context["request"].user.team is not None:
-        context.update({
-            "solves": list(
-                context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
-            ),
-        })
+        context.update(
+            {
+                "solves": list(context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)),
+            }
+        )
 
 
 class ForeignKeyField(serpy.Field):
     """A :class:`Field` that gets a given attribute from a foreign object."""
+
     def __init__(self, *args, attr_name="id", **kwargs):
         super(ForeignKeyField, self).__init__(*args, **kwargs)
         self.attr_name = attr_name
@@ -37,6 +40,7 @@ class ForeignKeyField(serpy.Field):
 
 class DateTimeField(serpy.Field):
     """A :class:`Field` that transforms a datetime into ISO string."""
+
     def to_value(self, value):
         return value.isoformat()
 
@@ -85,10 +89,7 @@ class ChallengeSerializerMixin:
         return instance.unlock_time_surpassed
 
     def get_votes(self, instance):
-        return {
-            "positive": self.context["votes_positive_counter"].get(instance.id, 0),
-            "negative": self.context["votes_negative_counter"].get(instance.id, 0)
-        }
+        return {"positive": self.context["votes_positive_counter"].get(instance.id, 0), "negative": self.context["votes_negative_counter"].get(instance.id, 0)}
 
     def get_post_score_explanation(self, instance):
         if self.get_unlocked(instance):
@@ -132,8 +133,7 @@ class LockedChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSeria
 
     class Meta:
         model = Challenge
-        fields = ['id', 'unlock_requirements', 'challenge_metadata', 'challenge_type', 'hidden',
-                  'unlock_time_surpassed', 'release_time']
+        fields = ["id", "unlock_requirements", "challenge_metadata", "challenge_type", "hidden", "unlock_time_surpassed", "release_time"]
 
 
 class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer):
@@ -143,7 +143,7 @@ class ChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSerializer)
     unlocked = serializers.SerializerMethodField()
     unlock_time_surpassed = serializers.SerializerMethodField()
     votes = serializers.SerializerMethodField()
-    first_blood_name = serializers.ReadOnlyField(source='first_blood.username')
+    first_blood_name = serializers.ReadOnlyField(source="first_blood.username")
     solve_count = serializers.SerializerMethodField()
     tags = NestedTagSerializer(many=True, read_only=True)
     post_score_explanation = serializers.SerializerMethodField()
@@ -154,31 +154,42 @@ class LockedChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSeria
 
     class Meta:
         model = Challenge
-        fields = [
-            "id",
-            "unlock_requirements",
-            "challenge_metadata",
-            "challenge_type",
-            "hidden",
-            "unlock_time_surpassed",
-            "release_time",
-            "score"
-        ]
-
+        fields = ["id", "unlock_requirements", "challenge_metadata", "challenge_type", "hidden", "unlock_time_surpassed", "release_time", "score"]
 
     def __init__(self, *args, **kwargs):
         super(FastChallengeSerializer, self).__init__(*args, **kwargs)
-        if 'context' in kwargs:
-            self.context = kwargs['context']
-            if 'solve_counter' not in self.context:
+        if "context" in kwargs:
+            self.context = kwargs["context"]
+            if "solve_counter" not in self.context:
                 setup_context(self.context)
 
     class Meta:
         model = Challenge
-        fields = ['id', 'name', 'category', 'description', 'challenge_type', 'challenge_metadata', 'flag_type',
-                  'author', 'auto_unlock', 'score', 'unlock_requirements', 'hints', 'files', 'solved', 'unlocked',
-                  'first_blood', 'first_blood_name', 'solve_count', 'hidden', 'votes', 'tags', 'unlock_time_surpassed',
-                  'post_score_explanation']
+        fields = [
+            "id",
+            "name",
+            "category",
+            "description",
+            "challenge_type",
+            "challenge_metadata",
+            "flag_type",
+            "author",
+            "auto_unlock",
+            "score",
+            "unlock_requirements",
+            "hints",
+            "files",
+            "solved",
+            "unlocked",
+            "first_blood",
+            "first_blood_name",
+            "solve_count",
+            "hidden",
+            "votes",
+            "tags",
+            "unlock_time_surpassed",
+            "post_score_explanation",
+        ]
 
     class Meta:
         model = Challenge
@@ -208,17 +219,12 @@ class LockedChallengeSerializer(ChallengeSerializerMixin, serializers.ModelSeria
         ]
 
     def serialize(self, instance):
-        if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and \
-                not instance.hidden and instance.unlock_time_surpassed:
+        if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and not instance.hidden and instance.unlock_time_surpassed:
             return super(FastChallengeSerializer, FastChallengeSerializer(instance, context=self.context)).to_value(instance)
         return FastLockedChallengeSerializer(instance).data
 
     def to_representation(self, instance):
-        if (
-            instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None))
-            and not instance.hidden
-            and instance.unlock_time_surpassed
-        ):
+        if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and not instance.hidden and instance.unlock_time_surpassed:
             return super(ChallengeSerializer, self).to_representation(instance)
         return LockedChallengeSerializer(instance).to_representation(instance)
 
@@ -290,14 +296,13 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
 
     def __init__(self, *args, **kwargs):
         super(FastAdminChallengeSerializer, self).__init__(*args, **kwargs)
-        if 'context' in kwargs:
-            self.context = kwargs['context']
-            if 'solve_counter' not in self.context:
+        if "context" in kwargs:
+            self.context = kwargs["context"]
+            if "solve_counter" not in self.context:
                 setup_context(self.context)
 
     def serialize(self, instance):
-        return super(FastAdminChallengeSerializer, FastAdminChallengeSerializer(instance, context=self.context))\
-            .to_value(instance)
+        return super(FastAdminChallengeSerializer, FastAdminChallengeSerializer(instance, context=self.context)).to_value(instance)
 
     def to_value(self, instance):
         if self.many:

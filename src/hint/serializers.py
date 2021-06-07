@@ -5,10 +5,7 @@ from hint.models import Hint, HintUse
 
 
 def is_used(context, instance):
-    return (
-        context["request"].user.team is not None
-        and context["request"].user.team.hints_used.filter(hint=instance).exists()
-    )
+    return context["request"].user.team is not None and context["request"].user.team.hints_used.filter(hint=instance).exists()
 
 
 class HintUseSerializer(serializers.ModelSerializer):
@@ -19,10 +16,7 @@ class HintUseSerializer(serializers.ModelSerializer):
 
 class HintSerializerMixin:
     def get_text(self, instance):
-        if (
-                self.context["request"].user.is_staff
-                and not self.context["request"].user.should_deny_admin()
-        ) or is_used(self.context, instance):
+        if (self.context["request"].user.is_staff and not self.context["request"].user.should_deny_admin()) or is_used(self.context, instance):
             return instance.text
         else:
             return ""

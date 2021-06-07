@@ -71,23 +71,19 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         elif type(self.flag_metadata) != dict:
             issues.append({"issue": "invalid_flag_data_type", "challenge": self.id})
         else:
-            issues += [{
-                "issue": "invalid_flag_data",
-                "extra": issue,
-                "challenge": self.id
-            } for issue in self.flag_plugin.self_check()]
+            issues += [{"issue": "invalid_flag_data", "extra": issue, "challenge": self.id} for issue in self.flag_plugin.self_check()]
 
         return issues
 
     @cached_property
     def flag_plugin(self):
         """Return the flag plugin responsible for validating flags sent to this challenge"""
-        return plugins.plugins['flag'][self.flag_type](self)
+        return plugins.plugins["flag"][self.flag_type](self)
 
     @cached_property
     def points_plugin(self):
         """Return the points plugin responsible for granting points from this challenge"""
-        return plugins.plugins['points'][self.points_type](self)
+        return plugins.plugins["points"][self.points_type](self)
 
     def is_unlocked(self, user, solves=None):
         if user is None:
@@ -99,9 +95,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         if user.team is None:
             return False
         if solves is None:
-            solves = list(
-                user.team.solves.filter(correct=True).values_list("challenge", flat=True)
-            )
+            solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
         requirements = self.unlock_requirements
         state = []
         if not requirements:
@@ -127,9 +121,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         if user.team is None:
             return False
         if solves is None:
-            solves = list(
-                user.team.solves.filter(correct=True).values_list("challenge", flat=True)
-            )
+            solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
         return self.id in solves
 
     def get_solve_count(self, solve_counter):
@@ -146,7 +138,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),
                     output_field=models.BooleanField(),
-                )
+                ),
             )
         else:
             challenges = Challenge.objects.annotate(
@@ -156,7 +148,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),
                     output_field=models.BooleanField(),
-                )
+                ),
             )
         from hint.models import Hint
         from hint.models import HintUse
@@ -179,9 +171,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             Prefetch("file_set", queryset=File.objects.all(), to_attr="files"),
             Prefetch(
                 "tag_set",
-                queryset=Tag.objects.all()
-                if time.time() > config.config.get("end_time")
-                else Tag.objects.filter(post_competition=False),
+                queryset=Tag.objects.all() if time.time() > config.config.get("end_time") else Tag.objects.filter(post_competition=False),
                 to_attr="tags",
             ),
             "first_blood",
@@ -209,10 +199,8 @@ def on_challenge_update(sender, instance, created, **kwargs):
 
 
 class Score(ExportModelOperationsMixin("score"), models.Model):
-    team = models.ForeignKey('team.Team', related_name="scores", on_delete=CASCADE, null=True)
-    user = models.ForeignKey(
-        get_user_model(), related_name="scores", on_delete=SET_NULL, null=True
-    )
+    team = models.ForeignKey("team.Team", related_name="scores", on_delete=CASCADE, null=True)
+    user = models.ForeignKey(get_user_model(), related_name="scores", on_delete=SET_NULL, null=True)
     reason = models.CharField(max_length=64)
     points = models.IntegerField()
     penalty = models.IntegerField(default=0)
@@ -222,11 +210,9 @@ class Score(ExportModelOperationsMixin("score"), models.Model):
 
 
 class Solve(ExportModelOperationsMixin("solve"), models.Model):
-    team = models.ForeignKey('team.Team', related_name="solves", on_delete=CASCADE, null=True)
+    team = models.ForeignKey("team.Team", related_name="solves", on_delete=CASCADE, null=True)
     challenge = models.ForeignKey(Challenge, related_name="solves", on_delete=CASCADE)
-    solved_by = models.ForeignKey(
-        get_user_model(), related_name="solves", on_delete=SET_NULL, null=True
-    )
+    solved_by = models.ForeignKey(get_user_model(), related_name="solves", on_delete=SET_NULL, null=True)
     first_blood = models.BooleanField(default=False)
     correct = models.BooleanField(default=True)
     timestamp = models.DateTimeField(default=timezone.now)
