@@ -30,5 +30,6 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
         "LOCATION": "/tmp/ractf-linting.cache",
         "OPTIONS": {"MAX_ENTRIES": 1000},
+        "TIMEOUT": 60,
     },
 }
