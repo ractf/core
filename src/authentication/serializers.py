@@ -1,5 +1,6 @@
 import secrets
 import time
+from smtplib import SMTPException
 
 from django.conf import settings
 from django.contrib.auth import get_user_model, password_validation
@@ -78,7 +79,7 @@ class RegistrationSerializer(serializers.Serializer):
             user.save()
             try:
                 send_email(user.email, "RACTF - Verify your email", "verify", url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token))
-            except:
+            except SMTPException:
                 user.delete()
                 raise FormattedException(m="creation_failed")
 
