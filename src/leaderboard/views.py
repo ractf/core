@@ -11,7 +11,14 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from backend.response import FormattedResponse
 from challenge.models import Score
 from config import config
-from leaderboard.serializers import CTFTimeSerializer, LeaderboardTeamScoreSerializer, LeaderboardUserScoreSerializer, MatrixSerializer, TeamPointsSerializer, UserPointsSerializer
+from leaderboard.serializers import (
+    CTFTimeSerializer,
+    LeaderboardTeamScoreSerializer,
+    LeaderboardUserScoreSerializer,
+    MatrixSerializer,
+    TeamPointsSerializer,
+    UserPointsSerializer,
+)
 from team.models import Team
 
 

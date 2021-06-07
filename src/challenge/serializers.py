@@ -1,7 +1,15 @@
 import serpy
 from rest_framework import serializers
 
-from challenge.models import Category, Challenge, ChallengeFeedback, File, Score, Solve, Tag
+from challenge.models import (
+    Category,
+    Challenge,
+    ChallengeFeedback,
+    File,
+    Score,
+    Solve,
+    Tag,
+)
 from challenge.sql import get_negative_votes, get_positive_votes, get_solve_counts
 from hint.serializers import FastHintSerializer
 

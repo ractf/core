@@ -3,7 +3,13 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from prometheus_client import Gauge
 
-from backend.signals import flag_score, register, team_create, websocket_connect, websocket_disconnect
+from backend.signals import (
+    flag_score,
+    register,
+    team_create,
+    websocket_connect,
+    websocket_disconnect,
+)
 from challenge.models import Solve
 from member.models import Member
 from team.models import Team
