@@ -21,12 +21,12 @@ class MissingPointsTestCase(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         response = self.client.get(reverse("self-check"))
-        self.assertEquals(response.data["d"][0]["issue"], "missing_points")
+        self.assertEqual(response.data["d"][0]["issue"], "missing_points")
 
         x.score = 5
         x.save()
         response = self.client.get(reverse("self-check"))
-        self.assertEquals(len(response.data["d"]), 0)
+        self.assertEqual(len(response.data["d"]), 0)
 
 
 class BadFlagConfigTestCase(APITestCase):
@@ -70,4 +70,4 @@ class BadFlagConfigTestCase(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         response = self.client.get(reverse("self-check"))
-        self.assertEquals(len(response.data["d"]), 14)
+        self.assertEqual(len(response.data["d"]), 14)
