@@ -17,3 +17,10 @@ repos:
         entry: poetry run make lint
         language: system
         types: [python]
+
+      - id: poetry-format
+        name: Poetry Format
+        description: This hook runs `make format` inside a relevant poetry environment.
+        entry: poetry run make format
+        language: system
+        types: [python]
