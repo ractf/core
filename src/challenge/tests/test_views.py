@@ -173,21 +173,21 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
     def test_category_list_challenge_redacting(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("categories-list"))
-        self.assertFalse("description" in self.get_json_for(self.challenge1, data=response.data))
+        self.assertFalse("description" in self.find_challenge_entry(self.challenge1, data=response.data))
 
     def test_category_list_challenge_redacting_admin(self):
         self.user.is_staff = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("categories-list"))
-        self.assertFalse("description" in self.get_json_for(self.challenge3, data=response.data))
+        self.assertFalse("description" in self.find_challenge_entry(self.challenge3, data=response.data))
 
     def test_category_list_challenge_unlocked_admin(self):
         self.user.is_staff = True
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("categories-list"))
-        self.assertFalse(self.get_json_for(self.challenge1, data=response.data).get("unlocked"))
+        self.assertFalse(self.find_challenge_entry(self.challenge1, data=response.data).get("unlocked"))
 
     def test_category_create(self):
         self.user.is_staff = True
@@ -242,7 +242,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
     def test_challenge_list_challenge_redacting(self):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("challenges-list"))
-        self.assertFalse("description" in response.data[-1])
+        self.assertFalse("description" in self.find_challenge_entry(self.challenge3, data=response.data))
 
     def test_challenge_list_challenge_redacting_admin(self):
         self.user.is_staff = True

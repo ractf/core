@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Union
 
 from challenge.models import Category, Challenge
 from hint.models import Hint
@@ -66,8 +66,15 @@ class ChallengeSetupMixin:
         self.user3.team = self.team2
         self.user3.save()
 
-    def get_json_for(self, challenge: "Challenge", data: dict[str, list[dict]]) -> Optional[dict]:
+    def find_challenge_entry(self, challenge: "Challenge", data: Union[dict[str, list[dict]], list[dict]]) -> Optional[dict]:
         """Get the relevant serialized JSON for a specified challenge."""
-        for serialized_challenge in data.get("d", [{}])[0].get("challenges", ()):
+        if type(data) is list:
+            challenges = data
+        elif type(data) is dict:
+            challenges = data.get("d", [{}])[0].get("challenges", ())
+        else:
+            challenges = []
+
+        for serialized_challenge in challenges:
             if serialized_challenge.get("id") == challenge.pk:
                 return serialized_challenge
