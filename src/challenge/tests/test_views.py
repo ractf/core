@@ -187,7 +187,7 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("categories-list"))
-        self.assertFalse(self.get_json_for(self.challenge1, data=response.data))
+        self.assertFalse(self.get_json_for(self.challenge1, data=response.data).get("unlocked"))
 
     def test_category_create(self):
         self.user.is_staff = True
