@@ -10,7 +10,7 @@ omit =
     sockets/routing.py
     backend/settings/*
     ractf/management/*
-    gunicorn_conf.py
+    gunicorn_config.py
     */migrations/*.py
 
 [report]
