@@ -23,12 +23,13 @@ def setup_context(context):
             "votes_negative_counter": get_negative_votes(),
         }
     )
-    if context["request"].user.team is not None:
-        context.update(
-            {
-                "solves": list(context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)),
-            }
-        )
+    if context["request"] and context["request"].user is not None:
+        if context["request"].user.team is not None:
+            context.update(
+                {
+                    "solves": list(context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)),
+                }
+            )
 
 
 class ForeignKeyField(serpy.Field):
