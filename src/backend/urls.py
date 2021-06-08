@@ -34,7 +34,6 @@ urlpatterns = [
     path("team/", include("team.urls")),
     path("pages/", include("pages.urls")),
     path("experiments/", include("experiments.urls")),
-    path("polaris/", include("polaris.urls")),
 ]
 
 urlpatterns = [

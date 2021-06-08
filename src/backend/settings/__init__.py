@@ -99,7 +99,6 @@ INSTALLED_APPS = [
     "member.apps.MemberConfig",
     "pages.apps.PagesConfig",
     "plugins.apps.PluginsConfig",
-    "polaris.apps.PolarisConfig",
     "ractf.apps.RactfConfig",
     "scorerecalculator.apps.ScorerecalculatorConfig",
     "team.apps.TeamConfig",
