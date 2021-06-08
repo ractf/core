@@ -112,6 +112,26 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
         config.set("enable_team_leave", False)
         self.assertEqual(response.status_code, HTTP_200_OK)
 
+    def test_team_leave_as_mortal(self) -> None:
+        """Leaving as non-owner should leave the team without deletion."""
+
+        # We create new regular user, and authenticate the request as a normal
+        # member of the team (a non-owner).
+        new_user = get_user_model()(
+            username="team-test-2",
+            email="team-test-2@example.org",
+            is_visible=True,
+        )
+        new_user.team = self.team
+        new_user.save()
+
+        self.client.force_authenticate(user=new_user)
+
+        config.set("enable_team_leave", True)
+        response = self.client.post(reverse("team-leave"))
+        config.set("enable_team_leave", False)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
 
 class CreateTeamTestCase(TeamSetupMixin, APITestCase):
     def test_create_team(self):
