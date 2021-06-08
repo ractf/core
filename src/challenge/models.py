@@ -1,5 +1,6 @@
 import time
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.indexes import BrinIndex
 from django.db import models
@@ -24,6 +25,8 @@ from django_prometheus.models import ExportModelOperationsMixin
 
 from config import config
 from plugins import plugins
+
+USING_POSTGRES = settings.DATABASES.get("default", {}).get("ENGINE", "").endswith("postgresql")
 
 
 class Category(ExportModelOperationsMixin("category"), models.Model):
@@ -229,7 +232,7 @@ class Solve(ExportModelOperationsMixin("solve"), models.Model):
                 name="unique_member_challenge_correct",
             ),
         ]
-        indexes = [BrinIndex(fields=["challenge"], autosummarize=True)]
+        indexes = [BrinIndex(fields=["challenge"], autosummarize=True)] if USING_POSTGRES else []
 
 
 def get_file_name(instance, filename):
