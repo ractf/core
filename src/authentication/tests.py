@@ -2,7 +2,9 @@ from unittest import mock
 
 import pyotp
 from django.contrib.auth import get_user_model
+from django.http import HttpRequest
 from django.urls import reverse
+from rest_framework.request import Request
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
@@ -24,6 +26,7 @@ from authentication.views import (
     AddTwoFactorView,
     ChangePasswordView,
     CreateBotView,
+    DesudoView,
     DoPasswordResetView,
     LoginTwoFactorView,
     LoginView,
@@ -203,6 +206,18 @@ class SudoTestCase(APITestCase):
         self.assertEqual(req.status_code, HTTP_200_OK)
 
 
+class DesudoTestCase(APITestCase):
+    def test_desudo(self):
+        user2 = get_user_model()(username="sudotest2", email="sudotest2@example.com")
+        user2.save()
+
+        request = Request(HttpRequest())
+        request.sudo_from = user2
+
+        response = DesudoView().post(request)
+        self.assertTrue("token" in response.data["d"])
+
+
 class GenerateInvitesTestCase(APITestCase):
     def test_response_length(self):
         user = get_user_model()(username="resend-email", is_staff=True, email="tvu@example.com", is_superuser=True)
@@ -336,6 +351,7 @@ class LoginTestCase(APITestCase):
         LoginView.throttle_scope = ""
 
     def test_login(self):
+        self.user.set_password("password")
         data = {
             "username": "login-test",
             "password": "password",
@@ -392,6 +408,7 @@ class LoginTestCase(APITestCase):
         self.user.save()
 
     def test_login_with_email(self):
+        self.user.set_password("password")
         data = {
             "username": "login-test@example.org",
             "password": "password",
@@ -483,7 +500,7 @@ class Login2FATestCase(APITestCase):
         response = self.client.post(reverse("login-2fa"), data)
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
-    def test_login_2fa_backup_cde(self):
+    def test_login_2fa_backup_code(self):
         BackupCode(user=self.user, code="12345678").save()
         data = {
             "username": "login-test",
@@ -492,6 +509,25 @@ class Login2FATestCase(APITestCase):
         }
         response = self.client.post(reverse("login-2fa"), data)
         self.assertEqual(response.status_code, HTTP_200_OK)
+
+    def test_login_2fa_backup_code_invalid(self):
+        BackupCode(user=self.user, code="12345678").save()
+        data = {
+            "username": "login-test",
+            "password": "password",
+            "tfa": "87654321",
+        }
+        response = self.client.post(reverse("login-2fa"), data)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+
+    def test_login_2fa_invalid_code(self):
+        data = {
+            "username": "login-test",
+            "password": "password",
+            "tfa": "123456789",
+        }
+        response = self.client.post(reverse("login-2fa"), data)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
 
 class TokenTestCase(APITestCase):
@@ -640,7 +676,7 @@ class DoPasswordResetTestCase(APITestCase):
             "password": "uO7*$E@0ngqL",
         }
         response = self.client.post(reverse("do-password-reset"), data)
-        self.assertTrue("token" in response.data["d"])
+        self.assertTrue("token" in response.data or "token" in response.data["d"])
 
     def test_password_reset_bad_token(self):
         data = {
