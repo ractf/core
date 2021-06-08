@@ -127,6 +127,14 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     unlock_time_surpassed = serpy.MethodField()
     post_score_explanation = serpy.StrField()
 
+    def __init__(self, *args, **kwargs) -> None:
+        """Add the 'context' attribute to the serializer."""
+        super().__init__(*args, **kwargs)
+
+        if "context" in kwargs:
+            self.context = kwargs["context"]
+            setup_context(self.context)
+
 
 class FastCategorySerializer(serpy.Serializer):
     id = serpy.IntField()
