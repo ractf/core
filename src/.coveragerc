@@ -11,6 +11,8 @@ omit =
     backend/settings/*
     ractf/management/*
     gunicorn_conf.py
+    */migrations/*.py
+
 [report]
 fail_under = 100
 show_missing = True
