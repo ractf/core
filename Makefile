@@ -14,14 +14,9 @@ coverage:
 	cd src && \
 	BETTER_EXCEPTIONS=1 \
 	python manage.py migrate && \
-	pytest --cov=. --cov-report=xml
-
-coveragehtml:
-	export DJANGO_SETTINGS_MODULE='backend.settings.lint' && \
-	cd src && \
-	BETTER_EXCEPTIONS=1 \
-	python manage.py migrate && \
-	pytest --cov=. --cov-report=html
+	pytest --cov=. --cov-report=xml && \
+	coverage html && \
+	xdg-open htmlcov/index.html
 
 format:
 	isort -rc src && \
