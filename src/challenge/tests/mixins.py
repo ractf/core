@@ -67,7 +67,7 @@ class ChallengeSetupMixin:
         self.user3.save()
 
     def get_json_for(self, challenge: "Challenge", data: dict[str, list[dict]]) -> Optional[dict]:
-        """Get the relevant serialized JSON for a specicifed challenge."""
+        """Get the relevant serialized JSON for a specified challenge."""
         for serialized_challenge in data.get("d", [{}])[0].get("challenges", ()):
             if serialized_challenge.get("id") == challenge.pk:
                 return serialized_challenge
