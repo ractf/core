@@ -122,18 +122,6 @@ class CategoryViewset(AdminCreateModelViewSet):
                     challenge["votes"] = {"positive": positive_votes.get(challenge["id"], 0), "negative": negative_votes.get(challenge["id"], 0)}
                     challenge["solve_count"] = solve_counts.get(challenge["id"], 0)
 
-        # This is to fix an issue with django duplicating challenges on .annotate.
-        # If you want to clean this up, good luck.
-        for category in categories:
-            unlocked = set()
-            for challenge in category["challenges"]:
-                if "unlocked" in challenge and challenge["unlocked"]:
-                    unlocked.add(challenge["id"])
-            new_challenges = []
-            for challenge in category["challenges"]:
-                if not (("unlocked" not in challenge or not challenge["unlocked"]) and challenge["id"] in unlocked):
-                    new_challenges.append(challenge)
-            category["challenges"] = new_challenges
         return FormattedResponse(categories)
 
 
