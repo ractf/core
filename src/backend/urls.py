@@ -43,6 +43,7 @@ urlpatterns = [
 ]
 
 handler404 = CatchAllView.as_view()
+handler500 = "backend.exception_handler.generic_error_response"
 
 if "silk" in settings.INSTALLED_APPS:
     urlpatterns += [path("silk/", include("silk.urls"))]
