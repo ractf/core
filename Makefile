@@ -3,7 +3,7 @@ test:
 	cd src && \
 	BETTER_EXCEPTIONS=1 \
 	python manage.py migrate && \
-	pytest --cov=. --cov-report=xml
+	pytest --cov=. --cov-report=xml --testmon
 
 format:
 	isort -rc src && \
