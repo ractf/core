@@ -140,8 +140,7 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
             setup_context(self.context)
 
     def _serialize(self, instance, fields):
-        if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and \
-                not instance.hidden and instance.unlock_time_surpassed:
+        if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and not instance.hidden and instance.unlock_time_surpassed:
             return super(FastChallengeSerializer, self)._serialize(instance, fields)
         return FastLockedChallengeSerializer(instance).serialize(instance)
 

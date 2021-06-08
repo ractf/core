@@ -501,6 +501,13 @@ class TokenTestCase(APITestCase):
         tok = Token(key="a" * 40, user=user)
         self.assertEqual(str(tok), "a" * 40)
 
+    def test_token_preserves_key(self):
+        user = get_user_model()(username="token-test-2", email="token-test-2@example.org")
+        user.save()
+        token = Token(key="a" * 40, user=user)
+        token.save()
+        self.assertEqual(token.key, "a" * 40)
+
 
 class TFATestCase(APITestCase):
     def setUp(self):

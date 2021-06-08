@@ -49,7 +49,7 @@ class ChallengeSetupMixin:
             flag_metadata={"flag": "ractf{a}"},
             author="dave",
             score=1000,
-            unlock_requirements="1"
+            unlock_requirements="1",
         )
         self.hint1 = Hint.objects.create(name="hint1", challenge=self.challenge1, text="a", penalty=100)
         self.hint2 = Hint.objects.create(name="hint2", challenge=self.challenge1, text="a", penalty=100)

@@ -5,8 +5,8 @@ test:
 	python manage.py migrate && \
 	pytest --testmon || \
 	if [ $$? = 5 ]; \
-	  then return 0; \
-	  else return $$?; \
+	  then exit 0; \
+	  else exit $$?; \
 	fi
 
 coverage:
