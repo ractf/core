@@ -45,6 +45,8 @@ pre-commit = "^2.13.0"
 flake9 = "^3.8.3"
 better-exceptions = "^0.3.3"
 pytest-testmon = "^1.1.1"
+django-querycount = "^0.7.0"
+nplusone = "^1.0.0"
 
 [tool.pytest.ini_options]
 python_files = "tests.py test_*.py *_tests.py"
