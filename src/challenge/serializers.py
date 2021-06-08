@@ -105,6 +105,9 @@ class FastLockedChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     release_time = DateTimeField()
     unlock_time_surpassed = serpy.MethodField()
 
+    def serialize(self, instance):
+        return self._serialize(instance, self._compiled_fields)
+
 
 class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     id = serpy.IntField()
@@ -135,11 +138,11 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
             self.context = kwargs["context"]
             setup_context(self.context)
 
-    def serialize(self, instance):
+    def _serialize(self, instance, fields):
         if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and \
                 not instance.hidden and instance.unlock_time_surpassed:
-            return super(FastChallengeSerializer, FastChallengeSerializer(instance, context=self.context)).to_value(instance)
-        return FastLockedChallengeSerializer(instance).data
+            return super(FastChallengeSerializer, self)._serialize(instance, fields)
+        return FastLockedChallengeSerializer(instance).serialize(instance)
 
 
 class FastCategorySerializer(serpy.Serializer):
