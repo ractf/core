@@ -55,9 +55,6 @@ ignore::django.utils.deprecation.RemovedInDjango40Warning
 ignore::django.utils.deprecation.RemovedInDjango41Warning
 """
 
-[tool.coverage.run]
-fail_under = 80
-
 [tool.black]
 exclude = 'migrations'
 line_length = 200
