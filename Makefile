@@ -9,6 +9,13 @@ test:
 	  else return $$?; \
 	fi
 
+coverage:
+	export DJANGO_SETTINGS_MODULE='backend.settings.lint' && \
+	cd src && \
+	BETTER_EXCEPTIONS=1 \
+	python manage.py migrate && \
+	pytest --cov=. --cov-report=xml
+
 format:
 	isort -rc src && \
 	black src
