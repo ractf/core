@@ -25,3 +25,11 @@ format:
 lint:
 	flake8 && \
 	isort --check-only src
+
+dev-server:
+	docker-compose build && \
+	docker-compose up -d
+
+dev-test:
+	make dev-server && \
+	docker-compose exec backend pytest --cov=src src
