@@ -67,7 +67,7 @@ class ChallengeSetupMixin:
         self.user3.team = self.team2
         self.user3.save()
 
-    def find_challenge_entry(self, challenge: "Challenge", data: Union[dict[str, list[dict]], list[dict]]) -> Optional[dict]:
+    def find_challenge_entry(self, challenge: "Challenge", data: Union[dict[str, list[dict]], list[dict]]) -> Optional[dict]:  # pragma: no cover
         """Get the relevant serialized JSON for a specified challenge."""
         challenges = []
         if type(data) is list:

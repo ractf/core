@@ -103,6 +103,13 @@ class ScoreListTestCase(APITestCase):
         self.assertEqual(response.data["d"]["user"][0]["points"], 1400)
         self.assertNotIn("team", response.data["d"].keys())
 
+    def test_caching(self):
+        config.set("enable_caching", True)
+        uncached_response = self.client.get(reverse("leaderboard-graph"))
+        cached_response = self.client.get(reverse("leaderboard-graph"))
+        config.set("enable_caching", False)
+        self.assertEqual(uncached_response.data, cached_response.data)
+
 
 class UserListTestCase(APITestCase):
     def setUp(self):
