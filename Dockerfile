@@ -23,4 +23,3 @@ RUN poetry install --no-root --no-interaction \
 COPY . /app/
 
 EXPOSE 8000
-WORKDIR /app/src/
