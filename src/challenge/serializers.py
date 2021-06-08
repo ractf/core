@@ -32,11 +32,11 @@ def setup_context(context):
             )
 
 
-class ForeignKeyField(serpy.Field):
+class ForeignAttributeField(serpy.Field):
     """A :class:`Field` that gets a given attribute from a foreign object."""
 
     def __init__(self, *args, attr_name="id", **kwargs):
-        super(ForeignKeyField, self).__init__(*args, **kwargs)
+        super(ForeignAttributeField, self).__init__(*args, **kwargs)
         self.attr_name = attr_name
 
     def to_value(self, value):
@@ -64,7 +64,7 @@ class FastFileSerializer(serpy.Serializer):
     url = serpy.StrField()
     size = serpy.IntField()
     md5 = serpy.StrField()
-    challenge = ForeignKeyField()
+    challenge = ForeignAttributeField()
 
 
 class FastNestedTagSerializer(serpy.Serializer):
@@ -115,7 +115,6 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     name = serpy.StrField()
     description = serpy.StrField()
     challenge_type = serpy.StrField()
-    challenge_metadata = serpy.DictSerializer()
     flag_type = serpy.StrField()
     author = serpy.StrField()
     score = serpy.IntField()
@@ -124,7 +123,7 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     files = FastFileSerializer(many=True)
     solved = serpy.MethodField()
     unlocked = serpy.MethodField()
-    first_blood = ForeignKeyField()
+    first_blood = ForeignAttributeField(attr_name="username")
     solve_count = serpy.MethodField()
     hidden = serpy.BoolField()
     votes = serpy.MethodField()
@@ -200,7 +199,7 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     files = FastFileSerializer(many=True)
     solved = serpy.MethodField()
     unlocked = serpy.MethodField()
-    first_blood = ForeignKeyField()
+    first_blood = ForeignAttributeField(attr_name="username")
     solve_count = serpy.MethodField()
     hidden = serpy.BoolField()
     votes = serpy.MethodField()
