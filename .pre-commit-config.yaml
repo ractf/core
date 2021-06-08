@@ -24,3 +24,10 @@ repos:
         entry: poetry run make lint
         language: system
         types: [python]
+
+      - id: poetry-test
+        name: Poetry Test
+        description: This hook runs `make test` inside a relevant poetry environment.
+        entry: poetry run make test
+        language: system
+        types: [python]

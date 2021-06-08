@@ -3,7 +3,11 @@ test:
 	cd src && \
 	BETTER_EXCEPTIONS=1 \
 	python manage.py migrate && \
-	pytest --cov=. --cov-report=xml
+	pytest --testmon || \
+	if [ $$? = 5 ]; \
+	  then return 0; \
+	  else return $$?; \
+	fi
 
 format:
 	isort -rc src && \
