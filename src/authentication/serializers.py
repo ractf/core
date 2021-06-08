@@ -140,7 +140,7 @@ class EmailVerificationSerializer(serializers.Serializer):
         token = data.get("token")
         user = get_object_or_404(get_user_model(), id=uid, email_token=token)
         if user.email_verified:
-            raise FormattedException(m="email_already_verified", status=HTTP_403_FORBIDDEN)
+            raise serializers.ValidationError("email is already verified")
         data["user"] = user
         return data
 
