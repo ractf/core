@@ -171,8 +171,11 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.assertEqual(len(response.data["d"][0]["challenges"]), 3)
 
     def test_category_list_challenge_redacting(self):
+        self.user.is_staff = False
+        self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("categories-list"))
+        print(self.find_challenge_entry(self.challenge1, data=response.data))
         self.assertFalse("description" in self.find_challenge_entry(self.challenge1, data=response.data))
 
     def test_category_list_challenge_redacting_admin(self):
@@ -180,7 +183,7 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("categories-list"))
-        self.assertFalse("description" in self.find_challenge_entry(self.challenge3, data=response.data))
+        self.assertTrue("description" in self.find_challenge_entry(self.challenge3, data=response.data))
 
     def test_category_list_challenge_unlocked_admin(self):
         self.user.is_staff = True
@@ -257,7 +260,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("challenges-list"))
         # TODO: Don't depend on order
-        self.assertFalse(response.data[-1]["unlocked"])
+        self.assertFalse(self.find_challenge_entry(self.challenge1, data=response.data)["unlocked"])
 
     def test_single_challenge_redacting(self):
         self.user.is_staff = False
