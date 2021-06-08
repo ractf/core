@@ -68,12 +68,11 @@ class ChallengeSetupMixin:
 
     def find_challenge_entry(self, challenge: "Challenge", data: Union[dict[str, list[dict]], list[dict]]) -> Optional[dict]:
         """Get the relevant serialized JSON for a specified challenge."""
+        challenges = []
         if type(data) is list:
             challenges = data
         elif type(data) is dict:
             challenges = data.get("d", [{}])[0].get("challenges", ())
-        else:
-            challenges = []
 
         for serialized_challenge in challenges:
             if serialized_challenge.get("id") == challenge.pk:
