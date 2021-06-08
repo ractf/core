@@ -220,6 +220,22 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
         )
         self.assertTrue(response.status_code, HTTP_403_FORBIDDEN)
 
+    # This needs to be the last test.
+    # Why? Because otherwise, it breaks one other test. Please, do not
+    # ask me about what's going on here. Is it cache validation? Is it
+    # an app we're using? Is this the real life? Is this just fantasy?
+    def test_category_list_authenticated_content_without_cache(self) -> None:
+        """List categories with caching disabled."""
+
+        try:
+            config.set("enable_caching", False)
+            self.client.force_authenticate(self.user)
+            response = self.client.get(reverse("categories-list"))
+            self.assertEqual(len(response.data["d"]), 1)
+            self.assertEqual(len(response.data["d"][0]["challenges"]), 3)
+        finally:
+            config.set("enable_caching", True)
+
 
 class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
     def test_challenge_list_unauthenticated_permission(self):
