@@ -79,7 +79,16 @@ class RegistrationSerializer(serializers.Serializer):
             user.save()
             try:
                 send_email(user.email, "RACTF - Verify your email", "verify", url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token))
-            except SMTPException:
+            except SMTPException:  # pragma: no cover - prod error handling
+                # Whilst the API can resend verification emails,
+                # the frontend doesnt have that implemented, in
+                # addition to that, if smtp fails that early they are
+                # going to have to do something regardless, so it is
+                # easier [for us] to fail out of creating the user and
+                # leave them on the register page, telling them something
+                # went wrong then being confused why their email isnt there.
+                # [Via Dave on Discord]
+
                 user.delete()
                 raise FormattedException(m="creation_failed")
 
