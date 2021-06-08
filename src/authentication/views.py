@@ -279,14 +279,15 @@ class ResendEmailView(GenericAPIView):
                 d=serializer.errors,
                 status=HTTP_400_BAD_REQUEST,
             )
+
+        # Already verified email is checked in the email serializer.
         user = serializer.validated_data["user"]
-        if user.email_verified:
-            return FormattedResponse(
-                m="invalid_token_or_uid",
-                d=serializer.errors,
-                status=HTTP_400_BAD_REQUEST,
-            )
-        send_email(user.email, "RACTF - Verify your email", "verify", url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token))
+        send_email(
+            user.email,
+            "RACTF - Verify your email",
+            "verify",
+            url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token),
+        )
         return FormattedResponse("email_resent")
 
 

@@ -183,7 +183,7 @@ class EmailResendTestCase(APITestCase):
             user = get_user_model()(username="resend-email", email_verified=True, email="tvu@example.com")
             user.save()
             response = self.client.post(reverse("resend-email"), {"email": "tvu@example.com"})
-            self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+            self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_non_existing_email_resend(self):
         with self.settings(RATELIMIT_ENABLE=False):
@@ -719,7 +719,7 @@ class VerifyEmailTestCase(APITestCase):
         }
         response = self.client.post(reverse("verify-email"), data)
         response = self.client.post(reverse("verify-email"), data)
-        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_email_verify_bad_token(self):
         data = {
