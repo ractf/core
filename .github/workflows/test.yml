@@ -40,13 +40,10 @@ jobs:
         PIP_CACHE_DIR: ~/.pip
 
     - name: Run Migrations
-      run: ./src/manage.py migrate
+      run: python src/manage.py migrate
 
     - name: Run Tests
       run: pytest --cov=src --cov-report=xml src
-
-    - name: Output Coverage Report
-      run: coverage report || true
 
     - name: Upload to CodeCov
       uses: codecov/codecov-action@v1
