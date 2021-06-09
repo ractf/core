@@ -1,4 +1,7 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
+from django.http import HttpRequest
+from rest_framework.request import Request
 from rest_framework.reverse import reverse
 from rest_framework.status import (
     HTTP_200_OK,
@@ -9,6 +12,7 @@ from rest_framework.status import (
 from rest_framework.test import APITestCase
 
 from config import config
+from member.models import UserIP
 from team.models import Team
 
 
@@ -149,3 +153,31 @@ class MemberViewSetTestCase(APITestCase):
             data={"username": "test"},
         )
         self.assertEqual(response.status_code, HTTP_200_OK)
+
+
+class UserIPTest(APITestCase):
+    def test_not_authenticated(self):
+        request = Request(HttpRequest())
+        request.user = AnonymousUser()
+        self.assertNumQueries(0, lambda: UserIP.hook(request))
+
+    def test_first_sight(self):
+        request = Request(HttpRequest())
+        user = get_user_model()(username="test-userip", email="test-userip@example.org")
+        user.save()
+        request.user = user
+        request.META["x-forward-for"] = "1.1.1.1"
+        request.META["user-agent"] = "test"
+        UserIP.hook(request)
+        self.assertEqual(UserIP.objects.get(user=user).seen, 1)
+
+    def test_second_sight(self):
+        request = Request(HttpRequest())
+        user = get_user_model()(username="test-userip2", email="test-userip2@example.org")
+        user.save()
+        request.user = user
+        request.META["x-forward-for"] = "1.1.1.1"
+        request.META["user-agent"] = "test"
+        UserIP.hook(request)
+        UserIP.hook(request)
+        self.assertEqual(UserIP.objects.get(user=user).seen, 2)
