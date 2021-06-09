@@ -34,7 +34,9 @@ class ConfigView(APIView):
         if "value" not in request.data:
             return FormattedResponse(status=HTTP_400_BAD_REQUEST)
         if config.get(name) is not None and isinstance(config.get(name), list):
-            config.set("name", config.get(name).append(request.data["value"]))
+            value = config.get(name)
+            value.append(request.data["value"])
+            config.set(name, value)
             return FormattedResponse()
         config.set(name, request.data.get("value"))
         return FormattedResponse(status=HTTP_204_NO_CONTENT)
