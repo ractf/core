@@ -64,12 +64,12 @@ class CachedBackend(ConfigBackend):
         config_exists, migrations_needed = False, False
         try:
             config_exists = db_config.exists()
-        except (ProgrammingError, OperationalError):
+        except (ProgrammingError, OperationalError):  # pragma: no cover
             migrations_needed = True
 
         if config_exists:
             config = db_config[0].value
-            if "config_version" not in config or config["config_version"] < defaults["config_version"] or "test" in sys.argv:
+            if "config_version" not in config or config["config_version"] < defaults["config_version"] or "test" in sys.argv:  # pragma: no cover
                 for key, value in defaults.items():
                     self.set(key, value)
                 return
@@ -78,7 +78,7 @@ class CachedBackend(ConfigBackend):
             for key, value in config.items():
                 self.set(key, value)
 
-        elif not migrations_needed:
+        elif not migrations_needed:  # pragma: no cover
             Config.objects.create(key="config", value=defaults)
             for key, value in defaults.items():
                 self.set(key, value)

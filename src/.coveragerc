@@ -9,6 +9,8 @@ omit =
     manage.py
     sockets/routing.py
     backend/settings/*
+    backend/storages.py
+    */urls.py
     ractf/management/*
     gunicorn_config.py
     */migrations/*.py
