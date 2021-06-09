@@ -75,8 +75,8 @@ class ConfigTestCase(APITestCase):
 
     def test_update_patch_bad_request(self):
         self.client.force_authenticate(self.staff_user)
-        self.client.patch(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json")
-        response = self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={}, format="json")
+        self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json")
+        response = self.client.patch(reverse("config-pk", kwargs={"name": "test"}), data={}, format="json")
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_update_patch_list(self):
