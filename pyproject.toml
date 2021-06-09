@@ -50,46 +50,36 @@ nplusone = "^1.0.0"
 
 [tool.pytest.ini_options]
 python_files = "tests.py test_*.py *_tests.py"
-filterwarnings =
+filterwarnings = """
 ignore::django.utils.deprecation.RemovedInDjango40Warning
 ignore::django.utils.deprecation.RemovedInDjango41Warning
+"""
 
 [tool.coverage.run]
-source = .
-branch = True
-omit =
-  */venv/*
-  backend/asgi.py
-  backend/wsgi.py
-  backend/exception_handler.py
-  manage.py
-  sockets/routing.py
-  backend/settings/*
-  ractf/management/*
-  gunicorn_config.py
-  */migrations/*.py
-source = .
-branch = True
-omit =
-  */venv/*
-  backend/asgi.py
-  backend/wsgi.py
-  backend/exception_handler.py
-  manage.py
-  sockets/routing.py
-  backend/settings/*
-  ractf/management/*
-  gunicorn_config.py
-  */migrations/*.py
+source = ["src"]
+branch = true
+omit = [
+  "*/venv/*",
+  "backend/asgi.py",
+  "backend/wsgi.py",
+  "backend/exception_handler.py",
+  "manage.py",
+  "sockets/routing.py",
+  "backend/settings/*",
+  "ractf/management/*",
+  "gunicorn_config.py",
+  "*/migrations/*.py"
+]
 
 [tool.coverage.report]
 fail_under = 80
-show_missing = True
-skip_covered = True
-exclude_lines =
-  pragma: no cover
-  raise NotImplementedError
-  pass
+show_missing = true
+skip_covered = true
+exclude_lines = [
+  "pragma: no cover",
+  "raise NotImplementedError",
+  "pass"
+]
 
 [tool.black]
 exclude = 'migrations'
