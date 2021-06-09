@@ -1,6 +1,6 @@
 .EXPORT_ALL_VARIABLES:
 BETTER_EXCEPTIONS=1
-DJANGO_SETTINGS_MODULE?=backend.settings.lint
+DJANGO_SETTINGS_MODULE?=core.settings.lint
 
 migrate:
 	python src/manage.py migrate
