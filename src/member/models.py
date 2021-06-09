@@ -45,7 +45,6 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
     team = models.ForeignKey("team.Team", on_delete=SET_NULL, null=True, related_name="members")
     email_verified = models.BooleanField(default=False)
     email_token = models.CharField(max_length=64, default=secrets.token_hex)
-    password_reset_token = models.CharField(max_length=64, default=secrets.token_hex)
     points = models.IntegerField(default=0)
     leaderboard_points = models.IntegerField(default=0)
     last_score = models.DateTimeField(default=timezone.now)

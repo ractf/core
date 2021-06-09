@@ -40,12 +40,10 @@ class MemberTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
     def test_self_change_email_token_change(self):
-        pr_token = self.user.password_reset_token
         ev_token = self.user.email_token
         self.client.force_authenticate(self.user)
         self.client.put(reverse("member-self"), data={"email": "test-self3@example.org"})
         user = get_user_model().objects.get(id=self.user.id)
-        self.assertNotEqual(pr_token, user.password_reset_token)
         self.assertNotEqual(ev_token, user.email_token)
 
     def test_self_get_email(self):
