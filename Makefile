@@ -19,7 +19,7 @@ coverage:
 	xdg-open htmlcov/index.html
 
 format:
-	isort -rc src && \
+	isort src && \
 	black src
 
 lint:
