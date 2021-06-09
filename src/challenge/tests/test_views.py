@@ -50,7 +50,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         response = self.client.post(reverse("submit-flag"), data)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
-    def solve_challenge_not_unlocked(self):
+    def test_solve_challenge_not_unlocked(self):
         self.client.force_authenticate(user=self.user)
         data = {
             "flag": "ractf{a}",
@@ -59,15 +59,42 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         response = self.client.post(reverse("submit-flag"), data)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
-    def solve_challenge_attempt_limit_reached(self):
+    def test_solve_challenge_attempt_limit_reached(self):
         self.client.force_authenticate(user=self.user)
-        self.challenge3.challenge_metadata = {"attempt_limit": -1}
+        self.challenge2.challenge_metadata = {"attempt_limit": -1}
+        self.challenge2.save()
         data = {
             "flag": "ractf{a}",
-            "challenge": self.challenge3.id,
+            "challenge": self.challenge2.id,
         }
         response = self.client.post(reverse("submit-flag"), data)
+        self.challenge2.challenge_metadata = {}
+        self.challenge2.save()
         self.assertEqual(response.data["m"], "attempt_limit_reached")
+
+    def test_solve_challenge_attempt_limit_not_reached(self):
+        self.client.force_authenticate(user=self.user)
+        self.challenge2.challenge_metadata = {"attempt_limit": 5000}
+        self.challenge2.save()
+        data = {
+            "flag": "ractf{a}",
+            "challenge": self.challenge2.id,
+        }
+        response = self.client.post(reverse("submit-flag"), data)
+        self.challenge2.challenge_metadata = {}
+        self.challenge2.save()
+        self.assertNotEqual(response.data["m"], "attempt_limit_reached")
+
+    def test_solve_challenge_with_explanation(self):
+        self.client.force_authenticate(user=self.user)
+        self.challenge2.post_score_explanation = "test"
+        self.challenge2.save()
+        data = {
+            "flag": "ractf{a}",
+            "challenge": self.challenge2.id,
+        }
+        response = self.client.post(reverse("submit-flag"), data)
+        self.assertTrue("explanation" in response.data["d"])
 
     def test_challenge_unlocks(self):
         self.solve_challenge()
