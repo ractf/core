@@ -106,21 +106,19 @@ class CategoryViewset(AdminCreateModelViewSet):
     def list(self, request, *args, **kwargs):
         cache = caches["default"]
         categories = cache.get(get_cache_key(request.user))
-        cache_hit = categories is not None
         if categories is None or not config.get("enable_caching"):
             queryset = self.filter_queryset(self.get_queryset())
             serializer = self.get_serializer(queryset, many=True)
             categories = serializer.data
             cache.set(get_cache_key(request.user), categories, 3600)
 
-        if cache_hit:
-            solve_counts = get_solve_counts()
-            positive_votes = get_positive_votes()
-            negative_votes = get_negative_votes()
-            for category in categories:
-                for challenge in category["challenges"]:
-                    challenge["votes"] = {"positive": positive_votes.get(challenge["id"], 0), "negative": negative_votes.get(challenge["id"], 0)}
-                    challenge["solve_count"] = solve_counts.get(challenge["id"], 0)
+        solve_counts = get_solve_counts()
+        positive_votes = get_positive_votes()
+        negative_votes = get_negative_votes()
+        for category in categories:
+            for challenge in category["challenges"]:
+                challenge["votes"] = {"positive": positive_votes.get(challenge["id"], 0), "negative": negative_votes.get(challenge["id"], 0)}
+                challenge["solve_count"] = solve_counts.get(challenge["id"], 0)
 
         return FormattedResponse(categories)
 

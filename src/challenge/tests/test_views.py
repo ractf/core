@@ -175,15 +175,26 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("categories-list"))
-        print(self.find_challenge_entry(self.challenge1, data=response.data))
+        config.set("enable_caching", False)
         self.assertFalse("description" in self.find_challenge_entry(self.challenge1, data=response.data))
 
     def test_category_list_challenge_redacting_admin(self):
         self.user.is_staff = True
         self.user.save()
         self.client.force_authenticate(self.user)
+        config.set("enable_caching", False)
         response = self.client.get(reverse("categories-list"))
         self.assertTrue("description" in self.find_challenge_entry(self.challenge3, data=response.data))
+
+    def test_category_list_challenge_redacting_admin_denied(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(self.user)
+        config.set("enable_caching", False)
+        config.set("enable_force_admin_2fa", True)
+        response = self.client.get(reverse("categories-list"))
+        config.set("enable_force_admin_2fa", False)
+        self.assertEqual(response.data["d"], [])
 
     def test_category_list_challenge_unlocked_admin(self):
         self.user.is_staff = True
@@ -219,6 +230,14 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
             },
         )
         self.assertTrue(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_category_list_content_cached(self):
+        self.client.force_authenticate(self.user)
+        config.set("enable_caching", True)
+        uncached_response = self.client.get(reverse("categories-list"))
+        cached_response = self.client.get(reverse("categories-list"))
+        config.set("enable_caching", False)
+        self.assertEqual(uncached_response.data, cached_response.data)
 
 
 class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
