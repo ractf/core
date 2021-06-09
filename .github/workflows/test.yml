@@ -40,7 +40,7 @@ jobs:
         PIP_CACHE_DIR: ~/.pip
 
     - name: Run Tests
-      run: make test
+      run: make coverage
 
     - name: Upload to CodeCov
       uses: codecov/codecov-action@v1
