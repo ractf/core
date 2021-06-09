@@ -4,6 +4,7 @@ from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
     HTTP_204_NO_CONTENT,
+    HTTP_400_BAD_REQUEST,
     HTTP_403_FORBIDDEN,
 )
 from rest_framework.test import APITestCase
@@ -55,9 +56,15 @@ class ConfigTestCase(APITestCase):
         response = self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json")
         self.assertEqual(response.status_code, HTTP_201_CREATED)
 
-    def test_update(self):
+    def test_update_post(self):
         self.client.force_authenticate(self.staff_user)
         self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json")
         response = self.client.patch(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test2"}, format="json")
         self.assertEqual(response.status_code, HTTP_204_NO_CONTENT)
         self.assertEqual(config.get("test"), "test2")
+
+    def test_update_post_bad_request(self):
+        self.client.force_authenticate(self.staff_user)
+        self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json")
+        response = self.client.patch(reverse("config-pk", kwargs={"name": "test"}), data={}, format="json")
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
