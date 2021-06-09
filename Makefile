@@ -1,5 +1,4 @@
 .EXPORT_ALL_VARIABLES:
-
 BETTER_EXCEPTIONS=1
 DJANGO_SETTINGS_MODULE=backend.settings.lint
 
@@ -14,7 +13,7 @@ test: migrate
 	fi
 
 coverage: migrate
-	pytest --cov=src --cov-report=xml src && \
+	pytest --cov=. --cov-report=xml src && \
 	coverage html && \
 	xdg-open htmlcov/index.html
 
