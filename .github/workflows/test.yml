@@ -43,7 +43,7 @@ jobs:
       run: python src/manage.py migrate
 
     - name: Run Tests
-      run: pytest --cov=src --cov-report=xml src
+      run: pytest --cov=. --cov-report=xml src
 
     - name: Upload to CodeCov
       uses: codecov/codecov-action@v1
