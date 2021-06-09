@@ -225,3 +225,10 @@ class PluginLoaderTestCase(APITestCase):
         # TODO: why is this loading 5
         # self.assertEqual(len(plugins.plugins['flag']), 4)
         self.assertEqual(len(plugins.plugins["points"]), 2)
+
+
+class BasePluginTest(ChallengeSetupMixin, APITestCase):
+    def test_dont_track_incorrect_submissions(self):
+        config.set("enable_track_incorrect_submissions", False)
+        plugin = BasicPointsPlugin(self.challenge2)
+        self.assertNumQueries(0, lambda: plugin.register_incorrect_attempt(self.user, self.team, "ractf{}", None))
