@@ -1,18 +1,16 @@
-test:
+migrate:
 	export DJANGO_SETTINGS_MODULE='backend.settings.lint' && \
-	cd src && \
-	BETTER_EXCEPTIONS=1 \
-	python manage.py migrate && \
+	export BETTER_EXCEPTIONS=1 && \
+	python src/manage.py migrate
+
+test: migrate
 	pytest --testmon || \
 	if [ $$? = 5 ]; \
 	  then exit 0; \
 	  else exit $$?; \
 	fi
 
-coverage:
-	export DJANGO_SETTINGS_MODULE='backend.settings.lint' && \
-	export BETTER_EXCEPTIONS=1 && \
-	python manage.py migrate && \
+coverage: migrate
 	pytest --cov=src --cov-report=xml && \
 	coverage html && \
 	xdg-open htmlcov/index.html
