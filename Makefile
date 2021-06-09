@@ -30,6 +30,5 @@ dev-server:
 	docker-compose build && \
 	docker-compose up -d
 
-dev-test:
-	make dev-server && \
+dev-test: dev-server
 	docker-compose exec backend pytest --cov=src src
