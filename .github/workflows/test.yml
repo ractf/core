@@ -39,11 +39,8 @@ jobs:
       env:
         PIP_CACHE_DIR: ~/.pip
 
-    - name: Run Migrations
-      run: python src/manage.py migrate
-
     - name: Run Tests
-      run: pytest --cov=. --cov-report=xml src
+      run: make test
 
     - name: Upload to CodeCov
       uses: codecov/codecov-action@v1
