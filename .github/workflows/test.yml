@@ -43,7 +43,7 @@ jobs:
       run: ./src/manage.py migrate
 
     - name: Run Tests
-      run: pytest --cov=src --cov-report=xml
+      run: pytest --cov=src --cov-report=xml src
 
     - name: Output Coverage Report
       run: coverage report || true
