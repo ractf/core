@@ -2,7 +2,7 @@ import traceback
 from typing import Optional
 
 from django.conf import settings
-from django.http import Http404, HttpRequest
+from django.http import Http404, HttpRequest, JsonResponse
 from rest_framework import exceptions
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -51,6 +51,6 @@ def handle_exception(exc: Exception, context: dict) -> Optional[Response]:
     return response
 
 
-def generic_error_response(request: HttpRequest, *args, **kwargs) -> Response:
+def generic_error_response(request: HttpRequest, *args, **kwargs) -> JsonResponse:
     """Return a generic error response for unexpected errors."""
-    return Response({"s": False, "m": "Internal server error.", "d": ""}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+    return JsonResponse({"s": False, "m": "Internal server error.", "d": ""}, status=HTTP_500_INTERNAL_SERVER_ERROR)
