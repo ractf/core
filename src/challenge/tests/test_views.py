@@ -406,3 +406,66 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+
+class FlagCheckViewTestCase(ChallengeSetupMixin, APITestCase):
+    def test_disable_flag_submission(self):
+        self.client.force_authenticate(self.user)
+        config.set("enable_flag_submission", False)
+        response = self.client.post(reverse("check-flag"))
+        config.set("enable_flag_submission", True)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_bad_request(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse("check-flag"))
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_havent_solved_challenge(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.post(
+            reverse("check-flag"),
+            data={
+                "challenge": self.challenge1.id,
+                "flag": "a",
+            },
+        )
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_incorrect_flag(self):
+        self.client.force_authenticate(self.user)
+        data = {
+            "flag": "ractf{a}",
+            "challenge": self.challenge2.id,
+        }
+        self.client.post(reverse("submit-flag"), data)
+        response = self.client.post(
+            reverse("check-flag"),
+            data={
+                "challenge": self.challenge2.id,
+                "flag": "a",
+            },
+        )
+        self.assertEqual(response.data["m"], "incorrect_flag")
+
+    def test_correct_flag(self):
+        self.client.force_authenticate(self.user)
+        data = {
+            "flag": "ractf{a}",
+            "challenge": self.challenge2.id,
+        }
+        self.client.post(reverse("submit-flag"), data)
+        response = self.client.post(reverse("check-flag"), data)
+        self.assertEqual(response.data["m"], "correct_flag")
+
+    def test_post_score_explanation(self):
+        self.client.force_authenticate(self.user)
+        self.challenge2.post_score_explanation = "test"
+        self.challenge2.save()
+        data = {
+            "flag": "ractf{a}",
+            "challenge": self.challenge2.id,
+        }
+        self.client.post(reverse("submit-flag"), data)
+        response = self.client.post(reverse("check-flag"), data)
+        self.assertTrue("explanation" in response.data["d"])
