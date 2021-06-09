@@ -10,7 +10,7 @@ class Command(BaseCommand):
     help = "Removes all scores from the database"
 
     def handle(self, *args, **options):
-        if time.time() > config.get('end_time'):
+        if time.time() > config.get("end_time"):
             return
         for score in Score.objects.all():
             if not score.leaderboard:

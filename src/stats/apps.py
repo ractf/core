@@ -1,12 +1,11 @@
 import sys
+from importlib import import_module
 
-from django.apps import AppConfig, apps
-from django.db.models.signals import post_delete, post_save
-from django.dispatch import receiver
+from django.apps import AppConfig
 
-from prometheus_client import Gauge
-
-from backend.signals import websocket_connect, websocket_disconnect
+import challenge
+import member
+import team
 
 
 class StatsConfig(AppConfig):
@@ -15,8 +14,15 @@ class StatsConfig(AppConfig):
     def ready(self):
         """Logic for adding extra prometheus statistics."""
 
-        if "migrate" in sys.argv or "makemigrations" in sys.argv:
+        if "migrate" in sys.argv or "makemigrations" in sys.argv:  # pragma: no cover
             # Don't run stats-related logic if we haven't migrated yet
             return
 
-        import stats.signals
+        signals = import_module("stats.signals", "stats")
+
+        Team, Solve, Member = team.models.Team, challenge.models.Solve, member.models.Member
+
+        signals.team_count.set(Team.objects.count())
+        signals.solve_count.set(Solve.objects.count())
+        signals.member_count.set(Member.objects.count())
+        signals.correct_solve_count.set(Solve.objects.filter(correct=True).count())

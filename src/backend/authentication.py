@@ -18,7 +18,7 @@ class RactfTokenAuthentication(authentication.TokenAuthentication):
             return None
         if not config.get("enable_bot_users") and user.is_bot:
             return None
-        if token.user != token.owner:
+        if token.user_id != token.owner_id:
             request.sudo = True
             request.sudo_from = token.owner
         return user, token

@@ -12,7 +12,5 @@ class HashedFlagPlugin(FlagPlugin):
     def self_check(self):
         """Ensure the set flag metadata has a 'flag' property of length 64"""
         if len(self.challenge.flag_metadata.get("flag", "")) == 64:
-            return [
-                "property 'flag' must be of length 64!"
-            ]
+            return ["property 'flag' must be of length 64!"]
         return []

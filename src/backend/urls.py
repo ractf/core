@@ -13,11 +13,9 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from os import getenv
-from django.urls import path, include
-
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import include, path
 
 from backend.views import CatchAllView
 
@@ -36,7 +34,6 @@ urlpatterns = [
     path("team/", include("team.urls")),
     path("pages/", include("pages.urls")),
     path("experiments/", include("experiments.urls")),
-    path("polaris/", include("polaris.urls")),
 ]
 
 urlpatterns = [
@@ -45,6 +42,7 @@ urlpatterns = [
 ]
 
 handler404 = CatchAllView.as_view()
+handler500 = "backend.exception_handler.generic_error_response"
 
 if "silk" in settings.INSTALLED_APPS:
     urlpatterns += [path("silk/", include("silk.urls"))]

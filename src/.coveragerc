@@ -10,9 +10,11 @@ omit =
     sockets/routing.py
     backend/settings/*
     ractf/management/*
-    gunicorn_conf.py
+    gunicorn_config.py
+    */migrations/*.py
+
 [report]
-fail_under = 100
+fail_under = 80
 show_missing = True
 skip_covered = True
 exclude_lines =

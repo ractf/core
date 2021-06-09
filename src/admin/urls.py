@@ -6,5 +6,5 @@ from admin import views
 router = DefaultRouter()
 
 urlpatterns = [
-    path('self_check/', views.SelfCheckView.as_view(), name='self-check'),
+    path("self_check/", views.SelfCheckView.as_view(), name="self-check"),
 ]

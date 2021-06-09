@@ -9,9 +9,9 @@ class PluginsConfig(AppConfig):
 
 
 class PluginConfig(AppConfig, abc.ABC):
-
     def ready(self):
         from plugins import providers
-        if hasattr(self, 'provides') and isinstance(self.provides, list):
+
+        if hasattr(self, "provides") and isinstance(self.provides, list):  # pragma: no cover
             for provider in map(locate, self.provides):
                 providers.register_provider(provider.type, provider())

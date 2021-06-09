@@ -2,6 +2,7 @@
 
 from django.db import migrations
 
+
 def migrate_unlocks(apps, schema_editor):
     Challenge = apps.get_model("challenge", "Challenge")
     for chall in Challenge.objects.all():

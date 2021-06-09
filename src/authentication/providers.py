@@ -9,7 +9,7 @@ from plugins.providers import Provider
 
 
 class RegistrationProvider(Provider, abc.ABC):  # pragma: no cover
-    type = 'registration'
+    type = "registration"
 
     @abc.abstractmethod
     def validate(self, data):
@@ -20,21 +20,21 @@ class RegistrationProvider(Provider, abc.ABC):  # pragma: no cover
         pass
 
     def validate_email(self, email):
-        allow_domain = config.get('email_allow')
+        allow_domain = config.get("email_allow")
         if allow_domain:
             email_validator = EmailValidator(allow_domain)
         else:
             email_validator = EmailValidator()
         if email_validator(email):
-            raise ValidationError('invalid_email')
+            raise ValidationError("invalid_email")
 
     def check_email_or_username_in_use(self, email=None, username=None):
         if get_user_model().objects.filter(username=username) or get_user_model().objects.filter(email=email):
-            raise ValidationError('email_or_username_in_use')
+            raise ValidationError("email_or_username_in_use")
 
 
 class LoginProvider(Provider, abc.ABC):  # pragma: no cover
-    type = 'login'
+    type = "login"
 
     @abc.abstractmethod
     def login_user(self, **kwargs):
@@ -42,7 +42,7 @@ class LoginProvider(Provider, abc.ABC):  # pragma: no cover
 
 
 class TokenProvider(Provider, abc.ABC):  # pragma: no cover
-    type = 'token'
+    type = "token"
 
     @abc.abstractmethod
     def issue_token(self, user, **kwargs):

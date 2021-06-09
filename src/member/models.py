@@ -9,7 +9,6 @@ from django.db import models
 from django.db.models import SET_NULL
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-
 from django_prometheus.models import ExportModelOperationsMixin
 
 from backend.validators import printable_name
@@ -46,7 +45,6 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
     team = models.ForeignKey("team.Team", on_delete=SET_NULL, null=True, related_name="members")
     email_verified = models.BooleanField(default=False)
     email_token = models.CharField(max_length=64, default=secrets.token_hex)
-    password_reset_token = models.CharField(max_length=64, default=secrets.token_hex)
     points = models.IntegerField(default=0)
     leaderboard_points = models.IntegerField(default=0)
     last_score = models.DateTimeField(default=timezone.now)
@@ -55,10 +53,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         return self.username
 
     def can_login(self):
-        return self.is_staff or (
-            config.get("enable_login")
-            and (config.get("enable_prelogin") or config.get("start_time") <= time.time())
-        )
+        return self.is_staff or (config.get("enable_login") and (config.get("enable_prelogin") or config.get("start_time") <= time.time()))
 
     def issue_token(self, owner=None):
         from authentication.models import Token
@@ -71,7 +66,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         return hasattr(self, "totp_device") and self.totp_device.verified
 
     def should_deny_admin(self):
-        return not self.has_2fa() and config.get("enable_force_admin_2fa")
+        return config.get("enable_force_admin_2fa") and not self.has_2fa()
 
 
 class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):

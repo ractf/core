@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 
 from backend.response import FormattedResponse
 from challenge.models import Score
-from config import config
 from team.models import Team
 
 
@@ -48,9 +47,7 @@ class RecalculateUserView(APIView):
 
     def post(self, request, id):
         with transaction.atomic():
-            user = get_object_or_404(
-                get_user_model().objects.select_for_update(), id=id
-            )
+            user = get_object_or_404(get_user_model().objects.select_for_update(), id=id)
             recalculate_user(user)
         return FormattedResponse()
 
