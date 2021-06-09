@@ -50,6 +50,25 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         response = self.client.post(reverse("submit-flag"), data)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
+    def solve_challenge_not_unlocked(self):
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "flag": "ractf{a}",
+            "challenge": self.challenge3.id,
+        }
+        response = self.client.post(reverse("submit-flag"), data)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def solve_challenge_attempt_limit_reached(self):
+        self.client.force_authenticate(user=self.user)
+        self.challenge3.challenge_metadata = {"attempt_limit": -1}
+        data = {
+            "flag": "ractf{a}",
+            "challenge": self.challenge3.id,
+        }
+        response = self.client.post(reverse("submit-flag"), data)
+        self.assertEqual(response.data["m"], "attempt_limit_reached")
+
     def test_challenge_unlocks(self):
         self.solve_challenge()
         self.challenge1.unlock_requirements = str(self.challenge2.id)
