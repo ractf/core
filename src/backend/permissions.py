@@ -30,7 +30,7 @@ class IsBot(permissions.BasePermission):
 class ReadOnlyBot(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_authenticated and request.user.is_bot:
-            return request.method not in permissions.SAFE_METHODS
+            return request.method in permissions.SAFE_METHODS
         return True
 
 
