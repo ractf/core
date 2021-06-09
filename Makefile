@@ -11,10 +11,9 @@ test:
 
 coverage:
 	export DJANGO_SETTINGS_MODULE='backend.settings.lint' && \
-	cd src && \
-	BETTER_EXCEPTIONS=1 \
+	export BETTER_EXCEPTIONS=1 && \
 	python manage.py migrate && \
-	pytest --cov=. --cov-report=xml && \
+	pytest --cov=src --cov-report=xml && \
 	coverage html && \
 	xdg-open htmlcov/index.html
 
