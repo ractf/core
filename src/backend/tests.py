@@ -1,9 +1,11 @@
+from django.core.exceptions import ValidationError
 from django.http import HttpRequest
 from rest_framework.request import Request
 from rest_framework.status import HTTP_404_NOT_FOUND
 from rest_framework.test import APITestCase
 
 from backend.permissions import ReadOnlyBot
+from backend.validators import printable_name
 from member.models import Member
 
 
@@ -25,3 +27,11 @@ class ReadOnlyBotTestCase(APITestCase):
         request.method = "POST"
         request.user = Member(username="bot-test", email="bot-test@gmail.com", is_bot=True)
         self.assertFalse(ReadOnlyBot().has_permission(request, None))
+
+
+class ValidatorTestCase(APITestCase):
+    def test_unprintable_name(self):
+        self.assertRaises(ValidationError, lambda: printable_name(b"\x00".decode("latin-1")))
+
+    def test_printable_name(self):
+        self.assertIsNone(printable_name("abc"))
