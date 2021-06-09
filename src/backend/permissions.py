@@ -1,8 +1,4 @@
-import time
-
 from rest_framework import permissions
-
-from config import config
 
 
 class AdminOrReadOnlyVisible(permissions.BasePermission):
@@ -24,11 +20,6 @@ class AdminOrAnonymousReadOnly(permissions.BasePermission):
         if request.method not in permissions.SAFE_METHODS:
             return request.user.is_staff and not request.user.should_deny_admin()
         return True
-
-
-class IsCompetitionOpen(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return config.get("start_time") <= time.time()
 
 
 class IsBot(permissions.BasePermission):
