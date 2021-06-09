@@ -8,6 +8,9 @@ from rest_framework.status import (
 )
 from rest_framework.test import APITestCase
 
+from config import config
+from team.models import Team
+
 
 class MemberTestCase(APITestCase):
     def setUp(self):
@@ -50,6 +53,17 @@ class MemberTestCase(APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.get(reverse("member-self"))
         self.assertEqual(response.data["email"], "test-self@example.org")
+
+    def test_self_change_username_teams_disabled(self):
+        self.client.force_authenticate(self.user)
+        team = Team(name="team", password="123", owner=self.user)
+        team.save()
+        self.user.team = team
+        self.user.save()
+        config.set("enable_teams", False)
+        self.client.put(reverse("member-self"), data={"username": "test-self2", "email": "test-self@example.org"})
+        config.set("enable_teams", True)
+        self.assertEqual(Team.objects.get(id=team.id).name, "test-self2")
 
 
 class MemberViewSetTestCase(APITestCase):

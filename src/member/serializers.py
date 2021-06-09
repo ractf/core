@@ -148,6 +148,7 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         if not config.get("enable_teams"):
             if instance.team:
                 instance.team.name = validated_data.get("username", instance.username)
+                instance.team.save()
         return super(SelfSerializer, self).update(instance, validated_data)
 
 
