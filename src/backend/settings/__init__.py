@@ -130,6 +130,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
+    "querycount.middleware.QueryCountMiddleware",
 ]
 if DEBUG:
     MIDDLEWARE.insert(0, "better_exceptions.integrations.django.BetterExceptionsMiddleware")
