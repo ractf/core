@@ -23,7 +23,7 @@ coverage:
 	python manage.py migrate && \
 	pytest --cov=. --cov-report=xml && \
 	coverage html && \
-	which xdg-open && \
+	[ "$$CI" != "true" ] && \
 	xdg-open htmlcov/index.html || true
 
 format:
