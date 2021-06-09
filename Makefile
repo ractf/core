@@ -15,7 +15,8 @@ test: migrate
 coverage: migrate
 	pytest --cov=. --cov-report=xml src && \
 	coverage html && \
-	xdg-open htmlcov/index.html
+	which xdg-open && \
+	xdg-open htmlcov/index.html || true
 
 format:
 	isort src && \
