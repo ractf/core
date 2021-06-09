@@ -3,8 +3,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
 
 from authentication.providers import LoginProvider, RegistrationProvider, TokenProvider
-from backend.exceptions import FormattedException
-from backend.signals import login, login_reject
+from core.exceptions import FormattedException
+from core.signals import login, login_reject
 
 
 class BasicAuthRegistrationProvider(RegistrationProvider):

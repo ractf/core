@@ -1,8 +1,8 @@
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
-from backend.response import FormattedResponse
 from challenge.models import Challenge
+from core.response import FormattedResponse
 
 
 class SelfCheckView(APIView):

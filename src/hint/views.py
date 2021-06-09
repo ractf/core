@@ -4,12 +4,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
 
-from backend.permissions import IsBot
-from backend.response import FormattedResponse
-from backend.signals import use_hint
-from backend.viewsets import AdminCreateModelViewSet
 from challenge.permissions import CompetitionOpen
 from challenge.views import get_cache_key
+from core.permissions import IsBot
+from core.response import FormattedResponse
+from core.signals import use_hint
+from core.viewsets import AdminCreateModelViewSet
 from hint.models import Hint, HintUse
 from hint.permissions import HasUsedHint
 from hint.serializers import (

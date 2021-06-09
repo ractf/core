@@ -5,15 +5,23 @@ DJANGO_SETTINGS_MODULE?=backend.settings.lint
 migrate:
 	python src/manage.py migrate
 
-test: migrate
-	pytest --testmon src || \
+test:
+	export DJANGO_SETTINGS_MODULE='core.settings.lint' && \
+	cd src && \
+	BETTER_EXCEPTIONS=1 \
+	python manage.py migrate && \
+	pytest --testmon || \
 	if [ $$? = 5 ]; \
 	  then exit 0; \
 	  else exit $$?; \
 	fi
 
-coverage: migrate
-	pytest --cov=. --cov-report=xml src && \
+coverage:
+	export DJANGO_SETTINGS_MODULE='core.settings.lint' && \
+	cd src && \
+	BETTER_EXCEPTIONS=1 \
+	python manage.py migrate && \
+	pytest --cov=. --cov-report=xml && \
 	coverage html && \
 	which xdg-open && \
 	xdg-open htmlcov/index.html || true

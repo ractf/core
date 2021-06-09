@@ -1,7 +1,7 @@
 from django.conf import settings
 from rest_framework.views import APIView
 
-from backend.response import FormattedResponse
+from core.response import FormattedResponse
 
 
 class ExperimentView(APIView):

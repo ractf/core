@@ -3,19 +3,19 @@
 import django.contrib.postgres.fields.citext
 from django.db import migrations
 
-import backend.validators
+import core.validators
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('team', '0001_initial'),
+        ("team", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='team',
-            name='name',
-            field=django.contrib.postgres.fields.citext.CICharField(max_length=36, unique=True, validators=[backend.validators.printable_name]),
+            model_name="team",
+            name="name",
+            field=django.contrib.postgres.fields.citext.CICharField(max_length=36, unique=True, validators=[core.validators.printable_name]),
         ),
     ]

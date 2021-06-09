@@ -58,7 +58,7 @@ services:
   sockets:
     <<: *backend
     entrypoint: /app/entrypoints/sockets.sh
-    command: gunicorn -w 12 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker backend.asgi:application
+    command: gunicorn -w 12 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker core.asgi:application
     depends_on:
       - backend
 

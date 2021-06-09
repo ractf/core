@@ -4,8 +4,8 @@ from rest_framework.views import APIView
 
 from andromeda import client
 from andromeda.serializers import JobSubmitSerializer
-from backend.response import FormattedResponse
 from challenge.models import Challenge
+from core.response import FormattedResponse
 
 
 class GetInstanceView(APIView):

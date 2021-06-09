@@ -5,9 +5,9 @@ from django.dispatch import receiver
 
 from announcements.models import Announcement
 from announcements.serializers import AnnouncementSerializer
-from backend.signals import flag_reject, flag_score, team_join, use_hint
 from challenge.models import Challenge
 from config import config
+from core.signals import flag_reject, flag_score, team_join, use_hint
 
 
 def get_team_channel(user):

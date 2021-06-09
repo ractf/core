@@ -8,9 +8,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from backend.response import FormattedResponse
 from challenge.models import Score
 from config import config
+from core.response import FormattedResponse
 from leaderboard.serializers import (
     CTFTimeSerializer,
     LeaderboardTeamScoreSerializer,

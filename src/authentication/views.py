@@ -30,10 +30,10 @@ from authentication.serializers import (
     InviteCodeSerializer,
     RegistrationSerializer,
 )
-from backend.mail import send_email
-from backend.permissions import IsBot, IsSudo
-from backend.response import FormattedResponse
-from backend.signals import (
+from core.mail import send_email
+from core.permissions import IsBot, IsSudo
+from core.response import FormattedResponse
+from core.signals import (
     add_2fa,
     change_password,
     email_verified,
@@ -44,7 +44,7 @@ from backend.signals import (
     remove_2fa,
     verify_2fa,
 )
-from backend.viewsets import AdminListModelViewSet
+from core.viewsets import AdminListModelViewSet
 from plugins import providers
 from team.models import Team
 

@@ -4,7 +4,7 @@ import requests
 from django.conf import settings
 from rest_framework.status import HTTP_200_OK
 
-from backend.exceptions import FormattedException
+from core.exceptions import FormattedException
 
 
 def post(path, **kwargs):

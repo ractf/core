@@ -13,13 +13,13 @@ from rest_framework.status import (
 )
 from rest_framework.views import APIView
 
-from backend.exceptions import FormattedException
-from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
-from backend.response import FormattedResponse
-from backend.signals import team_join, team_join_attempt, team_join_reject
-from backend.viewsets import AdminListModelViewSet
 from challenge.models import Solve
 from config import config
+from core.exceptions import FormattedException
+from core.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
+from core.response import FormattedResponse
+from core.signals import team_join, team_join_attempt, team_join_reject
+from core.viewsets import AdminListModelViewSet
 from member.models import Member
 from team.models import Team
 from team.permissions import HasTeam, IsTeamOwnerOrReadOnly, TeamsEnabled

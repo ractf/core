@@ -6,9 +6,9 @@ from rest_framework.status import (
 )
 from rest_framework.views import APIView
 
-from backend.permissions import AdminOrAnonymousReadOnly
-from backend.response import FormattedResponse
 from config import config
+from core.permissions import AdminOrAnonymousReadOnly
+from core.response import FormattedResponse
 
 
 class ConfigView(APIView):

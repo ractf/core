@@ -6,7 +6,7 @@ import django.utils.timezone
 from django.conf import settings
 from django.db import migrations, models
 
-import backend.validators
+import core.validators
 
 
 class Migration(migrations.Migration):
@@ -19,17 +19,17 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Team',
+            name="Team",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', django.contrib.postgres.fields.citext.CICharField(max_length=36, unique=True, validators=[backend.validators.NameValidator()])),
-                ('is_visible', models.BooleanField(default=True)),
-                ('password', models.CharField(max_length=64)),
-                ('description', models.TextField(blank=True, max_length=400)),
-                ('points', models.IntegerField(default=0)),
-                ('leaderboard_points', models.IntegerField(default=0)),
-                ('last_score', models.DateTimeField(default=django.utils.timezone.now)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='owned_team', to=settings.AUTH_USER_MODEL)),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("name", django.contrib.postgres.fields.citext.CICharField(max_length=36, unique=True, validators=[core.validators.NameValidator()])),
+                ("is_visible", models.BooleanField(default=True)),
+                ("password", models.CharField(max_length=64)),
+                ("description", models.TextField(blank=True, max_length=400)),
+                ("points", models.IntegerField(default=0)),
+                ("leaderboard_points", models.IntegerField(default=0)),
+                ("last_score", models.DateTimeField(default=django.utils.timezone.now)),
+                ("owner", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name="owned_team", to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]

@@ -3,19 +3,26 @@
 import django.contrib.postgres.fields.citext
 from django.db import migrations
 
-import backend.validators
+import core.validators
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('member', '0002_auto_20200808_1337'),
+        ("member", "0002_auto_20200808_1337"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='member',
-            name='username',
-            field=django.contrib.postgres.fields.citext.CICharField(error_messages={'unique': 'A user with that username already exists.'}, help_text='Required. 36 characters or fewer. Letters, digits and @/./+/-/_ only.', max_length=36, unique=True, validators=[backend.validators.printable_name], verbose_name='username'),
+            model_name="member",
+            name="username",
+            field=django.contrib.postgres.fields.citext.CICharField(
+                error_messages={"unique": "A user with that username already exists."},
+                help_text="Required. 36 characters or fewer. Letters, digits and @/./+/-/_ only.",
+                max_length=36,
+                unique=True,
+                validators=[core.validators.printable_name],
+                verbose_name="username",
+            ),
         ),
     ]

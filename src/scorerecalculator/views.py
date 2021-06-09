@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
-from backend.response import FormattedResponse
 from challenge.models import Score
+from core.response import FormattedResponse
 from team.models import Team
 
 

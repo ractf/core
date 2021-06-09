@@ -4,7 +4,7 @@ from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 from authentication.models import Token
-from backend.signals import websocket_connect, websocket_disconnect
+from core.signals import websocket_connect, websocket_disconnect
 
 
 class EventConsumer(AsyncJsonWebsocketConsumer):

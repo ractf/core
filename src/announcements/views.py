@@ -2,7 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from announcements.models import Announcement
 from announcements.serializers import AnnouncementSerializer
-from backend.permissions import AdminOrReadOnly
+from core.permissions import AdminOrReadOnly
 
 
 class AnnouncementViewSet(ModelViewSet):

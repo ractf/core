@@ -18,10 +18,6 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from backend.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
-from backend.response import FormattedResponse
-from backend.signals import flag_reject, flag_score, flag_submit
-from backend.viewsets import AdminCreateModelViewSet
 from challenge.models import (
     Category,
     Challenge,
@@ -49,6 +45,10 @@ from challenge.serializers import (
     get_solve_counts,
 )
 from config import config
+from core.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
+from core.response import FormattedResponse
+from core.signals import flag_reject, flag_score, flag_submit
+from core.viewsets import AdminCreateModelViewSet
 from hint.models import Hint, HintUse
 from team.models import Team
 from team.permissions import HasTeam

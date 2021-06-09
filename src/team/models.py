@@ -4,8 +4,8 @@ from django.db.models import CASCADE, Prefetch
 from django.utils import timezone
 from django_prometheus.models import ExportModelOperationsMixin
 
-from backend.validators import printable_name
 from challenge.models import Solve
+from core.validators import printable_name
 from member.models import Member
 
 

@@ -3,9 +3,9 @@ import secrets
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from backend.mixins import IncorrectSolvesMixin
 from challenge.serializers import SolveSerializer
 from config import config
+from core.mixins import IncorrectSolvesMixin
 from member.models import UserIP
 
 
