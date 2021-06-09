@@ -5,8 +5,6 @@ on: push
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      DJANGO_SETTINGS_MODULE: 'backend.settings.lint'
 
     steps:
     - name: Checkout repository

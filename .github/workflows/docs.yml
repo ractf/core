@@ -6,7 +6,7 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     env:
-      DJANGO_SETTINGS_MODULE: 'backend.settings.test'
+      DJANGO_SETTINGS_MODULE: 'core.settings.test'
       REDIS_PORT: 6379
       REDIS_CONFIG_DB: 1
       REDIS_CACHE_DB: 2
