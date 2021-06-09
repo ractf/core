@@ -6,41 +6,7 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     env:
-      DJANGO_SETTINGS_MODULE: 'core.settings.test'
-      REDIS_PORT: 6379
-      REDIS_CONFIG_DB: 1
-      REDIS_CACHE_DB: 2
-      REDIS_HOST: localhost
-      SQL_PORT: 5432
-      SQL_USER: ractf
-      SQL_HOST: localhost
-      SQL_DATABASE: ractf
-      SQL_PASSWORD: postgres
-    services:
-      postgres:
-        image: postgres:12-alpine
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_EXTENSIONS: citext
-          POSTGRES_HOST_AUTH_METHOD: trust
-          POSTGRES_DB: ractf
-          POSTGRES_USER: ractf
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      redis:
-        image: redis:5
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
+      DJANGO_SETTINGS_MODULE: 'core.settings.lint'
 
     steps:
     - name: Checkout repository
@@ -89,11 +55,10 @@ jobs:
         PIP_CACHE_DIR: ~/.pip
 
     - name: Run Migrations
-      run: ./manage.py migrate
-      working-directory: ./src
+      run: make migrate
 
     - name: Generate OpenAPI schema
-      run: set -eo pipefail && ./src/manage.py getschema | tee openapi-schema.yml
+      run: set -eo pipefail && python src/manage.py getschema | tee openapi-schema.yml
 
     - name: Publish API documentation to GitHub
       uses: actions/upload-artifact@v2
