@@ -28,25 +28,6 @@ class ConfigBackend(abc.ABC):
         pass
 
 
-class DatabaseBackend(ConfigBackend):
-    """Only use this if you absolutely have to"""
-
-    def get(self, key):
-        value = Config.objects.get(key=key).value["value"]
-        return value
-
-    def set(self, key, value):
-        setting = Config.objects.get(key=key)
-        setting.value["value"] = value
-        setting.save()
-
-    def get_all(self):
-        config = {}
-        for item in Config.objects.all():
-            config[item.key] = item.value["value"]
-        return config
-
-
 class CachedBackend(ConfigBackend):
     @property
     def config_set(self) -> "QuerySet[Config]":
