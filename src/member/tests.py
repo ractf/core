@@ -65,6 +65,13 @@ class MemberTestCase(APITestCase):
         config.set("enable_teams", True)
         self.assertEqual(Team.objects.get(id=team.id).name, "test-self2")
 
+    def test_self_change_username_no_team(self):
+        self.client.force_authenticate(self.user)
+        config.set("enable_teams", False)
+        self.client.put(reverse("member-self"), data={"username": "test-self2", "email": "test-self@example.org"})
+        config.set("enable_teams", True)
+        self.assertEqual(get_user_model().objects.get(id=self.user.id).username, "test-self2")
+
 
 class MemberViewSetTestCase(APITestCase):
     def setUp(self):
