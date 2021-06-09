@@ -41,7 +41,7 @@ class BasicAuthLoginProvider(LoginProvider):
             login_reject.send(sender=self.__class__, username=username, reason="creds")
             raise FormattedException(m="incorrect_username_or_password", d={"reason": "incorrect_username_or_password"}, status=HTTP_401_UNAUTHORIZED)
 
-        if not user.email_verified and not user.is_superuser:
+        if not user.email_verified and not user.is_staff:
             login_reject.send(sender=self.__class__, username=username, reason="email")
             raise FormattedException(m="email_verification_required", d={"reason": "email_verification_required"}, status=HTTP_401_UNAUTHORIZED)
 
