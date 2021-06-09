@@ -14,7 +14,7 @@ class StatsConfig(AppConfig):
     def ready(self):
         """Logic for adding extra prometheus statistics."""
 
-        if "migrate" in sys.argv or "makemigrations" in sys.argv:
+        if "migrate" in sys.argv or "makemigrations" in sys.argv:  # pragma: no cover
             # Don't run stats-related logic if we haven't migrated yet
             return
 
