@@ -17,10 +17,10 @@ class ConfigView(APIView):
 
     def get(self, request, name=None):
         if name is None:
-            if request.user.is_superuser:
+            if request.user.is_staff:
                 return FormattedResponse(config.get_all())
             return FormattedResponse(config.get_all_non_sensitive())
-        if not config.is_sensitive(name) or request.is_superuser:
+        if not config.is_sensitive(name) or request.user.is_staff:
             return FormattedResponse(config.get(name))
         return FormattedResponse(status=HTTP_403_FORBIDDEN)
 

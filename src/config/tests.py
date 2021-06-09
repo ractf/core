@@ -35,6 +35,16 @@ class ConfigTestCase(APITestCase):
         response = self.client.get(reverse("config-list"))
         self.assertEqual(response.status_code, HTTP_200_OK)
 
+    def test_get_sensitive_not_staff(self):
+        self.client.force_authenticate(self.user)
+        response = self.client.get(reverse("config-pk", kwargs={"name": "enable_force_admin_2fa"}))
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_get_sensitive_staff(self):
+        self.client.force_authenticate(self.staff_user)
+        response = self.client.get(reverse("config-pk", kwargs={"name": "enable_force_admin_2fa"}))
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
     def test_post_authed(self):
         self.client.force_authenticate(self.user)
         response = self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"key": "test", "value": "test"}, format="json")
