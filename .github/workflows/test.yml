@@ -6,41 +6,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      DJANGO_SETTINGS_MODULE: 'backend.settings.test'
-      REDIS_PORT: 6379
-      REDIS_CONFIG_DB: 1
-      REDIS_CACHE_DB: 2
-      REDIS_HOST: localhost
-      SQL_PORT: 5432
-      SQL_USER: ractf
-      SQL_HOST: localhost
-      SQL_DATABASE: ractf
-      SQL_PASSWORD: postgres
-    services:
-      postgres:
-        image: postgres:12-alpine
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_EXTENSIONS: citext
-          POSTGRES_HOST_AUTH_METHOD: trust
-          POSTGRES_DB: ractf
-          POSTGRES_USER: ractf
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-      redis:
-        image: redis:5
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
+      DJANGO_SETTINGS_MODULE: 'backend.settings.lint'
 
     steps:
     - name: Checkout repository
@@ -64,7 +30,7 @@ jobs:
 
     - name: Install Poetry
       run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-    
+
     - name: Disable Virtualenvs
       run: $HOME/.poetry/bin/poetry config virtualenvs.create false
 
@@ -74,25 +40,18 @@ jobs:
         PIP_CACHE_DIR: ~/.pip
 
     - name: Run Migrations
-      run: ./manage.py migrate
-      working-directory: ./src
+      run: ./src/manage.py migrate
 
     - name: Run Tests
-      run: coverage run --source='.' ./manage.py test
-      working-directory: ./src
-    
+      run: pytest --cov=src --cov-report=xml
+
     - name: Output Coverage Report
       run: coverage report || true
-      working-directory: ./src
-
-    - name: Save Coverage XML
-      run: coverage xml || true
-      working-directory: ./src
 
     - name: Upload to CodeCov
       uses: codecov/codecov-action@v1
       with:
-        files: ./src/coverage.xml
+        files: ./coverage.xml
         fail_ci_if_error: true
         verbose: true
 
@@ -100,4 +59,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: coverage.xml
-        path: ./src/coverage.xml
+        path: ./coverage.xml
