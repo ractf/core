@@ -3,6 +3,7 @@
 from os import getenv
 
 from django.utils.functional import classproperty
+
 from scripts.fake import arguments
 
 

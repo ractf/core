@@ -2,9 +2,8 @@
 
 import sys
 import time
-from random import randint
-
 from dataclasses import dataclass
+from random import randint
 
 
 @dataclass

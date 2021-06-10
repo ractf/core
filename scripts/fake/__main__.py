@@ -8,11 +8,18 @@ from faker import Faker
 
 from challenge.models import Category, Challenge, Score, Solve
 from member.models import Member
-from team.models import Team
-
+from scripts.fake.config import (
+    CATEGORIES,
+    CHALLENGES,
+    SOLVES,
+    TABLE_NAMES,
+    TEAMS,
+    USERS,
+    PostgreSQL,
+    arguments,
+)
 from scripts.fake.utils import TimedLog, random_rpn_op
-from scripts.fake.config import PostgreSQL, USERS, CATEGORIES, TEAMS, CHALLENGES, SOLVES, arguments, TABLE_NAMES
-
+from team.models import Team
 
 if not arguments.get("--force") and Member.objects.count() > 0:
     print("The database is already populated, clear the db or use --force to run anyway.")
