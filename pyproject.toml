@@ -55,6 +55,32 @@ ignore::django.utils.deprecation.RemovedInDjango40Warning
 ignore::django.utils.deprecation.RemovedInDjango41Warning
 """
 
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = [
+  "*/venv/*",
+  "backend/asgi.py",
+  "backend/wsgi.py",
+  "backend/exception_handler.py",
+  "manage.py",
+  "sockets/routing.py",
+  "backend/settings/*",
+  "ractf/management/*",
+  "gunicorn_config.py",
+  "*/migrations/*.py"
+]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_covered = true
+exclude_lines = [
+  "pragma: no cover",
+  "raise NotImplementedError",
+  "pass"
+]
+
 [tool.black]
 exclude = 'migrations'
 line_length = 200
