@@ -37,7 +37,9 @@ class MemberTestCase(APITestCase):
 
     def test_self_change_email(self):
         self.client.force_authenticate(self.user)
-        response = self.client.put(reverse("member-self"), data={"email": "test-self2@example.org", "username": "test-self"})
+        response = self.client.put(
+            reverse("member-self"), data={"email": "test-self2@example.org", "username": "test-self"}
+        )
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(get_user_model().objects.get(id=self.user.id).email, "test-self2@example.org")
 

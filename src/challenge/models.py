@@ -73,7 +73,10 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         elif type(self.flag_metadata) != dict:
             issues.append({"issue": "invalid_flag_data_type", "challenge": self.id})
         else:
-            issues += [{"issue": "invalid_flag_data", "extra": issue, "challenge": self.id} for issue in self.flag_plugin.self_check()]
+            issues += [
+                {"issue": "invalid_flag_data", "extra": issue, "challenge": self.id}
+                for issue in self.flag_plugin.self_check()
+            ]
 
         return issues
 
@@ -172,7 +175,9 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             Prefetch("file_set", queryset=File.objects.all(), to_attr="files"),
             Prefetch(
                 "tag_set",
-                queryset=Tag.objects.all() if time.time() > config.get("end_time") else Tag.objects.filter(post_competition=False),
+                queryset=Tag.objects.all()
+                if time.time() > config.get("end_time")
+                else Tag.objects.filter(post_competition=False),
                 to_attr="tags",
             ),
             "first_blood",

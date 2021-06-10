@@ -23,7 +23,9 @@ class TeamSetupMixin:
         self.team.save()
         self.user.team = self.team
         self.user.save()
-        self.admin_user = get_user_model()(username="team-test-admin", email="team-test-admin@example.org", is_visible=True)
+        self.admin_user = get_user_model()(
+            username="team-test-admin", email="team-test-admin@example.org", is_visible=True
+        )
         self.admin_user.is_staff = True
         self.admin_user.is_superuser = True
         self.admin_user.save()
@@ -74,7 +76,9 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
         config.set("enable_team_leave", True)
         self.client.force_authenticate(user=self.user)
 
-        category = Category.objects.create(name="test category", display_order=1, contained_type="test", description="test")
+        category = Category.objects.create(
+            name="test category", display_order=1, contained_type="test", description="test"
+        )
         chall = Challenge.objects.create(
             name="test challenge",
             category=category,

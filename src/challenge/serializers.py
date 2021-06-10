@@ -27,7 +27,9 @@ def setup_context(context):
         if context["request"].user.team is not None:
             context.update(
                 {
-                    "solves": list(context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)),
+                    "solves": list(
+                        context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
+                    ),
                 }
             )
 
@@ -90,7 +92,10 @@ class ChallengeSerializerMixin:
         return instance.unlock_time_surpassed
 
     def get_votes(self, instance):
-        return {"positive": self.context["votes_positive_counter"].get(instance.id, 0), "negative": self.context["votes_negative_counter"].get(instance.id, 0)}
+        return {
+            "positive": self.context["votes_positive_counter"].get(instance.id, 0),
+            "negative": self.context["votes_negative_counter"].get(instance.id, 0),
+        }
 
     def get_post_score_explanation(self, instance):
         if self.get_unlocked(instance):
@@ -140,7 +145,11 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
             setup_context(self.context)
 
     def _serialize(self, instance, fields):
-        if instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None)) and not instance.hidden and instance.unlock_time_surpassed:
+        if (
+            instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None))
+            and not instance.hidden
+            and instance.unlock_time_surpassed
+        ):
             return super(FastChallengeSerializer, self)._serialize(instance, fields)
         return FastLockedChallengeSerializer(instance).serialize(instance)
 
@@ -214,7 +223,9 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
                 setup_context(self.context)
 
     def serialize(self, instance):
-        return super(FastAdminChallengeSerializer, FastAdminChallengeSerializer(instance, context=self.context)).to_value(instance)
+        return super(
+            FastAdminChallengeSerializer, FastAdminChallengeSerializer(instance, context=self.context)
+        ).to_value(instance)
 
     def to_value(self, instance):
         if self.many:

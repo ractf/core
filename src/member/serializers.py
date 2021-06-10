@@ -137,7 +137,16 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
             "incorrect_solves",
             "is_verified",
         ]
-        read_only_fields = ["id", "is_staff", "team", "points", "leaderboard_points", "date_joined", "incorrect_solves", "is_verified"]
+        read_only_fields = [
+            "id",
+            "is_staff",
+            "team",
+            "points",
+            "leaderboard_points",
+            "date_joined",
+            "incorrect_solves",
+            "is_verified",
+        ]
 
     def validate_email(self, value):
         self.instance.email_token = secrets.token_hex()

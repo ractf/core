@@ -8,4 +8,6 @@ class HasUsedHint(permissions.BasePermission):
         return request.method in permissions.SAFE_METHODS and request.user.team.hints_used.filter(hint=obj).exists()
 
     def has_permission(self, request, view):
-        return request.method in permissions.SAFE_METHODS or (request.user.is_staff and not request.user.should_deny_admin())
+        return request.method in permissions.SAFE_METHODS or (
+            request.user.is_staff and not request.user.should_deny_admin()
+        )

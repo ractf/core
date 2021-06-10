@@ -15,7 +15,15 @@ class MissingPointsTestCase(APITestCase):
         category = Category(name="test", display_order=0, contained_type="test", description="")
         category.save()
         x = Challenge.objects.create(
-            name="test1", category=category, description="a", challenge_type="basic", challenge_metadata={}, flag_type="plaintext", flag_metadata={"flag": "ractf{a}"}, author="dave", score=0
+            name="test1",
+            category=category,
+            description="a",
+            challenge_type="basic",
+            challenge_metadata={},
+            flag_type="plaintext",
+            flag_metadata={"flag": "ractf{a}"},
+            author="dave",
+            score=0,
         )
 
         self.client.force_authenticate(user=self.user)
@@ -63,7 +71,15 @@ class BadFlagConfigTestCase(APITestCase):
     def create_challenge(self, typ, metadata):
         self.i += 1
         Challenge.objects.create(
-            name=f"{self.i}", category=self.category, description="a", challenge_type="basic", challenge_metadata={}, flag_type=typ, flag_metadata=metadata, author="dave", score=1
+            name=f"{self.i}",
+            category=self.category,
+            description="a",
+            challenge_type="basic",
+            challenge_metadata={},
+            flag_type=typ,
+            flag_metadata=metadata,
+            author="dave",
+            score=1,
         )
 
     def test_length(self):

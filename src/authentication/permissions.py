@@ -8,4 +8,9 @@ class HasTwoFactor(BasePermission):
 
 class VerifyingTwoFactor(BasePermission):
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.totp_device is not None and not request.user.totp_device.verified
+        return (
+            request.user
+            and request.user.is_authenticated
+            and request.user.totp_device is not None
+            and not request.user.totp_device.verified
+        )

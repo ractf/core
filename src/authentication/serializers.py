@@ -46,7 +46,9 @@ class LoginTwoFactorSerializer(serializers.Serializer):
 class RegistrationSerializer(serializers.Serializer):
     def validate(self, _):
         register_end_time = config.get("register_end_time")
-        if not (config.get("enable_registration") and time.time() >= config.get("register_start_time")) and (register_end_time < 0 or register_end_time > time.time()):
+        if not (config.get("enable_registration") and time.time() >= config.get("register_start_time")) and (
+            register_end_time < 0 or register_end_time > time.time()
+        ):
             raise FormattedException(m="registration_not_open", status=HTTP_403_FORBIDDEN)
 
         validated_data = providers.get_provider("registration").validate(self.initial_data)
@@ -78,7 +80,12 @@ class RegistrationSerializer(serializers.Serializer):
         else:
             user.save()
             try:
-                send_email(user.email, "RACTF - Verify your email", "verify", url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token))
+                send_email(
+                    user.email,
+                    "RACTF - Verify your email",
+                    "verify",
+                    url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token),
+                )
             except SMTPException:  # pragma: no cover - prod error handling
                 # Whilst the API can resend verification emails,
                 # the frontend doesnt have that implemented, in
