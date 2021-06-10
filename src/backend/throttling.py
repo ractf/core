@@ -1,5 +1,5 @@
-from rest_framework import throttling
 from django.conf import settings
+from rest_framework import throttling
 
 
 class AdminBypassThrottle(throttling.ScopedRateThrottle):

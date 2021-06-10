@@ -1,19 +1,19 @@
 import time
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.indexes import BrinIndex
 from django.db import models
 from django.db.models import (
-    SET_NULL,
     CASCADE,
     PROTECT,
+    SET_NULL,
     Case,
-    When,
-    Value,
-    UniqueConstraint,
-    Q,
-    Subquery,
     JSONField,
+    Q,
+    UniqueConstraint,
+    Value,
+    When,
 )
 from django.db.models.aggregates import Count
 from django.db.models.query import Prefetch
@@ -21,11 +21,12 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.functional import cached_property
-
 from django_prometheus.models import ExportModelOperationsMixin
 
 from config import config
 from plugins import plugins
+
+USING_POSTGRES = settings.DATABASES.get("default", {}).get("ENGINE", "").endswith("postgresql")
 
 
 class Category(ExportModelOperationsMixin("category"), models.Model):
@@ -72,35 +73,31 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         elif type(self.flag_metadata) != dict:
             issues.append({"issue": "invalid_flag_data_type", "challenge": self.id})
         else:
-            issues += [{
-                "issue": "invalid_flag_data",
-                "extra": issue,
-                "challenge": self.id
-            } for issue in self.flag_plugin.self_check()]
+            issues += [{"issue": "invalid_flag_data", "extra": issue, "challenge": self.id} for issue in self.flag_plugin.self_check()]
 
         return issues
 
     @cached_property
     def flag_plugin(self):
         """Return the flag plugin responsible for validating flags sent to this challenge"""
-        return plugins.plugins['flag'][self.flag_type](self)
+        return plugins.plugins["flag"][self.flag_type](self)
 
     @cached_property
     def points_plugin(self):
         """Return the points plugin responsible for granting points from this challenge"""
-        return plugins.plugins['points'][self.points_type](self)
+        return plugins.plugins["points"][self.points_type](self)
 
     def is_unlocked(self, user, solves=None):
         if user is None:
             return False
         if not user.is_authenticated:
             return False
+        if not self.unlock_requirements:
+            return True
         if user.team is None:
             return False
         if solves is None:
-            solves = list(
-                user.team.solves.filter(correct=True).values_list("challenge", flat=True)
-            )
+            solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
         requirements = self.unlock_requirements
         state = []
         if not requirements:
@@ -120,34 +117,30 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             return False
         return state[0]
 
-    def is_solved(self, user):
+    def is_solved(self, user, solves=None):
         if not user.is_authenticated:
             return False
         if user.team is None:
             return False
-        return user.team.solves.filter(challenge=self).exists()
+        if solves is None:
+            solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
+        return self.id in solves
+
+    def get_solve_count(self, solve_counter):
+        return solve_counter.get(self.id, 0)
 
     @classmethod
     def get_unlocked_annotated_queryset(cls, user):
         if user.is_staff and user.should_deny_admin():
             return Challenge.objects.none()
         if user.team is not None:
-            solves = Solve.objects.filter(team=user.team, correct=True)
-            solved_challenges = solves.values_list("challenge")
             challenges = Challenge.objects.annotate(
-                solved=Case(
-                    When(Q(id__in=Subquery(solved_challenges)), then=Value(True)),
-                    default=Value(False),
-                    output_field=models.BooleanField(),
-                ),
-                solve_count=Count("solves", filter=Q(solves__correct=True), distinct=True),
+                solve_count=Count("solves", filter=Q(solves__correct=True)),
                 unlock_time_surpassed=Case(
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),
                     output_field=models.BooleanField(),
                 ),
-                votes_positive=Count("votes", filter=Q(votes__positive=True), distinct=True),
-                votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
             )
         else:
             challenges = Challenge.objects.annotate(
@@ -158,11 +151,8 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
                     default=Value(False),
                     output_field=models.BooleanField(),
                 ),
-                votes_positive=Count("votes", filter=Q(votes__positive=True), distinct=True),
-                votes_negative=Count("votes", filter=Q(votes__positive=False), distinct=True),
             )
-        from hint.models import Hint
-        from hint.models import HintUse
+        from hint.models import Hint, HintUse
 
         x = challenges.prefetch_related(
             Prefetch(
@@ -182,9 +172,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             Prefetch("file_set", queryset=File.objects.all(), to_attr="files"),
             Prefetch(
                 "tag_set",
-                queryset=Tag.objects.all()
-                if time.time() > config.get("end_time")
-                else Tag.objects.filter(post_competition=False),
+                queryset=Tag.objects.all() if time.time() > config.get("end_time") else Tag.objects.filter(post_competition=False),
                 to_attr="tags",
             ),
             "first_blood",
@@ -207,15 +195,12 @@ class ChallengeFeedback(ExportModelOperationsMixin("challenge_feedback"), models
 
 @receiver(post_save, sender=Challenge)
 def on_challenge_update(sender, instance, created, **kwargs):
-    if not created:
-        new_score = instance.score
+    ...
 
 
 class Score(ExportModelOperationsMixin("score"), models.Model):
-    team = models.ForeignKey('team.Team', related_name="scores", on_delete=CASCADE, null=True)
-    user = models.ForeignKey(
-        get_user_model(), related_name="scores", on_delete=SET_NULL, null=True
-    )
+    team = models.ForeignKey("team.Team", related_name="scores", on_delete=CASCADE, null=True)
+    user = models.ForeignKey(get_user_model(), related_name="scores", on_delete=SET_NULL, null=True)
     reason = models.CharField(max_length=64)
     points = models.IntegerField()
     penalty = models.IntegerField(default=0)
@@ -225,11 +210,9 @@ class Score(ExportModelOperationsMixin("score"), models.Model):
 
 
 class Solve(ExportModelOperationsMixin("solve"), models.Model):
-    team = models.ForeignKey('team.Team', related_name="solves", on_delete=CASCADE, null=True)
+    team = models.ForeignKey("team.Team", related_name="solves", on_delete=CASCADE, null=True)
     challenge = models.ForeignKey(Challenge, related_name="solves", on_delete=CASCADE)
-    solved_by = models.ForeignKey(
-        get_user_model(), related_name="solves", on_delete=SET_NULL, null=True
-    )
+    solved_by = models.ForeignKey(get_user_model(), related_name="solves", on_delete=SET_NULL, null=True)
     first_blood = models.BooleanField(default=False)
     correct = models.BooleanField(default=True)
     timestamp = models.DateTimeField(default=timezone.now)
@@ -249,7 +232,7 @@ class Solve(ExportModelOperationsMixin("solve"), models.Model):
                 name="unique_member_challenge_correct",
             ),
         ]
-        indexes = [BrinIndex(fields=["challenge"], autosummarize=True)]
+        indexes = [BrinIndex(fields=["challenge"], autosummarize=True)] if USING_POSTGRES else []
 
 
 def get_file_name(instance, filename):

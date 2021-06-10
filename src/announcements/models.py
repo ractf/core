@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-
 from django_prometheus.models import ExportModelOperationsMixin
 
 

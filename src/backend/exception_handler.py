@@ -1,17 +1,14 @@
 import traceback
 from typing import Optional
 
-from django.http import Http404
-
+from django.conf import settings
+from django.http import Http404, HttpRequest, JsonResponse
 from rest_framework import exceptions
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework.status import HTTP_500_INTERNAL_SERVER_ERROR
 from rest_framework.views import exception_handler
 
-import sentry_sdk
-
-from django.conf import settings
 from backend.exceptions import FormattedException
 from backend.response import FormattedResponse
 
@@ -21,6 +18,9 @@ def handle_exception(exc: Exception, context: dict) -> Optional[Response]:
 
     if "X-Reasonable" in context["request"].headers:
         return exception_handler(exc, context)
+
+    if settings.DEBUG:
+        traceback.print_exc()
 
     if isinstance(exc, FormattedException):
         return FormattedResponse(s=False, d=exc.d, m=exc.m, status=exc.status_code)
@@ -46,9 +46,11 @@ def handle_exception(exc: Exception, context: dict) -> Optional[Response]:
             response.data = {"s": False, "m": exc.detail.code, "d": ""}
 
     else:
-        response = Response(
-            {"s": False, "m": "Internal server error.", "d": ""},
-            status=HTTP_500_INTERNAL_SERVER_ERROR,
-        )
-        sentry_sdk.capture_exception(exc)
+        # All other exceptions are raised as normal.
+        raise exc
     return response
+
+
+def generic_error_response(request: HttpRequest, *args, **kwargs) -> JsonResponse:
+    """Return a generic error response for unexpected errors."""
+    return JsonResponse({"s": False, "m": "Internal server error.", "d": ""}, status=HTTP_500_INTERNAL_SERVER_ERROR)

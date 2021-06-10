@@ -3,7 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 
 
 def is_exporting(request):
-    return request.user.is_staff and (request.headers.get('exporting') or request.headers.get('x-exporting'))
+    return request.user.is_staff and (request.headers.get("exporting") or request.headers.get("x-exporting"))
 
 
 class AdminCreateModelViewSet(ModelViewSet):
@@ -30,7 +30,7 @@ class AdminListModelViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.request is None:
             return self.admin_serializer_class
-        if self.action == 'list' and not is_exporting(self.request):
+        if self.action == "list" and not is_exporting(self.request):
             if self.request.user.is_staff and not self.request.user.should_deny_admin():
                 return self.list_admin_serializer_class
             return self.list_serializer_class

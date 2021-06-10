@@ -1,5 +1,5 @@
-import sys
 import inspect
+import sys
 from collections import defaultdict
 from pydoc import locate
 

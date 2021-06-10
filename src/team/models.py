@@ -2,7 +2,6 @@ from django.contrib.postgres.fields import CICharField
 from django.db import models
 from django.db.models import CASCADE, Prefetch
 from django.utils import timezone
-
 from django_prometheus.models import ExportModelOperationsMixin
 
 from backend.validators import printable_name
@@ -27,9 +26,7 @@ class TeamQuerySet(models.QuerySet):
 
     def prefetch_solves(self) -> "models.QuerySet[Team]":
         """Prefetch this team's correct solves."""
-        return self.prefetch_related(
-            Prefetch("solves", queryset=Solve.objects.filter(correct=True))
-        )
+        return self.prefetch_related(Prefetch("solves", queryset=Solve.objects.filter(correct=True)))
 
 
 class Team(ExportModelOperationsMixin("team"), models.Model):

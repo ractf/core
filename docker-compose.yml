@@ -3,10 +3,10 @@ version: "3"
 services:
 
   redis:
-    image: redis:5
+    image: docker.io/redis:5
 
   database:
-    image: postgres:12-alpine
+    image: docker.io/postgres:12-alpine
     environment:
       - POSTGRES_EXTENSIONS=citext
       - POSTGRES_HOST_AUTH_METHOD=trust
@@ -30,7 +30,7 @@ services:
   backend: &backend
     build: .
     entrypoint: /app/entrypoints/backend.sh
-    command: ./manage.py runserver 0.0.0.0:8000
+    command: python src/manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     environment:
@@ -63,7 +63,7 @@ services:
       - backend
 
   watchtower:
-    image: containrrr/watchtower
+    image: docker.io/containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /root/.docker/config.json:/config.json
