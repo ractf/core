@@ -22,16 +22,18 @@ from scripts.fake.utils import TimedLog, random_rpn_op
 from team.models import Team
 
 
-if not arguments.get("--force") and Member.objects.count() > 0:
-    print("The database is already populated, clear the db or use --force to run anyway.")
-    exit(1)
-
 if arguments.get("clean"):
     with psycopg2.connect(dsn=PostgreSQL.dsn) as connection:
         connection.set_isolation_level(0)
         with connection.cursor() as cursor:
             cursor.execute(f"DROP DATABASE {PostgreSQL.DATABASE}")
             cursor.execute(f"CREATE DATABASE {PostgreSQL.DATABASE}")
+
+
+if not arguments.get("--force") and Member.objects.count() > 0:
+    print("The database is already populated, clear the db or use --force to run anyway.")
+    exit(1)
+
 
 cursor = db.connection.cursor()
 
