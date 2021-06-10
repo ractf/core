@@ -1,73 +1,33 @@
-import argparse
-import os
-import random
-import sys
-import time
+"""A command-line tool for generating and inserting many rows of fake data into the database."""
 
-import django
+import random
+
+import psycopg2
+from django import db
 from faker import Faker
 
-base_dir = os.path.abspath(
-    os.path.join(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir),
-        "src",
-    )
-)
+from challenge.models import Category, Challenge, Score, Solve
+from member.models import Member
+from team.models import Team
 
-if base_dir not in sys.path:
-    sys.path.insert(1, base_dir)
-
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings.local")
-django.setup()
-
-from django.contrib.auth import get_user_model  # noqa
-from django.db import ProgrammingError, connection  # noqa
-
-from challenge.models import Category, Challenge, Score, Solve  # noqa
-from member.models import Member  # noqa
-from team.models import Team  # noqa
-
-parser = argparse.ArgumentParser(description="Insert fake data into the database.")
-parser.add_argument("--teams", type=int, help="Number of teams to create", default=10)
-parser.add_argument("--users", type=int, help="Number of users to create per team", default=2)
-parser.add_argument("--categories", type=int, help="Number of categories to create", default=5)
-parser.add_argument("--challenges", type=int, help="Number of challenges to create per category", default=10)
-parser.add_argument("--solves", type=int, help="Number of solves to create", default=100)
-parser.add_argument("--force", help="Always run, even when the database is populated", action="store_true", default=False)
-args = parser.parse_args()
+from scripts.fake.utils import TimedLog, random_rpn_op
+from scripts.fake.config import PostgreSQL, USERS, CATEGORIES, TEAMS, CHALLENGES, SOLVES, arguments
 
 
-if not args.force and Member.objects.count() > 0:
+if not arguments.get("--force") and Member.objects.count() > 0:
     print("The database is already populated, clear the db or use --force to run anyway.")
     exit(1)
 
 
-class TimedLog:
-    def __init__(self, msg, ending=" "):
-        self.msg = msg
-        self.ending = ending
-
-    def __enter__(self):
-        self._entry_time = time.time()
-        print(self.msg, end=self.ending, flush=True)
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        print("Done (" + str(time.time() - self._entry_time) + "s)")
+if arguments.get("clean"):
+    with psycopg2.connect(dsn=PostgreSQL.dsn) as connection:
+        connection.set_isolation_level(0)
+        with connection.cursor() as cursor:
+            cursor.execute(f"DROP DATABASE {PostgreSQL.DATABASE}")
+            cursor.execute(f"CREATE DATABASE {PostgreSQL.DATABASE}")
 
 
-def random_rpn_op(depth=0):
-    depth += 1
-
-    if depth > 4 or (random.randint(1, 4) < 3 and depth > 1):
-        return str(random.randint(1, 1000))
-
-    if random.randint(1, 2) == 1:
-        return f"{random_rpn_op(depth)} {random_rpn_op(depth)} OR"
-    else:
-        return f"{random_rpn_op(depth)} {random_rpn_op(depth)} AND"
-
-
-cursor = connection.cursor()
+cursor = db.connection.cursor()
 db_indexes = {}
 db_constraints = {}
 table_names = [
@@ -95,7 +55,9 @@ table_names = [
 ]
 try:
     for table in table_names:
-        cursor.execute(f"SELECT indexname, indexdef FROM pg_indexes WHERE tablename='{table}' AND indexname != '{table}_pkey';")
+        cursor.execute(
+            f"SELECT indexname, indexdef FROM pg_indexes WHERE tablename='{table}' AND indexname != '{table}_pkey';"
+        )
         indexes = cursor.fetchall()
 
         cursor.execute(
@@ -106,29 +68,34 @@ try:
             cursor.execute(f"ALTER TABLE {table} DROP CONSTRAINT IF EXISTS {constraint_name}")
         for index_name, index_sql in indexes:
             cursor.execute(f"DROP INDEX IF EXISTS {index_name}")
-        connection.commit()
+        db.connection.commit()
 
         db_indexes[table] = indexes
         db_constraints[table] = constraints
 
     for table in table_names:
         cursor.execute(f"ALTER TABLE {table} SET UNLOGGED")
-        connection.commit()
+        db.connection.commit()
 
     with TimedLog("Inserting data... ", ending="\n"):
         fake = Faker()
         category_ids = []
-        with TimedLog(f"Creating {args.categories} categories..."):
-            for i in range(args.categories):
-                category = Category(name=" ".join(fake.words()), display_order=i, contained_type="test", description=fake.unique.text())
+        with TimedLog(f"Creating {CATEGORIES} categories..."):
+            for display_order in range(CATEGORIES):
+                category = Category(
+                    name=" ".join(fake.words()),
+                    display_order=display_order,
+                    contained_type="test",
+                    description=fake.unique.text(),
+                )
                 category.save()
-                category_ids.append(category.id)
+                category_ids.append(category.pk)
 
         challenge_ids = []
-        with TimedLog(f"Creating {args.challenges} challenges for each category..."):
-            for i in range(args.categories):
-                category = Category.objects.get(id=category_ids[i])
-                for j in range(args.challenges):
+        with TimedLog(f"Creating {CHALLENGES} challenges for each category..."):
+            for pk in range(CATEGORIES):
+                category = Category.objects.get(pk=category_ids[pk])
+                for j in range(CHALLENGES):
                     auto_unlock = random.randint(1, 5) == 1
                     challenge = Challenge(
                         name=" ".join(fake.words())[:36],
@@ -141,20 +108,21 @@ try:
                         unlock_requirements=random_rpn_op() if not auto_unlock else "",
                     )
                     challenge.save()
-                    challenge_ids.append(challenge.id)
+                    challenge_ids.append(challenge.pk)
 
-        with TimedLog(f"Creating {args.users * args.teams} users in memory..."):
-            users_to_create = [Member(username=fake.unique.user_name(), email=fake.unique.email()) for _ in range(args.users * args.teams)]
+        with TimedLog(f"Creating {USERS * TEAMS} users in memory..."):
+            users_to_create = [
+                Member(username=fake.unique.user_name(), email=fake.unique.email()) for _ in range(USERS * TEAMS)
+            ]
 
         with TimedLog("Inserting to database..."):
             Member.objects.bulk_create(users_to_create)
 
-        with TimedLog(f"Creating {args.teams} teams in memory...."):
+        with TimedLog(f"Creating {TEAMS} teams in memory...."):
             teams_to_create = []
             members = list(Member.objects.all())
-            for i in range(args.teams):
-                team = Team(name=fake.unique.user_name(), password=" ".join(fake.words()), owner=members[i * args.users])
-
+            for pk in range(TEAMS):
+                team = Team(name=fake.unique.user_name(), password=" ".join(fake.words()), owner=members[pk * USERS])
                 teams_to_create.append(team)
 
         with TimedLog("Inserting to database..."):
@@ -163,32 +131,41 @@ try:
         with TimedLog("Adding members to teams in memory..."):
             members_to_update = []
             teams = list(Team.objects.all())
-            for i in range(0, len(members)):
-                team_member = members[i]
-                team_member.team = teams[i // args.users % len(teams)]
+            for index in range(0, len(members)):
+                team_member = members[index]
+                team_member.team = teams[index // USERS % len(teams)]
                 members_to_update.append(team_member)
 
         with TimedLog("Saving to database..."):
             Member.objects.bulk_update(members_to_update, ["team"])
 
-        with TimedLog(f"Creating {args.solves} solves and scores in memory..."):
+        with TimedLog(f"Creating {SOLVES} solves and scores in memory..."):
             scores_to_create = []
             solves_to_create = []
             users_to_update = set()
             teams_to_update = set()
             teams = list(Team.objects.prefetch_related("members").all())
             team_index = 0
-            for i in range(args.solves):
-                if i != 0 and i % len(challenge_ids) == 0:
+
+            for index in range(SOLVES):
+                if index != 0 and index % len(challenge_ids) == 0:
                     team_index += 1
                 team = teams[team_index]
-                user = team.members.all()[i % args.users]
+                user = team.members.all()[index % USERS]
 
                 points = random.randint(0, 999)
                 penalty = 0 if random.randint(0, 10) != 5 else random.randint(0, points)
                 score = Score(team=team, reason="challenge", points=points, penalty=penalty, leaderboard=True)
                 scores_to_create.append(score)
-                solve = Solve(team=team, solved_by=user, challenge_id=challenge_ids[i % len(challenge_ids)], first_blood=False, flag="ractf{a}", score=score, correct=True)
+                solve = Solve(
+                    team=team,
+                    solved_by=user,
+                    challenge_id=challenge_ids[index % len(challenge_ids)],
+                    first_blood=False,
+                    flag="ractf{a}",
+                    score=score,
+                    correct=True,
+                )
                 solves_to_create.append(solve)
 
                 user.points += points - penalty
@@ -212,11 +189,11 @@ finally:
     for table in table_names:
         for index_name, index_sql in db_indexes[table]:
             cursor.execute(index_sql)
-            connection.commit()
+            db.connection.commit()
     for table in table_names:
         for constraint_name, constraint_type, constraint_sql in db_constraints[table]:
             try:
                 cursor.execute(f"ALTER TABLE {table} ADD CONSTRAINT {constraint_name} {constraint_sql}")
-                connection.commit()
-            except ProgrammingError:  # Some constraints seem to get added implicitly so adding them throws an error
+                db.connection.commit()
+            except db.ProgrammingError:  # Some constraints seem to get added implicitly so adding them throws an error
                 pass
