@@ -18,7 +18,9 @@ member_count = Gauge("member_count", "The number of members currently registered
 team_count = Gauge("team_count", "The number of teams currently registered")
 solve_count = Gauge("solve_count", "The count of both correct and incorrect solves")
 correct_solve_count = Gauge("correct_solve_count", "The count of correct solves")
-connected_websocket_users = Gauge("connected_websocket_users", "The number of users connected to the websocket", multiprocess_mode="livesum")
+connected_websocket_users = Gauge(
+    "connected_websocket_users", "The number of users connected to the websocket", multiprocess_mode="livesum"
+)
 
 if not cache.get("migrations_needed"):
     cache.set("member_count", Member.objects.count(), timeout=None)

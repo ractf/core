@@ -86,7 +86,9 @@ class FullStatsTestCase(APITestCase):
         user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
         user.save()
 
-        category = Category.objects.create(name="test category", display_order=1, contained_type="test", description="test")
+        category = Category.objects.create(
+            name="test category", display_order=1, contained_type="test", description="test"
+        )
         chall = Challenge.objects.create(
             name="test challenge",
             category=category,
@@ -136,7 +138,12 @@ class PrometheusTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_authed_admin(self):
-        user = get_user_model()(username="prometheus-test-admin", email="prometheus-test-admin@example.org", is_staff=True, is_superuser=True)
+        user = get_user_model()(
+            username="prometheus-test-admin",
+            email="prometheus-test-admin@example.org",
+            is_staff=True,
+            is_superuser=True,
+        )
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("prometheus"))

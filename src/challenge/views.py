@@ -86,12 +86,22 @@ class CategoryViewset(AdminCreateModelViewSet):
                 Prefetch(
                     "hint_set",
                     queryset=Hint.objects.annotate(
-                        used=Case(When(id__in=HintUse.objects.filter(team=team).values_list("hint_id"), then=Value(True)), default=Value(False), output_field=models.BooleanField())
+                        used=Case(
+                            When(id__in=HintUse.objects.filter(team=team).values_list("hint_id"), then=Value(True)),
+                            default=Value(False),
+                            output_field=models.BooleanField(),
+                        )
                     ),
                     to_attr="hints",
                 ),
                 Prefetch("file_set", queryset=File.objects.all(), to_attr="files"),
-                Prefetch("tag_set", queryset=Tag.objects.all() if time.time() > config.get("end_time") else Tag.objects.filter(post_competition=False), to_attr="tags"),
+                Prefetch(
+                    "tag_set",
+                    queryset=Tag.objects.all()
+                    if time.time() > config.get("end_time")
+                    else Tag.objects.filter(post_competition=False),
+                    to_attr="tags",
+                ),
                 "hint_set__uses",
             )
             .select_related("first_blood")
@@ -117,7 +127,10 @@ class CategoryViewset(AdminCreateModelViewSet):
         negative_votes = get_negative_votes()
         for category in categories:
             for challenge in category["challenges"]:
-                challenge["votes"] = {"positive": positive_votes.get(challenge["id"], 0), "negative": negative_votes.get(challenge["id"], 0)}
+                challenge["votes"] = {
+                    "positive": positive_votes.get(challenge["id"], 0),
+                    "negative": negative_votes.get(challenge["id"], 0),
+                }
                 challenge["solve_count"] = solve_counts.get(challenge["id"], 0)
 
         return FormattedResponse(categories)
@@ -146,13 +159,17 @@ class ScoresViewset(ModelViewSet):
     def recalculate_scores(self, user, team):
         if user:
             user = get_object_or_404(get_user_model(), id=user)
-            user.leaderboard_points = Score.objects.filter(user=user, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
+            user.leaderboard_points = (
+                Score.objects.filter(user=user, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
+            )
             user.points = Score.objects.filter(user=user).aggregate(Sum("points"))["points__sum"] or 0
             user.last_score = Score.objects.filter(user=user, leaderboard=True).order_by("timestamp").first().timestamp
             user.save()
         if team:
             team = get_object_or_404(Team, id=team)
-            team.leaderboard_points = Score.objects.filter(team=team, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
+            team.leaderboard_points = (
+                Score.objects.filter(team=team, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
+            )
             team.points = Score.objects.filter(team=team).aggregate(Sum("points"))["points__sum"] or 0
             team.last_score = Score.objects.filter(team=team, leaderboard=True).order_by("timestamp").first().timestamp
             team.save()
@@ -226,7 +243,9 @@ class FlagSubmitView(APIView):
     throttle_scope = "flag_submit"
 
     def post(self, request):
-        if not config.get("enable_flag_submission") or (not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")):
+        if not config.get("enable_flag_submission") or (
+            not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")
+        ):
             return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
 
         with transaction.atomic():
@@ -247,13 +266,22 @@ class FlagSubmitView(APIView):
             if challenge.challenge_metadata.get("attempt_limit"):
                 count = solve_set.filter(team=team).count()
                 if count > challenge.challenge_metadata["attempt_limit"]:
-                    flag_reject.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag, reason="attempt_limit_reached")
+                    flag_reject.send(
+                        sender=self.__class__,
+                        user=user,
+                        team=team,
+                        challenge=challenge,
+                        flag=flag,
+                        reason="attempt_limit_reached",
+                    )
                     return FormattedResponse(d={"correct": False}, m="attempt_limit_reached")
 
             flag_submit.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag)
 
             if not challenge.flag_plugin.check(flag, user=user, team=team):
-                flag_reject.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag, reason="incorrect_flag")
+                flag_reject.send(
+                    sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag, reason="incorrect_flag"
+                )
                 challenge.points_plugin.register_incorrect_attempt(user, team, flag, solve_set)
                 return FormattedResponse(d={"correct": False}, m="incorrect_flag")
 
@@ -277,7 +305,9 @@ class FlagCheckView(APIView):
     throttle_scope = "flag_submit"
 
     def post(self, request):
-        if not config.get("enable_flag_submission") or (not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")):
+        if not config.get("enable_flag_submission") or (
+            not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")
+        ):
             return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
         team = Team.objects.get(id=request.user.team.id)
         user = get_user_model().objects.get(id=request.user.id)
@@ -311,14 +341,18 @@ class FileViewSet(ModelViewSet):
     def create(self, request: Request, *args, **kwargs) -> Union[FormattedResponse, Response]:
         """Create a File, given a URL or from a direct upload."""
         challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
-        file_url, file_data, file_size, file_digest, file_name = (request.data.get(name) for name in ("url", "upload", "size", "md5", "name"))
+        file_url, file_data, file_size, file_digest, file_name = (
+            request.data.get(name) for name in ("url", "upload", "size", "md5", "name")
+        )
 
         if not file_url and not file_data:
             return FormattedResponse(m="Either url or upload must be provided.", status=HTTP_400_BAD_REQUEST)
 
         if file_data:
             if len(file_data) > settings.MAX_UPLOAD_SIZE:
-                return FormattedResponse(m=f"File cannot be over {settings.MAX_UPLOAD_SIZE} bytes in size.", status=HTTP_400_BAD_REQUEST)
+                return FormattedResponse(
+                    m=f"File cannot be over {settings.MAX_UPLOAD_SIZE} bytes in size.", status=HTTP_400_BAD_REQUEST
+                )
             file = File(challenge=challenge, upload=file_data)
             file.name = file.upload.name
             file.size = file.upload.size

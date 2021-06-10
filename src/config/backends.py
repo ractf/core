@@ -69,7 +69,11 @@ class CachedBackend(ConfigBackend):
 
         if config_exists:
             config = db_config[0].value
-            if "config_version" not in config or config["config_version"] < defaults["config_version"] or "test" in sys.argv:  # pragma: no cover
+            if (
+                "config_version" not in config
+                or config["config_version"] < defaults["config_version"]
+                or "test" in sys.argv
+            ):
                 for key, value in defaults.items():
                     self.set(key, value)
                 return

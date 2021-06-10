@@ -22,6 +22,9 @@ class Command(BaseCommand):
         print("Dropping database...")
         cursor.execute('DROP DATABASE "%s"' % settings.DATABASES["default"]["NAME"])
         print("Creating database...")
-        cursor.execute('CREATE DATABASE "%s" WITH OWNER = "%s" ENCODING = "UTF8"' % (settings.DATABASES["default"]["NAME"], settings.DATABASES["default"]["USER"]))
+        cursor.execute(
+            'CREATE DATABASE "%s" WITH OWNER = "%s" ENCODING = "UTF8"'
+            % (settings.DATABASES["default"]["NAME"], settings.DATABASES["default"]["USER"])
+        )
         cursor.close()
         migrate.Command().run_from_argv(sys.argv)

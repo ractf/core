@@ -47,6 +47,8 @@ better-exceptions = "^0.3.3"
 pytest-testmon = "^1.1.1"
 django-querycount = "^0.7.0"
 nplusone = "^1.0.0"
+faker = "^8.6.0"
+docopt = "^0.6.2"
 
 [tool.pytest.ini_options]
 python_files = "tests.py test_*.py *_tests.py"
@@ -85,7 +87,7 @@ exclude_lines = [
 
 [tool.black]
 exclude = 'migrations'
-line_length = 200
+line_length = 120
 
 [tool.isort]
 profile = "black"
@@ -93,6 +95,7 @@ multi_line_output = 3
 
 [tool.flake8]
 exclude = "*migrations*,*settings*"
+ignore = "W503"
 max-line-length = 200
 max-complexity = 25
 

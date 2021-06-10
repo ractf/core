@@ -36,7 +36,14 @@ class PointsPlugin(Plugin, abc.ABC):
         score = Score(team=team, reason="challenge", points=points, penalty=deducted, leaderboard=scored, user=user)
         score.save()
 
-        solve = Solve(team=team, solved_by=user, challenge=challenge, first_blood=challenge.first_blood is None, flag=flag, score=score)
+        solve = Solve(
+            team=team,
+            solved_by=user,
+            challenge=challenge,
+            first_blood=challenge.first_blood is None,
+            flag=flag,
+            score=score,
+        )
         solve.save()
 
         user.points += points - deducted

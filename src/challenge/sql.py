@@ -34,7 +34,9 @@ def get_positive_votes():
     if positive_votes is not None and config.get("enable_caching"):
         return positive_votes
     with connection.cursor() as cursor:
-        cursor.execute("SELECT challenge_id, COUNT(*) FROM challenge_challengevote WHERE positive=true GROUP BY challenge_id;")
+        cursor.execute(
+            "SELECT challenge_id, COUNT(*) FROM challenge_challengevote WHERE positive=true GROUP BY challenge_id;"
+        )
         positive_votes = {i[0]: i[1] for i in cursor.fetchall()}
     cache.set("positive_votes", positive_votes, 15)
     return positive_votes
@@ -46,7 +48,9 @@ def get_negative_votes():
     if negative_votes is not None and config.get("enable_caching"):
         return negative_votes
     with connection.cursor() as cursor:
-        cursor.execute("SELECT challenge_id, COUNT(*) FROM challenge_challengevote WHERE positive=false GROUP BY challenge_id;")
+        cursor.execute(
+            "SELECT challenge_id, COUNT(*) FROM challenge_challengevote WHERE positive=false GROUP BY challenge_id;"
+        )
         negative_votes = {i[0]: i[1] for i in cursor.fetchall()}
     cache.set("negative_votes", negative_votes, 15)
     return negative_votes

@@ -73,7 +73,10 @@ def full(request):
 
     return FormattedResponse(
         {
-            "users": {"all": get_user_model().objects.count(), "confirmed": get_user_model().objects.filter(email_verified=True).count()},
+            "users": {
+                "all": get_user_model().objects.count(),
+                "confirmed": get_user_model().objects.filter(email_verified=True).count(),
+            },
             "teams": Team.objects.count(),
             "ips": UserIP.objects.count(),
             "total_points": Score.objects.all().aggregate(Sum("points"))["points__sum"],

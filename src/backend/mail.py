@@ -19,8 +19,14 @@ def send_email(send_to, subject_line, template_name, **template_details):
                 Destination={"ToAddresses": [send_to]},
                 Message={
                     "Body": {
-                        "Html": {"Charset": "UTF-8", "Data": render_to_string(template_name + ".html", template_details)},
-                        "Text": {"Charset": "UTF-8", "Data": render_to_string(template_name + ".txt", template_details)},
+                        "Html": {
+                            "Charset": "UTF-8",
+                            "Data": render_to_string(template_name + ".html", template_details),
+                        },
+                        "Text": {
+                            "Charset": "UTF-8",
+                            "Data": render_to_string(template_name + ".txt", template_details),
+                        },
                     },
                     "Subject": {"Charset": "UTF-8", "Data": subject_line},
                 },
@@ -60,4 +66,6 @@ def send_email(send_to, subject_line, template_name, **template_details):
 
             smtp.sendmail(sender, send_to, data.as_string())
     else:
-        print(f"Sending email '{subject_line}' to {send_to} using template {template_name} with details {template_details}")
+        print(
+            f"Sending email '{subject_line}' to {send_to} using template {template_name} with details {template_details}"
+        )
