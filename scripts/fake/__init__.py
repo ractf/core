@@ -2,7 +2,6 @@
 
 Usage:
     fake generate [--teams=<teams>] [--users=<users>] [--categories=<categories>] [--challenges=<challenges>] [--solves=<solves>] [--force]
-    fake clean
     fake -h | --help
 
 Options:

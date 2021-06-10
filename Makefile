@@ -40,7 +40,7 @@ fake-bulk-data:
 	python -m scripts.fake generate --teams 10000 --users 2 --categories 10 --challenges 100 --solves 1000000
 
 clean-db:
-	python -m scripts.fake clean
+	python scripts/clean_db.py
 
 clean-test:
 	rm -rf /tmp/ractf-linting.cache /tmp/ractf-linting.db .testmondata
