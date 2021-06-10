@@ -41,12 +41,13 @@ db_indexes = {}
 try:
     for table in TABLE_NAMES:
         cursor.execute(
-            f"SELECT indexname, indexdef FROM pg_indexes WHERE tablename='{table}' AND indexname != '{table}_pkey';"
+            f"SELECT indexname, indexdef FROM pg_indexes" f"WHERE tablename='{table}' AND indexname != '{table}_pkey';"
         )
         indexes = cursor.fetchall()
 
         cursor.execute(
-            f"SELECT conname, contype, pg_catalog.pg_get_constraintdef(r.oid, true) as condef FROM pg_catalog.pg_constraint r WHERE r.conrelid = '{table}'::regclass AND conname != '{table}_pkey';"
+            f"SELECT conname, contype, pg_catalog.pg_get_constraintdef(r.oid, true) as condef "
+            f"FROM pg_catalog.pg_constraint r WHERE r.conrelid = '{table}'::regclass AND conname != '{table}_pkey';"
         )
         constraints = cursor.fetchall()
         for constraint_name, constraint_type, constraint_sql in constraints:
