@@ -34,13 +34,13 @@ dev-test: dev-server
 	docker-compose exec backend pytest --cov=src src
 
 fake-data:
-	python scripts/insert_fake_data.py $(ARGS)
+	python -m scripts/fake generate $(ARGS)
 
 fake-bulk-data:
-	python scripts/insert_fake_data.py --teams 10000 --users 2 --categories 10 --challenges 100 --solves 1000000
+	python -m scripts.fake generate --teams 10000 --users 2 --categories 10 --challenges 100 --solves 1000000
 
 clean-db:
-	python scripts/clean_db.py
+	python -m scripts.fake clean
 
 clean-test:
 	rm -rf /tmp/ractf-linting.cache /tmp/ractf-linting.db .testmondata

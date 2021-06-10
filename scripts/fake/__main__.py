@@ -11,7 +11,7 @@ from member.models import Member
 from team.models import Team
 
 from scripts.fake.utils import TimedLog, random_rpn_op
-from scripts.fake.config import PostgreSQL, USERS, CATEGORIES, TEAMS, CHALLENGES, SOLVES, arguments
+from scripts.fake.config import PostgreSQL, USERS, CATEGORIES, TEAMS, CHALLENGES, SOLVES, arguments, TABLE_NAMES
 
 
 if not arguments.get("--force") and Member.objects.count() > 0:
@@ -28,33 +28,12 @@ if arguments.get("clean"):
 
 
 cursor = db.connection.cursor()
-db_indexes = {}
+
 db_constraints = {}
-table_names = [
-    "member_member_groups",
-    "authentication_token",
-    "member_member_user_permissions",
-    "authtoken_token",
-    "authentication_totpdevice",
-    "authentication_backupcode",
-    "authentication_passwordresettoken",
-    "member_userip",
-    "authentication_invitecode",
-    "challenge_file",
-    "challenge_tag",
-    "challenge_challengefeedback",
-    "hint_hintuse",
-    "hint_hint",
-    "challenge_challengevote",
-    "challenge_solve",
-    "challenge_score",
-    "challenge_challenge",
-    "challenge_challenge",
-    "team_team",
-    "member_member",
-]
+db_indexes = {}
+
 try:
-    for table in table_names:
+    for table in TABLE_NAMES:
         cursor.execute(
             f"SELECT indexname, indexdef FROM pg_indexes WHERE tablename='{table}' AND indexname != '{table}_pkey';"
         )
@@ -73,7 +52,7 @@ try:
         db_indexes[table] = indexes
         db_constraints[table] = constraints
 
-    for table in table_names:
+    for table in TABLE_NAMES:
         cursor.execute(f"ALTER TABLE {table} SET UNLOGGED")
         db.connection.commit()
 
@@ -186,11 +165,11 @@ try:
             with TimedLog("[4/4] Saving Teams in database..."):
                 Team.objects.bulk_update(teams_to_update, ["leaderboard_points"])
 finally:
-    for table in table_names:
+    for table in TABLE_NAMES:
         for index_name, index_sql in db_indexes[table]:
             cursor.execute(index_sql)
             db.connection.commit()
-    for table in table_names:
+    for table in TABLE_NAMES:
         for constraint_name, constraint_type, constraint_sql in db_constraints[table]:
             try:
                 cursor.execute(f"ALTER TABLE {table} ADD CONSTRAINT {constraint_name} {constraint_sql}")
