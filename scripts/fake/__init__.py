@@ -23,8 +23,8 @@ from pathlib import Path
 import django
 from docopt import docopt
 
-arguments = docopt(__doc__)
 
+arguments = docopt(__doc__)
 PROJECT_BASE = str(Path(__file__).parents[2] / "src")
 
 if PROJECT_BASE not in sys.path:
