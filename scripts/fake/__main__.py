@@ -107,8 +107,8 @@ try:
         with TimedLog(f"Creating {TEAMS} teams in memory...."):
             teams_to_create = []
             members = list(Member.objects.all())
-            for pk in range(TEAMS):
-                team = Team(name=fake.unique.user_name(), password=" ".join(fake.words()), owner=members[pk * USERS])
+            for index in range(TEAMS):
+                team = Team(name=fake.unique.user_name(), password=" ".join(fake.words()), owner=members[index * USERS])
                 teams_to_create.append(team)
 
         with TimedLog("Inserting to database..."):
