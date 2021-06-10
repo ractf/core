@@ -9,10 +9,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - uses: mstachniuk/ci-skip@v1
-        with:
-          fail-fast: true
-
     - name: Get branch name
       shell: bash
       run: echo "##[set-output name=name;]`echo $([ ${GITHUB_REF#refs/heads/} = "master" ] && echo 'latest' || echo ${GITHUB_REF#refs/heads/}) | sed 's/\//-/g'`"
