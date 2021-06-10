@@ -12,6 +12,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - uses: mstachniuk/ci-skip@v1
+        with:
+          fail-fast: true
+
     - uses: actions/setup-python@v2
       with:
         python-version: '3.9'
