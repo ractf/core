@@ -87,6 +87,7 @@ DEFAULT_CONFIG = {
 }
 
 INSTALLED_APPS = [
+    "core.apps.CoreConfig",
     "admin.apps.AdminConfig",
     "authentication.apps.AuthConfig",
     "challenge.apps.ChallengeConfig",
@@ -98,7 +99,6 @@ INSTALLED_APPS = [
     "member.apps.MemberConfig",
     "pages.apps.PagesConfig",
     "plugins.apps.PluginsConfig",
-    "ractf.apps.RactfConfig",
     "scorerecalculator.apps.ScorerecalculatorConfig",
     "team.apps.TeamConfig",
     "sockets.apps.SocketsConfig",

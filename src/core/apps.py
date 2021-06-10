@@ -1,13 +1,13 @@
 from django.apps import AppConfig
 from django.conf import settings
-from django.core.checks import ERROR, WARNING, CheckMessage, register
+from django.core.checks import ERROR, WARNING, CheckMessage, Tags, register
 
 
-class RactfConfig(AppConfig):
-    name = "ractf"
+class CoreConfig(AppConfig):
+    name = "core"
 
 
-@register()
+@register(Tags.compatibility)
 def check_settings(app_configs, **kwargs):  # pragma: no cover
     errors = []
     for setting in settings.REQUIRED_SETTINGS:
