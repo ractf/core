@@ -3,11 +3,11 @@ from channels.layers import get_channel_layer
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from announcements.models import Announcement
-from announcements.serializers import AnnouncementSerializer
 from challenge.models import Challenge
 from config import config
 from core.signals import flag_reject, flag_score, team_join, use_hint
+from sockets.models import Announcement
+from sockets.serializers import AnnouncementSerializer
 
 
 def get_team_channel(user):

@@ -1,8 +1,8 @@
 from rest_framework.viewsets import ModelViewSet
 
-from announcements.models import Announcement
-from announcements.serializers import AnnouncementSerializer
 from core.permissions import AdminOrReadOnly
+from sockets.models import Announcement
+from sockets.serializers import AnnouncementSerializer
 
 
 class AnnouncementViewSet(ModelViewSet):

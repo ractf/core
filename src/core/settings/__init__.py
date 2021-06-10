@@ -88,7 +88,6 @@ DEFAULT_CONFIG = {
 
 INSTALLED_APPS = [
     "admin.apps.AdminConfig",
-    "announcements.apps.AnnouncementsConfig",
     "authentication.apps.AuthConfig",
     "challenge.apps.ChallengeConfig",
     "andromeda.apps.AndromedaConfig",
