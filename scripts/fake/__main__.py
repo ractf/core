@@ -41,7 +41,7 @@ db_indexes = {}
 try:
     for table in TABLE_NAMES:
         cursor.execute(
-            f"SELECT indexname, indexdef FROM pg_indexes" f"WHERE tablename='{table}' AND indexname != '{table}_pkey';"
+            f"SELECT indexname, indexdef FROM pg_indexes WHERE tablename='{table}' AND indexname != '{table}_pkey';"
         )
         indexes = cursor.fetchall()
 
