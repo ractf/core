@@ -55,6 +55,7 @@ python_files = "tests.py test_*.py *_tests.py"
 filterwarnings = """
 ignore::django.utils.deprecation.RemovedInDjango40Warning
 ignore::django.utils.deprecation.RemovedInDjango41Warning
+ignore:Using or importing the ABCs.*:DeprecationWarning
 """
 
 [tool.coverage.run]
