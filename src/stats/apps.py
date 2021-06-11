@@ -1,4 +1,4 @@
-"""App for statistics api endpoints"""
+"""App for statistics api endpoints."""
 import sys
 from importlib import import_module
 
@@ -10,7 +10,7 @@ import team
 
 
 class StatsConfig(AppConfig):
-    """App config for the stats app"""
+    """App config for the stats app."""
     name = "stats"
 
     def ready(self):

@@ -1,4 +1,4 @@
-"""URL Routes for the stats app"""
+"""URL Routes for the stats app."""
 
 from django.urls import path
 

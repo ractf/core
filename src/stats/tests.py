@@ -1,4 +1,4 @@
-"""Tests for the stats app"""
+"""Tests for the stats app."""
 
 from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
@@ -11,15 +11,15 @@ from team.models import Team
 
 
 class CountdownTestCase(APITestCase):
-    """Tests for the /stats/countdown/ api route"""
+    """Tests for the /stats/countdown/ api route."""
 
     def test_unauthed(self) -> None:
-        """Test an unauthenticated user can GET the view"""
+        """Test an unauthenticated user can GET the view."""
         response = self.client.get(reverse("countdown"))
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed(self) -> None:
-        """Test an authenticated user can GET the view"""
+        """Test an authenticated user can GET the view."""
         user = get_user_model()(username="countdown-test", email="countdown-test@example.org")
         user.save()
         self.client.force_authenticate(user)
@@ -28,15 +28,15 @@ class CountdownTestCase(APITestCase):
 
 
 class StatsTestCase(APITestCase):
-    """Tests for the /stats/stats/ api route"""
+    """Tests for the /stats/stats/ api route."""
 
     def test_unauthed(self):
-        """Test an unauthenticated user can GET the view"""
+        """Test an unauthenticated user can GET the view."""
         response = self.client.get(reverse("stats"))
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed(self):
-        """Test an authenticated user can GET the view"""
+        """Test an authenticated user can GET the view."""
         user = get_user_model()(username="stats-test", email="stats-test@example.org")
         user.save()
         self.client.force_authenticate(user)
@@ -44,7 +44,7 @@ class StatsTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_team_average(self):
-        """Test the average team member calculation works"""
+        """Test the average team member calculation works."""
         user = get_user_model()(username="stats-test", email="stats-test@example.org")
         user.save()
 
@@ -59,12 +59,12 @@ class FullStatsTestCase(APITestCase):
     """Tests the /stats/full/ endpoint"""
 
     def test_unauthed(self):
-        """Test an unauthenticated user cannot access the endpoint"""
+        """Test an unauthenticated user cannot access the endpoint."""
         response = self.client.get(reverse("full"))
         self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_authed_non_privileged(self):
-        """Test an authenticated, but unprivileged, user cannot access the endpoint"""
+        """Test an authenticated, but unprivileged, user cannot access the endpoint."""
         user = get_user_model()(username="stats-test", email="stats-test@example.org")
         user.save()
         self.client.force_authenticate(user)
@@ -72,7 +72,7 @@ class FullStatsTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_authed_privileged(self):
-        """Test an authenticated and privileged user can access the endpoint"""
+        """Test an authenticated and privileged user can access the endpoint."""
         user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
         user.save()
         self.client.force_authenticate(user)
@@ -80,7 +80,7 @@ class FullStatsTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_team_point_distribution(self):
-        """Test the team point distribution is correctly calculated"""
+        """Test the team point distribution is correctly calculated."""
         user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
         user.save()
 
@@ -100,7 +100,7 @@ class FullStatsTestCase(APITestCase):
         self.assertEqual(response.data["d"]["team_point_distribution"][5], 1)
 
     def test_challenge_data(self):
-        """Test the solve statistics are correctly calculated"""
+        """Test the solve statistics are correctly calculated."""
         user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
         user.save()
 
@@ -131,15 +131,15 @@ class FullStatsTestCase(APITestCase):
 
 
 class CommitTestCase(APITestCase):
-    """Tests the /stats/version/ endpoint"""
+    """Tests the /stats/version/ endpoint."""
 
     def test_unauthed(self):
-        """Test an unauthenticated user cannot get the commit hash"""
+        """Test an unauthenticated user cannot get the commit hash."""
         response = self.client.get(reverse("version"))
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_authed(self):
-        """Test an authenticated but unprivileged user cannot get the commit hash"""
+        """Test an authenticated but unprivileged user cannot get the commit hash."""
         user = get_user_model()(username="commit-test", email="commit-test@example.org")
         user.save()
         self.client.force_authenticate(user)
@@ -147,7 +147,7 @@ class CommitTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_authed_admin(self):
-        """Test a staff user cannot get the commit hash"""
+        """Test a staff user cannot get the commit hash."""
         user = get_user_model()(username="commit-test2", email="commit-test2@example.org", is_staff=True)
         user.save()
         self.client.force_authenticate(user)
@@ -156,15 +156,15 @@ class CommitTestCase(APITestCase):
 
 
 class PrometheusTestCase(APITestCase):
-    """Tests the /stats/prometheus endpoint"""
+    """Tests the /stats/prometheus endpoint."""
 
     def test_unauthed(self):
-        """Test an unauthenticated user cannot access the endpoint"""
+        """Test an unauthenticated user cannot access the endpoint."""
         response = self.client.get(reverse("prometheus"))
         self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_authed(self):
-        """Test an authenticated user cannot access the endpoint"""
+        """Test an authenticated user cannot access the endpoint."""
         user = get_user_model()(username="prometheus-test", email="prometheus-test@example.org")
         user.save()
         self.client.force_authenticate(user)
@@ -172,7 +172,7 @@ class PrometheusTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_authed_admin(self):
-        """Test an authenticated admin user can access the endpoint"""
+        """Test an authenticated admin user can access the endpoint."""
         user = get_user_model()(
             username="prometheus-test-admin",
             email="prometheus-test-admin@example.org",
