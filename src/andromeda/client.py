@@ -45,7 +45,7 @@ def list_jobs():
 
 
 def restart_job(job_id):
-    """Restarts a job with a given uuid"""
+    """Restarts a job with a given uuid."""
     try:
         UUID(job_id)
     except ValueError:
@@ -59,7 +59,7 @@ def list_instances():
 
 
 def sysinfo():
-    """Gets the current system info of the andromeda host."""
+    """Get the current system info of the andromeda host."""
     return get("sysinfo")
 
 
