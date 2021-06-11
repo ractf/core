@@ -38,8 +38,18 @@ dev-server:
 	docker-compose build && \
 	docker-compose up -d
 
+dev-server-attach:
+	docker-compose build && \
+	docker-compose up
+
 dev-test: dev-server
 	docker-compose exec backend pytest --cov=src src
+
+dev-server-logs: dev-server
+	docker-compose logs -f
+
+dev-server-down:
+	docker-compose down
 
 fake-data:
 	python -m scripts/fake generate $(ARGS)

@@ -37,7 +37,7 @@ services:
       - DOMAIN=localhost
       - FRONTEND_URL=http://localhost:8000/
       - SECRET_KEY=CorrectHorseBatteryStaple
-      - DJANGO_SETTINGS_MODULE=backend.settings.local
+      - DJANGO_SETTINGS_MODULE=core.settings.local
 
       - ANDROMEDA_IP=andromeda
       - ANDROMEDA_URL=http://andromeda:6000
@@ -58,7 +58,7 @@ services:
   sockets:
     <<: *backend
     entrypoint: /app/entrypoints/sockets.sh
-    command: gunicorn -w 12 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker core.asgi:application
+    command: gunicorn -w 1 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker core.asgi:application --chdir src
     depends_on:
       - backend
 
