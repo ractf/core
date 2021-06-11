@@ -87,6 +87,7 @@ def full(request):
 
 
 @api_view(["GET"])
+@permission_classes((IsAdminUser,))
 def version(request):
     return FormattedResponse({"commit_hash": os.popen("git rev-parse HEAD").read().strip()})
 
