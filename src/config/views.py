@@ -1,3 +1,5 @@
+"""API endpoints to manage the backend config."""
+
 from rest_framework.status import (
     HTTP_201_CREATED,
     HTTP_204_NO_CONTENT,
@@ -12,10 +14,13 @@ from core.response import FormattedResponse
 
 
 class ConfigView(APIView):
+    """APIView to handle config."""
+
     throttle_scope = "config"
     permission_classes = (AdminOrAnonymousReadOnly,)
 
     def get(self, request, name=None):
+        """Return the whole config, or a specific key if the user has permissions to see it."""
         if name is None:
             if request.user.is_staff:
                 return FormattedResponse(config.get_all())
@@ -25,12 +30,14 @@ class ConfigView(APIView):
         return FormattedResponse(status=HTTP_403_FORBIDDEN)
 
     def post(self, request, name):
+        """Create or update a config key."""
         if "value" not in request.data:
             return FormattedResponse(status=HTTP_400_BAD_REQUEST)
         config.set(name, request.data.get("value"))
         return FormattedResponse(status=HTTP_201_CREATED)
 
     def patch(self, request, name):
+        """Create or update a config key."""
         if "value" not in request.data:
             return FormattedResponse(status=HTTP_400_BAD_REQUEST)
         if config.get(name) is not None and isinstance(config.get(name), list):
