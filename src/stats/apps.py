@@ -1,3 +1,4 @@
+"""App for statistics api endpoints"""
 import sys
 from importlib import import_module
 
@@ -9,11 +10,11 @@ import team
 
 
 class StatsConfig(AppConfig):
+    """App config for the stats app"""
     name = "stats"
 
     def ready(self):
         """Logic for adding extra prometheus statistics."""
-
         if "migrate" in sys.argv or "makemigrations" in sys.argv:  # pragma: no cover
             # Don't run stats-related logic if we haven't migrated yet
             return
