@@ -216,6 +216,7 @@ class ChallengeFeedbackSerializer(serializers.ModelSerializer):
 
     class Meta:
         """The fields of the challenge feedback to serialize."""
+
         model = ChallengeFeedback
         fields = ["id", "challenge", "feedback", "user"]
 
@@ -225,6 +226,7 @@ class CreateCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         """The fields of the challenge that should be serialized."""
+
         model = Category
         fields = ["id", "name", "contained_type", "description", "release_time", "metadata"]
         read_only_fields = ["id"]
@@ -286,6 +288,7 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
 
     class Meta:
         """The fields of the challenge model that should me serialized."""
+
         model = Challenge
         fields = [
             "id",
@@ -336,7 +339,7 @@ class FastAdminCategorySerializer(serpy.Serializer):
     challenges = serpy.MethodField()
 
     def __init__(self, *args, **kwargs):
-        """Construct the serializer and setup the context"""
+        """Construct the serializer and setup the context."""
         super().__init__(*args, **kwargs)
         if "context" in kwargs:
             self.context = kwargs["context"]
@@ -352,6 +355,7 @@ class AdminScoreSerializer(serializers.ModelSerializer):
 
     class Meta:
         """The fields of the score model that should me serialized."""
+
         model = Score
         fields = ["team", "user", "reason", "points", "penalty", "leaderboard", "timestamp", "metadata"]
 
@@ -367,6 +371,7 @@ class SolveSerializer(serializers.ModelSerializer):
 
     class Meta:
         """The fields of the solve model that should me serialized."""
+
         model = Solve
         fields = [
             "id",
@@ -406,5 +411,6 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         """Which classes and fields should be serialized for each Tag."""
+
         model = Tag
         fields = ["id", "challenge", "text", "type", "post_competition"]
