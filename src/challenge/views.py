@@ -218,7 +218,7 @@ class ChallengeFeedbackView(APIView):
     permission_classes = (IsAuthenticated & HasTeam & ReadOnlyBot,)
 
     def get(self, request):
-        """Return the user's challenge feedback, unless the user is an admin, then return all the challenge feedback,"""
+        """Return the user's challenge feedback, unless the user is an admin, then return all the challenge feedback."""
         challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
         feedback = ChallengeFeedback.objects.filter(challenge=challenge)
         if request.user.is_staff:
