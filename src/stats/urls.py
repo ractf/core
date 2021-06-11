@@ -1,3 +1,5 @@
+"""URL Routes for the stats app"""
+
 from django.urls import path
 
 from stats import views
