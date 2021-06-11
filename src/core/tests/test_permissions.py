@@ -1,8 +1,14 @@
+from django.contrib.auth.models import AnonymousUser
 from django.http import HttpRequest
 from rest_framework.request import Request
 from rest_framework.test import APITestCase
 
-from core.permissions import AdminOrReadOnly, AdminOrReadOnlyVisible, ReadOnlyBot
+from core.permissions import (
+    AdminOrAnonymousReadOnly,
+    AdminOrReadOnly,
+    AdminOrReadOnlyVisible,
+    ReadOnlyBot,
+)
 from member.models import Member
 
 
@@ -85,3 +91,25 @@ class AdminOrReadOnlyTestCase(PermissionTestMixin, APITestCase):
         request = self.create_request("POST")
         request.user = Member(username="permission-test", email="permission-test@gmail.com")
         self.assertFalse(AdminOrReadOnly().has_permission(request, None))
+
+
+class AdminOrAnonymousReadOnlyTestCase(PermissionTestMixin, APITestCase):
+    def test_admin_safe(self):
+        request = self.create_request("GET")
+        request.user = Member(username="permission-test", email="permission-test@gmail.com", is_staff=True)
+        self.assertTrue(AdminOrAnonymousReadOnly().has_permission(request, None))
+
+    def test_admin_unsafe(self):
+        request = self.create_request("POST")
+        request.user = Member(username="permission-test", email="permission-test@gmail.com", is_staff=True)
+        self.assertTrue(AdminOrAnonymousReadOnly().has_permission(request, None))
+
+    def test_anonymous_safe(self):
+        request = self.create_request("GET")
+        request.user = AnonymousUser()
+        self.assertTrue(AdminOrAnonymousReadOnly().has_permission(request, None))
+
+    def test_anonymous_unsafe(self):
+        request = self.create_request("POST")
+        request.user = AnonymousUser()
+        self.assertFalse(AdminOrAnonymousReadOnly().has_permission(request, None))
