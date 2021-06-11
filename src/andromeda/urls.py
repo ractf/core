@@ -1,3 +1,5 @@
+"""URL routes for the andromeda integration."""
+
 from django.urls import path
 
 from andromeda import views
