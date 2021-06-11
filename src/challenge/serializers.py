@@ -17,7 +17,7 @@ from hint.serializers import FastHintSerializer
 
 
 def setup_context(context):
-    """Adds required information such as solve counts to a challenge serialization context."""
+    """Add required information such as solve counts to a challenge serialization context."""
     context.update(
         {
             "request": context["request"],
@@ -41,7 +41,7 @@ class ForeignAttributeField(serpy.Field):
     """A :class:`Field` that gets a given attribute from a foreign object."""
 
     def __init__(self, *args, attr_name="id", **kwargs):
-        """Constructs the field and sets the attr_name field."""
+        """Construct the field and set the attr_name field."""
         super(ForeignAttributeField, self).__init__(*args, **kwargs)
         self.attr_name = attr_name
 
