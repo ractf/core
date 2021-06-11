@@ -1,4 +1,4 @@
-"""Serializers for the andromeda integration"""
+"""Serializers for the andromeda integration."""
 
 from rest_framework import serializers
 
