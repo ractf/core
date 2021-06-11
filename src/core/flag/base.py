@@ -1,6 +1,6 @@
 import abc
 
-from plugins.base import Plugin
+from core.base import Plugin
 
 
 class FlagPlugin(Plugin, abc.ABC):

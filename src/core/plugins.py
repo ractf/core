@@ -3,7 +3,7 @@ import logging
 from collections import defaultdict
 from pydoc import locate
 
-from plugins.base import Plugin
+from core.base import Plugin
 
 logger = logging.getLogger(__name__)
 
@@ -20,4 +20,4 @@ def load_plugins(plugin_list):
                     continue
                 if issubclass(obj, Plugin):
                     plugins[obj.plugin_type][obj.name] = obj
-                    logger.info(f"Loaded {obj.plugin_type} plugin: {obj.name}({plugin})")
+                    print(f"Loaded {obj.plugin_type} plugin: {obj.name}({plugin})")

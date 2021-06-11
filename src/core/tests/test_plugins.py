@@ -4,13 +4,13 @@ from rest_framework.test import APITestCase
 from challenge.models import Category, Challenge, Score, Solve
 from challenge.tests.mixins import ChallengeSetupMixin
 from config import config
-from plugins import plugins
-from plugins.flag.hashed import HashedFlagPlugin
-from plugins.flag.lenient import LenientFlagPlugin
-from plugins.flag.plaintext import PlaintextFlagPlugin
-from plugins.flag.regex import RegexFlagPlugin
-from plugins.points.basic import BasicPointsPlugin
-from plugins.points.decay import DecayPointsPlugin
+from core import plugins
+from core.flag.hashed import HashedFlagPlugin
+from core.flag.lenient import LenientFlagPlugin
+from core.flag.plaintext import PlaintextFlagPlugin
+from core.flag.regex import RegexFlagPlugin
+from core.points.basic import BasicPointsPlugin
+from core.points.decay import DecayPointsPlugin
 from team.models import Team
 
 
@@ -244,11 +244,13 @@ class DecayPointsPluginTestCase(ChallengeSetupMixin, APITestCase):
 
 
 class PluginLoaderTestCase(APITestCase):
-    def test_plugin_loader(self):
+    def test_plugin_loader_points(self):
         plugins.load_plugins(["plugins.tests"])
-        # TODO: why is this loading 5
-        # self.assertEqual(len(plugins.plugins['flag']), 4)
         self.assertEqual(len(plugins.plugins["points"]), 2)
+
+    def test_plugin_loader_flag(self):
+        plugins.load_plugins(["plugins.tests"])
+        self.assertEqual(len(plugins.plugins["flag"]), 6)
 
 
 class BasePluginTest(ChallengeSetupMixin, APITestCase):

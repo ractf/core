@@ -1,4 +1,4 @@
-from plugins.apps import PluginConfig
+from core.apps import PluginConfig
 
 
 class AuthConfig(PluginConfig):

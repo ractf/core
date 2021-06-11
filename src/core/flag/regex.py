@@ -1,6 +1,6 @@
 import re
 
-from plugins.flag.base import FlagPlugin
+from core.flag.base import FlagPlugin
 
 
 class RegexFlagPlugin(FlagPlugin):

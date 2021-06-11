@@ -15,10 +15,10 @@ from rest_framework.status import (
 
 from authentication.models import InviteCode, PasswordResetToken
 from config import config
+from core import providers
 from core.exceptions import FormattedException
 from core.mail import send_email
 from core.signals import register
-from plugins import providers
 from team.models import Team
 
 

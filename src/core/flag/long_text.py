@@ -1,6 +1,6 @@
 import string
 
-from plugins.flag.base import FlagPlugin
+from core.flag.base import FlagPlugin
 
 WHITELIST = string.ascii_lowercase + string.ascii_uppercase
 

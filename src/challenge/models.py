@@ -24,7 +24,7 @@ from django.utils.functional import cached_property
 from django_prometheus.models import ExportModelOperationsMixin
 
 from config import config
-from plugins import plugins
+from core import plugins
 
 USING_POSTGRES = settings.DATABASES.get("default", {}).get("ENGINE", "").endswith("postgresql")
 

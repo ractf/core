@@ -6,8 +6,8 @@ from django.utils import timezone
 
 from challenge.models import Score, Solve
 from config import config
+from core.base import Plugin
 from hint.models import HintUse
-from plugins.base import Plugin
 
 
 class PointsPlugin(Plugin, abc.ABC):

@@ -30,6 +30,7 @@ from authentication.serializers import (
     InviteCodeSerializer,
     RegistrationSerializer,
 )
+from core import providers
 from core.mail import send_email
 from core.permissions import IsBot, IsSudo
 from core.response import FormattedResponse
@@ -45,7 +46,6 @@ from core.signals import (
     verify_2fa,
 )
 from core.viewsets import AdminListModelViewSet
-from plugins import providers
 from team.models import Team
 
 hide_password = method_decorator(

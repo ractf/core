@@ -5,7 +5,7 @@ from django.core.validators import EmailValidator
 from rest_framework.exceptions import ValidationError
 
 from config import config
-from plugins.providers import Provider
+from core.providers import Provider
 
 
 class RegistrationProvider(Provider, abc.ABC):  # pragma: no cover

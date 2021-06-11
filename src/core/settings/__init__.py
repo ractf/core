@@ -97,7 +97,6 @@ INSTALLED_APPS = [
     "leaderboard.apps.LeaderboardConfig",
     "member.apps.MemberConfig",
     "pages.apps.PagesConfig",
-    "plugins.apps.PluginsConfig",
     "scorerecalculator.apps.ScorerecalculatorConfig",
     "team.apps.TeamConfig",
     "sockets.apps.SocketsConfig",
@@ -290,14 +289,14 @@ else:
     ANDROMEDA_SERVER_IP = os.getenv("ANDROMEDA_IP")  # shown to participants
 
 INSTALLED_PLUGINS = [
-    "plugins.flag.hashed",
-    "plugins.flag.plaintext",
-    "plugins.flag.regex",
-    "plugins.flag.lenient",
-    "plugins.flag.long_text",
-    "plugins.flag.map",
-    "plugins.points.basic",
-    "plugins.points.decay",
+    "core.flag.hashed",
+    "core.flag.plaintext",
+    "core.flag.regex",
+    "core.flag.lenient",
+    "core.flag.long_text",
+    "core.flag.map",
+    "core.points.basic",
+    "core.points.decay",
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True

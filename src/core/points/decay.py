@@ -3,7 +3,7 @@ from django.db.models import F
 
 import team
 from challenge.models import Score
-from plugins.points.base import PointsPlugin
+from core.points.base import PointsPlugin
 
 
 class DecayPointsPlugin(PointsPlugin):

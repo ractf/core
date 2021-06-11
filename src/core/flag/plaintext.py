@@ -1,5 +1,5 @@
 from config import config
-from plugins.flag.base import FlagPlugin
+from core.flag.base import FlagPlugin
 
 
 class PlaintextFlagPlugin(FlagPlugin):

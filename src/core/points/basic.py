@@ -1,4 +1,4 @@
-from plugins.points.base import PointsPlugin
+from core.points.base import PointsPlugin
 
 
 class BasicPointsPlugin(PointsPlugin):
