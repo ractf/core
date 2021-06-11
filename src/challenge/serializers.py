@@ -1,3 +1,5 @@
+"""Serializers for the challenge app."""
+
 import serpy
 from rest_framework import serializers
 
@@ -15,6 +17,7 @@ from hint.serializers import FastHintSerializer
 
 
 def setup_context(context):
+    """Adds required information such as solve counts to a challenge serialization context."""
     context.update(
         {
             "request": context["request"],
@@ -38,10 +41,12 @@ class ForeignAttributeField(serpy.Field):
     """A :class:`Field` that gets a given attribute from a foreign object."""
 
     def __init__(self, *args, attr_name="id", **kwargs):
+        """Constructs the field and sets the attr_name field."""
         super(ForeignAttributeField, self).__init__(*args, **kwargs)
         self.attr_name = attr_name
 
     def to_value(self, value):
+        """Get the value of this field or None."""
         if value:
             return getattr(value, self.attr_name)
         return None
@@ -51,16 +56,22 @@ class DateTimeField(serpy.Field):
     """A :class:`Field` that transforms a datetime into ISO string."""
 
     def to_value(self, value):
+        """Get the value in iso format."""
         return value.isoformat()
 
 
 class FileSerializer(serializers.ModelSerializer):
+    """A serializer for files."""
+
     class Meta:
+        """The fields that should be serialized."""
         model = File
         fields = ["id", "name", "url", "size", "challenge", "md5"]
 
 
 class FastFileSerializer(serpy.Serializer):
+    """A serializer for files that uses serpy for compatibility with other serializers."""
+
     id = serpy.IntField()
     name = serpy.StrField()
     url = serpy.StrField()
@@ -70,34 +81,43 @@ class FastFileSerializer(serpy.Serializer):
 
 
 class FastNestedTagSerializer(serpy.Serializer):
+    """A serializer for challenge tags."""
     text = serpy.StrField()
     type = serpy.StrField()
 
 
 class ChallengeSerializerMixin:
+    """Utility functions for challenge serializers."""
+
     def get_unlocked(self, instance):
+        """Return if the challenge is unlocked."""
         if not getattr(instance, "unlocked", None):
             return instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None))
         return instance.unlocked
 
     def get_solved(self, instance):
+        """Return if the challenge is solved."""
         if not getattr(instance, "solved", None):
             return instance.is_solved(self.context["request"].user, solves=self.context.get("solves", None))
         return instance.solved
 
     def get_solve_count(self, instance):
+        """Return the solve count of the challenge."""
         return instance.get_solve_count(self.context.get("solve_counter", None))
 
     def get_unlock_time_surpassed(self, instance):
+        """Return if the challenge unlock time is passed, and the challenge can be shown."""
         return instance.unlock_time_surpassed
 
     def get_votes(self, instance):
+        """Return the challenge votes."""
         return {
             "positive": self.context["votes_positive_counter"].get(instance.id, 0),
             "negative": self.context["votes_negative_counter"].get(instance.id, 0),
         }
 
     def get_post_score_explanation(self, instance):
+        """Return the challenge explanation, or none if the explanation is not available to the user."""
         if self.get_unlocked(instance):
             return instance.post_score_explanation
         return None
