@@ -92,7 +92,6 @@ INSTALLED_APPS = [
     "challenge.apps.ChallengeConfig",
     "andromeda.apps.AndromedaConfig",
     "config.apps.ConfigConfig",
-    "experiments.apps.ExperimentsConfig",
     "hint.apps.HintConfig",
     "leaderboard.apps.LeaderboardConfig",
     "member.apps.MemberConfig",

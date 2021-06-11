@@ -94,3 +94,10 @@ class BadFlagConfigTestCase(APITestCase):
 
         response = self.client.get(reverse("self-check"))
         self.assertEqual(len(response.data["d"]), 14)
+
+
+class ExperimentsTestCase(APITestCase):
+    def test_experiments(self):
+        with self.settings(EXPERIMENT_OVERRIDES={"test": True}):
+            response = self.client.get(reverse("experiments"))
+            self.assertEqual(response.data["d"]["test"], True)

@@ -23,3 +23,10 @@ class SelfCheckView(APIView):
             issues += challenge.self_check()
 
         return FormattedResponse(issues)
+
+
+class ExperimentView(APIView):
+    throttle_scope = "config"
+
+    def get(self, request):
+        return FormattedResponse(settings.EXPERIMENT_OVERRIDES)

@@ -33,8 +33,8 @@ urlpatterns = [
     path("stats/", include("stats.urls")),
     path("team/", include("team.urls")),
     path("pages/", include("pages.urls")),
-    path("experiments/", include("experiments.urls")),
     path("self_check/", views.SelfCheckView.as_view(), name="self-check"),
+    path("experiments/", views.ExperimentView.as_view(), name="experiments"),
 ]
 
 urlpatterns = [
