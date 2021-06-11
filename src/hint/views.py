@@ -1,3 +1,5 @@
+"""API routes for the hint app."""
+
 from django.core.cache import caches
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -22,6 +24,8 @@ from team.permissions import HasTeam
 
 
 class HintViewSet(AdminCreateModelViewSet):
+    """Viewset for managing and viewing hints."""
+
     queryset = Hint.objects.all()
     permission_classes = (HasUsedHint,)
     throttle_scope = "hint"
@@ -32,10 +36,13 @@ class HintViewSet(AdminCreateModelViewSet):
 
 
 class UseHintView(APIView):
+    """API endpoint for redeeming hints."""
+
     permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,)
     throttle_scope = "use_hint"
 
     def post(self, request):
+        """Redeem a hint and return the content."""
         serializer = UseHintSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         hint_id = serializer.validated_data["id"]
