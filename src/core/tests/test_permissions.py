@@ -20,18 +20,6 @@ class PermissionTestMixin:
         return request
 
 
-class ReadOnlyBotTestCase(PermissionTestMixin, APITestCase):
-    def test_is_bot_safe_method(self) -> None:
-        request = self.create_request("GET")
-        request.user = Member(username="bot-test", email="bot-test@gmail.com", is_bot=True)
-        self.assertTrue(ReadOnlyBot().has_permission(request, None))
-
-    def test_is_bot_unsafe_method(self) -> None:
-        request = self.create_request("POST")
-        request.user = Member(username="bot-test", email="bot-test@gmail.com", is_bot=True)
-        self.assertFalse(ReadOnlyBot().has_permission(request, None))
-
-
 class AdminOrReadOnlyVisibleTestCase(PermissionTestMixin, APITestCase):
     def test_admin_safe(self) -> None:
         request = self.create_request("GET")
@@ -126,3 +114,15 @@ class IsBotTestCase(PermissionTestMixin, APITestCase):
         request = self.create_request("GET")
         request.user = Member(username="bot-test", email="bot-test@gmail.com")
         self.assertFalse(IsBot().has_permission(request, None))
+
+
+class ReadOnlyBotTestCase(PermissionTestMixin, APITestCase):
+    def test_is_bot_safe_method(self) -> None:
+        request = self.create_request("GET")
+        request.user = Member(username="bot-test", email="bot-test@gmail.com", is_bot=True)
+        self.assertTrue(ReadOnlyBot().has_permission(request, None))
+
+    def test_is_bot_unsafe_method(self) -> None:
+        request = self.create_request("POST")
+        request.user = Member(username="bot-test", email="bot-test@gmail.com", is_bot=True)
+        self.assertFalse(ReadOnlyBot().has_permission(request, None))
