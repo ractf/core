@@ -56,7 +56,7 @@ class StatsTestCase(APITestCase):
 
 
 class FullStatsTestCase(APITestCase):
-    """Tests the /stats/full/ endpoint"""
+    """Tests the /stats/full/ endpoint."""
 
     def test_unauthed(self):
         """Test an unauthenticated user cannot access the endpoint."""
