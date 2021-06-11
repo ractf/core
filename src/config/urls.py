@@ -1,3 +1,5 @@
+"""URL routes for the config app."""
+
 from django.urls import path
 
 from config import views
