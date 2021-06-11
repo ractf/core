@@ -1,5 +1,7 @@
+"""Database models used by the challenge app."""
+
 import time
-from typing import Optional, Union
+from typing import Union
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
@@ -31,6 +33,8 @@ USING_POSTGRES = settings.DATABASES.get("default", {}).get("ENGINE", "").endswit
 
 
 class Category(ExportModelOperationsMixin("category"), models.Model):
+    """Represents a category containing 0 or more challenges."""
+
     name = models.CharField(max_length=36, unique=True)
     display_order = models.IntegerField()
     contained_type = models.CharField(max_length=36)
@@ -40,6 +44,8 @@ class Category(ExportModelOperationsMixin("category"), models.Model):
 
 
 class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
+    """Represents a challenge object."""
+
     name = models.CharField(max_length=36, unique=True)
     category = models.ForeignKey("challenge.Category", on_delete=PROTECT, related_name="category_challenges")
     description = models.TextField()
@@ -105,10 +111,12 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         return self.pk in solves
 
     def get_solve_count(self, solve_counter):
+        """Return the solve count of this challenge."""
         return solve_counter.get(self.pk, 0)
 
     @classmethod
     def get_unlocked_annotated_queryset(cls, user):
+        """Get a queryset of all challenges, annotated with if they're unlocked and solved."""
         if user.is_staff and user.should_deny_admin():
             return Challenge.objects.none()
         if user.team is not None:
@@ -162,18 +170,24 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
 
 
 class ChallengeVote(ExportModelOperationsMixin("challenge_vote"), models.Model):
+    """Represents a user's vote on a Challenge."""
+
     challenge = models.ForeignKey("challenge.Challenge", on_delete=CASCADE, related_name="votes")
     user = models.ForeignKey("member.Member", on_delete=CASCADE)
     positive = models.BooleanField()
 
 
 class ChallengeFeedback(ExportModelOperationsMixin("challenge_feedback"), models.Model):
+    """Represents a user's feedback on a Challenge."""
+
     challenge = models.ForeignKey("challenge.Challenge", on_delete=CASCADE)
     user = models.ForeignKey("member.Member", on_delete=CASCADE)
     feedback = models.TextField()
 
 
 class Score(ExportModelOperationsMixin("score"), models.Model):
+    """Represents a score contributing to a team and/or user's points."""
+
     team = models.ForeignKey("team.Team", related_name="scores", on_delete=CASCADE, null=True)
     user = models.ForeignKey("member.Member", related_name="scores", on_delete=SET_NULL, null=True)
     reason = models.CharField(max_length=64)
@@ -185,6 +199,8 @@ class Score(ExportModelOperationsMixin("score"), models.Model):
 
 
 class Solve(ExportModelOperationsMixin("solve"), models.Model):
+    """Represents a user and team's solve of a challenge."""
+
     team = models.ForeignKey("team.Team", related_name="solves", on_delete=CASCADE, null=True)
     challenge = models.ForeignKey("challenge.Challenge", related_name="solves", on_delete=CASCADE)
     solved_by = models.ForeignKey("member.Member", related_name="solves", on_delete=SET_NULL, null=True)
@@ -195,6 +211,8 @@ class Solve(ExportModelOperationsMixin("solve"), models.Model):
     score = models.ForeignKey("challenge.Score", related_name="solve", on_delete=CASCADE, null=True)
 
     class Meta:
+        """The constraints and indexes on the model."""
+
         constraints = [
             UniqueConstraint(
                 fields=["team", "challenge"],
@@ -211,6 +229,8 @@ class Solve(ExportModelOperationsMixin("solve"), models.Model):
 
 
 class File(ExportModelOperationsMixin("file"), models.Model):
+    """Represents a file attached to a challenge."""
+
     name = models.CharField(max_length=64)
     url = models.URLField()
     size = models.PositiveBigIntegerField()
@@ -220,6 +240,8 @@ class File(ExportModelOperationsMixin("file"), models.Model):
 
 
 class Tag(ExportModelOperationsMixin("tag"), models.Model):
+    """Represents a tag on a challenge."""
+
     challenge = models.ForeignKey("challenge.Challenge", on_delete=CASCADE)
     text = models.CharField(max_length=255)
     type = models.CharField(max_length=255)
