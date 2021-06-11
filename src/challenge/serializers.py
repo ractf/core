@@ -126,6 +126,8 @@ class ChallengeSerializerMixin:
 
 
 class FastLockedChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
+    """Serializer used to serialize locked challenges."""
+
     id = serpy.IntField()
     unlock_requirements = serpy.StrField()
     challenge_metadata = serpy.DictSerializer()
@@ -134,10 +136,13 @@ class FastLockedChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     unlock_time_surpassed = serpy.MethodField()
 
     def serialize(self, instance):
+        """Serialize the challenge."""
         return self._serialize(instance, self._compiled_fields)
 
 
 class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
+    """The serpy serializer used to serialize challenges."""
+
     id = serpy.IntField()
     name = serpy.StrField()
     description = serpy.StrField()
@@ -167,6 +172,7 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
             setup_context(self.context)
 
     def _serialize(self, instance, fields):
+        """Serialize a challenge."""
         if (
             instance.is_unlocked_by(self.context["request"].user, solves=self.context.get("solves", None))
             and not instance.hidden
@@ -177,6 +183,8 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
 
 
 class FastCategorySerializer(serpy.Serializer):
+    """The serpy serializer used to serialize categories."""
+
     id = serpy.IntField()
     name = serpy.StrField()
     display_order = serpy.StrField()
@@ -186,36 +194,49 @@ class FastCategorySerializer(serpy.Serializer):
     challenges = serpy.MethodField()
 
     class Meta:
+        """The fields of the category to serialize."""
+
         model = Category
         fields = ["id", "name", "display_order", "contained_type", "description", "metadata", "challenges"]
 
     def __init__(self, *args, **kwargs):
+        """Construct the serializer and setup the context."""
         super().__init__(*args, **kwargs)
         if "context" in kwargs:
             self.context = kwargs["context"]
             setup_context(self.context)
 
     def get_challenges(self, instance):
+        """Serialize the challenges of a category."""
         return FastChallengeSerializer(instance.challenges, many=True, context=self.context).data
 
 
 class ChallengeFeedbackSerializer(serializers.ModelSerializer):
+    """Serializer used to serialize challenge feedback."""
+
     class Meta:
+        """The fields of the challenge feedback to serialize."""
         model = ChallengeFeedback
         fields = ["id", "challenge", "feedback", "user"]
 
 
 class CreateCategorySerializer(serializers.ModelSerializer):
+    """Serializer used to create a category."""
+
     class Meta:
+        """The fields of the challenge that should be serialized."""
         model = Category
         fields = ["id", "name", "contained_type", "description", "release_time", "metadata"]
         read_only_fields = ["id"]
 
     def create(self, validated_data):
+        """Create a challenge and save it in the database."""
         return Category.objects.create(**validated_data, display_order=Category.objects.count())
 
 
 class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
+    """Serpy serializer used to serialize challenges for admins."""
+
     id = serpy.IntField()
     name = serpy.StrField()
     description = serpy.StrField()
@@ -238,6 +259,7 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     post_score_explanation = serpy.StrField()
 
     def __init__(self, *args, **kwargs):
+        """Construct the serializer and setup the context."""
         super(FastAdminChallengeSerializer, self).__init__(*args, **kwargs)
         if "context" in kwargs:
             self.context = kwargs["context"]
@@ -245,20 +267,25 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
                 setup_context(self.context)
 
     def serialize(self, instance):
+        """Serialize a single challenge."""
         return super(
             FastAdminChallengeSerializer, FastAdminChallengeSerializer(instance, context=self.context)
         ).to_value(instance)
 
     def to_value(self, instance):
+        """Serialize a challenge or a list of challenges."""
         if self.many:
             return [self.serialize(o) for o in instance]
         return self.serialize(instance)
 
 
 class CreateChallengeSerializer(serializers.ModelSerializer):
+    """Serializer used when an admin creates a challenge."""
+
     tags = serializers.ListField(write_only=True)
 
     class Meta:
+        """The fields of the challenge model that should me serialized."""
         model = Challenge
         fields = [
             "id",
@@ -280,6 +307,7 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
     def create(self, validated_data):
+        """Create a challenge instance."""
         tags = validated_data.pop("tags", [])
         challenge = Challenge.objects.create(**validated_data)
         for tag_data in tags:
@@ -287,6 +315,7 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
         return challenge
 
     def update(self, instance, validated_data):
+        """Update a challenge instance."""
         tags = validated_data.pop("tags", None)
         if tags:
             Tag.objects.filter(challenge=instance).delete()
@@ -296,6 +325,8 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
 
 
 class FastAdminCategorySerializer(serpy.Serializer):
+    """Serializer for Categories used when admins access the endpoint."""
+
     id = serpy.IntField()
     name = serpy.StrField()
     display_order = serpy.StrField()
@@ -305,22 +336,29 @@ class FastAdminCategorySerializer(serpy.Serializer):
     challenges = serpy.MethodField()
 
     def __init__(self, *args, **kwargs):
+        """Construct the serializer and setup the context"""
         super().__init__(*args, **kwargs)
         if "context" in kwargs:
             self.context = kwargs["context"]
             setup_context(self.context)
 
     def get_challenges(self, instance):
+        """Return a seralized list of all challenges for this category."""
         return FastAdminChallengeSerializer(instance.challenges, many=True, context=self.context).data
 
 
 class AdminScoreSerializer(serializers.ModelSerializer):
+    """Serializer for Solve objects, used for creating or modifying solves."""
+
     class Meta:
+        """The fields of the score model that should me serialized."""
         model = Score
         fields = ["team", "user", "reason", "points", "penalty", "leaderboard", "timestamp", "metadata"]
 
 
 class SolveSerializer(serializers.ModelSerializer):
+    """Serializer for Solve objects."""
+
     team_name = serializers.ReadOnlyField(source="team.name")
     solved_by_name = serializers.ReadOnlyField(source="solved_by.username")
     challenge_name = serializers.ReadOnlyField(source="challenge.name")
@@ -328,6 +366,7 @@ class SolveSerializer(serializers.ModelSerializer):
     scored = serializers.SerializerMethodField()
 
     class Meta:
+        """The fields of the solve model that should me serialized."""
         model = Solve
         fields = [
             "id",
@@ -344,22 +383,28 @@ class SolveSerializer(serializers.ModelSerializer):
         ]
 
     def to_representation(self, instance):
+        """Serialize the solve if it is correct, else return None."""
         if instance.correct:
             return super(SolveSerializer, self).to_representation(instance)
         return None
 
     def get_points(self, instance):
+        """Return how many points the solve is worth after penalties."""
         if instance.correct and instance.score is not None:
             return instance.score.points - instance.score.penalty
         return 0
 
     def get_scored(self, instance):
+        """Return True if the solve should count towards a users displayed leaderboard points."""
         if instance.correct and instance.score is not None:
             return instance.score.leaderboard
         return False
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """Serializer for Tag objects."""
+
     class Meta:
+        """Which classes and fields should be serialized for each Tag."""
         model = Tag
         fields = ["id", "challenge", "text", "type", "post_competition"]
