@@ -1,3 +1,5 @@
+"""Views for the stats app."""
+
 import os
 from datetime import datetime, timezone
 
@@ -20,6 +22,7 @@ from team.models import Team
 
 @api_view(["GET"])
 def countdown(request):
+    """View to show the countdown for when registration opens, the event starts, and the event ends."""
     return FormattedResponse(
         {
             "countdown_timestamp": config.get("start_time"),
@@ -32,6 +35,7 @@ def countdown(request):
 
 @api_view(["GET"])
 def stats(request):
+    """View to display some stats about the event."""
     users = get_user_model().objects.count()
     teams = Team.objects.count()
     if users > 0 and teams > 0:
@@ -56,6 +60,7 @@ def stats(request):
 @api_view(["GET"])
 @permission_classes([IsAdminUser])
 def full(request):
+    """View to display full statistics to event admins."""
     challenge_data = {}
     correct_solve_counts = get_solve_counts()
     incorrect_solve_counts = get_incorrect_solve_counts()
@@ -89,13 +94,17 @@ def full(request):
 @api_view(["GET"])
 @permission_classes((IsAdminUser,))
 def version(request):
+    """Get the current commit hash."""
     return FormattedResponse({"commit_hash": os.popen("git rev-parse HEAD").read().strip()})
 
 
 class PrometheusMetricsView(APIView):
+    """API endpoints related to prometheus."""
+
     permission_classes = [IsAdminUser]
 
     def get(self, request, format=None):
+        """Get displayable statistics."""
         member_count.set(cache.get("member_count"))
         team_count.set(cache.get("team_count"))
         solve_count.set(cache.get("solve_count"))
