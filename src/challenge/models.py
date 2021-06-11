@@ -1,7 +1,8 @@
 import time
+from typing import Optional, Union
+from django.contrib.auth.models import AnonymousUser
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.postgres.indexes import BrinIndex
 from django.db import models
 from django.db.models import (
@@ -17,14 +18,12 @@ from django.db.models import (
 )
 from django.db.models.aggregates import Count
 from django.db.models.query import Prefetch
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django_prometheus.models import ExportModelOperationsMixin
 
-import member.models
-from challenge.logic import get_file_path
+from challenge.logic import evaluate_rpn, get_file_path
+from member.models import Member
 from config import config
 from core import plugins
 
@@ -92,39 +91,17 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         """Return the points plugin responsible for granting points from this challenge"""
         return plugins.plugins["points"][self.points_type](self)
 
-    def is_unlocked(self, user: "member.models.Member", solves=None):
+    def is_unlocked_by(self, user: Union[Member, AnonymousUser, None], solves=None) -> bool:
+        """Check if the provided user has unlocked this challenge."""
         if user is None or not user.is_authenticated or not user.team:
             return False
-        if not self.unlock_requirements:
-            return True
-        if solves is None:
-            solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
-        requirements = self.unlock_requirements
-        state = []
-        if not requirements:
-            return True
-        for requirement in requirements.split():
-            if requirement.isdigit():
-                state.append(int(requirement) in solves)
-            elif requirement == "OR":
-                if len(state) >= 2:
-                    a, b = state.pop(), state.pop()
-                    state.append(a or b)
-            elif requirement == "AND":
-                if len(state) >= 2:
-                    a, b = state.pop(), state.pop()
-                    state.append(a and b)
-        if not state:
-            return False
-        return state[0]
+        return evaluate_rpn(self.unlock_requirements, solves or user.team.solved_challenges)
 
-    def is_solved(self, user, solves=None):
-        if not user.is_authenticated:
+    def is_solved_by(self, user, solves=None) -> bool:
+        """Return True if the provided user has solved this challenge."""
+        if not user.is_authenticated or user.team is None:
             return False
-        if user.team is None:
-            return False
-        if solves is None:
-            solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
+        solves = solves or user.team.solved_challenges
         return self.pk in solves
 
     def get_solve_count(self, solve_counter):
@@ -194,11 +171,6 @@ class ChallengeFeedback(ExportModelOperationsMixin("challenge_feedback"), models
     challenge = models.ForeignKey("challenge.Challenge", on_delete=CASCADE)
     user = models.ForeignKey("member.Member", on_delete=CASCADE)
     feedback = models.TextField()
-
-
-@receiver(post_save, sender=Challenge)
-def on_challenge_update(sender, instance, created, **kwargs):
-    ...
 
 
 class Score(ExportModelOperationsMixin("score"), models.Model):

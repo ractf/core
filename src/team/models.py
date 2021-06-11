@@ -1,13 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import CICharField
 from django.db import models, transaction
-from django.db.models import CASCADE, Prefetch
 from django.utils import timezone
 from django_prometheus.models import ExportModelOperationsMixin
 
-from challenge.models import Solve
+from challenge.models import Challenge, Solve
 from core.validators import printable_name
-from member.models import Member
 
 
 class TeamQuerySet(models.QuerySet):
@@ -18,16 +16,12 @@ class TeamQuerySet(models.QuerySet):
         return self.filter(is_visible=True)
 
     def ranked(self) -> "models.QuerySet[Team]":
-        """
-        Return a QuerySet of teams ordered how they should be displayed on frontend.
-
-        First by points, then by how long they've been at that amount of points.
-        """
+        """Return a QuerySet of teams ordered by how they should be displayed."""
         return self.order_by("-leaderboard_points", "last_score")
 
     def prefetch_solves(self) -> "models.QuerySet[Team]":
         """Prefetch this team's correct solves."""
-        return self.prefetch_related(Prefetch("solves", queryset=Solve.objects.filter(correct=True)))
+        return self.prefetch_related(models.Prefetch("solves", queryset=Solve.objects.filter(correct=True)))
 
 
 class Team(ExportModelOperationsMixin("team"), models.Model):
@@ -36,7 +30,7 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
     name = CICharField(max_length=36, unique=True, validators=[printable_name])
     is_visible = models.BooleanField(default=True)
     password = models.CharField(max_length=64)
-    owner = models.ForeignKey("member.Member", on_delete=CASCADE, related_name="owned_team")
+    owner = models.ForeignKey("member.Member", on_delete=models.CASCADE, related_name="owned_team")
     description = models.TextField(blank=True, max_length=400)
     points = models.IntegerField(default=0)
     leaderboard_points = models.IntegerField(default=0)
@@ -44,6 +38,10 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
     size_limit_exempt = models.BooleanField(default=False)
 
     objects = TeamQuerySet.as_manager()
+
+    @property
+    def solved_challenges(self) -> "models.QuerySet[Challenge]":
+        return self.solves.filter(correct=True).values_list("challenge", flat=True)
 
     def recalculate_score(self):
         """Recalculate the score for this team and all its users and implicity save."""
