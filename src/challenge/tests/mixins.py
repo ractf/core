@@ -1,3 +1,5 @@
+"""Mixins for challenge tests."""
+
 from typing import Optional, Union
 
 from challenge.models import Category, Challenge
