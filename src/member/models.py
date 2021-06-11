@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
+from challenge.models import Score
 from config import config
 from core.validators import printable_name
 
@@ -69,6 +70,17 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
 
     def should_deny_admin(self):
         return config.get("enable_force_admin_2fa") and not self.has_2fa()
+
+    def recalculate_score(self):
+        """Recalculate the score for this user and implicity save."""
+        self.points = 0
+        self.leaderboard_points = 0
+        scores = Score.objects.filter(user=self)
+        for score in scores:
+            if score.leaderboard:
+                self.leaderboard_points += score.points - score.penalty
+            self.points += score.points - score.penalty
+        self.save()
 
 
 class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):

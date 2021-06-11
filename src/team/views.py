@@ -1,11 +1,12 @@
 from django.http import Http404
 from rest_framework import filters
+from rest_framework.decorators import action
 from rest_framework.generics import (
     CreateAPIView,
     RetrieveUpdateAPIView,
     get_object_or_404,
 )
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_403_FORBIDDEN,
@@ -91,6 +92,12 @@ class TeamViewSet(AdminListModelViewSet):
                 "solves__solved_by",
             )
         )
+
+    @action(detail=True, methods=["POST"], permission_classes=[IsAdminUser])
+    def recalculate_score(self, request, pk=None):
+        team = self.get_object()
+        team.recalculate_score()
+        team.save()
 
 
 class CreateTeamView(CreateAPIView):

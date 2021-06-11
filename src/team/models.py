@@ -1,5 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import CICharField
-from django.db import models
+from django.db import models, transaction
 from django.db.models import CASCADE, Prefetch
 from django.utils import timezone
 from django_prometheus.models import ExportModelOperationsMixin
@@ -43,3 +44,15 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
     size_limit_exempt = models.BooleanField(default=False)
 
     objects = TeamQuerySet.as_manager()
+
+    def recalculate_score(self):
+        """Recalculate the score for this team and all its users and implicity save."""
+        self.points = 0
+        self.leaderboard_points = 0
+        for user_unsafe in self.members.all():
+            with transaction.atomic():
+                user = get_user_model().objects.select_for_update().get(id=user_unsafe.id)
+                user.recalculate_score()
+                self.points += user.points
+                self.leaderboard_points += user.leaderboard_points
+        self.save()
