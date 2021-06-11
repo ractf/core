@@ -65,6 +65,7 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         """The fields that should be serialized."""
+
         model = File
         fields = ["id", "name", "url", "size", "challenge", "md5"]
 
@@ -82,6 +83,7 @@ class FastFileSerializer(serpy.Serializer):
 
 class FastNestedTagSerializer(serpy.Serializer):
     """A serializer for challenge tags."""
+
     text = serpy.StrField()
     type = serpy.StrField()
 

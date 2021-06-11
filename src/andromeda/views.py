@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView
 
 from andromeda import client
-from andromeda.serializers import JobSubmitSerializer, JobSubmitRawSerializer
+from andromeda.serializers import JobSubmitRawSerializer, JobSubmitSerializer
 from challenge.models import Challenge
 from core.response import FormattedResponse
 

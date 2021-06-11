@@ -136,7 +136,7 @@ class CommitTestCase(APITestCase):
     def test_unauthed(self):
         """Test an unauthenticated user cannot get the commit hash."""
         response = self.client.get(reverse("version"))
-        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_authed(self):
         """Test an authenticated but unprivileged user cannot get the commit hash."""
@@ -147,12 +147,12 @@ class CommitTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_authed_admin(self):
-        """Test a staff user cannot get the commit hash."""
+        """Test a staff user can get the commit hash."""
         user = get_user_model()(username="commit-test2", email="commit-test2@example.org", is_staff=True)
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("version"))
-        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, HTTP_200_OK)
 
 
 class PrometheusTestCase(APITestCase):
