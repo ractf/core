@@ -41,7 +41,7 @@ class MemberTestCase(APITestCase):
             reverse("member-self"), data={"email": "test-self2@example.org", "username": "test-self"}
         )
         self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(get_user_model().objects.get(id=self.user.id).email, "test-self2@example.org")
+        self.assertEqual(get_user_model().objects.get(id=self.user.pk).email, "test-self2@example.org")
 
     def test_self_change_email_invalid(self):
         self.client.force_authenticate(self.user)
@@ -52,7 +52,7 @@ class MemberTestCase(APITestCase):
         ev_token = self.user.email_token
         self.client.force_authenticate(self.user)
         self.client.put(reverse("member-self"), data={"email": "test-self3@example.org"})
-        user = get_user_model().objects.get(id=self.user.id)
+        user = get_user_model().objects.get(id=self.user.pk)
         self.assertNotEqual(ev_token, user.email_token)
 
     def test_self_get_email(self):
@@ -69,14 +69,14 @@ class MemberTestCase(APITestCase):
         config.set("enable_teams", False)
         self.client.put(reverse("member-self"), data={"username": "test-self2", "email": "test-self@example.org"})
         config.set("enable_teams", True)
-        self.assertEqual(Team.objects.get(id=team.id).name, "test-self2")
+        self.assertEqual(Team.objects.get(id=team.pk).name, "test-self2")
 
     def test_self_change_username_no_team(self):
         self.client.force_authenticate(self.user)
         config.set("enable_teams", False)
         self.client.put(reverse("member-self"), data={"username": "test-self2", "email": "test-self@example.org"})
         config.set("enable_teams", True)
-        self.assertEqual(get_user_model().objects.get(id=self.user.id).username, "test-self2")
+        self.assertEqual(get_user_model().objects.get(id=self.user.pk).username, "test-self2")
 
 
 class MemberViewSetTestCase(APITestCase):
@@ -110,7 +110,7 @@ class MemberViewSetTestCase(APITestCase):
         user.is_visible = False
         user.save()
         self.client.force_authenticate(self.admin_user)
-        response = self.client.get(reverse("member-detail", kwargs={"pk": user.id}))
+        response = self.client.get(reverse("member-detail", kwargs={"pk": user.pk}))
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_visible_detail_not_admin(self):
@@ -118,24 +118,24 @@ class MemberViewSetTestCase(APITestCase):
         user.is_visible = False
         user.save()
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse("member-detail", kwargs={"pk": user.id}))
+        response = self.client.get(reverse("member-detail", kwargs={"pk": user.pk}))
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_view_email_admin(self):
         self.client.force_authenticate(self.admin_user)
-        response = self.client.get(reverse("member-detail", kwargs={"pk": self.user.id}))
+        response = self.client.get(reverse("member-detail", kwargs={"pk": self.user.pk}))
         self.assertTrue("email" in response.data)
 
     def test_view_email_not_admin(self):
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse("member-detail", kwargs={"pk": self.admin_user.id}))
+        response = self.client.get(reverse("member-detail", kwargs={"pk": self.admin_user.pk}))
         self.assertFalse("email" in response.data)
 
     def test_view_member(self):
         self.admin_user.is_visible = True
         self.admin_user.save()
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse("member-detail", kwargs={"pk": self.admin_user.id}))
+        response = self.client.get(reverse("member-detail", kwargs={"pk": self.admin_user.pk}))
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_patch_member(self):
@@ -143,7 +143,7 @@ class MemberViewSetTestCase(APITestCase):
         self.admin_user.save()
         self.client.force_authenticate(self.user)
         response = self.client.patch(
-            reverse("member-detail", kwargs={"pk": self.admin_user.id}),
+            reverse("member-detail", kwargs={"pk": self.admin_user.pk}),
             data={"username": "test"},
         )
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
@@ -151,7 +151,7 @@ class MemberViewSetTestCase(APITestCase):
     def test_patch_member_admin(self):
         self.client.force_authenticate(self.admin_user)
         response = self.client.patch(
-            reverse("member-detail", kwargs={"pk": self.user.id}),
+            reverse("member-detail", kwargs={"pk": self.user.pk}),
             data={"username": "test"},
         )
         self.assertEqual(response.status_code, HTTP_200_OK)

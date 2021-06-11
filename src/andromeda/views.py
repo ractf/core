@@ -18,7 +18,7 @@ class GetInstanceView(APIView):
 
     def get(self, request, job_id):
         """Given a job id, return an instance of the relevant challenge for this user."""
-        return FormattedResponse(client.get_instance(request.user.id, job_id))
+        return FormattedResponse(client.get_instance(request.user.pk, job_id))
 
 
 class ResetInstanceView(APIView):
@@ -29,7 +29,7 @@ class ResetInstanceView(APIView):
 
     def get(self, request, job_id):
         """Given a job id, return a new instance of the relevant challenge for this user."""
-        return FormattedResponse(client.request_reset(request.user.id, job_id))
+        return FormattedResponse(client.request_reset(request.user.pk, job_id))
 
 
 class ListJobsView(APIView):

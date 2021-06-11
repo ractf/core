@@ -6,7 +6,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from core.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
 from core.viewsets import AdminListModelViewSet
-from member.models import UserIP
+from member.models import Member, UserIP
 from member.serializers import (
     AdminMemberSerializer,
     ListMemberSerializer,
@@ -40,7 +40,7 @@ class SelfView(RetrieveUpdateAPIView):
                 "solves__score__team",
             )
             .distinct()
-            .get(id=self.request.user.id)
+            .get(id=self.request.user.pk)
         )
 
 

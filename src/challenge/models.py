@@ -23,6 +23,8 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django_prometheus.models import ExportModelOperationsMixin
 
+import member.models
+from challenge.logic import get_file_path
 from config import config
 from core import plugins
 
@@ -40,7 +42,7 @@ class Category(ExportModelOperationsMixin("category"), models.Model):
 
 class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     name = models.CharField(max_length=36, unique=True)
-    category = models.ForeignKey(Category, on_delete=PROTECT, related_name="category_challenges")
+    category = models.ForeignKey("challenge.Category", on_delete=PROTECT, related_name="category_challenges")
     description = models.TextField()
     challenge_type = models.CharField(max_length=64)
     challenge_metadata = JSONField()
@@ -52,7 +54,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     score = models.IntegerField()
     unlock_requirements = models.CharField(max_length=255, null=True, blank=True)
     first_blood = models.ForeignKey(
-        get_user_model(),
+        "member.Member",
         related_name="first_bloods",
         on_delete=SET_NULL,
         null=True,
@@ -66,15 +68,15 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         issues = []
 
         if not self.score:
-            issues.append({"issue": "missing_points", "challenge": self.id})
+            issues.append({"issue": "missing_points", "challenge": self.pk})
 
         if not self.flag_type:
-            issues.append({"issue": "missing_flag_type", "challenge": self.id})
+            issues.append({"issue": "missing_flag_type", "challenge": self.pk})
         elif type(self.flag_metadata) != dict:
-            issues.append({"issue": "invalid_flag_data_type", "challenge": self.id})
+            issues.append({"issue": "invalid_flag_data_type", "challenge": self.pk})
         else:
             issues += [
-                {"issue": "invalid_flag_data", "extra": issue, "challenge": self.id}
+                {"issue": "invalid_flag_data", "extra": issue, "challenge": self.pk}
                 for issue in self.flag_plugin.self_check()
             ]
 
@@ -90,29 +92,25 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         """Return the points plugin responsible for granting points from this challenge"""
         return plugins.plugins["points"][self.points_type](self)
 
-    def is_unlocked(self, user, solves=None):
-        if user is None:
-            return False
-        if not user.is_authenticated:
+    def is_unlocked(self, user: "member.models.Member", solves=None):
+        if user is None or not user.is_authenticated or not user.team:
             return False
         if not self.unlock_requirements:
             return True
-        if user.team is None:
-            return False
         if solves is None:
             solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
         requirements = self.unlock_requirements
         state = []
         if not requirements:
             return True
-        for i in requirements.split():
-            if i.isdigit():
-                state.append(int(i) in solves)
-            elif i == "OR":
+        for requirement in requirements.split():
+            if requirement.isdigit():
+                state.append(int(requirement) in solves)
+            elif requirement == "OR":
                 if len(state) >= 2:
                     a, b = state.pop(), state.pop()
                     state.append(a or b)
-            elif i == "AND":
+            elif requirement == "AND":
                 if len(state) >= 2:
                     a, b = state.pop(), state.pop()
                     state.append(a and b)
@@ -127,10 +125,10 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             return False
         if solves is None:
             solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
-        return self.id in solves
+        return self.pk in solves
 
     def get_solve_count(self, solve_counter):
-        return solve_counter.get(self.id, 0)
+        return solve_counter.get(self.pk, 0)
 
     @classmethod
     def get_unlocked_annotated_queryset(cls, user):
@@ -187,14 +185,14 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
 
 
 class ChallengeVote(ExportModelOperationsMixin("challenge_vote"), models.Model):
-    challenge = models.ForeignKey(Challenge, on_delete=CASCADE, related_name="votes")
-    user = models.ForeignKey(get_user_model(), on_delete=CASCADE)
+    challenge = models.ForeignKey("challenge.Challenge", on_delete=CASCADE, related_name="votes")
+    user = models.ForeignKey("member.Member", on_delete=CASCADE)
     positive = models.BooleanField()
 
 
 class ChallengeFeedback(ExportModelOperationsMixin("challenge_feedback"), models.Model):
-    challenge = models.ForeignKey(Challenge, on_delete=CASCADE)
-    user = models.ForeignKey(get_user_model(), on_delete=CASCADE)
+    challenge = models.ForeignKey("challenge.Challenge", on_delete=CASCADE)
+    user = models.ForeignKey("member.Member", on_delete=CASCADE)
     feedback = models.TextField()
 
 
@@ -205,7 +203,7 @@ def on_challenge_update(sender, instance, created, **kwargs):
 
 class Score(ExportModelOperationsMixin("score"), models.Model):
     team = models.ForeignKey("team.Team", related_name="scores", on_delete=CASCADE, null=True)
-    user = models.ForeignKey(get_user_model(), related_name="scores", on_delete=SET_NULL, null=True)
+    user = models.ForeignKey("member.Member", related_name="scores", on_delete=SET_NULL, null=True)
     reason = models.CharField(max_length=64)
     points = models.IntegerField()
     penalty = models.IntegerField(default=0)
@@ -216,13 +214,13 @@ class Score(ExportModelOperationsMixin("score"), models.Model):
 
 class Solve(ExportModelOperationsMixin("solve"), models.Model):
     team = models.ForeignKey("team.Team", related_name="solves", on_delete=CASCADE, null=True)
-    challenge = models.ForeignKey(Challenge, related_name="solves", on_delete=CASCADE)
-    solved_by = models.ForeignKey(get_user_model(), related_name="solves", on_delete=SET_NULL, null=True)
+    challenge = models.ForeignKey("challenge.Challenge", related_name="solves", on_delete=CASCADE)
+    solved_by = models.ForeignKey("member.Member", related_name="solves", on_delete=SET_NULL, null=True)
     first_blood = models.BooleanField(default=False)
     correct = models.BooleanField(default=True)
     timestamp = models.DateTimeField(default=timezone.now)
     flag = models.TextField()
-    score = models.ForeignKey(Score, related_name="solve", on_delete=CASCADE, null=True)
+    score = models.ForeignKey("challenge.Score", related_name="solve", on_delete=CASCADE, null=True)
 
     class Meta:
         constraints = [
@@ -240,21 +238,17 @@ class Solve(ExportModelOperationsMixin("solve"), models.Model):
         indexes = [BrinIndex(fields=["challenge"], autosummarize=True)] if USING_POSTGRES else []
 
 
-def get_file_name(instance, filename):
-    return f"{instance.challenge.id}/{instance.md5}/{filename}"
-
-
 class File(ExportModelOperationsMixin("file"), models.Model):
     name = models.CharField(max_length=64)
     url = models.URLField()
     size = models.PositiveBigIntegerField()
-    upload = models.FileField(upload_to=get_file_name, null=True)
-    challenge = models.ForeignKey(Challenge, on_delete=CASCADE, related_name="file_set")
+    upload = models.FileField(upload_to=get_file_path, null=True)
+    challenge = models.ForeignKey("challenge.Challenge", on_delete=CASCADE, related_name="file_set")
     md5 = models.CharField(max_length=32, null=True)
 
 
 class Tag(ExportModelOperationsMixin("tag"), models.Model):
-    challenge = models.ForeignKey(Challenge, on_delete=CASCADE)
+    challenge = models.ForeignKey("challenge.Challenge", on_delete=CASCADE)
     text = models.CharField(max_length=255)
     type = models.CharField(max_length=255)
     post_competition = models.BooleanField(default=False)

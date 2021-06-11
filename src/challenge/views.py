@@ -61,7 +61,7 @@ def get_cache_key(user):
     if user.team is None:
         return str(caches["default"].get("challenge_mod_index", 0)) + "categoryvs_no_team"
     else:
-        return str(caches["default"].get("challenge_mod_index", 0)) + "categoryvs_team_" + str(user.team.id)
+        return str(caches["default"].get("challenge_mod_index", 0)) + "categoryvs_team_" + str(user.team.pk)
 
 
 class CategoryViewset(AdminCreateModelViewSet):
@@ -277,8 +277,8 @@ class FlagSubmitView(APIView):
 
         # This is done in an atomic block to avoid a user racing this endpoint to score the same flag multiple times.
         with transaction.atomic():
-            team = Team.objects.select_for_update().get(id=request.user.team.id)
-            user = get_user_model().objects.select_for_update().get(id=request.user.id)
+            team = Team.objects.select_for_update().get(id=request.user.team.pk)
+            user = get_user_model().objects.select_for_update().get(id=request.user.pk)
             flag = request.data.get("flag")
             challenge_id = request.data.get("challenge")
             if not flag or not challenge_id:
@@ -340,8 +340,8 @@ class FlagCheckView(APIView):
             not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")
         ):
             return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
-        team = Team.objects.get(id=request.user.team.id)
-        user = get_user_model().objects.get(id=request.user.id)
+        team = Team.objects.get(id=request.user.team.pk)
+        user = get_user_model().objects.get(id=request.user.pk)
         flag = request.data.get("flag")
         challenge_id = request.data.get("challenge")
         if not flag or not challenge_id:

@@ -13,10 +13,10 @@ from team.models import Team
 
 class Token(ExportModelOperationsMixin("token"), models.Model):
     key = models.CharField(max_length=40, primary_key=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="tokens", on_delete=models.CASCADE)
+    user = models.ForeignKey("member.Member", related_name="tokens", on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+        "member.Member",
         related_name="owned_tokens",
         on_delete=models.CASCADE,
         blank=True,
@@ -42,7 +42,7 @@ class InviteCode(ExportModelOperationsMixin("invite_code"), models.Model):
     uses = models.IntegerField(default=0)
     max_uses = models.IntegerField()
     fully_used = models.BooleanField(default=False)
-    auto_team = models.ForeignKey(Team, on_delete=models.CASCADE, null=True)
+    auto_team = models.ForeignKey("team.Team", on_delete=models.CASCADE, null=True)
 
 
 def one_day():
@@ -50,14 +50,14 @@ def one_day():
 
 
 class PasswordResetToken(ExportModelOperationsMixin("password_reset_token"), models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey("member.Member", on_delete=models.CASCADE)
     token = models.CharField(max_length=255)
     issued = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(default=one_day)
 
 
 class BackupCode(ExportModelOperationsMixin("backup_code"), models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="backup_codes", on_delete=models.CASCADE)
+    user = models.ForeignKey("member.Member", related_name="backup_codes", on_delete=models.CASCADE)
     code = models.CharField(max_length=8)
 
     class Meta:
@@ -73,7 +73,7 @@ class BackupCode(ExportModelOperationsMixin("backup_code"), models.Model):
 
 class TOTPDevice(ExportModelOperationsMixin("totp_device"), models.Model):
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
+        "member.Member",
         related_name="totp_device",
         on_delete=models.CASCADE,
         null=True,

@@ -11,7 +11,6 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
-from challenge.models import Score
 from config import config
 from core.validators import printable_name
 
@@ -75,8 +74,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         """Recalculate the score for this user and implicity save."""
         self.points = 0
         self.leaderboard_points = 0
-        scores = Score.objects.filter(user=self)
-        for score in scores:
+        for score in self.scores:
             if score.leaderboard:
                 self.leaderboard_points += score.points - score.penalty
             self.points += score.points - score.penalty
@@ -84,7 +82,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
 
 
 class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):
-    user = models.ForeignKey(get_user_model(), on_delete=SET_NULL, null=True)
+    user = models.ForeignKey("member.Member", on_delete=SET_NULL, null=True)
     ip = models.CharField(max_length=255)
     seen = models.IntegerField(default=1)
     last_seen = models.DateTimeField(default=timezone.now)

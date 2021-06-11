@@ -204,7 +204,7 @@ class SudoTestCase(APITestCase):
         user2.save()
 
         self.client.force_authenticate(user)
-        req = self.client.post(reverse("sudo"), {"id": user2.id})
+        req = self.client.post(reverse("sudo"), {"id": user2.pk})
         self.assertEqual(req.status_code, HTTP_200_OK)
 
 
@@ -226,7 +226,7 @@ class GenerateInvitesTestCase(APITestCase):
         user.save()
         self.client.force_authenticate(user=user)
         team = Team.objects.create(owner=user, name=user.username, password="123123")
-        response = self.client.post(reverse("generate-invites"), {"amount": 15, "auto_team": team.id, "max_uses": 1})
+        response = self.client.post(reverse("generate-invites"), {"amount": 15, "auto_team": team.pk, "max_uses": 1})
         self.assertEqual(len(response.data["d"]["invite_codes"]), 15)
 
     def test_invites_viewset(self):
@@ -327,7 +327,7 @@ class InviteRequiredRegistrationTestCase(APITestCase):
             "invite": "test4",
         }
         self.client.post(reverse("register"), data)
-        self.assertEqual(get_user_model().objects.get(username="user12").team.id, self.team.id)
+        self.assertEqual(get_user_model().objects.get(username="user12").team.pk, self.team.pk)
 
 
 class LogoutTestCase(APITestCase):
@@ -606,37 +606,37 @@ class TFATestCase(APITestCase):
     def test_remove_2fa(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse("add-2fa"))
-        totp_device = get_user_model().objects.get(id=self.user.id).totp_device
+        totp_device = get_user_model().objects.get(id=self.user.pk).totp_device
         totp_device.verified = True
         totp_device.save()
-        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
+        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.pk))
         response = self.client.post(reverse("remove-2fa"), data={"otp": pyotp.TOTP(totp_device.totp_secret).now()})
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_remove_2fa_fail(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse("add-2fa"))
-        totp_device = get_user_model().objects.get(id=self.user.id).totp_device
+        totp_device = get_user_model().objects.get(id=self.user.pk).totp_device
         totp_device.verified = True
         totp_device.save()
-        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
+        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.pk))
         response = self.client.post(reverse("remove-2fa"), data={"otp": "invalid_otp"})
         self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_remove_2fa_removes_2fa(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse("add-2fa"))
-        totp_device = get_user_model().objects.get(id=self.user.id).totp_device
+        totp_device = get_user_model().objects.get(id=self.user.pk).totp_device
         totp_device.verified = True
         totp_device.save()
-        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
+        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.pk))
         self.client.post(reverse("remove-2fa"), data={"otp": pyotp.TOTP(totp_device.totp_secret).now()})
-        self.assertFalse(get_user_model().objects.get(id=self.user.id).has_2fa())
+        self.assertFalse(get_user_model().objects.get(id=self.user.pk).has_2fa())
 
     def test_remove_2fa_no_2fa(self):
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse("add-2fa"))
-        user = get_user_model().objects.get(id=self.user.id)
+        user = get_user_model().objects.get(id=self.user.pk)
         user.totp_device = None
         user.save()
         response = self.client.post(reverse("remove-2fa"))
@@ -672,7 +672,7 @@ class DoPasswordResetTestCase(APITestCase):
 
     def test_password_reset(self):
         data = {
-            "uid": self.user.id,
+            "uid": self.user.pk,
             "token": "testtoken",
             "password": "uO7*$E@0ngqL",
         }
@@ -681,7 +681,7 @@ class DoPasswordResetTestCase(APITestCase):
 
     def test_password_reset_issues_token(self):
         data = {
-            "uid": self.user.id,
+            "uid": self.user.pk,
             "token": "testtoken",
             "password": "uO7*$E@0ngqL",
         }
@@ -690,7 +690,7 @@ class DoPasswordResetTestCase(APITestCase):
 
     def test_password_reset_bad_token(self):
         data = {
-            "uid": self.user.id,
+            "uid": self.user.pk,
             "token": "abc",
             "password": "uO7*$E@0ngqL",
         }
@@ -699,7 +699,7 @@ class DoPasswordResetTestCase(APITestCase):
 
     def test_password_reset_weak_password(self):
         data = {
-            "uid": self.user.id,
+            "uid": self.user.pk,
             "token": "testtoken",
             "password": "password",
         }
@@ -709,7 +709,7 @@ class DoPasswordResetTestCase(APITestCase):
     def test_password_reset_login_disabled(self):
         config.set("enable_login", False)
         data = {
-            "uid": self.user.id,
+            "uid": self.user.pk,
             "token": "testtoken",
             "password": "uO7*$E@0ngqL",
         }
@@ -721,7 +721,7 @@ class DoPasswordResetTestCase(APITestCase):
     def test_password_reset_cant_login_yet(self, obj):
         config.set("enable_prelogin", False)
         data = {
-            "uid": self.user.id,
+            "uid": self.user.pk,
             "token": "testtoken",
             "password": "uO7*$E@0ngqL",
         }
@@ -740,7 +740,7 @@ class VerifyEmailTestCase(APITestCase):
 
     def test_email_verify(self):
         data = {
-            "uid": self.user.id,
+            "uid": self.user.pk,
             "token": self.user.email_token,
         }
         response = self.client.post(reverse("verify-email"), data)
@@ -758,7 +758,7 @@ class VerifyEmailTestCase(APITestCase):
         config.set("enable_login", False)
 
         data = {
-            "uid": self.user.id,
+            "uid": self.user.pk,
             "token": self.user.email_token,
         }
         response = self.client.post(reverse("verify-email"), data)
@@ -767,7 +767,7 @@ class VerifyEmailTestCase(APITestCase):
 
     def test_email_verify_twice(self):
         data = {
-            "uid": self.user.id,
+            "uid": self.user.pk,
             "token": self.user.email_token,
         }
         response = self.client.post(reverse("verify-email"), data)
@@ -776,7 +776,7 @@ class VerifyEmailTestCase(APITestCase):
 
     def test_email_verify_bad_token(self):
         data = {
-            "uid": self.user.id,
+            "uid": self.user.pk,
             "token": "abc",
         }
         response = self.client.post(reverse("verify-email"), data)
@@ -846,10 +846,10 @@ class RegerateBackupCodesTestCase(APITestCase):
         self.assertFalse(set(first_response.data["d"]["backup_codes"]) & set(second_response.data["d"]["backup_codes"]))
 
     def test_regenerate_backup_codes_no_2fa(self):
-        user = get_user_model().objects.get(id=self.user.id)
+        user = get_user_model().objects.get(id=self.user.pk)
         user.totp_device.delete()
         user.save()
-        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.id))
+        self.client.force_authenticate(user=get_user_model().objects.get(id=self.user.pk))
         response = self.client.post(reverse("regenerate-backup-codes"))
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 

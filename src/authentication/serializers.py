@@ -84,7 +84,7 @@ class RegistrationSerializer(serializers.Serializer):
                     user.email,
                     "RACTF - Verify your email",
                     "verify",
-                    url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token),
+                    url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.pk, user.email_token),
                 )
             except SMTPException:  # pragma: no cover - prod error handling
                 # Whilst the API can resend verification emails,

@@ -6,9 +6,9 @@ from django.db import migrations
 def migrate_unlocks(apps, schema_editor):
     Challenge = apps.get_model("challenge", "Challenge")
     for chall in Challenge.objects.all():
-        unlocked_by = Challenge.objects.filter(unlocks__id__exact=chall.id).all()
+        unlocked_by = Challenge.objects.filter(unlocks__id__exact=chall.pk).all()
         chall.unlock_requirements = ' '.join(
-            [str(i.id) for i in unlocked_by] + ["OR" for _ in range(len(unlocked_by)-1)]
+            [str(i.pk) for i in unlocked_by] + ["OR" for _ in range(len(unlocked_by)-1)]
         )
         chall.save()
 

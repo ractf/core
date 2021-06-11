@@ -14,7 +14,7 @@ def recalculate_team(team):
     team.leaderboard_points = 0
     for user_unsafe in team.members.all():
         with transaction.atomic():
-            user = get_user_model().objects.select_for_update().get(id=user_unsafe.id)
+            user = get_user_model().objects.select_for_update().get(id=user_unsafe.pk)
             recalculate_user(user)
             team.points += user.points
             team.leaderboard_points += user.leaderboard_points

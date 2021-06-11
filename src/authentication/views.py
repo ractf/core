@@ -196,7 +196,7 @@ class RequestPasswordResetView(APIView):
             user = get_user_model().objects.get(email=email, email_verified=True)
             token = PasswordResetToken(user=user, token=secrets.token_hex())
             token.save()
-            uid = user.id
+            uid = user.pk
             token = token.token
             password_reset_start.send(sender=self.__class__, user=user)
         except get_user_model().DoesNotExist:
@@ -286,7 +286,7 @@ class ResendEmailView(GenericAPIView):
             user.email,
             "RACTF - Verify your email",
             "verify",
-            url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token),
+            url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.pk, user.email_token),
         )
         return FormattedResponse("email_resent")
 

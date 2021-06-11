@@ -34,4 +34,4 @@ class EventConsumer(AsyncJsonWebsocketConsumer):
         if "token" in data:
             team = await sync_to_async(self.get_team)(data["token"])
             if team is not None:
-                await self.channel_layer.group_add(f"team.{team.id}", self.channel_name)
+                await self.channel_layer.group_add(f"team.{team.pk}", self.channel_name)

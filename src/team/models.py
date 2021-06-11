@@ -36,7 +36,7 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
     name = CICharField(max_length=36, unique=True, validators=[printable_name])
     is_visible = models.BooleanField(default=True)
     password = models.CharField(max_length=64)
-    owner = models.ForeignKey(Member, on_delete=CASCADE, related_name="owned_team")
+    owner = models.ForeignKey("member.Member", on_delete=CASCADE, related_name="owned_team")
     description = models.TextField(blank=True, max_length=400)
     points = models.IntegerField(default=0)
     leaderboard_points = models.IntegerField(default=0)
@@ -51,7 +51,7 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
         self.leaderboard_points = 0
         for user_unsafe in self.members.all():
             with transaction.atomic():
-                user = get_user_model().objects.select_for_update().get(id=user_unsafe.id)
+                user = get_user_model().objects.select_for_update().get(id=user_unsafe.pk)
                 user.recalculate_score()
                 self.points += user.points
                 self.leaderboard_points += user.leaderboard_points

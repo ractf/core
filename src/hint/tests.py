@@ -14,14 +14,14 @@ class HintTestCase(ChallengeSetupMixin, APITestCase):
 
     def test_hint_view(self):
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse("hint-detail", kwargs={"pk": self.hint1.id}))
+        response = self.client.get(reverse("hint-detail", kwargs={"pk": self.hint1.pk}))
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_hint_view_admin(self):
         self.user.is_staff = True
         self.user.save()
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse("hint-detail", kwargs={"pk": self.hint1.id}))
+        response = self.client.get(reverse("hint-detail", kwargs={"pk": self.hint1.pk}))
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_hint_list(self):
@@ -52,14 +52,14 @@ class HintTestCase(ChallengeSetupMixin, APITestCase):
         self.client.force_authenticate(self.user)
         response = self.client.post(
             reverse("hint-list"),
-            data={"name": "test-hint", "penalty": 100, "challenge": self.challenge2.id},
+            data={"name": "test-hint", "penalty": 100, "challenge": self.challenge2.pk},
         )
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_hint_detail_put(self):
         self.client.force_authenticate(self.user)
         response = self.client.put(
-            reverse("hint-detail", kwargs={"pk": self.hint1.id}),
+            reverse("hint-detail", kwargs={"pk": self.hint1.pk}),
             data={"name": "test-hint"},
         )
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
@@ -73,7 +73,7 @@ class HintTestCase(ChallengeSetupMixin, APITestCase):
             data={
                 "name": "test-hint",
                 "penalty": 100,
-                "challenge": self.challenge2.id,
+                "challenge": self.challenge2.pk,
                 "text": "abc",
             },
         )
@@ -84,7 +84,7 @@ class HintTestCase(ChallengeSetupMixin, APITestCase):
         self.user.save()
         self.client.force_authenticate(self.user)
         response = self.client.patch(
-            reverse("hint-detail", kwargs={"pk": self.hint3.id}),
+            reverse("hint-detail", kwargs={"pk": self.hint3.pk}),
             data={"name": "test-hint"},
         )
         self.assertEqual(response.status_code, HTTP_200_OK)
@@ -92,30 +92,30 @@ class HintTestCase(ChallengeSetupMixin, APITestCase):
     def test_hint_detail_patch(self):
         self.client.force_authenticate(self.user)
         response = self.client.patch(
-            reverse("hint-detail", kwargs={"pk": self.hint3.id}),
+            reverse("hint-detail", kwargs={"pk": self.hint3.pk}),
             data={"name": "test-hint"},
         )
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_hint_use(self):
         self.client.force_authenticate(self.user)
-        response = self.client.post(reverse("hint-use"), data={"id": self.hint3.id})
+        response = self.client.post(reverse("hint-use"), data={"id": self.hint3.pk})
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_hint_use_read(self):
         self.client.force_authenticate(self.user)
-        self.client.post(reverse("hint-use"), data={"id": self.hint3.id})
-        response = self.client.get(reverse("hint-detail", kwargs={"pk": self.hint3.id}))
+        self.client.post(reverse("hint-use"), data={"id": self.hint3.pk})
+        response = self.client.get(reverse("hint-detail", kwargs={"pk": self.hint3.pk}))
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertNotEqual(response.data["text"], "")
 
     def test_hint_use_duplicate(self):
         self.client.force_authenticate(self.user)
-        self.client.post(reverse("hint-use"), data={"id": self.hint3.id})
-        response = self.client.post(reverse("hint-use"), data={"id": self.hint3.id})
+        self.client.post(reverse("hint-use"), data={"id": self.hint3.pk})
+        response = self.client.post(reverse("hint-use"), data={"id": self.hint3.pk})
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_hint_use_locked(self):
         self.client.force_authenticate(self.user)
-        response = self.client.post(reverse("hint-use"), data={"id": self.hint1.id})
+        response = self.client.post(reverse("hint-use"), data={"id": self.hint1.pk})
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)

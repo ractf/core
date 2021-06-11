@@ -8,13 +8,13 @@ import challenge.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('challenge', '0007_file_upload'),
+        ("challenge", "0007_file_upload"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='file',
-            name='upload',
-            field=models.FileField(null=True, upload_to=challenge.models.get_file_name),
+            model_name="file",
+            name="upload",
+            field=models.FileField(null=True, upload_to=challenge.logic.get_file_path),
         ),
     ]

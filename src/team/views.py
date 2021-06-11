@@ -6,7 +6,7 @@ from rest_framework.generics import (
     RetrieveUpdateAPIView,
     get_object_or_404,
 )
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_403_FORBIDDEN,
@@ -52,7 +52,7 @@ class SelfView(RetrieveUpdateAPIView):
                 "solves__score",
                 "solves__solved_by",
             )
-            .get(id=self.request.user.team.id)
+            .get(id=self.request.user.team.pk)
         )
 
 

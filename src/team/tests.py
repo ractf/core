@@ -232,39 +232,39 @@ class TeamViewsetTestCase(TeamSetupMixin, APITestCase):
         self.team.is_visible = False
         self.team.save()
         self.client.force_authenticate(self.admin_user)
-        response = self.client.get(reverse("team-detail", kwargs={"pk": self.team.id}))
+        response = self.client.get(reverse("team-detail", kwargs={"pk": self.team.pk}))
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_visible_detail_not_admin(self):
         self.team.is_visible = False
         self.team.save()
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse("team-detail", kwargs={"pk": self.team.id}))
+        response = self.client.get(reverse("team-detail", kwargs={"pk": self.team.pk}))
         self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
 
     def test_view_password_admin(self):
         self.client.force_authenticate(self.admin_user)
-        response = self.client.get(reverse("team-detail", kwargs={"pk": self.team.id}))
+        response = self.client.get(reverse("team-detail", kwargs={"pk": self.team.pk}))
         self.assertTrue("password" in response.data)
 
     def test_view_password_not_admin(self):
         self.admin_user.is_staff = False
         self.admin_user.save()
         self.client.force_authenticate(self.admin_user)
-        response = self.client.get(reverse("team-detail", kwargs={"pk": self.team.id}))
+        response = self.client.get(reverse("team-detail", kwargs={"pk": self.team.pk}))
         self.assertFalse("password" in response.data)
 
     def test_view_team(self):
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse("team-detail", kwargs={"pk": self.team.id}))
+        response = self.client.get(reverse("team-detail", kwargs={"pk": self.team.pk}))
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_patch_team(self):
         self.client.force_authenticate(self.user)
-        response = self.client.patch(reverse("team-detail", kwargs={"pk": self.team.id}), data={"name": "test"})
+        response = self.client.patch(reverse("team-detail", kwargs={"pk": self.team.pk}), data={"name": "test"})
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_patch_team_admin(self):
         self.client.force_authenticate(self.admin_user)
-        response = self.client.patch(reverse("team-detail", kwargs={"pk": self.team.id}), data={"name": "test"})
+        response = self.client.patch(reverse("team-detail", kwargs={"pk": self.team.pk}), data={"name": "test"})
         self.assertEqual(response.status_code, HTTP_200_OK)

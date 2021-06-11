@@ -126,8 +126,8 @@ class FullStatsTestCase(APITestCase):
         config.set("enable_caching", False)
         response = self.client.get(reverse("full"))
         config.set("enable_caching", True)
-        self.assertEqual(response.data["d"]["challenges"][chall.id]["incorrect"], 1)
-        self.assertEqual(response.data["d"]["challenges"][chall.id]["correct"], 1)
+        self.assertEqual(response.data["d"]["challenges"][chall.pk]["incorrect"], 1)
+        self.assertEqual(response.data["d"]["challenges"][chall.pk]["correct"], 1)
 
 
 class CommitTestCase(APITestCase):
