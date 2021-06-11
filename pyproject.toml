@@ -99,7 +99,7 @@ multi_line_output = 3
 [tool.flake8]
 exclude = "*migrations*,*settings*"
 ignore = "W503"
-max-line-length = 200
+max-line-length = 120
 max-complexity = 25
 
 [build-system]
