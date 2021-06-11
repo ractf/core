@@ -89,12 +89,12 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
 
     @cached_property
     def flag_plugin(self):
-        """Return the flag plugin responsible for validating flags sent to this challenge"""
+        """Return the flag plugin responsible for validating flags sent to this challenge."""
         return plugins.plugins["flag"][self.flag_type](self)
 
     @cached_property
     def points_plugin(self):
-        """Return the points plugin responsible for granting points from this challenge"""
+        """Return the points plugin responsible for granting points from this challenge."""
         return plugins.plugins["points"][self.points_type](self)
 
     def is_unlocked_by(self, user: Union[Member, AnonymousUser, None], solves=None) -> bool:
