@@ -8,6 +8,7 @@ from core.permissions import (
     AdminOrReadOnly,
     AdminOrReadOnlyVisible,
     IsBot,
+    IsSudo,
     ReadOnlyBot,
 )
 from member.models import Member
@@ -126,3 +127,14 @@ class ReadOnlyBotTestCase(PermissionTestMixin, APITestCase):
         request = self.create_request("POST")
         request.user = Member(username="bot-test", email="bot-test@gmail.com", is_bot=True)
         self.assertFalse(ReadOnlyBot().has_permission(request, None))
+
+
+class IsSudoTestCase(PermissionTestMixin, APITestCase):
+    def test_is_sudo(self) -> None:
+        request = self.create_request("GET")
+        request.sudo = True
+        self.assertTrue(IsSudo().has_permission(request, None))
+
+    def test_is_not_sudo(self) -> None:
+        request = self.create_request("POST")
+        self.assertFalse(IsSudo().has_permission(request, None))
