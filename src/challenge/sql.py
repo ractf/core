@@ -1,3 +1,5 @@
+"""Raw SQL functions to optimise the challenge app."""
+
 from django.core.cache import caches
 from django.db import connection
 
@@ -5,6 +7,7 @@ from config import config
 
 
 def get_solve_counts():
+    """Get a dict of challenge id to solve count."""
     cache = caches["default"]
     solve_counts = cache.get("solve_counts")
     if solve_counts is not None and config.get("enable_caching"):
@@ -17,6 +20,7 @@ def get_solve_counts():
 
 
 def get_incorrect_solve_counts():
+    """Get a dict of challenge id to incorrect solve count."""
     cache = caches["default"]
     solve_counts = cache.get("incorrect_solve_counts")
     if solve_counts is not None and config.get("enable_caching"):
@@ -29,6 +33,7 @@ def get_incorrect_solve_counts():
 
 
 def get_positive_votes():
+    """Get a dict of challenge id to positive vote count."""
     cache = caches["default"]
     positive_votes = cache.get("positive_votes")
     if positive_votes is not None and config.get("enable_caching"):
@@ -43,6 +48,7 @@ def get_positive_votes():
 
 
 def get_negative_votes():
+    """Get a dict of challenge id to negative vote count."""
     cache = caches["default"]
     negative_votes = cache.get("negative_votes")
     if negative_votes is not None and config.get("enable_caching"):
