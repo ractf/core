@@ -58,7 +58,9 @@ class RegisterTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_201_CREATED)
 
     def test_register_with_mail(self):
-        with self.settings(MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND": True, "SEND_MODE": "SES"}):
+        with self.settings(
+            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND": True, "SEND_MODE": "SES"}
+        ):
             data = {
                 "username": "user1",
                 "password": "uO7*$E@0ngqL",
@@ -243,7 +245,13 @@ class InviteRequiredRegistrationTestCase(APITestCase):
         InviteCode(code="test1", max_uses=10).save()
         InviteCode(code="test2", max_uses=1).save()
         InviteCode(code="test3", max_uses=1).save()
-        user = get_user_model()(username="invtestadmin", email="invtestadmin@example.org", email_verified=True, is_superuser=True, is_staff=True)
+        user = get_user_model()(
+            username="invtestadmin",
+            email="invtestadmin@example.org",
+            email_verified=True,
+            is_superuser=True,
+            is_staff=True,
+        )
         user.set_password("password")
         user.save()
         self.user = user
@@ -644,7 +652,9 @@ class RequestPasswordResetTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_password_reset_request_valid(self):
-        with self.settings(MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND": True, "SEND_MODE": "SES"}):
+        with self.settings(
+            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND": True, "SEND_MODE": "SES"}
+        ):
             get_user_model()(username="test-password-rest", email="user10@example.org", email_verified=True).save()
             response = self.client.post(reverse("request-password-reset"), data={"email": "user10@example.org"})
             self.assertEqual(response.status_code, HTTP_200_OK)

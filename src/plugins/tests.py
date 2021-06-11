@@ -107,7 +107,15 @@ class PlaintextFlagPluginTestCase(APITestCase):
         category = Category(name="test", display_order=0, contained_type="test", description="")
         category.save()
         challenge = Challenge(
-            name="test1", category=category, description="a", challenge_type="basic", challenge_metadata={}, flag_type="plaintext", flag_metadata={"flag": "ractf{a}"}, author="dave", score=1000
+            name="test1",
+            category=category,
+            description="a",
+            challenge_type="basic",
+            challenge_metadata={},
+            flag_type="plaintext",
+            flag_metadata={"flag": "ractf{a}"},
+            author="dave",
+            score=1000,
         )
         challenge.save()
         self.challenge = challenge
@@ -125,7 +133,15 @@ class RegexFlagPluginTestCase(APITestCase):
         category = Category(name="test", display_order=0, contained_type="test", description="")
         category.save()
         challenge = Challenge(
-            name="test1", category=category, description="a", challenge_type="basic", challenge_metadata={}, flag_type="plaintext", flag_metadata={"flag": ".*ractf{a}.*"}, author="dave", score=1000
+            name="test1",
+            category=category,
+            description="a",
+            challenge_type="basic",
+            challenge_metadata={},
+            flag_type="plaintext",
+            flag_metadata={"flag": ".*ractf{a}.*"},
+            author="dave",
+            score=1000,
         )
         challenge.save()
         self.challenge = challenge
@@ -146,7 +162,15 @@ class BasicPointsPluginTestCase(APITestCase):
         category = Category(name="test", display_order=0, contained_type="test", description="")
         category.save()
         challenge = Challenge(
-            name="test1", category=category, description="a", challenge_type="basic", challenge_metadata={}, flag_type="plaintext", flag_metadata={"flag": "ractf{a}"}, author="dave", score=1000
+            name="test1",
+            category=category,
+            description="a",
+            challenge_type="basic",
+            challenge_metadata={},
+            flag_type="plaintext",
+            flag_metadata={"flag": "ractf{a}"},
+            author="dave",
+            score=1000,
         )
         challenge.save()
         self.challenge = challenge

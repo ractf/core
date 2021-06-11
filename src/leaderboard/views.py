@@ -23,7 +23,11 @@ from team.models import Team
 
 
 def should_hide_scoreboard():
-    return not config.get("enable_scoreboard") and (config.get("hide_scoreboard_at") == -1 or config.get("hide_scoreboard_at") > time.time() or config.get("end_time") > time.time())
+    return not config.get("enable_scoreboard") and (
+        config.get("hide_scoreboard_at") == -1
+        or config.get("hide_scoreboard_at") > time.time()
+        or config.get("end_time") > time.time()
+    )
 
 
 class CTFTimeListView(APIView):
@@ -53,10 +57,22 @@ class GraphView(APIView):
 
         graph_members = config.get("graph_members")
         top_teams = Team.objects.visible().ranked()[:graph_members]
-        top_users = get_user_model().objects.filter(is_visible=True).order_by("-leaderboard_points", "last_score")[:graph_members]
+        top_users = (
+            get_user_model()
+            .objects.filter(is_visible=True)
+            .order_by("-leaderboard_points", "last_score")[:graph_members]
+        )
 
-        team_scores = Score.objects.filter(team__in=top_teams, leaderboard=True).select_related("team").order_by("-team__leaderboard_points", "team__last_score")
-        user_scores = Score.objects.filter(user__in=top_users, leaderboard=True).select_related("user").order_by("-user__leaderboard_points", "user__last_score")
+        team_scores = (
+            Score.objects.filter(team__in=top_teams, leaderboard=True)
+            .select_related("team")
+            .order_by("-team__leaderboard_points", "team__last_score")
+        )
+        user_scores = (
+            Score.objects.filter(user__in=top_users, leaderboard=True)
+            .select_related("user")
+            .order_by("-user__leaderboard_points", "user__last_score")
+        )
 
         user_serializer = LeaderboardUserScoreSerializer(user_scores, many=True)
         team_serializer = LeaderboardTeamScoreSerializer(team_scores, many=True)

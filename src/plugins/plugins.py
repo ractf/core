@@ -1,9 +1,11 @@
 import inspect
-import sys
+import logging
 from collections import defaultdict
 from pydoc import locate
 
 from plugins.base import Plugin
+
+logger = logging.getLogger(__name__)
 
 plugins = defaultdict(dict)
 feature_plugins_by_class = {}
@@ -18,4 +20,4 @@ def load_plugins(plugin_list):
                     continue
                 if issubclass(obj, Plugin):
                     plugins[obj.plugin_type][obj.name] = obj
-                    print(f"Loaded {obj.plugin_type} plugin: {obj.name}({plugin})", file=sys.stderr)
+                    logger.info(f"Loaded {obj.plugin_type} plugin: {obj.name}({plugin})")

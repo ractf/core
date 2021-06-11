@@ -47,12 +47,16 @@ class ConfigTestCase(APITestCase):
 
     def test_post_authed(self):
         self.client.force_authenticate(self.user)
-        response = self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"key": "test", "value": "test"}, format="json")
+        response = self.client.post(
+            reverse("config-pk", kwargs={"name": "test"}), data={"key": "test", "value": "test"}, format="json"
+        )
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_create(self):
         self.client.force_authenticate(self.staff_user)
-        response = self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json")
+        response = self.client.post(
+            reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json"
+        )
         self.assertEqual(response.status_code, HTTP_201_CREATED)
 
     def test_update_post(self):

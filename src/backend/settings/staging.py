@@ -7,7 +7,11 @@ from sentry_sdk.integrations.django import DjangoIntegration
 
 from . import *
 
-sentry_sdk.init(dsn="https://965545cacdd14caca2d2a037af90e7a7@o104250.ingest.sentry.io/5374672", integrations=[DjangoIntegration()], send_default_pii=True)
+sentry_sdk.init(
+    dsn="https://965545cacdd14caca2d2a037af90e7a7@o104250.ingest.sentry.io/5374672",
+    integrations=[DjangoIntegration()],
+    send_default_pii=True,
+)
 
 SEND_MAIL = True
 

@@ -53,7 +53,9 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         return self.username
 
     def can_login(self):
-        return self.is_staff or (config.get("enable_login") and (config.get("enable_prelogin") or config.get("start_time") <= time.time()))
+        return self.is_staff or (
+            config.get("enable_login") and (config.get("enable_prelogin") or config.get("start_time") <= time.time())
+        )
 
     def issue_token(self, owner=None):
         from authentication.models import Token
