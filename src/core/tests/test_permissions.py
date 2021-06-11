@@ -7,6 +7,7 @@ from core.permissions import (
     AdminOrAnonymousReadOnly,
     AdminOrReadOnly,
     AdminOrReadOnlyVisible,
+    IsBot,
     ReadOnlyBot,
 )
 from member.models import Member
@@ -113,3 +114,15 @@ class AdminOrAnonymousReadOnlyTestCase(PermissionTestMixin, APITestCase):
         request = self.create_request("POST")
         request.user = AnonymousUser()
         self.assertFalse(AdminOrAnonymousReadOnly().has_permission(request, None))
+
+
+class IsBotTestCase(PermissionTestMixin, APITestCase):
+    def test_is_bot(self) -> None:
+        request = self.create_request("GET")
+        request.user = Member(username="bot-test", email="bot-test@gmail.com", is_bot=True)
+        self.assertTrue(IsBot().has_permission(request, None))
+
+    def test_normal_user(self) -> None:
+        request = self.create_request("GET")
+        request.user = Member(username="bot-test", email="bot-test@gmail.com")
+        self.assertFalse(IsBot().has_permission(request, None))
