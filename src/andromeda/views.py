@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView
 
 from andromeda import client
-from andromeda.serializers import JobSubmitSerializer
+from andromeda.serializers import JobSubmitSerializer, JobSubmitRawSerializer
 from challenge.models import Challenge
 from core.response import FormattedResponse
 
@@ -100,6 +100,6 @@ class JobSubmitRawView(APIView):
 
     def post(self, request):
         """Submit a job to the andromeda host."""
-        serializer = JobSubmitSerializer(request.data)
+        serializer = JobSubmitRawSerializer(request.data)
         response = client.submit_job(serializer.data["job_spec"])
         return FormattedResponse(response)
