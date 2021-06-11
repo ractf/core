@@ -11,6 +11,7 @@ import team
 
 class StatsConfig(AppConfig):
     """App config for the stats app."""
+
     name = "stats"
 
     def ready(self):
