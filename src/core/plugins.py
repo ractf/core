@@ -20,4 +20,4 @@ def load_plugins(plugin_list):
                     continue
                 if issubclass(obj, Plugin):
                     plugins[obj.plugin_type][obj.name] = obj
-                    print(f"Loaded {obj.plugin_type} plugin: {obj.name}({plugin})")
+                    logger.info(f"Loaded {obj.plugin_type} plugin: {obj.name}({plugin})")
