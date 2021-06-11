@@ -94,13 +94,13 @@ class ChallengeSerializerMixin:
     def get_unlocked(self, instance):
         """Return if the challenge is unlocked."""
         if not getattr(instance, "unlocked", None):
-            return instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None))
+            return instance.is_unlocked_by(self.context["request"].user, solves=self.context.get("solves", None))
         return instance.unlocked
 
     def get_solved(self, instance):
         """Return if the challenge is solved."""
         if not getattr(instance, "solved", None):
-            return instance.is_solved(self.context["request"].user, solves=self.context.get("solves", None))
+            return instance.is_solved_by(self.context["request"].user, solves=self.context.get("solves", None))
         return instance.solved
 
     def get_solve_count(self, instance):
@@ -168,7 +168,7 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
 
     def _serialize(self, instance, fields):
         if (
-            instance.is_unlocked(self.context["request"].user, solves=self.context.get("solves", None))
+            instance.is_unlocked_by(self.context["request"].user, solves=self.context.get("solves", None))
             and not instance.hidden
             and instance.unlock_time_surpassed
         ):

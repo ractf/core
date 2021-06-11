@@ -112,17 +112,17 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         """Test that a challenge can be unlocked."""
         self.solve_challenge()
         self.challenge1.unlock_requirements = str(self.challenge2.pk)
-        self.assertTrue(self.challenge1.is_unlocked(get_user_model().objects.get(id=self.user.pk)))
+        self.assertTrue(self.challenge1.is_unlocked_by(get_user_model().objects.get(id=self.user.pk)))
 
     def test_challenge_unlocks_no_team(self):
         """Test that challenges are locked until you have a team."""
         user4 = get_user_model()(username="challenge-test-4", email="challenge-test-4@example.org")
         user4.save()
-        self.assertFalse(self.challenge1.is_unlocked(user4))
+        self.assertFalse(self.challenge1.is_unlocked_by(user4))
 
     def test_challenge_unlocks_locked(self):
         """That that challenges are correctly locked."""
-        self.assertFalse(self.challenge1.is_unlocked(self.user))
+        self.assertFalse(self.challenge1.is_unlocked_by(self.user))
 
     def test_hint_scoring(self):
         """Test hint penalties are correctly applied."""
@@ -155,14 +155,14 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         response = self.client.get(reverse("team-self"))
         self.assertEqual(response.data["solves"][0]["points"], 1000)
 
-    def test_is_solved(self):
+    def test_is_solved_by(self):
         """Test challenges correctly report when they are solved."""
         self.solve_challenge()
-        self.assertTrue(self.challenge2.is_solved(user=self.user))
+        self.assertTrue(self.challenge2.is_solved_by(user=self.user))
 
     def test_is_not_solved(self):
         """Test challenges correctly report being unsolved."""
-        self.assertFalse(self.challenge1.is_solved(user=self.user))
+        self.assertFalse(self.challenge1.is_solved_by(user=self.user))
 
     def test_submission_disabled(self):
         """Test flags cannot be submitted when enable_flag_submission is false."""
@@ -210,17 +210,17 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
 
     def test_challenge_solved_unauthed(self):
         """Test is_solved returns False early for anonymous users."""
-        self.assertFalse(self.challenge2.is_solved(AnonymousUser()))
+        self.assertFalse(self.challenge2.is_solved_by(AnonymousUser()))
 
     def test_challenge_unlocked_unauthed(self):
         """Test is_unlocked returns False early for anonymous users."""
-        self.assertFalse(self.challenge2.is_unlocked(AnonymousUser()))
+        self.assertFalse(self.challenge2.is_unlocked_by(AnonymousUser()))
 
     def test_challenge_solved_no_team(self):
         """Test is_solved returns False early for users with no team."""
         user4 = get_user_model()(username="challenge-test-4", email="challenge-test-4@example.org")
         user4.save()
-        self.assertFalse(self.challenge2.is_solved(user4))
+        self.assertFalse(self.challenge2.is_solved_by(user4))
 
 
 class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):

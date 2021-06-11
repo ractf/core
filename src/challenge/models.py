@@ -1,8 +1,8 @@
 import time
 from typing import Optional, Union
-from django.contrib.auth.models import AnonymousUser
 
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.indexes import BrinIndex
 from django.db import models
 from django.db.models import (
@@ -23,9 +23,9 @@ from django.utils.functional import cached_property
 from django_prometheus.models import ExportModelOperationsMixin
 
 from challenge.logic import evaluate_rpn, get_file_path
-from member.models import Member
 from config import config
 from core import plugins
+from member.models import Member
 
 USING_POSTGRES = settings.DATABASES.get("default", {}).get("ENGINE", "").endswith("postgresql")
 
