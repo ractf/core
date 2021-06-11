@@ -1,3 +1,5 @@
+"""Challenge related api endpoints."""
+
 import hashlib
 import time
 from typing import Union
@@ -55,6 +57,7 @@ from team.permissions import HasTeam
 
 
 def get_cache_key(user):
+    """Get the category viewset cache key for a given user."""
     if user.team is None:
         return str(caches["default"].get("challenge_mod_index", 0)) + "categoryvs_no_team"
     else:
@@ -62,6 +65,8 @@ def get_cache_key(user):
 
 
 class CategoryViewset(AdminCreateModelViewSet):
+    """Viewset for Category api endpoints."""
+
     queryset = Category.objects.all()
     permission_classes = (CompetitionOpen & AdminOrReadOnly,)
     throttle_scope = "challenges"
@@ -71,6 +76,7 @@ class CategoryViewset(AdminCreateModelViewSet):
     create_serializer_class = CreateCategorySerializer
 
     def get_queryset(self):
+        """Get the list of categories for this view."""
         if self.request.user.is_staff and self.request.user.should_deny_admin():
             return Category.objects.none()
         team = self.request.user.team
@@ -114,6 +120,7 @@ class CategoryViewset(AdminCreateModelViewSet):
         return qs
 
     def list(self, request, *args, **kwargs):
+        """Return the list of challenges, this will be cached if caching is enabled."""
         cache = caches["default"]
         categories = cache.get(get_cache_key(request.user))
         if categories is None or not config.get("enable_caching"):
@@ -137,6 +144,8 @@ class CategoryViewset(AdminCreateModelViewSet):
 
 
 class ChallengeViewset(AdminCreateModelViewSet):
+    """Viewset for Challenge API endpoints."""
+
     queryset = Challenge.objects.all()
     permission_classes = (CompetitionOpen & AdminOrReadOnly,)
     throttle_scope = "challenges"
@@ -146,17 +155,21 @@ class ChallengeViewset(AdminCreateModelViewSet):
     create_serializer_class = CreateChallengeSerializer
 
     def get_queryset(self):
+        """Get the list of challenges."""
         if self.request.method not in permissions.SAFE_METHODS:
             return self.queryset
         return Challenge.get_unlocked_annotated_queryset(self.request.user)
 
 
 class ScoresViewset(ModelViewSet):
+    """Viewset for managing Score objects."""
+
     queryset = Score.objects.all()
     permission_classes = (IsAdminUser,)
     serializer_class = AdminScoreSerializer
 
     def recalculate_scores(self, user, team):
+        """Recalculate the scores of a given user and/or team."""
         if user:
             user = get_object_or_404(get_user_model(), id=user)
             user.leaderboard_points = (
@@ -175,30 +188,37 @@ class ScoresViewset(ModelViewSet):
             team.save()
 
     def create(self, req, *args, **kwargs):
+        """Recalculate scores when a score is created."""
         x = super().create(req, *args, **kwargs)
         self.recalculate_scores(req.data.get("user", None), req.data.get("team", None))
         return x
 
     def update(self, req, *args, **kwargs):
+        """Recalculate scores when a score is updated."""
         x = super().update(req, *args, **kwargs)
         self.recalculate_scores(req.data.get("user", None), req.data.get("team", None))
         return x
 
     def partial_update(self, req, *args, **kwargs):
+        """Recalculate scores when a score is partially updated."""
         x = super().partial_update(req, *args, **kwargs)
         self.recalculate_scores(req.data.get("user", None), req.data.get("team", None))
         return x
 
     def destroy(self, req, *args, **kwargs):
+        """Recalculate scores when a score is destroyed."""
         x = super().destroy(req, *args, **kwargs)
         self.recalculate_scores(req.data.get("user", None), req.data.get("team", None))
         return x
 
 
 class ChallengeFeedbackView(APIView):
+    """View for submitting and reading challenge feedback."""
+
     permission_classes = (IsAuthenticated & HasTeam & ReadOnlyBot,)
 
     def get(self, request):
+        """Return the user's challenge feedback, unless the user is an admin, then return all the challenge feedback,"""
         challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
         feedback = ChallengeFeedback.objects.filter(challenge=challenge)
         if request.user.is_staff:
@@ -206,6 +226,7 @@ class ChallengeFeedbackView(APIView):
         return FormattedResponse(ChallengeFeedbackSerializer(feedback.filter(user=request.user).first()).data)
 
     def post(self, request):
+        """Submit or modify challenge feedback."""
         challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
         solve_set = Solve.objects.filter(challenge=challenge)
 
@@ -221,9 +242,12 @@ class ChallengeFeedbackView(APIView):
 
 
 class ChallengeVoteView(APIView):
+    """View for submitting challenge votes."""
+
     permission_classes = (IsAuthenticated & HasTeam & ~IsBot,)
 
     def post(self, request):
+        """Vote or modify your vote on a challenge once it is solved."""
         challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
         solve_set = Solve.objects.filter(challenge=challenge)
 
@@ -239,15 +263,19 @@ class ChallengeVoteView(APIView):
 
 
 class FlagSubmitView(APIView):
+    """Submit a flag to solve a challenge."""
+
     permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,)
     throttle_scope = "flag_submit"
 
     def post(self, request):
+        """Attempt to solve a challenge from a given flag."""
         if not config.get("enable_flag_submission") or (
             not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")
         ):
             return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
 
+        # This is done in an atomic block to avoid a user racing this endpoint to score the same flag multiple times.
         with transaction.atomic():
             team = Team.objects.select_for_update().get(id=request.user.team.id)
             user = get_user_model().objects.select_for_update().get(id=request.user.id)
@@ -301,10 +329,13 @@ class FlagSubmitView(APIView):
 
 
 class FlagCheckView(APIView):
+    """Api endpoint to check a flag is correct, but not solve a challenge."""
+
     permission_classes = (CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,)
     throttle_scope = "flag_submit"
 
     def post(self, request):
+        """Return if the given flag is correct."""
         if not config.get("enable_flag_submission") or (
             not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")
         ):
@@ -331,6 +362,8 @@ class FlagCheckView(APIView):
 
 
 class FileViewSet(ModelViewSet):
+    """Viewset for managing files."""
+
     queryset = File.objects.all()
     permission_classes = (IsAdminUser,)
     parser_classes = (MultiPartParser,)
@@ -382,6 +415,8 @@ class FileViewSet(ModelViewSet):
 
 
 class TagViewSet(ModelViewSet):
+    """Viewset for managing tags on challenges."""
+
     queryset = Tag.objects.all()
     permission_classes = (IsAdminUser,)
     throttle_scope = "tag"
