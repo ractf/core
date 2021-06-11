@@ -1,4 +1,4 @@
-"""Unit tests for challenge utils"""
+"""Unit tests for challenge utils."""
 
 from unittest import TestCase
 
@@ -23,7 +23,7 @@ class SqlTestCase(APITestCase):
     """Tests for the raw sql."""
 
     def test_get_positive_votes_cached(self):
-        """Test the positive votes are correctly cached"""
+        """Test the positive votes are correctly cached."""
         config.set("enable_caching", True)
         first = get_positive_votes()
         second = get_positive_votes()
@@ -31,7 +31,7 @@ class SqlTestCase(APITestCase):
         self.assertEqual(first, second)
 
     def test_get_negative_votes_cached(self):
-        """Test the negative votes are correctly cached"""
+        """Test the negative votes are correctly cached."""
         config.set("enable_caching", True)
         first = get_negative_votes()
         second = get_negative_votes()
