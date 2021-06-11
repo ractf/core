@@ -69,23 +69,19 @@ class AdminOrReadOnlyTestCase(PermissionTestMixin, APITestCase):
     def test_admin_safe(self):
         request = self.create_request("GET")
         request.user = Member(username="permission-test", email="permission-test@gmail.com", is_staff=True)
-        self.assertTrue(AdminOrReadOnly().has_object_permission(request, None, None))
+        self.assertTrue(AdminOrReadOnly().has_permission(request, None))
 
     def test_admin_unsafe(self):
         request = self.create_request("POST")
         request.user = Member(username="permission-test", email="permission-test@gmail.com", is_staff=True)
-        self.assertTrue(AdminOrReadOnly().has_object_permission(request, None, None))
+        self.assertTrue(AdminOrReadOnly().has_permission(request, None))
 
     def test_not_admin_safe(self):
         request = self.create_request("GET")
         request.user = Member(username="permission-test", email="permission-test@gmail.com")
-        obj = type("Object", (object,), {})
-        obj.is_visible = True
-        self.assertTrue(AdminOrReadOnly().has_object_permission(request, None, obj))
+        self.assertTrue(AdminOrReadOnly().has_permission(request, None))
 
     def test_not_admin_unsafe(self):
         request = self.create_request("POST")
         request.user = Member(username="permission-test", email="permission-test@gmail.com")
-        obj = type("Object", (object,), {})
-        obj.is_visible = True
-        self.assertTrue(AdminOrReadOnly().has_object_permission(request, None, obj))
+        self.assertFalse(AdminOrReadOnly().has_permission(request, None))
