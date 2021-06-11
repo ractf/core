@@ -17,10 +17,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 
+from core import views
 from core.views import CatchAllView
 
 urlpatterns = [
-    path("admin/", include("admin.urls")),
     path("announcements/", include("sockets.urls")),
     path("auth/", include("authentication.urls")),
     path("challenges/", include("challenge.urls")),
@@ -34,6 +34,7 @@ urlpatterns = [
     path("team/", include("team.urls")),
     path("pages/", include("pages.urls")),
     path("experiments/", include("experiments.urls")),
+    path("self_check/", views.SelfCheckView.as_view(), name="self-check"),
 ]
 
 urlpatterns = [
