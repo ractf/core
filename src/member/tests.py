@@ -94,10 +94,10 @@ class MemberTestCase(APITestCase):
 
 
 class MemberViewSetTestCase(APITestCase):
-    """Tests for MemberViewset"""
+    """Tests for MemberViewset."""
 
     def setUp(self):
-        """Create a test user and a test admin user"""
+        """Create a test user and a test admin user."""
         user = get_user_model()(username="test-member", email="test-member@example.org")
         user.save()
         self.user = user
