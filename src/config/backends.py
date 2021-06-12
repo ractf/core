@@ -1,3 +1,5 @@
+"""Backends capable of storing a key-value config t"""
+
 import abc
 import sys
 
@@ -9,38 +11,51 @@ from config.models import Config
 
 
 class ConfigBackend(abc.ABC):
+    """Abstract class for a config backend."""
+
     @abc.abstractmethod
     def get(self, key):
+        """Get a config value from a given key."""
         pass
 
     @abc.abstractmethod
     def set(self, key, value):
+        """Set a config key to a given value."""
         pass
 
     @abc.abstractmethod
     def get_all(self):
+        """Get all config keys and values."""
         pass
 
     def load(self, defaults):
+        """Load config keys and values from the database."""
         pass
 
     def save(self):
+        """Save the config to a config."""
         pass
 
 
 class CachedBackend(ConfigBackend):
+    """A config backend using django's low level cache api."""
+
     @property
     def config_set(self) -> "QuerySet[Config]":
+        """Get a queryset of Config objects."""
         return Config.objects
 
     def __init__(self):
+        """Setup the cache."""
         self.cache = caches["default"]
         self.keys = set()
 
     def get(self, key):
+        """Get a value for a given config key."""
         return self.cache.get(f"config_{key}")
 
     def set(self, key, value):
+        """Set a config key and save it to the database."""
         db_config = self.config_set.filter(key="config").first()
         if db_config:
             db_config.value[key] = value
@@ -49,16 +64,19 @@ class CachedBackend(ConfigBackend):
         self.keys.add(f"config_{key}")
 
     def get_all(self):
+        """Get all config keys and values."""
         config = {}
         for key in self.keys:
             config[key[7:]] = self.get(key[7:])
         return config
 
     def set_if_not_exists(self, key, value):
+        """Set a config key if it doesn't exist."""
         if self.cache.add("config_" + key, value, timeout=None):
             self.keys.add(f"config_{key}")
 
     def load(self, defaults):
+        """Load the config from the database."""
         db_config = self.config_set.filter(key="config")
 
         config_exists, migrations_needed = False, False
