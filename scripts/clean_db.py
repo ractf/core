@@ -1,7 +1,10 @@
+"""Script for clearing the connected database of all data."""
+
 import os
 from os import getenv
 
 import psycopg2
+
 
 with psycopg2.connect(
     user=getenv("SQL_USER"),

@@ -18,7 +18,8 @@ class PostgreSQL:
 
     @classproperty
     def dsn(cls) -> str:
-        return f"postgres://{cls.USER}:{cls.PASSWORD}@{cls.HOST}:{cls.PORT}/template1"
+        """Return the DSN for connecting to the configured database."""
+        return f"postgres://{cls.USER}:{cls.PASSWORD}@{cls.HOST}:{cls.PORT}/{cls.DATABASE}"
 
 
 USERS, CATEGORIES, TEAMS, CHALLENGES, SOLVES = (

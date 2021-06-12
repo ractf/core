@@ -43,13 +43,13 @@ pytest-cov = "^2.12.0"
 pytest-django = "^4.3.0"
 isort = "^5.8.0"
 pre-commit = "^2.13.0"
-flake9 = "^3.8.3"
 better-exceptions = "^0.3.3"
 pytest-testmon = "^1.1.1"
 django-querycount = "^0.7.0"
 nplusone = "^1.0.0"
 faker = "^8.6.0"
 docopt = "^0.6.2"
+flakehell = "^0.9.0"
 flake8-docstrings = "^1.6.0"
 
 [tool.pytest.ini_options]
@@ -89,18 +89,22 @@ exclude_lines = [
 ]
 
 [tool.black]
-exclude = 'migrations'
+exclude = "migrations"
 line_length = 120
 
 [tool.isort]
 profile = "black"
 multi_line_output = 3
 
-[tool.flake8]
-exclude = "*migrations*,*settings*"
-ignore = "W503"
-max-line-length = 120
-max-complexity = 25
+[tool.flakehell.plugins]
+flake8-docstrings = ["+*"]
+pycodestyle = ["+*"]
+pyflakes = ["+*"]
+
+[tool.flakehell]
+show_source = true
+max_line_length = 120
+extended_default_ignore = []
 
 [build-system]
 requires = ["poetry-core>=1.0.0a5"]

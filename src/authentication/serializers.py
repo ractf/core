@@ -1,3 +1,5 @@
+"""Serializers for use with authentication and relevant routes."""
+
 import secrets
 import time
 from smtplib import SMTPException
@@ -23,6 +25,8 @@ from team.models import Team
 
 
 class LoginSerializer(serializers.Serializer):
+    """Serialize relevant fields used in the login form."""
+
     username = serializers.CharField()
     password = serializers.CharField(trim_whitespace=False)
 
@@ -59,6 +63,16 @@ class RegistrationSerializer(serializers.Serializer):
         return validated_data
 
     def create(self, validated_data):
+        """
+
+        Whilst the API can resend verification emails,
+        the frontend doesnt have that implemented, in
+        addition to that, if smtp fails that early they are
+        going to have to do something regardless, so it is
+        easier [for us] to fail out of creating the user and
+        leave them on the register page, telling them something
+        went wrong then being confused why their email isnt there.
+        """
         user = providers.get_provider("registration").register_user(**validated_data, context=self.context)
 
         if not get_user_model().objects.all().exists():
@@ -86,16 +100,7 @@ class RegistrationSerializer(serializers.Serializer):
                     "verify",
                     url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.pk, user.email_token),
                 )
-            except SMTPException:  # pragma: no cover - prod error handling
-                # Whilst the API can resend verification emails,
-                # the frontend doesnt have that implemented, in
-                # addition to that, if smtp fails that early they are
-                # going to have to do something regardless, so it is
-                # easier [for us] to fail out of creating the user and
-                # leave them on the register page, telling them something
-                # went wrong then being confused why their email isnt there.
-                # [Via Dave on Discord]
-
+            except SMTPException:
                 user.delete()
                 raise FormattedException(m="creation_failed")
 

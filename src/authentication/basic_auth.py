@@ -1,3 +1,5 @@
+"""Define all our most basic custom authentication providers."""
+
 from django.contrib.auth import authenticate, get_user_model, password_validation
 from rest_framework.exceptions import ValidationError
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
@@ -8,10 +10,14 @@ from core.signals import login, login_reject
 
 
 class BasicAuthRegistrationProvider(RegistrationProvider):
+    """A basic authentication provider for user registration."""
+
     name = "basic_auth"
     required_fields = ["username", "email", "password"]
 
-    def validate(self, data):
+    def validate(self, data: dict) -> dict:
+        """Validate the provided registration form."""
+
         if not all(key in data for key in self.required_fields):
             raise ValidationError("A required field was not found.")
 
@@ -20,7 +26,8 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
 
         return {key: data[key] for key in self.required_fields}
 
-    def register_user(self, username, email, password, **kwargs):
+    def register_user(self, username, email, password, **_):
+        """Register the provided account details once they have been validated."""
         user = get_user_model()(username=username, email=email)
 
         try:
@@ -33,9 +40,12 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
 
 
 class BasicAuthLoginProvider(LoginProvider):
+    """A basic authentication provider for user logins."""
+
     name = "basic_auth"
 
-    def login_user(self, username, password, context, **kwargs):
+    def login_user(self, username, password, context, **_):
+        """Given all the relevant credentials, authenticate a user's session."""
         user = authenticate(request=context.get("request"), username=username, password=password)
         if not user:
             login_reject.send(sender=self.__class__, username=username, reason="creds")
@@ -62,7 +72,10 @@ class BasicAuthLoginProvider(LoginProvider):
 
 
 class BasicAuthTokenProvider(TokenProvider):
+    """A basic authentication provider for token-based authentication."""
+
     name = "basic_auth"
 
-    def issue_token(self, user, **kwargs):
+    def issue_token(self, user, **_):
+        """Issue a token for the provided user."""
         return user.issue_token()

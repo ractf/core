@@ -31,7 +31,7 @@ format:
 	black src
 
 lint:
-	flake8 && \
+	flakehell lint src && \
 	isort --check-only src
 
 dev-server:
