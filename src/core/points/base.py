@@ -1,3 +1,5 @@
+"""Base class for points plugins."""
+
 import abc
 import time
 
@@ -11,20 +13,26 @@ from hint.models import HintUse
 
 
 class PointsPlugin(Plugin, abc.ABC):
+    """Base class for points plugins."""
+
     plugin_type = "points"
     recalculate_type = "none"
 
     def __init__(self, challenge):
+        """Set the challenge the plugin is calculating points for."""
         self.challenge = challenge
 
     @abc.abstractmethod
     def get_points(self, team, flag, solves, *args, **kwargs):
+        """Return the amount of points a solve is worth."""
         pass
 
     def recalculate(self, teams, users, solves, *args, **kwargs):
+        """Recalculate the amount of points a solve is worth."""
         pass
 
     def score(self, user, team, flag, solves, *args, **kwargs):
+        """Score a solve for a user/team."""
         challenge = self.challenge
         points = self.get_points(team, flag, solves.count())
 
@@ -57,5 +65,6 @@ class PointsPlugin(Plugin, abc.ABC):
         return solve
 
     def register_incorrect_attempt(self, user, team, flag, solves, *args, **kwargs):
+        """Register an incorrect solve for a team/user."""
         if config.get("enable_track_incorrect_submissions"):
             Solve(team=team, solved_by=user, challenge=self.challenge, flag=flag, correct=False, score=None).save()
