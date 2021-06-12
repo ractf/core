@@ -1,3 +1,5 @@
+"""Tests for the leaderboard app."""
+
 from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK
@@ -10,6 +12,7 @@ from team.models import Team
 
 
 def populate():
+    """Populate the database with some example data."""
     category = Category(name="test", display_order=0, contained_type="test", description="")
     category.save()
     challenge = Challenge(
@@ -42,6 +45,8 @@ def populate():
 
 
 class ScoreListTestCase(APITestCase):
+    """Tests for the scorelist endpoint"""
+
     def setUp(self):
         GraphView.throttle_scope = ""
         user = get_user_model()(username="scorelist-test", email="scorelist-test@example.org")
