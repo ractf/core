@@ -1,1 +1,1 @@
-# Create your tests here.
+"""Tests for the pages app."""
