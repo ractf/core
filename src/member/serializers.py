@@ -124,7 +124,7 @@ class MinimalMemberSerializer(serializers.ModelSerializer):
 
 
 class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
-    """Serializer used for serializing the current user"""
+    """Serializer used for serializing the current user."""
 
     from team.serializers import MinimalTeamSerializer
 
@@ -177,7 +177,7 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
-        """Update a user's team's name to match their username if teams are disabled"""
+        """Update a user's team's name to match their username if teams are disabled."""
         if not config.get("enable_teams"):
             if instance.team:
                 instance.team.name = validated_data.get("username", instance.username)
