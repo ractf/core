@@ -27,7 +27,6 @@ class SelfView(RetrieveUpdateAPIView):
 
     def get_object(self):
         """Get the current member with some prefetches."""
-
         UserIP.hook(self.request)
         return (
             get_user_model()
