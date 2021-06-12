@@ -1,8 +1,9 @@
+"""Database models for the member app."""
+
 import secrets
 import time
 from enum import IntEnum
 
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import CICharField
 from django.db import models
@@ -16,12 +17,16 @@ from core.validators import printable_name
 
 
 class TOTPStatus(IntEnum):
+    """The status of a user's totp device"""
+
     DISABLED = 0
     VERIFYING = 1
     ENABLED = 2
 
 
 class Member(ExportModelOperationsMixin("member"), AbstractUser):
+    """Represents a member."""
+
     username_validator = printable_name
 
     username = CICharField(
@@ -50,14 +55,17 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
     last_score = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
+        """Represent a member as a string, returns the username."""
         return self.username
 
     def can_login(self):
+        """Returns true if the user can login."""
         return self.is_staff or (
             config.get("enable_login") and (config.get("enable_prelogin") or config.get("start_time") <= time.time())
         )
 
     def issue_token(self, owner=None):
+        """Issue an authentication token for the user."""
         from authentication.models import Token
 
         token = Token(user=self, owner=owner)
@@ -65,9 +73,13 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         return token.key
 
     def has_2fa(self):
+        """Return True if the user has 2fa enabled."""
         return hasattr(self, "totp_device") and self.totp_device.verified
 
     def should_deny_admin(self):
+        """Return True if the user should be denied admin perms.
+
+           This being False does not mean the user should have admin permissions."""
         return config.get("enable_force_admin_2fa") and not self.has_2fa()
 
     def recalculate_score(self):
@@ -82,6 +94,8 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
 
 
 class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):
+    """Represents the ip and useragent a given user accessed the api from."""
+
     user = models.ForeignKey("member.Member", on_delete=SET_NULL, null=True)
     ip = models.CharField(max_length=255)
     seen = models.IntegerField(default=1)
@@ -90,6 +104,7 @@ class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):
 
     @staticmethod
     def hook(request):
+        """Store the ip and useragent used to make a request in the db."""
         if not request.user.is_authenticated:
             return
         ip = request.headers.get("x-forwarded-for", "0.0.0.0")
