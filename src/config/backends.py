@@ -1,4 +1,4 @@
-"""Backends capable of storing a key-value config t"""
+"""Backends capable of storing a key-value config."""
 
 import abc
 import sys
@@ -46,7 +46,7 @@ class CachedBackend(ConfigBackend):
         return Config.objects
 
     def __init__(self):
-        """Setup the cache."""
+        """Construct the backend and setup the cache."""
         self.cache = caches["default"]
         self.keys = set()
 
