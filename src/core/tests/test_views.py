@@ -1,3 +1,5 @@
+"""Tests for the views in the core app."""
+
 import hashlib
 
 from django.urls import reverse
@@ -9,21 +11,24 @@ from member.models import Member
 
 
 class CatchAllTestCase(APITestCase):
+    """Tests for the catchall view."""
+
     def test_catchall_404s(self):
+        """The view should return 404."""
         response = self.client.get("/sdgodgsjds")
         self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
 
 
 class MissingPointsTestCase(APITestCase):
-    def setUp(self):
-        self.user = Member.objects.create(username="test", is_superuser=True, is_staff=True)
+    """Test for the missing points case of the selfcheck endpoint."""
 
-    def test_missing_points(self):
-        category = Category(name="test", display_order=0, contained_type="test", description="")
-        category.save()
-        x = Challenge.objects.create(
+    def setUp(self):
+        """Create a member for testing."""
+        self.user = Member.objects.create(username="test", is_superuser=True, is_staff=True)
+        self.category = Category.objects.create(name="test", display_order=0, contained_type="test", description="")
+        self.challenge = Challenge.objects.create(
             name="test1",
-            category=category,
+            category=self.category,
             description="a",
             challenge_type="basic",
             challenge_metadata={},
@@ -33,19 +38,26 @@ class MissingPointsTestCase(APITestCase):
             score=0,
         )
 
+    def test_missing_points(self):
+        """A challenge with 0 points should flag a warning."""
         self.client.force_authenticate(user=self.user)
 
         response = self.client.get(reverse("self-check"))
         self.assertEqual(response.data["d"][0]["issue"], "missing_points")
 
-        x.score = 5
-        x.save()
+    def test_not_missing_points(self):
+        """A challenge with a non zero points value should not flag a warning."""
+        self.challenge.score = 5
+        self.challenge.save()
         response = self.client.get(reverse("self-check"))
         self.assertEqual(len(response.data["d"]), 0)
 
 
 class BadFlagConfigTestCase(APITestCase):
+    """Test the invalid flag case of the selfcheck endpoint."""
+
     def setUp(self):
+        """Create users and challenges to use in the tests."""
         self.user = Member.objects.create(username="test", is_superuser=True, is_staff=True)
 
         self.category = Category(name="test", display_order=0, contained_type="test", description="")
@@ -76,6 +88,7 @@ class BadFlagConfigTestCase(APITestCase):
         self.create_challenge("long_text", {"flag": "ractf{flag}"})
 
     def create_challenge(self, typ, metadata):
+        """Create a challenge."""
         self.i += 1
         Challenge.objects.create(
             name=f"{self.i}",
@@ -90,6 +103,7 @@ class BadFlagConfigTestCase(APITestCase):
         )
 
     def test_length(self):
+        """The endpoint should find 14 errors in the challenges."""
         self.client.force_authenticate(user=self.user)
 
         response = self.client.get(reverse("self-check"))
@@ -97,7 +111,10 @@ class BadFlagConfigTestCase(APITestCase):
 
 
 class ExperimentsTestCase(APITestCase):
+    """Test the experiments viewset."""
+
     def test_experiments(self):
+        """Test the overrides are correctly sent."""
         with self.settings(EXPERIMENT_OVERRIDES={"test": True}):
             response = self.client.get(reverse("experiments"))
             self.assertEqual(response.data["d"]["test"], True)
