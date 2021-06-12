@@ -1,3 +1,5 @@
+"""API routes for the leaderboard app."""
+
 import time
 
 from django.contrib.auth import get_user_model
@@ -23,6 +25,7 @@ from team.models import Team
 
 
 def should_hide_scoreboard():
+    """Return True if the scoreboard should be hidden."""
     return not config.get("enable_scoreboard") and (
         config.get("hide_scoreboard_at") == -1
         or config.get("hide_scoreboard_at") > time.time()
@@ -31,12 +34,15 @@ def should_hide_scoreboard():
 
 
 class CTFTimeListView(APIView):
+    """CTFTime scoreboard integration."""
+
     renderer_classes = (
         JSONRenderer,
         BrowsableAPIRenderer,
     )
 
     def get(self, request, *args, **kwargs):
+        """Get the scoreboard in a CTFTime compatible format."""
         if should_hide_scoreboard() or not config.get("enable_ctftime"):
             return Response({})
         teams = Team.objects.visible().ranked()
@@ -44,9 +50,12 @@ class CTFTimeListView(APIView):
 
 
 class GraphView(APIView):
+    """API endpoint to display the leaderboard as a graph."""
+
     throttle_scope = "leaderboard"
 
     def get(self, request, *args, **kwargs):
+        """Return the points to plot on the graph."""
         if should_hide_scoreboard():
             return FormattedResponse({})
 
@@ -85,33 +94,42 @@ class GraphView(APIView):
 
 
 class UserListView(ListAPIView):
+    """API endpoint to display the user scoreboard."""
+
     throttle_scope = "leaderboard"
     queryset = get_user_model().objects.filter(is_visible=True).order_by("-leaderboard_points", "last_score")
     serializer_class = UserPointsSerializer
 
     def list(self, request, *args, **kwargs):
+        """Return a list of users and how many points they have."""
         if should_hide_scoreboard():
             return FormattedResponse({})
         return super(UserListView, self).list(request, *args, **kwargs)
 
 
 class TeamListView(ListAPIView):
+    """API endpoint to display the team scoreboard."""
+
     throttle_scope = "leaderboard"
     queryset = Team.objects.visible().ranked()
     serializer_class = TeamPointsSerializer
 
     def list(self, request, *args, **kwargs):
+        """Return a list of teams and how many points they have."""
         if should_hide_scoreboard():
             return FormattedResponse({})
         return super(TeamListView, self).list(request, *args, **kwargs)
 
 
 class MatrixScoreboardView(ReadOnlyModelViewSet):
+    """API endpoint to display the matrix scoreboard."""
+
     throttle_scope = "leaderboard"
     queryset = Team.objects.visible().ranked().prefetch_solves()
     serializer_class = MatrixSerializer
 
     def list(self, request, *args, **kwargs):
+        """Return a list of teams and which challenges they have solved."""
         if should_hide_scoreboard():
             return FormattedResponse({})
         return super(MatrixScoreboardView, self).list(request, *args, **kwargs)
