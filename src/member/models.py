@@ -17,7 +17,7 @@ from core.validators import printable_name
 
 
 class TOTPStatus(IntEnum):
-    """The status of a user's totp device"""
+    """The status of a user's totp device."""
 
     DISABLED = 0
     VERIFYING = 1
@@ -59,9 +59,10 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         return self.username
 
     def can_login(self):
-        """Returns true if the user can login."""
+        """Return true if the user can login."""
         return self.is_staff or (
-            config.get("enable_login") and (config.get("enable_prelogin") or config.get("start_time") <= time.time())
+                config.get("enable_login") and (
+                    config.get("enable_prelogin") or config.get("start_time") <= time.time())
         )
 
     def issue_token(self, owner=None):
@@ -77,9 +78,11 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         return hasattr(self, "totp_device") and self.totp_device.verified
 
     def should_deny_admin(self):
-        """Return True if the user should be denied admin perms.
+        """
+        Return True if the user should be denied admin perms.
 
-           This being False does not mean the user should have admin permissions."""
+        This being False does not mean the user should have admin permissions.
+        """
         return config.get("enable_force_admin_2fa") and not self.has_2fa()
 
     def recalculate_score(self):
