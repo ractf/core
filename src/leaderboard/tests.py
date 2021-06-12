@@ -251,6 +251,7 @@ class CTFTimeListTestCase(APITestCase):
         self.assertEqual(len(response.data["standings"]), 15)
 
     def test_order(self):
+        """Test the order of the scoreboard is correct."""
         populate()
         response = self.client.get(reverse("leaderboard-ctftime"))
         points = [x["score"] for x in response.data["standings"]]
@@ -258,7 +259,7 @@ class CTFTimeListTestCase(APITestCase):
 
 
 class MatrixTestCase(APITestCase):
-    """Test the order of the scoreboard is correct."""
+    """Test the matrix scoreboard."""
 
     def setUp(self):
         """Remove the rate limit for the view."""
