@@ -1,3 +1,5 @@
+"""Database models and querysets for the team app."""
+
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import CICharField
 from django.db import models, transaction
@@ -41,6 +43,7 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
 
     @property
     def solved_challenges(self) -> "models.QuerySet[Challenge]":
+        """Return the list of challenges the team has solved."""
         return self.solves.filter(correct=True).values_list("challenge", flat=True)
 
     def recalculate_score(self):
