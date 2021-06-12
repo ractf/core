@@ -6,6 +6,6 @@ from rest_framework.routers import DefaultRouter
 from pages import views
 
 router = DefaultRouter()
-router.register(r"", views.TagViewSet, basename="pages")
+router.register(r"", views.PageViewSet, basename="pages")
 
 urlpatterns = [path("", include(router.urls))]
