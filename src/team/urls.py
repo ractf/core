@@ -1,3 +1,5 @@
+"""URL routes for the team app."""
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
