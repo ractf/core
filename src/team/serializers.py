@@ -1,3 +1,5 @@
+"""Serializers for team related api endpoints."""
+
 from rest_framework import serializers
 
 from challenge.serializers import SolveSerializer
@@ -8,11 +10,15 @@ from team.models import Team
 
 
 class SelfTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
+    """Serializer used for the current user's team."""
+
     members = MinimalMemberSerializer(many=True, read_only=True)
     solves = SolveSerializer(many=True, read_only=True)
     incorrect_solves = serializers.SerializerMethodField()
 
     class Meta:
+        """The fields to serialize."""
+
         model = Team
         fields = [
             "id",
@@ -31,11 +37,15 @@ class SelfTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
 
 
 class TeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
+    """Serializer used for other users' teams."""
+
     members = MinimalMemberSerializer(many=True, read_only=True)
     solves = SolveSerializer(many=True, read_only=True)
     incorrect_solves = serializers.SerializerMethodField()
 
     class Meta:
+        """Which fields to serialize."""
+
         model = Team
         fields = [
             "id",
@@ -51,26 +61,36 @@ class TeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         ]
 
     def get_incorrect_solves(self, instance):
+        """Get the amount of incorrect solves this team has."""
         return instance.solves.filter(correct=False).count()
 
 
 class ListTeamSerializer(serializers.ModelSerializer):
+    """Team serializer with minimal information."""
+
     members = serializers.SerializerMethodField()
 
     class Meta:
+        """The fields to serialize."""
+
         model = Team
         fields = ["id", "name", "members"]
 
     def get_members(self, instance):
+        """The amount of members in the team."""
         return instance.members.count()
 
 
 class AdminTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
+    """Serializer for admins viewing/modifying teams."""
+
     members = MinimalMemberSerializer(many=True, read_only=True)
     solves = SolveSerializer(many=True, read_only=True)
     incorrect_solves = serializers.SerializerMethodField()
 
     class Meta:
+        """The fields to serialize."""
+
         model = Team
         fields = [
             "id",
@@ -87,18 +107,27 @@ class AdminTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
 
 
 class MinimalTeamSerializer(serializers.ModelSerializer):
+    """Serializer used for listing teams."""
+
     class Meta:
+        """The fields to serialize."""
+
         model = Team
         fields = ["id", "is_visible", "name", "owner", "description"]
 
 
 class CreateTeamSerializer(serializers.ModelSerializer):
+    """Serializer used for team creation."""
+
     class Meta:
+        """The fields to serialize."""
+
         model = Team
         fields = ["id", "is_visible", "name", "owner", "password"]
         read_only_fields = ["id", "is_visible", "owner"]
 
     def create(self, validated_data):
+        """Create the team and set the owner."""
         name = validated_data["name"]
         password = validated_data["password"]
         team = Team.objects.create(name=name, password=password, owner=self.context["request"].user)
