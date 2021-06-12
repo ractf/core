@@ -1,3 +1,5 @@
+"""Serializers for the members app."""
+
 import secrets
 
 from django.contrib.auth import get_user_model
@@ -10,11 +12,15 @@ from member.models import UserIP
 
 
 class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
+    """Serializer for Member objects."""
+
     solves = SolveSerializer(many=True, read_only=True)
     team_name = serializers.ReadOnlyField(source="team.name")
     incorrect_solves = serializers.SerializerMethodField()
 
     class Meta:
+        """The fields of the member to serialize."""
+
         model = get_user_model()
         fields = [
             "id",
@@ -40,19 +46,27 @@ class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
 
 
 class ListMemberSerializer(serializers.ModelSerializer):
+    """Serializer for listing Member objects."""
+
     team_name = serializers.ReadOnlyField(source="team.name")
 
     class Meta:
+        """The fields of the member to serialize."""
+
         model = get_user_model()
         fields = ["id", "username", "team", "team_name"]
 
 
 class AdminMemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
+    """Serializer used by admins for Member objects."""
+
     solves = SolveSerializer(many=True, read_only=True)
     team_name = serializers.ReadOnlyField(source="team.name")
     incorrect_solves = serializers.SerializerMethodField()
 
     class Meta:
+        """The fields of the member to serialize."""
+
         model = get_user_model()
         fields = [
             "id",
@@ -80,9 +94,13 @@ class AdminMemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
 
 
 class MinimalMemberSerializer(serializers.ModelSerializer):
+    """Serializer for members that includes minimal detail."""
+
     team_name = serializers.ReadOnlyField(source="team.name")
 
     class Meta:
+        """The fields to serialize."""
+
         model = get_user_model()
         fields = [
             "id",
@@ -106,6 +124,8 @@ class MinimalMemberSerializer(serializers.ModelSerializer):
 
 
 class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
+    """Serializer used for serializing the current user"""
+
     from team.serializers import MinimalTeamSerializer
 
     solves = SolveSerializer(many=True, read_only=True)
@@ -116,6 +136,8 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     has_2fa = serializers.BooleanField()
 
     class Meta:
+        """The fields to serialize, and which fields should be read only."""
+
         model = get_user_model()
         fields = [
             "id",
@@ -149,11 +171,13 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         ]
 
     def validate_email(self, value):
+        """Update email verification token when a user's email is updated."""
         self.instance.email_token = secrets.token_hex()
         self.instance.save()
         return value
 
     def update(self, instance, validated_data):
+        """Update a user's team's name to match their username if teams are disabled"""
         if not config.get("enable_teams"):
             if instance.team:
                 instance.team.name = validated_data.get("username", instance.username)
@@ -162,6 +186,10 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
 
 
 class UserIPSerializer(serializers.ModelSerializer):
+    """Serializer for UserIP objects."""
+
     class Meta:
+        """The fields to serialize."""
+
         model = UserIP
         fields = ["user", "ip", "seen", "last_seen", "user_agent"]
