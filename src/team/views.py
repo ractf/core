@@ -1,3 +1,5 @@
+"""API endpoints for managing teams."""
+
 from django.http import Http404
 from rest_framework import filters
 from rest_framework.decorators import action
@@ -34,12 +36,15 @@ from team.serializers import (
 
 
 class SelfView(RetrieveUpdateAPIView):
+    """A view to get the details or modify the current user's team."""
+
     serializer_class = SelfTeamSerializer
     permission_classes = (IsAuthenticated & IsTeamOwnerOrReadOnly & ReadOnlyBot,)
     throttle_scope = "self"
     pagination_class = None
 
     def get_object(self):
+        """Get the current user's team or 404."""
         if self.request.user.team is None:
             raise Http404()
         return (
@@ -57,6 +62,8 @@ class SelfView(RetrieveUpdateAPIView):
 
 
 class TeamViewSet(AdminListModelViewSet):
+    """View and modify other teams."""
+
     permission_classes = (AdminOrReadOnlyVisible,)
     throttle_scope = "team"
     serializer_class = TeamSerializer
@@ -67,6 +74,7 @@ class TeamViewSet(AdminListModelViewSet):
     filter_backends = [filters.SearchFilter]
 
     def get_queryset(self):
+        """Get the queryset containing the relevant team(s) and details."""
         if self.action == "list":
             if self.request.user.is_staff:
                 return Team.objects.order_by("id").prefetch_related("members")
@@ -95,12 +103,14 @@ class TeamViewSet(AdminListModelViewSet):
 
     @action(detail=True, methods=["POST"], permission_classes=[IsAdminUser])
     def recalculate_score(self, request, pk=None):
+        """Recalculate a team's score and the scores of the users in the team."""
         team = self.get_object()
         team.recalculate_score()
-        team.save()
 
 
 class CreateTeamView(CreateAPIView):
+    """View for creating a team."""
+
     serializer_class = CreateTeamSerializer
     model = Team
     permission_classes = (IsAuthenticated & ~HasTeam,)
@@ -108,10 +118,13 @@ class CreateTeamView(CreateAPIView):
 
 
 class JoinTeamView(APIView):
+    """Endpoint for the user joining a team."""
+
     permission_classes = (IsAuthenticated & ~HasTeam & TeamsEnabled,)
     throttle_scope = "team_join"
 
     def post(self, request):
+        """Check if the user can join a team, and add them to it."""
         if not config.get("enable_team_join"):
             return FormattedResponse(m="join_disabled", status=HTTP_403_FORBIDDEN)
         name = request.data.get("name")
@@ -139,11 +152,15 @@ class JoinTeamView(APIView):
 class LeaveTeamView(APIView):
     """
     Remove the authenticated user from a team.
+
+    If the user is the owner of the team, they will be blocked from leaving if the team is not empty,
+    else the team is deleted.
     """
 
     permission_classes = (IsAuthenticated & HasTeam & TeamsEnabled,)
 
     def post(self, request):
+        """Leave the team and return if it was successful."""
         if not config.get("enable_team_leave"):
             return FormattedResponse(m="leave_disabled", status=HTTP_403_FORBIDDEN)
         if Solve.objects.filter(solved_by=request.user).exists():
