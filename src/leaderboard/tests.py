@@ -45,7 +45,7 @@ def populate():
 
 
 class ScoreListTestCase(APITestCase):
-    """Tests for the scorelist endpoint"""
+    """Tests for the scorelist endpoint."""
 
     def setUp(self):
         GraphView.throttle_scope = ""
