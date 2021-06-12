@@ -77,7 +77,7 @@ class ListTeamSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "members"]
 
     def get_members(self, instance):
-        """The amount of members in the team."""
+        """Return the amount of members in the team."""
         return instance.members.count()
 
 
