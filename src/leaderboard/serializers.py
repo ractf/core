@@ -22,6 +22,7 @@ class LeaderboardTeamScoreSerializer(serializers.ModelSerializer):
 
     class Meta:
         """The fields to serialize."""
+
         model = Score
         fields = ["points", "timestamp", "team_name", "reason", "metadata"]
 
@@ -33,6 +34,7 @@ class LeaderboardUserScoreSerializer(serializers.ModelSerializer):
 
     class Meta:
         """The fields to serialize."""
+
         model = Score
         fields = ["points", "timestamp", "user_name", "reason", "metadata"]
 
@@ -42,6 +44,7 @@ class TeamPointsSerializer(serializers.ModelSerializer):
 
     class Meta:
         """The fields to serialize."""
+
         model = Team
         fields = ["name", "id", "leaderboard_points"]
 
@@ -51,6 +54,7 @@ class UserPointsSerializer(serializers.ModelSerializer):
 
     class Meta:
         """The fields to serialize."""
+
         model = get_user_model()
         fields = ["username", "id", "leaderboard_points"]
 
@@ -62,6 +66,7 @@ class MatrixSerializer(serializers.ModelSerializer):
 
     class Meta:
         """The fields to serialize."""
+
         model = Team
         fields = ["id", "name", "leaderboard_points", "solve_ids"]
 
