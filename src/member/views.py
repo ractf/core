@@ -1,3 +1,5 @@
+"""API routes for the Member app."""
+
 from django.contrib.auth import get_user_model
 from rest_framework import filters
 from rest_framework.generics import RetrieveUpdateAPIView
@@ -6,7 +8,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from core.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
 from core.viewsets import AdminListModelViewSet
-from member.models import Member, UserIP
+from member.models import UserIP
 from member.serializers import (
     AdminMemberSerializer,
     ListMemberSerializer,
@@ -17,11 +19,15 @@ from member.serializers import (
 
 
 class SelfView(RetrieveUpdateAPIView):
+    """API endpoints for viewing and updating the current user."""
+
     serializer_class = SelfSerializer
     permission_classes = (IsAuthenticated & ReadOnlyBot,)
     throttle_scope = "self"
 
     def get_object(self):
+        """Get the current member with some prefetches."""
+
         UserIP.hook(self.request)
         return (
             get_user_model()
@@ -45,6 +51,8 @@ class SelfView(RetrieveUpdateAPIView):
 
 
 class MemberViewSet(AdminListModelViewSet):
+    """Viewset for viewing and updating members."""
+
     permission_classes = (AdminOrReadOnlyVisible,)
     throttle_scope = "member"
     serializer_class = MemberSerializer
@@ -55,6 +63,7 @@ class MemberViewSet(AdminListModelViewSet):
     filter_backends = [filters.SearchFilter]
 
     def get_queryset(self):
+        """Return the queryset for the member or list of members."""
         if self.action != "list":
             return get_user_model().objects.prefetch_related(
                 "team",
@@ -76,6 +85,8 @@ class MemberViewSet(AdminListModelViewSet):
 
 
 class UserIPViewSet(ModelViewSet):
+    """Viewset for managing UserIP objects."""
+
     queryset = UserIP.objects.all()
     pagination_class = None
     permission_classes = (IsAdminUser,)
