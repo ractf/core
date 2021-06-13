@@ -74,7 +74,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         )
 
     @property
-    def has_2fa(self) -> bool:
+    def enabled_2fa(self) -> bool:
         """Check if the user has 2fa enabled."""
         return self.has_totp_device and self.totp_device.verified
 
