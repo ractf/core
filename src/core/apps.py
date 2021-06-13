@@ -1,3 +1,5 @@
+"""App config for the core app, abstract app config for apps that provide plugins and a self check."""
+
 import abc
 from pydoc import locate
 
@@ -9,14 +11,20 @@ from core import plugins
 
 
 class CoreConfig(AppConfig):
+    """App config for the core app."""
+
     name = "core"
 
     def ready(self) -> None:
+        """Load plugins when django is ready."""
         plugins.load_plugins(settings.INSTALLED_PLUGINS)
 
 
 class PluginConfig(AppConfig, abc.ABC):
+    """Base class for app configs that provide plugins."""
+
     def ready(self):
+        """Register plugin providers when django is ready."""
         from core import providers
 
         if hasattr(self, "provides") and isinstance(self.provides, list):  # pragma: no cover
@@ -26,6 +34,7 @@ class PluginConfig(AppConfig, abc.ABC):
 
 @register(Tags.compatibility)
 def check_settings(app_configs, **kwargs):  # pragma: no cover
+    """Check that no required settings are missing."""
     errors = []
     for setting in settings.REQUIRED_SETTINGS:
         if getattr(settings, setting, None) is None:
