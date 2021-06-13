@@ -1,4 +1,4 @@
-"""Settings for running RACTF backend locally."""
+"""Settings for running RACTF backend in staging."""
 
 # flake8: noqa
 

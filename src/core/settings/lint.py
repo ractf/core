@@ -1,3 +1,5 @@
+"""Settings for linting RACTF Core."""
+
 from . import *
 
 SECRET_KEY = "CorrectHorseBatteryStaple"

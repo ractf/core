@@ -1,3 +1,5 @@
+"""Settings for testing RACTF Core."""
+
 from . import *
 
 SECRET_KEY = "CorrectHorseBatteryStaple"
