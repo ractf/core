@@ -5,10 +5,11 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from authentication import views
-from authentication.models import InviteCode
+from authentication.models import InviteCode, TOTPDevice
 from authentication.tests import utils
 from config import config
 from member.models import Member
+from team.models import Team
 
 
 class RegisterTestCase(APITestCase):
@@ -339,4 +340,4 @@ class RegenerateBackupCodesTestCase(APITestCase):
         user.save()
         self.client.force_authenticate(user=Member.objects.get(id=self.user.pk))
         response = self.client.post(reverse("regenerate-backup-codes"))
-        self.assertEqual(response.status_code, status.status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
