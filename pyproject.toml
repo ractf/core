@@ -102,8 +102,8 @@ pycodestyle = ["+*"]
 pyflakes = ["+*"]
 
 [tool.flakehell]
-show_source = true
 max_line_length = 120
+exclude = ["migrations"]
 extended_default_ignore = []
 
 [build-system]
