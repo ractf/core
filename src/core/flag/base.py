@@ -11,6 +11,7 @@ class FlagPlugin(Plugin, abc.ABC):
     plugin_type = "flag"
 
     def __init__(self, challenge):
+        """Set the challenge used by this plugin."""
         self.challenge = challenge
 
     @abc.abstractmethod
