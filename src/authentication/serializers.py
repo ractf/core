@@ -25,7 +25,7 @@ from team.models import Team
 
 
 class LoginSerializer(serializers.Serializer):
-    """Serialize relevant fields used in the login form."""
+    """Serialize fields used in the login form."""
 
     username = serializers.CharField()
     password = serializers.CharField(trim_whitespace=False)
@@ -38,18 +38,24 @@ class LoginSerializer(serializers.Serializer):
 
 
 class LoginTwoFactorSerializer(serializers.Serializer):
+    """Serialize fields used in a login for 2FA-enabled accounts."""
+
     username = serializers.CharField()
     password = serializers.CharField(trim_whitespace=False)
     tfa = serializers.CharField(max_length=255, allow_null=True, allow_blank=True)
 
     def validate(self, data):
+        """Validate data using the relevant provider for this user."""
         user = providers.get_provider("login").login_user(**data, context=self.context)
         data["user"] = user
         return data
 
 
 class RegistrationSerializer(serializers.Serializer):
+    """Serialize fields used for registering new accounts."""
+
     def validate(self, _):
+        """Validate relevant fields for a new account's field data."""
         register_end_time = config.get("register_end_time")
         if not (config.get("enable_registration") and time.time() >= config.get("register_start_time")) and (
             register_end_time < 0 or register_end_time > time.time()
@@ -122,21 +128,25 @@ class RegistrationSerializer(serializers.Serializer):
             return {}
 
     def to_representation(self, instance):
+        """Get a dictionary representation of this serializer's data."""
         representation = super(RegistrationSerializer, self).to_representation(instance)
         representation.pop("password", None)
         return representation
 
 
 class PasswordResetSerializer(serializers.Serializer):
+    """Serialize fields used for resetting a user's data."""
+
     uid = serializers.IntegerField()
     token = serializers.CharField(max_length=128)
     password = serializers.CharField()
 
     def validate(self, data):
+        """Validate and return data sent for a password reset request."""
         uid = data.get("uid")
         token = data.get("token")
         password = data.get("password")
-        user = get_object_or_404(get_user_model(), id=uid)
+        user = get_object_or_404(get_user_model(), pk=uid)
         reset_token = get_object_or_404(PasswordResetToken, token=token, user_id=uid, expires__gt=timezone.now())
         password_validation.validate_password(password, reset_token)
         data["user"] = user
@@ -145,10 +155,13 @@ class PasswordResetSerializer(serializers.Serializer):
 
 
 class EmailVerificationSerializer(serializers.Serializer):
+    """Serialize fields used for verifying an account by email."""
+
     uid = serializers.IntegerField()
     token = serializers.CharField(max_length=64)
 
     def validate(self, data):
+        """Validate the user ID and token, raising an error if the user is already verified."""
         uid = int(data.get("uid"))
         token = data.get("token")
         user = get_object_or_404(get_user_model(), id=uid, email_token=token)
@@ -158,10 +171,13 @@ class EmailVerificationSerializer(serializers.Serializer):
         return data
 
 
-class EmailSerializer(serializers.Serializer):
+class ResendEmailSerializer(serializers.Serializer):
+    """Serialize fields used for resending a verification email to a user."""
+
     email = serializers.EmailField()
 
     def validate(self, data):
+        """Validate the provided email, ensuring that it links to a real user."""
         user = get_object_or_404(get_user_model(), email=data.get("email"))
         if user.email_verified:
             raise serializers.ValidationError("email is already verified")
@@ -170,10 +186,13 @@ class EmailSerializer(serializers.Serializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
+    """Serialize fields used for changing a user's password."""
+
     password = serializers.CharField()
     old_password = serializers.CharField()
 
     def validate(self, data):
+        """Validate the provided user, along with the old and new passwords."""
         user = self.context["request"].user
         password = data.get("password")
         old_password = data.get("old_password")
@@ -184,18 +203,26 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class GenerateInvitesSerializer(serializers.Serializer):
+    """Serialize fields used for generating invite links."""
+
     amount = serializers.IntegerField(max_value=10000)
     max_uses = serializers.IntegerField(required=False, default=1)
     auto_team = serializers.IntegerField(required=False, default=None)
 
 
 class InviteCodeSerializer(serializers.ModelSerializer):
+    """Serialize fields used for the InviteCode model."""
+
     class Meta:
+        """Specify the model and fields to serialize."""
+
         model = InviteCode
         fields = ["id", "code", "uses", "max_uses", "auto_team"]
 
 
 class CreateBotSerializer(serializers.Serializer):
+    """Serialize fields used for creating a bot account."""
+
     username = serializers.CharField()
     is_visible = serializers.BooleanField()
     is_staff = serializers.BooleanField()
