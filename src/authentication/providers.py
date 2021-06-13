@@ -1,3 +1,7 @@
+"""Custom base authentication providers for explicit provider definition."""
+
+# TODO: Look for a nicer solution to this, perhaps this logic is already implemented in DRF/Django?
+
 import abc
 
 from django.contrib.auth import get_user_model
