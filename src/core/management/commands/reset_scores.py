@@ -14,6 +14,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """
+        Reset all points.
+
         Reset all teams and users to 0 points, remove all scores and solves,
         and remove first bloods from all challenges.
         """
