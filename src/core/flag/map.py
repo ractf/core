@@ -1,12 +1,17 @@
+"""Flag plugin to validate locations on a map."""
+
 import math
 
 from core.flag.base import FlagPlugin
 
 
 class MapFlagPlugin(FlagPlugin):
+    """Flag plugin to validate locations on a map."""
+
     name = "map"
 
     def check(self, flag, *args, **kwargs):
+        """Return True if the given location is within the specified radius of the correct location."""
         r = 6373.0
 
         correct_latlon = self.challenge.flag_metadata["location"]
@@ -22,7 +27,7 @@ class MapFlagPlugin(FlagPlugin):
         return self.challenge.flag_metadata["radius"] > distance
 
     def self_check(self):
-        """Ensure the set flag metadata has the required properties"""
+        """Ensure the set flag metadata has the required properties."""
         issues = []
 
         if not self.challenge.flag_metadata.get("radius", ""):
