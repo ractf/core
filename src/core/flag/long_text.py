@@ -22,7 +22,7 @@ class LongTextFlagPlugin(FlagPlugin):
         return clean(self.challenge.flag_metadata["flag"]) == clean(flag)
 
     def self_check(self):
-        """Ensure the set flag metadata has a 'flag' property"""
+        """Ensure the set flag metadata has a 'flag' property."""
         if not self.challenge.flag_metadata.get("flag", ""):
             return ["property 'flag' must be set!"]
         return []
