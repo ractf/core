@@ -24,11 +24,11 @@ from authentication.permissions import HasTwoFactor, VerifyingTwoFactor
 from authentication.serializers import (
     ChangePasswordSerializer,
     CreateBotSerializer,
-    EmailSerializer,
     EmailVerificationSerializer,
     GenerateInvitesSerializer,
     InviteCodeSerializer,
     RegistrationSerializer,
+    ResendEmailSerializer,
 )
 from core import providers
 from core.mail import send_email
@@ -269,7 +269,7 @@ class VerifyEmailView(GenericAPIView):
 class ResendEmailView(GenericAPIView):
     permission_classes = (~permissions.IsAuthenticated,)
     throttle_scope = "resend_verify_email"
-    serializer_class = EmailSerializer
+    serializer_class = ResendEmailSerializer
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data, context={"request": request})
