@@ -16,7 +16,11 @@ from core.response import FormattedResponse
 
 
 def handle_exception(exc: Exception, context: dict) -> Optional[Response]:
-    """Handle exceptions, sending data to Sentry if errors are unhandled."""
+    """
+    Handle exceptions, sending data to Sentry if errors are unhandled.
+
+    Abandon hope all ye who enter here.
+    """
     if "X-Reasonable" in context["request"].headers:
         return exception_handler(exc, context)
 
