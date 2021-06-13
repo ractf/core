@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 
 from authentication import views
 from authentication.models import InviteCode
+from authentication.tests import utils
 from config import config
 from member.models import Member
 
@@ -76,7 +77,7 @@ class RegisterTestCase(APITestCase):
         response = self.client.post(reverse("register"), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    @mock.patch("time.time", side_effect=get_fake_time)
+    @mock.patch("time.time", side_effect=utils.get_fake_time)
     def test_register_closed(self, mock_obj):
         config.set("enable_prelogin", False)
         data = {

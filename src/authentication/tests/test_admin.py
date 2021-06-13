@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.urls import reverse
 from rest_framework import status
