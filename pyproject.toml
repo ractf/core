@@ -101,10 +101,11 @@ multi_line_output = 3
 
 [tool.flakehell.plugins]
 flake8-docstrings = ["+*"]
-pycodestyle = ["+*"]
+pycodestyle = ["+*", "-W503"]
 pyflakes = ["+*"]
 
 [tool.flakehell]
+ignore = "W503"
 max_line_length = 120
 exclude = ["migrations"]
 extended_default_ignore = []
