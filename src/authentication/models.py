@@ -3,12 +3,9 @@ import os
 from datetime import timedelta
 
 import pyotp
-from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django_prometheus.models import ExportModelOperationsMixin
-
-from team.models import Team
 
 
 class Token(ExportModelOperationsMixin("token"), models.Model):
