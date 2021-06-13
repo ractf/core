@@ -101,11 +101,20 @@ class TeamViewSet(AdminListModelViewSet):
             )
         )
 
-    @action(detail=True, methods=["POST"], permission_classes=[IsAdminUser])
+    @action(methods=["POST"], detail=True, permission_classes=[IsAdminUser])
     def recalculate_score(self, request, pk=None):
-        """Recalculate a team's score and the scores of the users in the team."""
+        """Recalculate the score of a team and its members."""
         team = self.get_object()
         team.recalculate_score()
+        return FormattedResponse(d={"points": team.points, "leaderboard_points": team.leaderboard_points})
+
+    @action(methods=["POST"], detail=False, permission_classes=[IsAdminUser])
+    def recalculate_all_scores(self, request):
+        """Recalculate the scores of every team and their members."""
+        teams = self.get_queryset()
+        for team in teams:
+            team.recalculate_score()
+        return FormattedResponse()
 
 
 class CreateTeamView(CreateAPIView):

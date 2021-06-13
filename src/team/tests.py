@@ -1,4 +1,5 @@
 """Unit tests for the teams app."""
+import random
 
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -12,7 +13,7 @@ from rest_framework.status import (
 )
 from rest_framework.test import APITestCase
 
-from challenge.models import Category, Challenge, Solve
+from challenge.models import Category, Challenge, Score, Solve
 from config import config
 from team.models import Team
 
@@ -312,3 +313,131 @@ class TeamViewsetTestCase(TeamSetupMixin, APITestCase):
         self.client.force_authenticate(self.admin_user)
         response = self.client.patch(reverse("team-detail", kwargs={"pk": self.team.pk}), data={"name": "test"})
         self.assertEqual(response.status_code, HTTP_200_OK)
+
+
+class RecalculateTeamViewTestCase(APITestCase):
+    """Tests for recalculating the score of a team."""
+
+    def setUp(self):
+        """Create users and teams for testing."""
+        user = get_user_model()(username="recalculate-test", email="recalculate-test@example.org")
+        user.save()
+        admin_user = get_user_model()(
+            username="recalculate-test-admin",
+            email="recalculate-test-admin@example.org",
+        )
+        admin_user.is_staff = True
+        admin_user.save()
+        team = Team(name="recalculate-team", owner=user, password="a")
+        team.save()
+        user.team = team
+        user.save()
+        self.user = user
+        self.admin_user = admin_user
+        self.team = team
+
+    def test_unauthed(self):
+        """An unauthenticated user should not be able to access this endpoint."""
+        response = self.client.post(reverse("team-recalculate-score", kwargs={"pk": self.team.pk}))
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+
+    def test_authed(self):
+        """An authenticated admin user should be able to access this endpoint."""
+        self.client.force_authenticate(self.admin_user)
+        response = self.client.post(reverse("team-recalculate-score", kwargs={"pk": self.team.pk}))
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
+    def test_authed_not_admin(self):
+        """An authenticated non-admin user should not be able to access this endpoint."""
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse("team-recalculate-score", kwargs={"pk": self.team.pk}))
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_recalculate(self):
+        """The recalculation should be equal to the sum of all the teams scores."""
+        total = 0
+        for i in range(15):
+            points = random.randint(0, 100)
+            total += points
+            Score(team=self.team, user=self.user, reason="test", points=points).save()
+        Score(team=self.team, user=self.user, reason="test", points=100, leaderboard=False).save()
+        self.client.force_authenticate(self.admin_user)
+        self.client.post(reverse("team-recalculate-score", kwargs={"pk": self.team.pk}))
+        self.assertEqual(Team.objects.get(id=self.team.pk).points, total + 100)
+
+    def test_recalculate_leaderboard(self):
+        """Score objects where leaderboard=False should not be included in leaderboard_points."""
+        total = 0
+        for i in range(15):
+            points = random.randint(0, 100)
+            total += points
+            Score(team=self.team, user=self.user, reason="test", points=points).save()
+        Score(team=self.team, user=self.user, reason="test", points=100, leaderboard=False).save()
+        self.client.force_authenticate(self.admin_user)
+        self.client.post(reverse("team-recalculate-score", kwargs={"pk": self.team.pk}))
+        self.assertEqual(Team.objects.get(id=self.team.pk).leaderboard_points, total)
+
+
+class RecalculateAllViewTestCase(APITestCase):
+    """Tests for recalculating the scores of every team."""
+
+    def setUp(self):
+        """Create users and teams for testing."""
+        user = get_user_model()(username="recalculate-test", email="recalculate-test@example.org")
+        user.save()
+        admin_user = get_user_model()(
+            username="recalculate-test-admin",
+            email="recalculate-test-admin@example.org",
+        )
+        admin_user.is_staff = True
+        admin_user.save()
+        team = Team(name="recalculate-team", owner=user, password="a")
+        team.save()
+        user.team = team
+        user.save()
+        self.user = user
+        self.admin_user = admin_user
+        self.team = team
+
+    def test_unauthed(self):
+        """An unauthenticated user should not be able to access this endpoint."""
+        response = self.client.post(reverse("team-recalculate-all-scores"))
+        self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
+
+    def test_authed(self):
+        """An authenticated admin user should be able to access this endpoint."""
+        self.client.force_authenticate(self.admin_user)
+        response = self.client.post(reverse("team-recalculate-all-scores"))
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
+    def test_authed_not_admin(self):
+        """An authenticated non-admin user should not be able to access this endpoint."""
+        self.client.force_authenticate(self.user)
+        response = self.client.post(reverse("team-recalculate-all-scores"))
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_recalculate(self):
+        """The recalculation should be equal to the sum of all the teams scores."""
+        total = 0
+        for i in range(15):
+            points = random.randint(0, 100)
+            total += points
+            Score(team=self.team, user=self.user, reason="test", points=points).save()
+        Score(team=self.team, user=self.user, reason="test", points=100, leaderboard=False).save()
+        self.client.force_authenticate(self.admin_user)
+        self.client.post(reverse("team-recalculate-all-scores"))
+        self.assertEqual(Team.objects.get(id=self.team.pk).points, total + 100)
+        self.assertEqual(get_user_model().objects.get(id=self.user.pk).points, total + 100)
+
+    def test_recalculate_leaderboard(self):
+        """Score objects where leaderboard=False should not be included in leaderboard_points."""
+        total = 0
+        for i in range(15):
+            points = random.randint(0, 100)
+            total += points
+            Score(team=self.team, user=self.user, reason="test", points=points).save()
+        Score(team=self.team, user=self.user, reason="test", points=100, leaderboard=False).save()
+        self.client.force_authenticate(self.admin_user)
+        self.client.post(reverse("team-recalculate-all-scores"))
+        self.assertEqual(Team.objects.get(id=self.team.pk).leaderboard_points, total)
+        self.assertEqual(get_user_model().objects.get(id=self.user.pk).leaderboard_points, total)

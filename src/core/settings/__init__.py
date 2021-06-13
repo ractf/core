@@ -96,7 +96,6 @@ INSTALLED_APPS = [
     "leaderboard.apps.LeaderboardConfig",
     "member.apps.MemberConfig",
     "pages.apps.PagesConfig",
-    "scorerecalculator.apps.ScorerecalculatorConfig",
     "team.apps.TeamConfig",
     "sockets.apps.SocketsConfig",
     "stats.apps.StatsConfig",

@@ -92,7 +92,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
         """Recalculate the score for this user and implicity save."""
         self.points = 0
         self.leaderboard_points = 0
-        for score in self.scores:
+        for score in self.scores.all():
             if score.leaderboard:
                 self.leaderboard_points += score.points - score.penalty
             self.points += score.points - score.penalty

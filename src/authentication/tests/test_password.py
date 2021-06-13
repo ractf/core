@@ -1,5 +1,5 @@
 """Test any password or password-reset related logic in authentication."""
-
+import time
 from unittest import mock
 
 from django.urls import reverse
@@ -60,6 +60,7 @@ class DoPasswordResetTestCase(APITestCase):
 
     def test_password_reset_issues_token(self):
         """Completing a password reset should issue a token."""
+        config.set("start_time", time.time() - 50000)
         data = {
             "uid": self.user.pk,
             "token": "testtoken",
