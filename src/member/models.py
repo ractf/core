@@ -81,7 +81,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
     @property
     def should_deny_admin(self) -> bool:
         """Check if the user should be explicitly denied admin perms."""
-        return config.get("enable_force_admin_2fa") and not self.has_2fa
+        return config.get("enable_force_admin_2fa") and not self.enabled_2fa
 
     def issue_token(self, owner=None) -> str:
         """Issue an authentication token for the user."""
