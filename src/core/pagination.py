@@ -1,3 +1,5 @@
+"""Pagination classes used by core."""
+
 from collections import OrderedDict
 
 from rest_framework.pagination import LimitOffsetPagination
@@ -5,8 +7,11 @@ from rest_framework.pagination import LimitOffsetPagination
 from core.response import FormattedResponse
 
 
-class FastPagination(LimitOffsetPagination):
+class RewriteURLPagination(LimitOffsetPagination):
+    """Subclass of LimitOffsetPagination to rewrite the url routes in a form that frontend understands."""
+
     def get_paginated_response(self, data):
+        """Return a paginated response with next and previous links rewritten."""
         return FormattedResponse(
             OrderedDict(
                 [
@@ -20,4 +25,5 @@ class FastPagination(LimitOffsetPagination):
 
     @staticmethod
     def format_link(result):
+        """Add /api/v2 into links."""
         return result if result is None else result.replace(".co.uk", ".co.uk/api/v2")

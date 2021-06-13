@@ -271,7 +271,7 @@ REST_FRAMEWORK = {
         "polaris_view_hosts": "100/minute",
         "polaris_view_instances": "100/minute",
     },
-    "DEFAULT_PAGINATION_CLASS": "core.pagination.FastPagination",
+    "DEFAULT_PAGINATION_CLASS": "core.pagination.RewriteURLPagination",
     "PAGE_SIZE": 100,
 }
 
