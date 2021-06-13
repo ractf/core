@@ -60,6 +60,9 @@ filterwarnings = """
   ignore:Using or importing the ABCs.*:DeprecationWarning
 """
 
+[tool.mypy]
+exclude = "migrations"
+
 [tool.coverage.run]
 source = ["src"]
 branch = true
