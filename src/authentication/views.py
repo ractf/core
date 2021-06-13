@@ -117,7 +117,7 @@ class VerifyTwoFactorView(APIView):
         if request.user.totp_device is not None and request.user.totp_device.validate_token(request.data["otp"]):
             request.user.totp_device.verified = True
             request.user.totp_device.save()
-            backup_codes = BackupCode.generate(request.user)
+            backup_codes = BackupCode.generate_for(request.user)
             verify_2fa.send(sender=self.__class__, user=request.user)
             return FormattedResponse({"valid": True, "backup_codes": backup_codes})
         return FormattedResponse({"valid": False})
@@ -179,7 +179,7 @@ class RegenerateBackupCodesView(APIView):
     throttle_scope = "2fa"
 
     def post(self, request, *args, **kwargs):
-        backup_codes = BackupCode.generate(request.user)
+        backup_codes = BackupCode.generate_for(request.user)
         return FormattedResponse({"backup_codes": backup_codes})
 
 
