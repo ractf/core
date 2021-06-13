@@ -1,3 +1,5 @@
+"""Command to generate an openapi schema."""
+
 import os
 from io import StringIO
 
@@ -6,6 +8,8 @@ from django.core.management import BaseCommand, call_command
 
 
 class Command(BaseCommand):
+    """Command to generate an openapi schema."""
+
     help = "Generate a schema file and add relevant metadata."
 
     def handle(self, *args, **options):
