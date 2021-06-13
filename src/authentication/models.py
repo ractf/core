@@ -66,6 +66,8 @@ class BackupCode(ExportModelOperationsMixin("backup_code"), models.Model):
     code = models.CharField(max_length=8, default=lambda: pyotp.random_base32(8))
 
     class Meta:
+        """Specify fields which should be used for composite uniqueness."""
+
         unique_together = [("user", "code")]
 
     @staticmethod
