@@ -1,3 +1,5 @@
+"""Plugin loader."""
+
 import inspect
 import logging
 from collections import defaultdict
@@ -12,6 +14,7 @@ feature_plugins_by_class = {}
 
 
 def load_plugins(plugin_list):
+    """Load all plugins in scope of modules specified in the list."""
     global plugins
     for plugin in plugin_list:
         for name, obj in inspect.getmembers(locate(plugin)):
