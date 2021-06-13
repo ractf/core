@@ -1,5 +1,7 @@
 """Tests for the member app."""
 
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpRequest
@@ -13,7 +15,7 @@ from rest_framework.status import (
 )
 from rest_framework.test import APITestCase
 
-from config import config
+from core.tests.utils import patch_config
 from member.models import UserIP
 from team.models import Team
 
@@ -72,25 +74,25 @@ class MemberTestCase(APITestCase):
         response = self.client.get(reverse("member-self"))
         self.assertEqual(response.data["email"], "test-self@example.org")
 
-    def test_self_change_username_teams_disabled(self):
+    @patch_config(enable_teams=False)
+    def test_self_change_username_teams_disabled(self, config_get):
         """Test changing username changed the name of the users team when teams are disabled."""
         self.client.force_authenticate(self.user)
         team = Team(name="team", password="123", owner=self.user)
         team.save()
         self.user.team = team
         self.user.save()
-        config.set("enable_teams", False)
         self.client.put(reverse("member-self"), data={"username": "test-self2", "email": "test-self@example.org"})
-        config.set("enable_teams", True)
         self.assertEqual(Team.objects.get(id=team.pk).name, "test-self2")
+        self.assertTrue(config_get.called_once)
 
-    def test_self_change_username_no_team(self):
+    @patch_config(enable_teams=False)
+    def test_self_change_username_no_team(self, config_get):
         """Test changing username with teams disabled changes the username."""
         self.client.force_authenticate(self.user)
-        config.set("enable_teams", False)
         self.client.put(reverse("member-self"), data={"username": "test-self2", "email": "test-self@example.org"})
-        config.set("enable_teams", True)
         self.assertEqual(get_user_model().objects.get(id=self.user.pk).username, "test-self2")
+        self.assertTrue(config_get.called_once)
 
 
 class MemberViewSetTestCase(APITestCase):

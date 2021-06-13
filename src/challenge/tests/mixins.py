@@ -9,11 +9,9 @@ from team.models import Team
 
 
 class ChallengeSetupMixin:
-    """
-    Mixin to create dummy challenge objects for use in tests.
+    """Mixin to create dummy challenge objects for use in tests."""
 
-    TODO: Deprecate in favour of Model factories and Faker().
-    """
+    # TODO: Deprecate in favour of Model factories and Faker().
 
     def setUp(self) -> None:
         """Create dummy challenges and any relevant related models."""
