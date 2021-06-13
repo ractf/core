@@ -1,9 +1,13 @@
+"""Base class from which all flag plugins inherit."""
+
 import abc
 
 from core.base import Plugin
 
 
 class FlagPlugin(Plugin, abc.ABC):
+    """Base class from which all flag plugins inherit."""
+
     plugin_type = "flag"
 
     def __init__(self, challenge):
@@ -11,6 +15,7 @@ class FlagPlugin(Plugin, abc.ABC):
 
     @abc.abstractmethod
     def check(self, flag, *args, **kwargs):
+        """Return True if a flag is valid."""
         pass
 
     @abc.abstractmethod
