@@ -1,13 +1,20 @@
+"""Renderers used to render RACTF core responses."""
+
 from rest_framework.renderers import JSONRenderer
 
 
 class RACTFJSONRenderer(JSONRenderer):
+    """Subclass of JSONRenderer to add more features and shoehorn responses into frontend's api format."""
+
+    # TODO: Deprecate this
+
     media_type = "application/json"
     format = "json"
     charset = "utf-8"
     render_style = "text"
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
+        """Return a json response in the correct format."""
         if (
             renderer_context
             and renderer_context.get("request")
