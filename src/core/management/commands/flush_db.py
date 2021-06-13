@@ -1,3 +1,5 @@
+"""Command to reset the database."""
+
 import sys
 
 import psycopg2
@@ -7,9 +9,12 @@ from django.core.management.commands import migrate
 
 
 class Command(BaseCommand):
+    """Command to reset the database."""
+
     help = "Resets the database to the default configuration"
 
     def handle(self, *args, **options):
+        """Drop the database, recreate it then run migrations."""
         connection = psycopg2.connect(
             user=settings.DATABASES["default"]["USER"],
             password=settings.DATABASES["default"]["PASSWORD"],
