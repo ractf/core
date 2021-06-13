@@ -70,5 +70,6 @@ def send_email(send_to, subject_line, template_name, **template_details):
             smtp.sendmail(sender, send_to, data.as_string())
     else:
         print(
-            f"Sending email '{subject_line}' to {send_to} using template {template_name} with details {template_details}"
+            f"Sending email '{subject_line}' to {send_to} using template {template_name}"
+            f" with details {template_details}"
         )

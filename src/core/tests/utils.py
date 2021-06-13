@@ -9,11 +9,11 @@ NO_OVERRIDE = object()
 
 
 def patch_config(**config_options) -> Callable:
-    """A custom decorator to override config options inside a test."""
+    """Override config options inside a test via a custom decorator."""
 
     def config_get_override(key: str) -> Any:
         """
-        A 'config.get' method with our specific changes.
+        Override the 'config.get' method with our specific changes.
 
         The dict.get call here defaults to an arbitrary object()
         to allow overrides with values set to 'None'.

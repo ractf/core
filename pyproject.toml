@@ -108,7 +108,7 @@ pyflakes = ["+*"]
 [tool.flakehell]
 ignore = "W503"
 max_line_length = 120
-exclude = ["migrations"]
+exclude = ["migrations", "settings"]
 extended_default_ignore = []
 
 [build-system]
