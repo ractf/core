@@ -1,3 +1,5 @@
+"""Validators used in RACTF core."""
+
 from string import printable
 
 from django.core import validators
@@ -19,13 +21,8 @@ def printable_name(value: str) -> None:
 
 @deconstructible
 class NameValidator(validators.RegexValidator):
+    """Ensure that usernames only contain letters, numbers, spaces and +-_."""
+
     regex = r"^[\w.+ -]+\Z"
-    message = _("Enter a valid name. This value may contain only letters, " "numbers, spaces, and ./+/-/_ characters.")
-    flags = 0
-
-
-@deconstructible
-class LenientNameValidator(validators.RegexValidator):
-    regex = r"^[]+\Z"
     message = _("Enter a valid name. This value may contain only letters, " "numbers, spaces, and ./+/-/_ characters.")
     flags = 0
