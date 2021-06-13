@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
-from authentication.models import Token
+from authentication.models import Token, TOTPDevice
 from config import config
 from core.validators import printable_name
 
@@ -54,6 +54,8 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
     points = models.IntegerField(default=0)
     leaderboard_points = models.IntegerField(default=0)
     last_score = models.DateTimeField(default=timezone.now)
+
+    totp_device: TOTPDevice
 
     def __str__(self) -> str:
         """Represent a member as a string, returns the username."""

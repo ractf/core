@@ -16,5 +16,5 @@ class HidePasswordMixin:
 
     @hide_password
     def dispatch(self, *args, **kwargs):
-        """Override dispatch() with the hide_password decorator."""
+        """Override dispatch with the hide_password decorator."""
         return super(APIView, self).dispatch(*args, **kwargs)

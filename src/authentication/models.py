@@ -72,8 +72,7 @@ class BackupCode(ExportModelOperationsMixin("backup_code"), models.Model):
 
     @staticmethod
     def generate_for(user) -> Iterable[str]:
-        """Regenerate backup codes for the given user."""
-        BackupCode.objects.filter(user=user).delete()
+        """Generate backup codes for the given user."""
         backup_codes = [BackupCode(user=user) for _ in range(10)]
         BackupCode.objects.bulk_create(backup_codes)
         return BackupCode.objects.filter(user=user).values_list("code", flat=True)
