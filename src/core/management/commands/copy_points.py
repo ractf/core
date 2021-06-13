@@ -10,6 +10,7 @@ from config import config
 
 class Command(BaseCommand):
     """Command to recalculate the leaderboard_points attribute."""
+
     help = "Removes all scores from the database"
 
     def handle(self, *args, **options):
