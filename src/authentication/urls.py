@@ -1,3 +1,5 @@
+"""URL routes for use in the authentication app."""
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
@@ -14,11 +16,7 @@ urlpatterns = [
     path("remove_2fa/", views.RemoveTwoFactorView.as_view(), name="remove-2fa"),
     path("login_2fa/", views.LoginTwoFactorView.as_view(), name="login-2fa"),
     path("logout/", views.LogoutView.as_view(), name="logout"),
-    path(
-        "request_password_reset/",
-        views.RequestPasswordResetView.as_view(),
-        name="request-password-reset",
-    ),
+    path("request_password_reset/", views.RequestPasswordResetView.as_view(), name="request-password-reset"),
     path("password_reset/", views.DoPasswordResetView.as_view(), name="do-password-reset"),
     path("verify_email/", views.VerifyEmailView.as_view(), name="verify-email"),
     path("resend_email/", views.ResendEmailView.as_view(), name="resend-email"),

@@ -31,6 +31,7 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(trim_whitespace=False)
 
     def validate(self, data):
+        """Validate data used in the login form."""
         user = providers.get_provider("login").login_user(**data, context=self.context)
         data["user"] = user
         return data
@@ -65,13 +66,8 @@ class RegistrationSerializer(serializers.Serializer):
     def create(self, validated_data):
         """
 
-        Whilst the API can resend verification emails,
-        the frontend doesnt have that implemented, in
-        addition to that, if smtp fails that early they are
-        going to have to do something regardless, so it is
-        easier [for us] to fail out of creating the user and
-        leave them on the register page, telling them something
-        went wrong then being confused why their email isnt there.
+        While the API does support resending verification emails, the frontend does not have this implemented.
+        This is why the user record is deleted if we failed sending the verification email.
         """
         user = providers.get_provider("registration").register_user(**validated_data, context=self.context)
 
