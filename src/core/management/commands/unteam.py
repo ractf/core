@@ -1,14 +1,20 @@
+"""Command to forcefully remove a user from a team."""
+
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 
 
 class Command(BaseCommand):
+    """Command to forcefully remove a user from a team."""
+
     help = "Removes all scores from the database"
 
     def add_arguments(self, parser):
+        """Add the user id parameter to the parser."""
         parser.add_argument("user_id", type=int)
 
     def handle(self, *args, **options):
+        """Remove a user from a team."""
         user = get_user_model().objects.get(pk=options["user_id"])
         print("Choices:", user.team.members)
         if user.team.owner == user:
