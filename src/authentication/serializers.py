@@ -64,11 +64,7 @@ class RegistrationSerializer(serializers.Serializer):
         return validated_data
 
     def create(self, validated_data):
-        """
-
-        While the API does support resending verification emails, the frontend does not have this implemented.
-        This is why the user record is deleted if we failed sending the verification email.
-        """
+        """Create a user, given all the relevant form fields."""
         user = providers.get_provider("registration").register_user(**validated_data, context=self.context)
 
         if not get_user_model().objects.all().exists():

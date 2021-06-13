@@ -61,8 +61,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
     def can_login(self):
         """Return true if the user can login."""
         return self.is_staff or (
-                config.get("enable_login") and (
-                    config.get("enable_prelogin") or config.get("start_time") <= time.time())
+            config.get("enable_login") and (config.get("enable_prelogin") or config.get("start_time") <= time.time())
         )
 
     def issue_token(self, owner=None):
