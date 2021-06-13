@@ -1,3 +1,5 @@
+"""Global exception handler for RACTF core."""
+
 import traceback
 from typing import Optional
 
@@ -15,7 +17,6 @@ from core.response import FormattedResponse
 
 def handle_exception(exc: Exception, context: dict) -> Optional[Response]:
     """Handle exceptions, sending data to Sentry if errors are unhandled."""
-
     if "X-Reasonable" in context["request"].headers:
         return exception_handler(exc, context)
 
