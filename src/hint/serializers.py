@@ -29,7 +29,7 @@ class HintSerializerMixin:
 
     def get_text(self, instance):
         """Get the text of a hint or an empty string if the hint is locked."""
-        if (self.context["request"].user.is_staff and not self.context["request"].user.should_deny_admin()) or is_used(
+        if (self.context["request"].user.is_staff and not self.context["request"].user.should_deny_admin) or is_used(
             self.context, instance
         ):
             return instance.text

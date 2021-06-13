@@ -77,7 +77,7 @@ class CategoryViewset(AdminCreateModelViewSet):
 
     def get_queryset(self):
         """Get the list of categories for this view."""
-        if self.request.user.is_staff and self.request.user.should_deny_admin():
+        if self.request.user.is_staff and self.request.user.should_deny_admin:
             return Category.objects.none()
         team = self.request.user.team
         challenges = (

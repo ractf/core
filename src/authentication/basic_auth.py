@@ -62,7 +62,7 @@ class BasicAuthLoginProvider(LoginProvider):
                 status=HTTP_401_UNAUTHORIZED,
             )
 
-        if not user.can_login():
+        if not user.can_login:
             login_reject.send(sender=self.__class__, username=username, reason="closed")
             raise FormattedException(m="login_not_open", d={"reason": "login_not_open"}, status=HTTP_401_UNAUTHORIZED)
 

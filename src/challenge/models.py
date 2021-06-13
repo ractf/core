@@ -117,7 +117,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     @classmethod
     def get_unlocked_annotated_queryset(cls, user):
         """Get a queryset of all challenges, annotated with if they're unlocked and solved."""
-        if user.is_staff and user.should_deny_admin():
+        if user.is_staff and user.should_deny_admin:
             return Challenge.objects.none()
         if user.team is not None:
             challenges = Challenge.objects.annotate(

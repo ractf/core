@@ -12,6 +12,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
+from authentication.models import Token
 from config import config
 from core.validators import printable_name
 
@@ -54,37 +55,39 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
     leaderboard_points = models.IntegerField(default=0)
     last_score = models.DateTimeField(default=timezone.now)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Represent a member as a string, returns the username."""
         return self.username
 
-    def can_login(self):
-        """Return true if the user can login."""
+    @property
+    def has_totp_device(self) -> bool:
+        """Check if the user has a TOTP device."""
+        return hasattr(self, "totp_device") and self.totp_device is not None
+
+    @property
+    def can_login(self) -> bool:
+        """Check if the user can currently login."""
         return self.is_staff or (
             config.get("enable_login") and (config.get("enable_prelogin") or config.get("start_time") <= time.time())
         )
 
-    def issue_token(self, owner=None):
-        """Issue an authentication token for the user."""
-        from authentication.models import Token
+    @property
+    def has_2fa(self) -> bool:
+        """Check if the user has 2fa enabled."""
+        return self.has_totp_device and self.totp_device.verified
 
+    @property
+    def should_deny_admin(self) -> bool:
+        """Check if the user should be explicitly denied admin perms."""
+        return config.get("enable_force_admin_2fa") and not self.has_2fa
+
+    def issue_token(self, owner=None) -> str:
+        """Issue an authentication token for the user."""
         token = Token(user=self, owner=owner)
         token.save()
         return token.key
 
-    def has_2fa(self):
-        """Return True if the user has 2fa enabled."""
-        return hasattr(self, "totp_device") and self.totp_device.verified
-
-    def should_deny_admin(self):
-        """
-        Return True if the user should be denied admin perms.
-
-        This being False does not mean the user should have admin permissions.
-        """
-        return config.get("enable_force_admin_2fa") and not self.has_2fa()
-
-    def recalculate_score(self):
+    def recalculate_score(self) -> None:
         """Recalculate the score for this user and implicity save."""
         self.points = 0
         self.leaderboard_points = 0

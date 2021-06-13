@@ -78,7 +78,7 @@ class MemberViewSet(AdminListModelViewSet):
                 "solves__team",
                 "solves__score__team",
             )
-        if self.request.user.is_staff and not self.request.user.should_deny_admin():
+        if self.request.user.is_staff and not self.request.user.should_deny_admin:
             return get_user_model().objects.order_by("id").prefetch_related("team")
         return get_user_model().objects.filter(is_visible=True).order_by("id").prefetch_related("team")
 

@@ -8,7 +8,7 @@ class AdminOrReadOnlyVisible(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         """Return True if the user can access this object."""
-        if request.user.is_staff and not request.user.should_deny_admin():
+        if request.user.is_staff and not request.user.should_deny_admin:
             return True
         return request.user.is_authenticated and obj.is_visible and request.method in permissions.SAFE_METHODS
 
@@ -19,7 +19,7 @@ class AdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         """Return True if the user can access this view."""
         if request.method not in permissions.SAFE_METHODS:
-            return request.user.is_staff and not request.user.should_deny_admin()
+            return request.user.is_staff and not request.user.should_deny_admin
         return request.user.is_authenticated
 
 
@@ -29,7 +29,7 @@ class AdminOrAnonymousReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         """Return True if the user can access this view."""
         if request.method not in permissions.SAFE_METHODS:
-            return request.user.is_staff and not request.user.should_deny_admin()
+            return request.user.is_staff and not request.user.should_deny_admin
         return True
 
 
