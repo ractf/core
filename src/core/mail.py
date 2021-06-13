@@ -1,3 +1,5 @@
+"""Functions used for sending emails to users."""
+
 from importlib import import_module
 
 from django.conf import settings
@@ -13,6 +15,7 @@ if settings.MAIL["SEND"]:  # pragma: no cover
 
 
 def send_email(send_to, subject_line, template_name, **template_details):
+    """Send an email to a user from a given template."""
     if settings.MAIL["SEND"]:  # pragma: no cover
         if settings.MAIL["SEND_MODE"] == "AWS":  # pragma: no cover
             client.send_email(
