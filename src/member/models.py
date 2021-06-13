@@ -73,15 +73,14 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
             config.get("enable_login") and (config.get("enable_prelogin") or config.get("start_time") <= time.time())
         )
 
-    @property
-    def enabled_2fa(self) -> bool:
+    def has_2fa(self) -> bool:
         """Check if the user has 2fa enabled."""
         return self.has_totp_device and self.totp_device.verified
 
     @property
     def should_deny_admin(self) -> bool:
         """Check if the user should be explicitly denied admin perms."""
-        return config.get("enable_force_admin_2fa") and not self.enabled_2fa
+        return config.get("enable_force_admin_2fa") and not self.has_2fa()
 
     def issue_token(self, owner=None) -> str:
         """Issue an authentication token for the user."""

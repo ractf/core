@@ -1,6 +1,7 @@
 """Serializers for the members app."""
 
 import secrets
+from importlib import import_module
 
 from django.contrib.auth import get_user_model
 from rest_framework import serializers

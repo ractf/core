@@ -300,7 +300,7 @@ class TFATestCase(APITestCase):
         """Adding 2fa when authenticated should add a totp device, but not active 2fa."""
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse("add-2fa"))
-        self.assertFalse(self.user.enabled_2fa)
+        self.assertFalse(self.user.has_2fa())
         self.assertNotEqual(self.user.totp_device, None)
 
     def test_add_2fa_twice(self):
@@ -317,7 +317,7 @@ class TFATestCase(APITestCase):
         secret = self.user.totp_device.totp_secret
         totp = pyotp.TOTP(secret)
         self.client.post(reverse("verify-2fa"), data={"otp": totp.now()})
-        self.assertTrue(self.user.enabled_2fa)
+        self.assertTrue(self.user.has_2fa())
 
     def test_verify_2fa_invalid(self):
         """Verifying 2fa with an invalid code should be rejected."""
@@ -367,7 +367,7 @@ class TFATestCase(APITestCase):
         totp_device.save()
         self.client.force_authenticate(user=Member.objects.get(id=self.user.pk))
         self.client.post(reverse("remove-2fa"), data={"otp": pyotp.TOTP(totp_device.totp_secret).now()})
-        self.assertFalse(Member.objects.get(id=self.user.pk).enabled_2fa)
+        self.assertFalse(Member.objects.get(id=self.user.pk).has_2fa())
 
     def test_remove_2fa_no_2fa(self):
         """Removing 2fa without active 2fa should return 403."""

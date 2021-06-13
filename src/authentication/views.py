@@ -43,7 +43,7 @@ class LoginView(APIView, HidePasswordMixin):
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
 
-        if user.enabled_2fa:
+        if user.has_2fa():
             return FormattedResponse(
                 status=status.HTTP_401_UNAUTHORIZED, d={"reason": "2fa_required"}, m="2fa_required"
             )
@@ -142,7 +142,7 @@ class LoginTwoFactorView(APIView, HidePasswordMixin):
         user = serializer.validated_data["user"]
         provider = providers.get_provider("token")
 
-        if not user.enabled_2fa:
+        if not user.has_2fa():
             return FormattedResponse(
                 status=status.HTTP_401_UNAUTHORIZED, d={"reason": "2fa_not_enabled"}, m="2fa_not_enabled"
             )
