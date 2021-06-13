@@ -1,3 +1,5 @@
+"""Signal handlers for the sockets app."""
+
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.db.models.signals import post_save
@@ -11,21 +13,25 @@ from sockets.serializers import AnnouncementSerializer
 
 
 def get_team_channel(user):
+    """Return the channel key of a user's team."""
     return f"team.{user.team.pk}"
 
 
 def send(user, data):
+    """Send a websocket message to a specific user's team."""
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)(get_team_channel(user), data)
 
 
 def broadcast(data):
+    """Send a websocket message to all users."""
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)("event", data)
 
 
 @receiver(flag_score)
 def on_flag_score(user, team, challenge, flag, solve, **kwargs):
+    """Broadcast a flag being scored."""
     if not config.get("enable_solve_broadcast"):
         return
     broadcast(
@@ -45,6 +51,7 @@ def on_flag_score(user, team, challenge, flag, solve, **kwargs):
 
 @receiver(flag_reject)
 def on_flag_reject(user, team, challenge, flag, **kwargs):
+    """Tell a team about a flag being rejected."""
     send(
         user,
         {
@@ -62,6 +69,7 @@ def on_flag_reject(user, team, challenge, flag, **kwargs):
 
 @receiver(use_hint)
 def on_use_hint(user, team, hint, **kwargs):
+    """Tell a team about a hint being used."""
     send(
         user,
         {
@@ -81,6 +89,7 @@ def on_use_hint(user, team, hint, **kwargs):
 
 @receiver(team_join)
 def on_team_join(user, team, **kwargs):
+    """Tell a team about a new member."""
     send(
         user,
         {
@@ -96,6 +105,7 @@ def on_team_join(user, team, **kwargs):
 
 @receiver(post_save, sender=Announcement)
 def on_announcement_create(sender, instance, **kwargs):
+    """Broadcast a new announcement."""
     data = AnnouncementSerializer(instance).data
     data["type"] = "send_json"
     data["event_code"] = 5
@@ -104,4 +114,5 @@ def on_announcement_create(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Challenge)
 def on_challenge_edit(sender, instance, **kwargs):
+    """Broadcast a challenge modification."""
     broadcast({"type": "send_json", "event_code": 6, "challenge_id": instance.pk})
