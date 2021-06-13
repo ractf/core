@@ -1,3 +1,5 @@
+"""Django signals used internally by RACTF core."""
+
 from django.dispatch import Signal
 
 flag_score = Signal(providing_args=["user", "team", "challenge", "flag", "solve"])
