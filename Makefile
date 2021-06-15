@@ -1,26 +1,19 @@
 .EXPORT_ALL_VARIABLES:
 BETTER_EXCEPTIONS=1
+PYTHONPATH=$(shell pwd)/src
 DJANGO_SETTINGS_MODULE?=core.settings.lint
 
 migrate:
 	python src/manage.py migrate
 
-test:
-	export DJANGO_SETTINGS_MODULE='core.settings.lint' && \
-	cd src && \
-	BETTER_EXCEPTIONS=1 \
-	python manage.py migrate && \
+test: migrate
 	pytest --testmon || \
 	if [ $$? = 5 ]; \
 	  then exit 0; \
 	  else exit $$?; \
 	fi
 
-coverage:
-	export DJANGO_SETTINGS_MODULE='core.settings.lint' && \
-	cd src && \
-	BETTER_EXCEPTIONS=1 \
-	python manage.py migrate && \
+coverage: migrate
 	pytest --cov=. --cov-report=xml && \
 	coverage html && \
 	[ "$$CI" != "true" ] && \
@@ -30,7 +23,7 @@ format:
 	isort src && \
 	black src
 
-lint:
+lint: migrate
 	flakehell lint src && \
 	isort --check-only src
 
