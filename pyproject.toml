@@ -58,11 +58,13 @@ python_files = "tests.py test_*.py *_tests.py"
 filterwarnings = """
   ignore::django.utils.deprecation.RemovedInDjango40Warning
   ignore::django.utils.deprecation.RemovedInDjango41Warning
-  ignore:Using or importing the ABCs.*:DeprecationWarning
-"""
+  ignore:Using or importing the ABCs.*:DeprecationWarning"""
 
 [tool.mypy]
-exclude = "migrations"
+plugins = ["mypy_django_plugin.main"]
+
+[mypy.plugins.django-stubs]
+django_settings_module = "core.settings.lint"
 
 [tool.coverage.run]
 source = ["src"]
@@ -79,8 +81,7 @@ omit = [
   "*/urls.py",
   "ractf/management/*",
   "gunicorn_config.py",
-  "*/migrations/*.py"
-]
+  "*/migrations/*.py"]
 
 [tool.coverage.report]
 fail_under = 80
@@ -89,8 +90,7 @@ skip_covered = true
 exclude_lines = [
   "pragma: no cover",
   "raise NotImplementedError",
-  "pass"
-]
+  "pass"]
 
 [tool.black]
 exclude = "migrations"
