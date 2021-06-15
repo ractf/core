@@ -2,13 +2,13 @@
 
 import binascii
 import os
-from datetime import timedelta
 from typing import Iterable
 
 import pyotp
 from django.db import models
-from django.utils import timezone
 from django_prometheus.models import ExportModelOperationsMixin
+
+from authentication.logic import utils
 
 
 class Token(ExportModelOperationsMixin("token"), models.Model):
@@ -56,14 +56,14 @@ class PasswordResetToken(ExportModelOperationsMixin("password_reset_token"), mod
     user = models.ForeignKey("member.Member", on_delete=models.CASCADE)
     token = models.CharField(max_length=255)
     issued = models.DateTimeField(auto_now_add=True)
-    expires = models.DateTimeField(default=lambda: timezone.now() + timedelta(days=1))
+    expires = models.DateTimeField(default=utils.one_day_hence)
 
 
 class BackupCode(ExportModelOperationsMixin("backup_code"), models.Model):
     """Backup codes for users to authenticate after they have lost a 2FA provider."""
 
     user = models.ForeignKey("member.Member", related_name="backup_codes", on_delete=models.CASCADE)
-    code = models.CharField(max_length=8, default=lambda: pyotp.random_base32(8))
+    code = models.CharField(max_length=8, default=utils.random_backup_code)
 
     class Meta:
         """Specify fields which should be used for composite uniqueness."""
