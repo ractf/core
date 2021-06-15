@@ -10,7 +10,7 @@ from rest_framework.status import (
 )
 from rest_framework.test import APITestCase
 
-from challenge.models import Solve
+from challenge.models import Challenge, Solve
 from challenge.tests.mixins import ChallengeSetupMixin
 from config import config
 from hint.models import HintUse
@@ -406,6 +406,24 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_create_challenge_metadata_saves(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(self.user)
+        metadata = {
+            "a": "b",
+            "c": "d",
+        }
+        self.client.patch(
+            reverse("challenges-detail", kwargs={"pk": self.challenge1.pk}),
+            data={
+                "challenge_metadata": metadata,
+            },
+            format="json",
+        )
+        response = self.client.get(reverse("challenges-detail", kwargs={"pk": self.challenge1.pk}))
+        self.assertEquals(response.data["challenge_metadata"], metadata)
 
 
 class FlagCheckViewTestCase(ChallengeSetupMixin, APITestCase):
