@@ -11,6 +11,7 @@ from django.db import models, transaction
 from django.db.models import Case, Prefetch, Sum, Value, When
 from django.utils import timezone
 from rest_framework import permissions
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -160,6 +161,65 @@ class ChallengeViewset(AdminCreateModelViewSet):
             return self.queryset
         return Challenge.get_unlocked_annotated_queryset(self.request.user)
 
+    @action(methods=["POST"], detail=True, permission_classes=(CompetitionOpen & IsAuthenticated & HasTeam & ~IsBot,))
+    def submit_flag(self, request, pk=None):
+        """Attempt to solve a challenge from a given flag."""
+        if not config.get("enable_flag_submission") or (
+            not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")
+        ):
+            return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
+
+        # This is done in an atomic block to avoid a user racing this endpoint to score the same flag multiple times.
+        with transaction.atomic():
+            team = Team.objects.select_for_update().get(id=request.user.team.pk)
+            user = get_user_model().objects.select_for_update().get(id=request.user.pk)
+            flag = request.data.get("flag")
+            if not flag:
+                return FormattedResponse(status=HTTP_400_BAD_REQUEST, m="No flag provided")
+
+            challenge = self.get_object()
+            solve_set = Solve.objects.filter(challenge=challenge)
+            if solve_set.filter(team=team, correct=True).exists():
+                return FormattedResponse(m="already_solved_challenge", status=HTTP_403_FORBIDDEN)
+            if not challenge.is_unlocked_by(user):
+                return FormattedResponse(m="challenge_not_unlocked", status=HTTP_403_FORBIDDEN)
+
+            if challenge.challenge_metadata.get("attempt_limit"):
+                count = solve_set.filter(team=team).count()
+                if count > challenge.challenge_metadata["attempt_limit"]:
+                    flag_reject.send(
+                        sender=self.__class__,
+                        user=user,
+                        team=team,
+                        challenge=challenge,
+                        flag=flag,
+                        reason="attempt_limit_reached",
+                    )
+                    return FormattedResponse(d={"correct": False}, m="attempt_limit_reached")
+
+            flag_submit.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag)
+
+            if not challenge.flag_plugin.check(flag, user=user, team=team):
+                flag_reject.send(
+                    sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag, reason="incorrect_flag"
+                )
+                challenge.points_plugin.register_incorrect_attempt(user, team, flag, solve_set)
+                return FormattedResponse(d={"correct": False}, m="incorrect_flag")
+
+            solve = challenge.points_plugin.score(user, team, flag, solve_set)
+            if challenge.first_blood is None:
+                challenge.first_blood = user
+                challenge.save()
+
+            user.save()
+            team.save()
+            flag_score.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag, solve=solve)
+            caches["default"].delete(get_cache_key(request.user))
+            ret = {"correct": True}
+            if challenge.post_score_explanation:
+                ret["explanation"] = challenge.post_score_explanation
+            return FormattedResponse(d=ret, m="correct_flag")
+
 
 class ScoresViewset(ModelViewSet):
     """Viewset for managing Score objects."""
@@ -270,62 +330,13 @@ class FlagSubmitView(APIView):
 
     def post(self, request):
         """Attempt to solve a challenge from a given flag."""
-        if not config.get("enable_flag_submission") or (
-            not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")
-        ):
-            return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
+        if "flag" not in request.data or "challenge" not in request.data:
+            return FormattedResponse(status=HTTP_400_BAD_REQUEST, m="No flag provided")
 
-        # This is done in an atomic block to avoid a user racing this endpoint to score the same flag multiple times.
-        with transaction.atomic():
-            team = Team.objects.select_for_update().get(id=request.user.team.pk)
-            user = get_user_model().objects.select_for_update().get(id=request.user.pk)
-            flag = request.data.get("flag")
-            challenge_id = request.data.get("challenge")
-            if not flag or not challenge_id:
-                return FormattedResponse(status=HTTP_400_BAD_REQUEST, m="No flag or challenge ID provided")
-
-            challenge = get_object_or_404(Challenge.objects.select_for_update(), id=challenge_id)
-            solve_set = Solve.objects.filter(challenge=challenge)
-            if solve_set.filter(team=team, correct=True).exists():
-                return FormattedResponse(m="already_solved_challenge", status=HTTP_403_FORBIDDEN)
-            if not challenge.is_unlocked_by(user):
-                return FormattedResponse(m="challenge_not_unlocked", status=HTTP_403_FORBIDDEN)
-
-            if challenge.challenge_metadata.get("attempt_limit"):
-                count = solve_set.filter(team=team).count()
-                if count > challenge.challenge_metadata["attempt_limit"]:
-                    flag_reject.send(
-                        sender=self.__class__,
-                        user=user,
-                        team=team,
-                        challenge=challenge,
-                        flag=flag,
-                        reason="attempt_limit_reached",
-                    )
-                    return FormattedResponse(d={"correct": False}, m="attempt_limit_reached")
-
-            flag_submit.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag)
-
-            if not challenge.flag_plugin.check(flag, user=user, team=team):
-                flag_reject.send(
-                    sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag, reason="incorrect_flag"
-                )
-                challenge.points_plugin.register_incorrect_attempt(user, team, flag, solve_set)
-                return FormattedResponse(d={"correct": False}, m="incorrect_flag")
-
-            solve = challenge.points_plugin.score(user, team, flag, solve_set)
-            if challenge.first_blood is None:
-                challenge.first_blood = user
-                challenge.save()
-
-            user.save()
-            team.save()
-            flag_score.send(sender=self.__class__, user=user, team=team, challenge=challenge, flag=flag, solve=solve)
-            caches["default"].delete(get_cache_key(request.user))
-            ret = {"correct": True}
-            if challenge.post_score_explanation:
-                ret["explanation"] = challenge.post_score_explanation
-            return FormattedResponse(d=ret, m="correct_flag")
+        viewset = ChallengeViewset()
+        viewset.request = request
+        viewset.get_object = lambda: Challenge.objects.get(pk=request.data["challenge"])
+        return viewset.submit_flag(request)
 
 
 class FlagCheckView(APIView):
