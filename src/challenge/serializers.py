@@ -1,3 +1,5 @@
+import json
+
 import serpy
 from rest_framework import serializers
 
@@ -45,6 +47,13 @@ class ForeignAttributeField(serpy.Field):
         if value:
             return getattr(value, self.attr_name)
         return None
+
+
+class TestField(serpy.Field):
+    """A :class:`Field` that gets a given attribute from a foreign object."""
+
+    def to_value(self, value):
+        return value
 
 
 class DateTimeField(serpy.Field):
@@ -106,7 +115,7 @@ class ChallengeSerializerMixin:
 class FastLockedChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     id = serpy.IntField()
     unlock_requirements = serpy.StrField()
-    challenge_metadata = serpy.DictSerializer()
+    challenge_metadata = serpy.Field()
     challenge_type = serpy.StrField()
     release_time = DateTimeField()
     unlock_time_surpassed = serpy.MethodField()
@@ -120,6 +129,7 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     name = serpy.StrField()
     description = serpy.StrField()
     challenge_type = serpy.StrField()
+    challenge_metadata = serpy.Field()
     flag_type = serpy.StrField()
     author = serpy.StrField()
     score = serpy.IntField()
@@ -198,8 +208,9 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     name = serpy.StrField()
     description = serpy.StrField()
     challenge_type = serpy.StrField()
-    challenge_metadata = serpy.DictSerializer()
+    challenge_metadata = serpy.Field()
     flag_type = serpy.StrField()
+    flag_metadata = serpy.Field()
     author = serpy.StrField()
     score = serpy.IntField()
     unlock_requirements = serpy.StrField()
