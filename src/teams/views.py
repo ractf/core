@@ -2,19 +2,10 @@
 
 from django.contrib.auth import get_user_model
 from django.http import Http404
-from rest_framework import filters
+from rest_framework import filters, status
 from rest_framework.decorators import action
-from rest_framework.generics import (
-    CreateAPIView,
-    RetrieveUpdateAPIView,
-    get_object_or_404,
-)
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.status import (
-    HTTP_400_BAD_REQUEST,
-    HTTP_403_FORBIDDEN,
-    HTTP_404_NOT_FOUND,
-)
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
@@ -130,7 +121,7 @@ class JoinTeamView(APIView):
     def post(self, request):
         """Check if the user can join a team, and add them to it."""
         if not config.get("enable_team_join"):
-            return FormattedResponse(m="join_disabled", status=HTTP_403_FORBIDDEN)
+            return FormattedResponse(m="join_disabled", status=status.HTTP_403_FORBIDDEN)
         name = request.data.get("name")
         password = request.data.get("password")
         team_join_attempt.send(sender=self.__class__, user=request.user, name=name)
@@ -139,18 +130,18 @@ class JoinTeamView(APIView):
                 team = get_object_or_404(Team, name=name)
                 if team.password != password:
                     team_join_reject.send(sender=self.__class__, user=request.user, name=name)
-                    raise FormattedException(m="invalid_team_password", status=HTTP_403_FORBIDDEN)
+                    raise FormattedException(m="invalid_team_password", status=status.HTTP_403_FORBIDDEN)
             except Http404:
                 team_join_reject.send(sender=self.__class__, user=request.user, name=name)
-                raise FormattedException(m="invalid_team", status=HTTP_404_NOT_FOUND)
+                raise FormattedException(m="invalid_team", status=status.HTTP_404_NOT_FOUND)
             team_size = int(config.get("team_size"))
             if not request.user.is_staff and not team.size_limit_exempt and 0 < team_size <= team.members.count():
-                return FormattedResponse(m="team_full", status=HTTP_403_FORBIDDEN)
+                return FormattedResponse(m="team_full", status=status.HTTP_403_FORBIDDEN)
             request.user.team = team
             request.user.save()
             team_join.send(sender=self.__class__, user=request.user, team=team)
             return FormattedResponse()
-        return FormattedResponse(m="joined_team", status=HTTP_400_BAD_REQUEST)
+        return FormattedResponse(m="joined_team", status=status.HTTP_400_BAD_REQUEST)
 
 
 class LeaveTeamView(APIView):
@@ -166,12 +157,12 @@ class LeaveTeamView(APIView):
     def post(self, request):
         """Leave the team and return if it was successful."""
         if not config.get("enable_team_leave"):
-            return FormattedResponse(m="leave_disabled", status=HTTP_403_FORBIDDEN)
+            return FormattedResponse(m="leave_disabled", status=status.HTTP_403_FORBIDDEN)
         if Solve.objects.filter(solved_by=request.user).exists():
-            return FormattedResponse(m="challenge_solved", status=HTTP_403_FORBIDDEN)
+            return FormattedResponse(m="challenge_solved", status=status.HTTP_403_FORBIDDEN)
         if request.user.team.owner == request.user:
             if Member.objects.filter(team=request.user.team).count() > 1:
-                return FormattedResponse(m="cannot_leave_team_ownerless", status=HTTP_403_FORBIDDEN)
+                return FormattedResponse(m="cannot_leave_team_ownerless", status=status.HTTP_403_FORBIDDEN)
             else:
                 request.user.team.delete()
         request.user.team = None
