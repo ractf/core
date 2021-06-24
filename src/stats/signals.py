@@ -1,5 +1,6 @@
 """Signal handlers and prometheus gauges for the stats app."""
 
+from challenge.models import Solve
 from django.core.cache import cache
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
@@ -7,7 +8,6 @@ from member.models import Member
 from prometheus_client import Gauge
 from team.models import Team
 
-from challenge.models import Solve
 from core.signals import (
     flag_score,
     register,

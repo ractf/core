@@ -2,10 +2,10 @@
 
 from typing import Optional, Union
 
+from challenge.models import Category, Challenge
 from member.models import Member
 from team.models import Team
 
-from challenge.models import Category, Challenge
 from hint.models import Hint
 
 

@@ -1,10 +1,9 @@
 """Serializers for the leaderboard app."""
 
+from challenge.models import Score
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from team.models import Team
-
-from challenge.models import Score
 
 
 class CTFTimeSerializer(serializers.BaseSerializer):

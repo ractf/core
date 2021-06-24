@@ -3,10 +3,10 @@
 import abc
 import time
 
+from challenge.models import Score, Solve
 from django.db.models import F, Sum
 from django.utils import timezone
 
-from challenge.models import Score, Solve
 from config import config
 from core.base import Plugin
 from hint.models import HintUse

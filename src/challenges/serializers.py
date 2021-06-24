@@ -1,8 +1,6 @@
 """Serializers for the challenge app."""
 
 import serpy
-from rest_framework import serializers
-
 from challenge.models import (
     Category,
     Challenge,
@@ -13,6 +11,8 @@ from challenge.models import (
     Tag,
 )
 from challenge.sql import get_negative_votes, get_positive_votes, get_solve_counts
+from rest_framework import serializers
+
 from hint.serializers import FastHintSerializer
 
 

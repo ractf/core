@@ -4,6 +4,7 @@ import secrets
 import time
 from enum import IntEnum
 
+from challenge.models import Challenge, Solve
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import CICharField
@@ -14,7 +15,6 @@ from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
 from authentication.models import Token, TOTPDevice
-from challenge.models import Challenge, Solve
 from config import config
 from core.validators import printable_name
 

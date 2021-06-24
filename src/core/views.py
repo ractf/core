@@ -1,12 +1,12 @@
 """Misc views for RACTF core."""
 
+from challenge.models import Challenge
 from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
-from challenge.models import Challenge
 from core.response import FormattedResponse
 
 

@@ -1,9 +1,8 @@
 """URL routes for the challenge app."""
 
+from challenge import views
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-
-from challenge import views
 
 router = DefaultRouter()
 router.register(r"categories", views.CategoryViewset, basename="categories")

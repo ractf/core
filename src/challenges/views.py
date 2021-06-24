@@ -4,25 +4,6 @@ import hashlib
 import time
 from typing import Union
 
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.core.cache import caches
-from django.db import models, transaction
-from django.db.models import Case, Prefetch, Sum, Value, When
-from django.utils import timezone
-from rest_framework import permissions
-from rest_framework.decorators import action
-from rest_framework.generics import get_object_or_404
-from rest_framework.parsers import MultiPartParser
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.request import Request
-from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
-from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
-from team.models import Team
-from team.permissions import HasTeam
-
 from challenge.models import (
     Category,
     Challenge,
@@ -49,6 +30,25 @@ from challenge.serializers import (
     get_positive_votes,
     get_solve_counts,
 )
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.cache import caches
+from django.db import models, transaction
+from django.db.models import Case, Prefetch, Sum, Value, When
+from django.utils import timezone
+from rest_framework import permissions
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
+from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+from team.models import Team
+from team.permissions import HasTeam
+
 from config import config
 from core.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
 from core.response import FormattedResponse

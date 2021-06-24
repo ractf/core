@@ -2,6 +2,7 @@
 
 import time
 
+from challenge.models import Score
 from django.contrib.auth import get_user_model
 from django.core.cache import caches
 from rest_framework.generics import ListAPIView
@@ -11,7 +12,6 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 from team.models import Team
 
-from challenge.models import Score
 from config import config
 from core.response import FormattedResponse
 from leaderboard.serializers import (

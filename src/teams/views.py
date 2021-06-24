@@ -1,5 +1,6 @@
 """API endpoints for managing teams."""
 
+from challenge.models import Solve
 from django.http import Http404
 from rest_framework import filters, status
 from rest_framework.decorators import action
@@ -8,7 +9,6 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from challenge.models import Solve
 from config import config
 from core.exceptions import FormattedException
 from core.permissions import AdminOrReadOnlyVisible, ReadOnlyBot

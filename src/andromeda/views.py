@@ -1,12 +1,12 @@
 """API endpoints for the andromeda integration."""
 
+from challenge.models import Challenge
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView
 
 from andromeda import client
 from andromeda.serializers import JobSubmitRawSerializer, JobSubmitSerializer
-from challenge.models import Challenge
 from core.response import FormattedResponse
 
 

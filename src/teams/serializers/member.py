@@ -2,10 +2,10 @@
 
 import secrets
 
+from challenge.serializers import SolveSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from challenge.serializers import SolveSerializer
 from config import config
 from core.mixins import IncorrectSolvesMixin
 from teams.models import UserIP

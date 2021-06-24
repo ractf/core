@@ -1,10 +1,9 @@
 """Signal receivers for the challenge app."""
 
+from challenge.models import Challenge
 from django.core.cache import caches
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
-from challenge.models import Challenge
 
 
 @receiver(post_save, sender=Challenge)

@@ -1,5 +1,7 @@
 """Unit tests for the challenge api endpoints."""
 
+from challenge.models import Solve
+from challenge.tests.mixins import ChallengeSetupMixin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.urls import reverse
@@ -12,8 +14,6 @@ from rest_framework.status import (
 )
 from rest_framework.test import APITestCase
 
-from challenge.models import Solve
-from challenge.tests.mixins import ChallengeSetupMixin
 from config import config
 from hint.models import HintUse
 
