@@ -12,10 +12,10 @@ from rest_framework.status import (
     HTTP_404_NOT_FOUND,
 )
 from rest_framework.test import APITestCase
+from team.models import Team
 
 from challenge.models import Category, Challenge, Score, Solve
 from config import config
-from team.models import Team
 
 
 class TeamSetupMixin:

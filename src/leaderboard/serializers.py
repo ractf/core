@@ -2,9 +2,9 @@
 
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from team.models import Team
 
 from challenge.models import Score
-from team.models import Team
 
 
 class CTFTimeSerializer(serializers.BaseSerializer):

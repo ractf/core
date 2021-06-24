@@ -13,6 +13,7 @@ from rest_framework import permissions, status
 from rest_framework.generics import CreateAPIView, GenericAPIView, get_object_or_404
 from rest_framework.request import Request
 from rest_framework.views import APIView
+from team.models import Team
 
 from authentication import serializers
 from authentication.mixins import HidePasswordMixin
@@ -25,7 +26,6 @@ from core.response import FormattedResponse
 from core.types import AuthenticatedRequest
 from core.viewsets import AdminListModelViewSet
 from member.models import Member
-from team.models import Team
 
 INVITE_CHARACTERS = string.ascii_letters + string.digits
 

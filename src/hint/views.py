@@ -5,6 +5,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
+from team.permissions import HasTeam
 
 from challenge.permissions import CompetitionOpen
 from challenge.views import get_cache_key
@@ -20,7 +21,6 @@ from hint.serializers import (
     HintSerializer,
     UseHintSerializer,
 )
-from team.permissions import HasTeam
 
 
 class HintViewSet(AdminCreateModelViewSet):

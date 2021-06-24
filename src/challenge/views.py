@@ -20,6 +20,8 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from team.models import Team
+from team.permissions import HasTeam
 
 from challenge.models import (
     Category,
@@ -53,8 +55,6 @@ from core.response import FormattedResponse
 from core.signals import flag_reject, flag_score, flag_submit
 from core.viewsets import AdminCreateModelViewSet
 from hint.models import Hint, HintUse
-from team.models import Team
-from team.permissions import HasTeam
 
 
 def get_cache_key(user):

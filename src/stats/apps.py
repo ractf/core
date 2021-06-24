@@ -2,11 +2,11 @@
 import sys
 from importlib import import_module
 
+import team
 from django.apps import AppConfig
 
 import challenge
 import member
-import team
 
 
 class StatsConfig(AppConfig):

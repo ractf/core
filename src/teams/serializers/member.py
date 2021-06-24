@@ -8,7 +8,7 @@ from rest_framework import serializers
 from challenge.serializers import SolveSerializer
 from config import config
 from core.mixins import IncorrectSolvesMixin
-from member.models import UserIP
+from teams.models import UserIP
 
 
 class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):

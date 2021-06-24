@@ -1,5 +1,6 @@
 """API endpoints for managing teams."""
 
+from django.contrib.auth import get_user_model
 from django.http import Http404
 from rest_framework import filters
 from rest_framework.decorators import action
@@ -15,6 +16,7 @@ from rest_framework.status import (
     HTTP_404_NOT_FOUND,
 )
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
 from challenge.models import Solve
 from config import config
@@ -23,22 +25,15 @@ from core.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
 from core.response import FormattedResponse
 from core.signals import team_join, team_join_attempt, team_join_reject
 from core.viewsets import AdminListModelViewSet
-from member.models import Member
-from team.models import Team
-from team.permissions import HasTeam, IsTeamOwnerOrReadOnly, TeamsEnabled
-from team.serializers import (
-    AdminTeamSerializer,
-    CreateTeamSerializer,
-    ListTeamSerializer,
-    SelfTeamSerializer,
-    TeamSerializer,
-)
+from teams import serializers
+from teams.models import Member, Team, UserIP
+from teams.permissions import HasTeam, IsTeamOwnerOrReadOnly, TeamsEnabled
 
 
 class SelfView(RetrieveUpdateAPIView):
     """A view to get the details or modify the current user's team."""
 
-    serializer_class = SelfTeamSerializer
+    serializer_class = serializers.SelfTeamSerializer
     permission_classes = (IsAuthenticated & IsTeamOwnerOrReadOnly & ReadOnlyBot,)
     throttle_scope = "self"
     pagination_class = None
@@ -66,10 +61,10 @@ class TeamViewSet(AdminListModelViewSet):
 
     permission_classes = (AdminOrReadOnlyVisible,)
     throttle_scope = "team"
-    serializer_class = TeamSerializer
-    admin_serializer_class = AdminTeamSerializer
-    list_serializer_class = ListTeamSerializer
-    list_admin_serializer_class = ListTeamSerializer
+    serializer_class = serializers.TeamSerializer
+    admin_serializer_class = serializers.AdminTeamSerializer
+    list_serializer_class = serializers.ListTeamSerializer
+    list_admin_serializer_class = serializers.ListTeamSerializer
     search_fields = ["name"]
     filter_backends = [filters.SearchFilter]
 
@@ -120,7 +115,7 @@ class TeamViewSet(AdminListModelViewSet):
 class CreateTeamView(CreateAPIView):
     """View for creating a team."""
 
-    serializer_class = CreateTeamSerializer
+    serializer_class = serializers.CreateTeamSerializer
     model = Team
     permission_classes = (IsAuthenticated & ~HasTeam,)
     throttle_scope = "team_create"
@@ -182,3 +177,77 @@ class LeaveTeamView(APIView):
         request.user.team = None
         request.user.save()
         return FormattedResponse()
+
+
+class SelfView(RetrieveUpdateAPIView):
+    """API endpoints for viewing and updating the current user."""
+
+    serializer_class = serializers.SelfSerializer
+    permission_classes = (IsAuthenticated & ReadOnlyBot,)
+    throttle_scope = "self"
+
+    def get_object(self):
+        """Get the current member with some prefetches."""
+        UserIP.hook(self.request)
+        return (
+            get_user_model()
+            .objects.prefetch_related(
+                "team",
+                "team__solves",
+                "team__solves__score",
+                "team__hints_used",
+                "team__solves__challenge",
+                "team__solves__solved_by",
+                "solves",
+                "solves__score",
+                "hints_used",
+                "solves__challenge",
+                "solves__team",
+                "solves__score__team",
+            )
+            .distinct()
+            .get(id=self.request.user.pk)
+        )
+
+
+class MemberViewSet(AdminListModelViewSet):
+    """Viewset for viewing and updating members."""
+
+    permission_classes = (AdminOrReadOnlyVisible,)
+    throttle_scope = "member"
+    serializer_class = serializers.MemberSerializer
+    admin_serializer_class = serializers.AdminMemberSerializer
+    list_serializer_class = serializers.ListMemberSerializer
+    list_admin_serializer_class = serializers.ListMemberSerializer
+    search_fields = ["username", "email"]
+    filter_backends = [filters.SearchFilter]
+
+    def get_queryset(self):
+        """Return the queryset for the member or list of members."""
+        if self.action != "list":
+            return get_user_model().objects.prefetch_related(
+                "team",
+                "team__solves",
+                "team__solves__score",
+                "team__hints_used",
+                "team__solves__challenge",
+                "team__solves__solved_by",
+                "solves",
+                "solves__score",
+                "hints_used",
+                "solves__challenge",
+                "solves__team",
+                "solves__score__team",
+            )
+        if self.request.user.is_staff and not self.request.user.should_deny_admin:
+            return get_user_model().objects.order_by("id").prefetch_related("team")
+        return get_user_model().objects.filter(is_visible=True).order_by("id").prefetch_related("team")
+
+
+class UserIPViewSet(ModelViewSet):
+    """Viewset for managing UserIP objects."""
+
+    queryset = UserIP.objects.all()
+    pagination_class = None
+    permission_classes = (IsAdminUser,)
+    serializer_class = serializers.UserIPSerializer

@@ -5,10 +5,10 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.request import Request
 from rest_framework.test import APITestCase
+from team.models import Team
 
 from authentication import views
 from member.models import Member
-from team.models import Team
 
 
 class SudoTestCase(APITestCase):

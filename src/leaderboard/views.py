@@ -9,6 +9,7 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
+from team.models import Team
 
 from challenge.models import Score
 from config import config
@@ -21,7 +22,6 @@ from leaderboard.serializers import (
     TeamPointsSerializer,
     UserPointsSerializer,
 )
-from team.models import Team
 
 
 def should_hide_scoreboard():

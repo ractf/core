@@ -4,6 +4,7 @@ from django.core.cache import cache
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from prometheus_client import Gauge
+from team.models import Team
 
 from challenge.models import Solve
 from core.signals import (
@@ -14,7 +15,6 @@ from core.signals import (
     websocket_disconnect,
 )
 from member.models import Member
-from team.models import Team
 
 member_count = Gauge("member_count", "The number of members currently registered")
 team_count = Gauge("team_count", "The number of teams currently registered")

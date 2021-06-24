@@ -12,10 +12,10 @@ from rest_framework.status import (
     HTTP_403_FORBIDDEN,
 )
 from rest_framework.test import APITestCase
+from team.models import Team
 
 from core.tests.utils import patch_config
 from member.models import UserIP
-from team.models import Team
 
 
 class MemberTestCase(APITestCase):

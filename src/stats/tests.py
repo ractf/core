@@ -4,10 +4,10 @@ from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 from rest_framework.test import APITestCase
+from team.models import Team
 
 from challenge.models import Category, Challenge, Solve
 from config import config
-from team.models import Team
 
 
 class CountdownTestCase(APITestCase):

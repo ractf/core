@@ -2,6 +2,7 @@
 
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
+from team.models import Team
 
 from challenge.models import Category, Challenge, Score, Solve
 from challenge.tests.mixins import ChallengeSetupMixin
@@ -13,7 +14,6 @@ from core.flag.plaintext import PlaintextFlagPlugin
 from core.flag.regex import RegexFlagPlugin
 from core.points.basic import BasicPointsPlugin
 from core.points.decay import DecayPointsPlugin
-from team.models import Team
 
 
 class HashedFlagPluginTestCase(APITestCase):
