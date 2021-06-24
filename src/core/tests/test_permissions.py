@@ -2,6 +2,7 @@
 
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpRequest
+from member.models import Member
 from rest_framework.request import Request
 from rest_framework.test import APITestCase
 
@@ -13,7 +14,6 @@ from core.permissions import (
     IsSudo,
     ReadOnlyBot,
 )
-from member.models import Member
 
 
 class PermissionTestMixin:

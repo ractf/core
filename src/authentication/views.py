@@ -9,6 +9,7 @@ from django.core.validators import EmailValidator
 from django.db import transaction
 from django.db.models import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend
+from member.models import Member
 from rest_framework import permissions, status
 from rest_framework.generics import CreateAPIView, GenericAPIView, get_object_or_404
 from rest_framework.request import Request
@@ -25,7 +26,6 @@ from core.permissions import IsBot, IsSudo
 from core.response import FormattedResponse
 from core.types import AuthenticatedRequest
 from core.viewsets import AdminListModelViewSet
-from member.models import Member
 
 INVITE_CHARACTERS = string.ascii_letters + string.digits
 

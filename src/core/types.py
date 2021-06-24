@@ -1,8 +1,7 @@
 """Type definitions for use throughout the app."""
 
-from rest_framework.request import Request
-
 from member.models import Member
+from rest_framework.request import Request
 
 
 class AuthenticatedRequest(Request):

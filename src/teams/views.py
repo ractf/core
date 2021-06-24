@@ -1,6 +1,5 @@
 """API endpoints for managing teams."""
 
-from django.contrib.auth import get_user_model
 from django.http import Http404
 from rest_framework import filters, status
 from rest_framework.decorators import action
@@ -21,7 +20,7 @@ from teams.models import Member, Team, UserIP
 from teams.permissions import HasTeam, IsTeamOwnerOrReadOnly, TeamsEnabled
 
 
-class SelfView(RetrieveUpdateAPIView):
+class SelfTeamView(RetrieveUpdateAPIView):
     """A view to get the details or modify the current user's team."""
 
     serializer_class = serializers.SelfTeamSerializer
@@ -181,8 +180,7 @@ class SelfView(RetrieveUpdateAPIView):
         """Get the current member with some prefetches."""
         UserIP.hook(self.request)
         return (
-            get_user_model()
-            .objects.prefetch_related(
+            Member.objects.prefetch_related(
                 "team",
                 "team__solves",
                 "team__solves__score",
@@ -216,7 +214,7 @@ class MemberViewSet(AdminListModelViewSet):
     def get_queryset(self):
         """Return the queryset for the member or list of members."""
         if self.action != "list":
-            return get_user_model().objects.prefetch_related(
+            return Member.objects.prefetch_related(
                 "team",
                 "team__solves",
                 "team__solves__score",
@@ -231,8 +229,8 @@ class MemberViewSet(AdminListModelViewSet):
                 "solves__score__team",
             )
         if self.request.user.is_staff and not self.request.user.should_deny_admin:
-            return get_user_model().objects.order_by("id").prefetch_related("team")
-        return get_user_model().objects.filter(is_visible=True).order_by("id").prefetch_related("team")
+            return Member.objects.order_by("id").prefetch_related("team")
+        return Member.objects.filter(is_visible=True).order_by("id").prefetch_related("team")
 
 
 class UserIPViewSet(ModelViewSet):

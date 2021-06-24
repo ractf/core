@@ -3,6 +3,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.http import HttpRequest
+from member.models import UserIP
 from rest_framework.request import Request
 from rest_framework.reverse import reverse
 from rest_framework.status import (
@@ -15,7 +16,6 @@ from rest_framework.test import APITestCase
 from team.models import Team
 
 from core.tests.utils import patch_config
-from member.models import UserIP
 
 
 class MemberTestCase(APITestCase):

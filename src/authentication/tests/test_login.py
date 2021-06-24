@@ -4,6 +4,7 @@ from unittest import mock
 
 import pyotp
 from django.urls import reverse
+from member.models import Member
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -11,7 +12,6 @@ from authentication import views
 from authentication.models import BackupCode, Token, TOTPDevice
 from authentication.tests import utils
 from config import config
-from member.models import Member
 
 
 class LogoutTestCase(APITestCase):
