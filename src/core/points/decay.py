@@ -1,10 +1,10 @@
 """Decay points plugin."""
 
-import team
 from challenge.models import Score
 from django.contrib.auth import get_user_model
 from django.db.models import F
 
+import team
 from core.points.base import PointsPlugin
 
 

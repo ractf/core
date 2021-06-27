@@ -3,7 +3,6 @@
 import time
 from typing import Union
 
-from challenge.logic import evaluate_rpn, get_file_path
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.indexes import BrinIndex
@@ -26,6 +25,7 @@ from django.utils.functional import cached_property
 from django_prometheus.models import ExportModelOperationsMixin
 from member.models import Member
 
+from challenge.logic import evaluate_rpn, get_file_path
 from config import config
 from core import plugins
 

@@ -1,8 +1,9 @@
 """URL routes for the member app."""
 
 from django.urls import include, path
-from member import views
 from rest_framework.routers import DefaultRouter
+
+from member import views
 
 router = DefaultRouter()
 router.register(r"", views.MemberViewSet, basename="member")
