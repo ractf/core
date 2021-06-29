@@ -130,6 +130,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
+    "clacks.middleware.ClacksMiddleware",
     "querycount.middleware.QueryCountMiddleware",
 ]
 if DEBUG:
@@ -275,7 +276,7 @@ REST_FRAMEWORK = {
         "polaris_view_hosts": "100/minute",
         "polaris_view_instances": "100/minute",
     },
-    "DEFAULT_PAGINATION_CLASS": "backend.pagination.FastPagination",
+    "DEFAULT_PAGINATION_CLASS": "backend.pagination.FormattedPagination",
     "PAGE_SIZE": 100,
 }
 

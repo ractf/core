@@ -52,7 +52,6 @@
 
 <div align="center">
   <a href="https://github.com/ractf/core/actions/workflows/build.yml"><img src=https://github.com/ractf/core/actions/workflows/build.yml/badge.svg></a>
-  <a href="https://github.com/ractf/core/actions/workflows/codeql-analysis.yml"><img src=https://github.com/ractf/core/actions/workflows/codeql-analysis.yml/badge.svg></a>
   <a href="https://github.com/ractf/core/actions/workflows/docs.yml"><img src=https://github.com/ractf/core/actions/workflows/docs.yml/badge.svg></a>
   <a href="https://github.com/ractf/core/actions/workflows/test.yml"><img src=https://github.com/ractf/core/actions/workflows/test.yml/badge.svg></a>
   <a href="https://codecov.io/gh/ractf/core"><img src="https://codecov.io/gh/ractf/core/branch/master/graph/badge.svg?token=JFCTNT15FC"/></a>    
