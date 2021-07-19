@@ -145,6 +145,7 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     tags = FastNestedTagSerializer(many=True)
     unlock_time_surpassed = serpy.MethodField()
     post_score_explanation = serpy.StrField()
+    tiebreaker = serpy.BoolField()
 
     def __init__(self, *args, **kwargs) -> None:
         """Add the 'context' attribute to the serializer."""
@@ -225,6 +226,7 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     tags = FastNestedTagSerializer(many=True)
     unlock_time_surpassed = serpy.MethodField()
     post_score_explanation = serpy.StrField()
+    tiebreaker = serpy.BoolField()
 
     def __init__(self, *args, **kwargs):
         super(FastAdminChallengeSerializer, self).__init__(*args, **kwargs)
@@ -265,6 +267,7 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
             "release_time",
             "post_score_explanation",
             "tags",
+            "tiebreaker",
         ]
         read_only_fields = ["id"]
 

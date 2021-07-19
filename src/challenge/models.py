@@ -60,6 +60,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     )
     points_type = models.CharField(max_length=64, default="basic")
     release_time = models.DateTimeField(default=timezone.now)
+    tiebreaker = models.BooleanField(default=True)
 
     def self_check(self):
         """Check the challenge doesn't have any configuration issues."""
@@ -212,6 +213,7 @@ class Score(ExportModelOperationsMixin("score"), models.Model):
     leaderboard = models.BooleanField(default=True)
     timestamp = models.DateTimeField(default=timezone.now)
     metadata = JSONField(default=dict)
+    tiebreaker = models.BooleanField(default=True)
 
 
 class Solve(ExportModelOperationsMixin("solve"), models.Model):

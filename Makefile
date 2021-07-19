@@ -5,6 +5,9 @@ DJANGO_SETTINGS_MODULE?=backend.settings.lint
 migrate:
 	python src/manage.py migrate
 
+migrations:
+	python src/manage.py makemigrations
+
 test: migrate
 	pytest --testmon src || \
 	if [ $$? = 5 ]; \
