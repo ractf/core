@@ -5,13 +5,7 @@ from django.dispatch import receiver
 from challenge.models import Challenge
 
 
-@receiver(post_save, sender=Challenge)
-def challenge_save(sender, instance, **kwargs):
-    new_index = caches["default"].get("challenge_mod_index", 0) + 1
-    caches["default"].set("challenge_mod_index", new_index)
-
-
-@receiver(post_delete, sender=Challenge)
-def challenge_save(sender, instance, **kwargs):
+@receiver([post_save, post_delete], sender=Challenge)
+def challenge_cache_invalidate(sender, instance, **kwargs):
     new_index = caches["default"].get("challenge_mod_index", 0) + 1
     caches["default"].set("challenge_mod_index", new_index)
