@@ -61,6 +61,7 @@ services:
     command: gunicorn -w 12 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker backend.asgi:application
     depends_on:
       - backend
+    working_dir: /app/src/
 
   watchtower:
     image: docker.io/containrrr/watchtower
