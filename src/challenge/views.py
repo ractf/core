@@ -1,7 +1,9 @@
 import hashlib
 import time
 from typing import Union
+import os
 
+import requests
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.cache import caches
@@ -289,6 +291,17 @@ class FlagSubmitView(APIView):
             if challenge.first_blood is None:
                 challenge.first_blood = user
                 challenge.save()
+                hook = os.getenv("BLOOD_HOOK")
+                if hook:
+                    chall_clean = challenge.name.replace('`', '')
+                    team_clean = team.name.replace('`', '')
+                    body = {
+                             'content': "First blood on `" + chall_clean + "` by `" + team_clean + "`!",
+                             'allowed_mentions': {'parse': []},
+                             'username': 'First Bloods',
+                            }
+                    requests.post(hook, json=body)
+
 
             user.save()
             team.save()
