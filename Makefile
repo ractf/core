@@ -44,3 +44,6 @@ clean-db:
 
 clean-test:
 	rm -rf /tmp/ractf-linting.cache /tmp/ractf-linting.db .testmondata
+
+clean-dev-server:
+	docker-compose rm -sf
