@@ -1,7 +1,7 @@
 import hashlib
+import os
 import time
 from typing import Union
-import os
 
 import requests
 from django.conf import settings
@@ -291,17 +291,46 @@ class FlagSubmitView(APIView):
             if challenge.first_blood is None:
                 challenge.first_blood = user
                 challenge.save()
-                hook = os.getenv("BLOOD_HOOK")
+                hook = settings.FIRSTBLOOD_WEBHOOK
                 if hook:
-                    chall_clean = challenge.name.replace('`', '')
-                    team_clean = team.name.replace('`', '')
-                    body = {
-                             'content': "First blood on `" + chall_clean + "` by `" + team_clean + "`!",
-                             'allowed_mentions': {'parse': []},
-                             'username': 'First Bloods',
-                            }
-                    requests.post(hook, json=body)
+                    challenge_clean = challenge.name.replace("`", "")
+                    team_clean = team.name.replace("`", "")
+                    if "discord.com" in hook:
+                        challenge_clean = f"`{challenge_clean}`"
+                        team_clean = f"`{team_clean}`"
 
+                        body = {
+                            "content": None,
+                            "username": "First Bloods",
+                            "allowed_mentions": {"parse": []},
+                            "embeds": [
+                                {
+                                    "title": "First Blood!",
+                                    "description": f"Team `{team_clean}` has taken first blood on `{challenge_clean}`",
+                                    "color": 0xFF0000,
+                                }
+                            ],
+                        }
+
+                    else:
+                        challenge_clean = challenge_clean.replace("@", "@\u200b")
+                        team_clean = team_clean.replace("@", "@\u200b")
+                        body = {
+                            "text": "First blood!",
+                            "blocks": [
+                                {
+                                    "type": "section",
+                                    "text": f"Team {team_clean} has taken first blood on {challenge_clean}",
+                                }
+                            ],
+                        }
+
+                    try:
+                        r = requests.post(hook, json=body)
+                        print(r)
+                    except requests.exceptions.RequestException as e:
+                        print(e)
+                        pass
 
             user.save()
             team.save()
