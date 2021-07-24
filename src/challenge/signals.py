@@ -1,5 +1,5 @@
 from django.core.cache import caches
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from challenge.models import Challenge

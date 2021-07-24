@@ -7,7 +7,12 @@ from sockets import consumers
 application = ProtocolTypeRouter(
     {
         "websocket": AuthMiddlewareStack(
-            URLRouter([re_path(r"^ws/$", consumers.EventConsumer), re_path(r"^api/v2/ws/$", consumers.EventConsumer)])
+            URLRouter(
+                [
+                    re_path(r"^ws/$", consumers.EventConsumer.as_asgi()),
+                    re_path(r"^api/v2/ws/$", consumers.EventConsumer.as_asgi()),
+                ]
+            )
         )
     }
 )
