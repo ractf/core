@@ -62,7 +62,6 @@ services:
 
   backend:
     <<: *django-instance
-    build: .
     entrypoint: /app/entrypoints/backend.sh
     command: python src/manage.py runserver 0.0.0.0:8000
 
