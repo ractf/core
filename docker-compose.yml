@@ -63,12 +63,12 @@ services:
   backend:
     <<: *django-instance
     entrypoint: /app/entrypoints/backend.sh
-    command: gunicorn -w 12 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker backend.asgi:application
+    command: gunicorn --reload -w 12 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker backend.asgi:application
 
   sockets:
     <<: *django-instance
     entrypoint: /app/entrypoints/sockets.sh
-    command: gunicorn -w 12 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker backend.asgi:application
+    command: gunicorn --reload -w 12 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker backend.asgi:application
 
   watchtower:
     image: docker.io/containrrr/watchtower
