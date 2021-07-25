@@ -63,7 +63,7 @@ services:
   backend:
     <<: *django-instance
     entrypoint: /app/entrypoints/backend.sh
-    command: python src/manage.py runserver 0.0.0.0:8000
+    command: gunicorn -w 12 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker backend.asgi:application
 
   sockets:
     <<: *django-instance
