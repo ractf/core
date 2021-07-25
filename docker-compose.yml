@@ -1,4 +1,31 @@
-version: "3"
+version: "3.8"
+
+
+x-django-instance: &django-instance
+    build: .
+    volumes:
+      - .:/app
+    environment:
+      - DOMAIN=localhost
+      - FRONTEND_URL=http://localhost:8000/
+      - SECRET_KEY=CorrectHorseBatteryStaple
+      - DJANGO_SETTINGS_MODULE=backend.settings.local
+      - ANDROMEDA_IP=andromeda
+      - ANDROMEDA_URL=http://andromeda:6000
+      - REDIS_PORT=6379
+      - REDIS_HOST=redis
+      - REDIS_CONFIG_DB=3
+      - REDIS_CACHE_DB=10
+      - SQL_PORT=5432
+      - SQL_HOST=database
+      - SQL_USER=postgres
+      - SQL_DATABASE=postgres
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
 
 services:
 
@@ -10,6 +37,12 @@ services:
     environment:
       - POSTGRES_EXTENSIONS=citext
       - POSTGRES_HOST_AUTH_METHOD=trust
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      timeout: 30s
+      retries: 30
+    stop_grace_period: 30s
 
   shell:
     image: index.docker.io/ractf/shell:latest
@@ -27,41 +60,16 @@ services:
     command:
       caddy run --config /etc/caddy/Caddyfile.development --adapter caddyfile
 
-  backend: &backend
+  backend:
+    <<: *django-instance
     build: .
     entrypoint: /app/entrypoints/backend.sh
     command: python src/manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app
-    environment:
-      - DOMAIN=localhost
-      - FRONTEND_URL=http://localhost:8000/
-      - SECRET_KEY=CorrectHorseBatteryStaple
-      - DJANGO_SETTINGS_MODULE=backend.settings.local
-
-      - ANDROMEDA_IP=andromeda
-      - ANDROMEDA_URL=http://andromeda:6000
-
-      - REDIS_PORT=6379
-      - REDIS_HOST=redis
-      - REDIS_CONFIG_DB=3
-      - REDIS_CACHE_DB=10
-
-      - SQL_PORT=5432
-      - SQL_HOST=database
-      - SQL_USER=postgres
-      - SQL_DATABASE=postgres
-
-    depends_on:
-      - database
 
   sockets:
-    <<: *backend
+    <<: *django-instance
     entrypoint: /app/entrypoints/sockets.sh
     command: gunicorn -w 12 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker backend.asgi:application
-    depends_on:
-      - backend
-    working_dir: /app/src/
 
   watchtower:
     image: docker.io/containrrr/watchtower
