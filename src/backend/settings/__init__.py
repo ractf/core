@@ -84,6 +84,7 @@ DEFAULT_CONFIG = {
     "hide_scoreboard_at": -1,
     "setup_wizard_complete": False,
     "sensitive_fields": ["sensitive_fields", "enable_force_admin_2fa"],
+    "firstblood_webhook": "",
 }
 
 INSTALLED_APPS = [
