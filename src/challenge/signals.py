@@ -9,4 +9,4 @@ from challenge.models import Challenge, Category
 @receiver([post_save, post_delete], sender=Category)
 def challenge_cache_invalidate(sender, instance, **kwargs):
     new_index = caches["default"].get("challenge_mod_index", 0) + 1
-    caches["default"].set("challenge_mod_index", new_index)
+    caches["default"].set("challenge_mod_index", new_index, timeout=None)
