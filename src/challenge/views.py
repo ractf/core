@@ -302,10 +302,10 @@ class FlagSubmitView(APIView):
                     team_clean = team_clean.replace("@", "@\u200b")
                     body = {
                         "username": "First Bloods",
-                        "text": "First blood!",
                         "attachments": [
                             {
-                                "text": f"Team {team_clean} has taken first blood on {challenge_clean}",
+                                "title": f":drop_of_blood: First Blood on `{challenge_clean}`!",
+                                "text": f"By team `{team_clean}`",
                                 "color": "#ff0000",
                             }
                         ],
