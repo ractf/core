@@ -83,7 +83,7 @@ DEFAULT_CONFIG = {
     "invite_required": False,
     "hide_scoreboard_at": -1,
     "setup_wizard_complete": False,
-    "sensitive_fields": ["sensitive_fields", "enable_force_admin_2fa"],
+    "sensitive_fields": ["sensitive_fields", "enable_force_admin_2fa", "firstblood_webhook"],
     "firstblood_webhook": "",
 }
 
