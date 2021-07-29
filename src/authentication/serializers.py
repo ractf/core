@@ -82,7 +82,7 @@ class RegistrationSerializer(serializers.Serializer):
             try:
                 send_email(
                     user.email,
-                    "RACTF - Verify your email",
+                    f"{config.get('event_name')} - Verify your email",
                     "verify",
                     url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token),
                 )

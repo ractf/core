@@ -45,6 +45,7 @@ from backend.signals import (
     verify_2fa,
 )
 from backend.viewsets import AdminListModelViewSet
+from config import config
 from plugins import providers
 from team.models import Team
 
@@ -133,7 +134,7 @@ class RemoveTwoFactorView(APIView):
             request.user.totp_device.delete()
             request.user.save()
             remove_2fa.send(sender=self.__class__, user=request.user)
-            send_email(request.user.email, "RACTF - 2FA Has Been Disabled", "2fa_removed")
+            send_email(request.user.email, f"{config.get('event_name')} - 2FA Has Been Disabled", "2fa_removed")
             return FormattedResponse()
         return FormattedResponse(status=HTTP_401_UNAUTHORIZED, m="code_incorrect")
 
@@ -208,7 +209,7 @@ class RequestPasswordResetView(APIView):
         if settings.MAIL["SEND"]:
             send_email(
                 email,
-                "RACTF - Reset Your Password",
+                f"{config.get('event_name')} - Reset Your Password",
                 "password_reset",
                 url=settings.FRONTEND_URL + "password_reset?id={}&secret={}".format(uid, token),
             )
@@ -284,7 +285,7 @@ class ResendEmailView(GenericAPIView):
         user = serializer.validated_data["user"]
         send_email(
             user.email,
-            "RACTF - Verify your email",
+            f"{config.get('event_name')} - Verify your email",
             "verify",
             url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token),
         )
