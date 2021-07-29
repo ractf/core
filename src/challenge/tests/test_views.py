@@ -193,6 +193,13 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         user4.save()
         self.assertFalse(self.challenge2.is_solved(user4))
 
+    def test_challenge_solve_non_tiebreak(self):
+        self.challenge2.tiebreaker = False
+        self.challenge2.save()
+        last_score_before = self.user.last_score
+        self.solve_challenge()
+        self.assertEqual(last_score_before, self.user.last_score)
+
 
 class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
     def test_category_list_unauthenticated_permission(self):
