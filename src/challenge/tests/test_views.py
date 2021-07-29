@@ -10,7 +10,7 @@ from rest_framework.status import (
 )
 from rest_framework.test import APITestCase
 
-from challenge.models import Challenge, Solve
+from challenge.models import Solve
 from challenge.tests.mixins import ChallengeSetupMixin
 from config import config
 from hint.models import HintUse
