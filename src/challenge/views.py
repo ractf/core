@@ -1,5 +1,4 @@
 import hashlib
-import os
 import time
 from contextlib import suppress
 from typing import Union
