@@ -85,7 +85,7 @@ DEFAULT_CONFIG = {
     "setup_wizard_complete": False,
     "sensitive_fields": ["sensitive_fields", "enable_force_admin_2fa", "firstblood_webhook"],
     "firstblood_webhook": "",
-    "event_name": "",
+    "event_name": "RACTF",
 }
 
 INSTALLED_APPS = [
