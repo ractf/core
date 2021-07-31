@@ -141,6 +141,7 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     first_blood = ForeignAttributeField(attr_name="username")
     solve_count = serpy.MethodField()
     hidden = serpy.BoolField()
+    maintenance = serpy.BoolField()
     votes = serpy.MethodField()
     tags = FastNestedTagSerializer(many=True)
     unlock_time_surpassed = serpy.MethodField()
@@ -222,6 +223,7 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     first_blood = ForeignAttributeField(attr_name="username")
     solve_count = serpy.MethodField()
     hidden = serpy.BoolField()
+    maintenance = serpy.BoolField()
     votes = serpy.MethodField()
     tags = FastNestedTagSerializer(many=True)
     unlock_time_surpassed = serpy.MethodField()
@@ -264,6 +266,7 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
             "unlock_requirements",
             "flag_metadata",
             "hidden",
+            "maintenance",
             "release_time",
             "post_score_explanation",
             "tags",
