@@ -49,6 +49,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     flag_metadata = JSONField()
     author = models.CharField(max_length=36)
     hidden = models.BooleanField(default=False)
+    maintenance = models.BooleanField(default=False)
     score = models.IntegerField()
     unlock_requirements = models.CharField(max_length=255, null=True, blank=True)
     first_blood = models.ForeignKey(
