@@ -51,7 +51,8 @@ class MemberViewSet(AdminListModelViewSet):
     admin_serializer_class = AdminMemberSerializer
     list_serializer_class = ListMemberSerializer
     list_admin_serializer_class = ListMemberSerializer
-    search_fields = ["username", "email"]
+    search_fields = ["username"]
+    ordering_fields = ["username", "team__name"]
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
 
     def get_queryset(self):
