@@ -52,7 +52,7 @@ class MemberViewSet(AdminListModelViewSet):
     list_serializer_class = ListMemberSerializer
     list_admin_serializer_class = ListMemberSerializer
     search_fields = ["username", "email"]
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
 
     def get_queryset(self):
         if self.action != "list":
