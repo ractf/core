@@ -55,14 +55,11 @@ class TeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
 
 
 class ListTeamSerializer(serializers.ModelSerializer):
-    members = serializers.SerializerMethodField()
+    members = serializers.IntegerField(read_only=True, source="members_count")
 
     class Meta:
         model = Team
         fields = ["id", "name", "members"]
-
-    def get_members(self, instance):
-        return instance.members.count()
 
 
 class AdminTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):

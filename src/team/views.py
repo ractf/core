@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.db.models import Count
 from rest_framework import filters
 from rest_framework.generics import (
     CreateAPIView,
@@ -69,10 +70,11 @@ class TeamViewSet(AdminListModelViewSet):
     def get_queryset(self):
         if self.action == "list":
             if self.request.user.is_staff:
-                return Team.objects.order_by("id").prefetch_related("members")
-            return Team.objects.filter(is_visible=True).order_by("id").prefetch_related("members")
-        if self.request.user.is_staff and not self.request.user.should_deny_admin():
-            return Team.objects.order_by("id").prefetch_related(
+                qs = Team.objects.order_by("id").prefetch_related("members")
+            else:
+                qs = Team.objects.filter(is_visible=True).order_by("id").prefetch_related("members")
+        elif self.request.user.is_staff and not self.request.user.should_deny_admin():
+            qs = Team.objects.order_by("id").prefetch_related(
                 "solves",
                 "members",
                 "hints_used",
@@ -80,10 +82,8 @@ class TeamViewSet(AdminListModelViewSet):
                 "solves__score",
                 "solves__solved_by",
             )
-        return (
-            Team.objects.filter(is_visible=True)
-            .order_by("id")
-            .prefetch_related(
+        else:
+            qs = Team.objects.filter(is_visible=True).order_by("id").prefetch_related(
                 "solves",
                 "members",
                 "hints_used",
@@ -91,7 +91,7 @@ class TeamViewSet(AdminListModelViewSet):
                 "solves__score",
                 "solves__solved_by",
             )
-        )
+        return qs.annotate(members_count=Count("members"))
 
 
 class CreateTeamView(CreateAPIView):
