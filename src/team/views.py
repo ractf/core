@@ -1,5 +1,5 @@
-from django.http import Http404
 from django.db.models import Count
+from django.http import Http404
 from rest_framework import filters
 from rest_framework.generics import (
     CreateAPIView,
@@ -83,13 +83,17 @@ class TeamViewSet(AdminListModelViewSet):
                 "solves__solved_by",
             )
         else:
-            qs = Team.objects.filter(is_visible=True).order_by("id").prefetch_related(
-                "solves",
-                "members",
-                "hints_used",
-                "solves__challenge",
-                "solves__score",
-                "solves__solved_by",
+            qs = (
+                Team.objects.filter(is_visible=True)
+                .order_by("id")
+                .prefetch_related(
+                    "solves",
+                    "members",
+                    "hints_used",
+                    "solves__challenge",
+                    "solves__score",
+                    "solves__solved_by",
+                )
             )
         return qs.annotate(members_count=Count("members"))
 
@@ -97,17 +101,24 @@ class TeamViewSet(AdminListModelViewSet):
 class CreateTeamView(CreateAPIView):
     serializer_class = CreateTeamSerializer
     model = Team
-    permission_classes = (IsAuthenticated & ~HasTeam,)
+    permission_classes = (IsAuthenticated,)
     throttle_scope = "team_create"
+
+    def post(self, request, *args, **kwargs):
+        if request.user.team is not None:
+            return FormattedResponse(m="already_in_team", status=HTTP_403_FORBIDDEN)
+        return super(CreateTeamView, self).post(request, *args, **kwargs)
 
 
 class JoinTeamView(APIView):
-    permission_classes = (IsAuthenticated & ~HasTeam & TeamsEnabled,)
+    permission_classes = (IsAuthenticated & TeamsEnabled,)
     throttle_scope = "team_join"
 
     def post(self, request):
         if not config.get("enable_team_join"):
             return FormattedResponse(m="join_disabled", status=HTTP_403_FORBIDDEN)
+        if request.user.team is not None:
+            return FormattedResponse(m="already_in_team", status=HTTP_403_FORBIDDEN)
         name = request.data.get("name")
         password = request.data.get("password")
         team_join_attempt.send(sender=self.__class__, user=request.user, name=name)

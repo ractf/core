@@ -1,7 +1,6 @@
+from collections import OrderedDict
 from typing import Optional
 from urllib import parse
-
-from collections import OrderedDict
 
 from rest_framework.pagination import LimitOffsetPagination
 
