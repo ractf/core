@@ -300,13 +300,13 @@ class FlagSubmitView(APIView):
             solve = challenge.points_plugin.score(user, team, flag, solve_set)
             if challenge.first_blood is None:
                 challenge.first_blood = user
-                challenge.save()
+                challenge.save(update_fields=["first_blood"])
                 hook = config.get("firstblood_webhook")
                 if hook and hook != "":
                     challenge_clean = challenge.name.replace("`", "").replace("@", "@\u200b")
                     team_clean = team.name.replace("`", "").replace("@", "@\u200b")
                     if "discord.com" in hook and not hook.endswith("/slack"):
-                        hook = hook + "/slack"
+                        hook += "/slack"
                     challenge_clean = challenge_clean.replace("@", "@\u200b")
                     team_clean = team_clean.replace("@", "@\u200b")
                     body = {
