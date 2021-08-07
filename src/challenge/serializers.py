@@ -119,7 +119,9 @@ class FastLockedChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     unlock_time_surpassed = serpy.MethodField()
 
     def serialize(self, instance):
-        return self._serialize(instance, self._compiled_fields)
+        serialized = self._serialize(instance, self._compiled_fields)
+        serialized["challenge_metadata"].pop("cserv_name", None)
+        return serialized
 
 
 class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
