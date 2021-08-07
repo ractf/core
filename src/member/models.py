@@ -83,7 +83,7 @@ class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):
         if not request.user.is_authenticated:
             return
         ip = request.headers.get("x-forwarded-for", "0.0.0.0")
-        user_agent = request.headers.get("user-agent", "???")
+        user_agent = request.headers.get("user-agent", "???")[:255]
         qs = UserIP.objects.filter(user=request.user, ip=ip)
         if qs.exists():
             user_ip = qs.first()
