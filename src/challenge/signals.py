@@ -3,7 +3,8 @@ from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from challenge.models import Category, Challenge, File, Tag
-from hint.models import Hint
+from challenge.views import get_cache_key
+from hint.models import Hint, HintUse
 
 
 @receiver([post_save, post_delete], sender=Challenge)
@@ -14,3 +15,8 @@ from hint.models import Hint
 def challenge_cache_invalidate(sender, instance, **kwargs):
     new_index = caches["default"].get("challenge_mod_index", 0) + 1
     caches["default"].set("challenge_mod_index", new_index, timeout=None)
+
+
+@receiver([post_save, post_delete], sender=HintUse)
+def team_cache_invalidate(sender, instance: HintUse, **kwargs):
+    caches["default"].delete(get_cache_key(instance.user))
