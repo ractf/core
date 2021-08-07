@@ -84,7 +84,7 @@ class CategoryViewset(AdminCreateModelViewSet):
                     output_field=models.BooleanField(),
                 )
             )
-            .prefetch_related(
+                .prefetch_related(
                 Prefetch(
                     "hint_set",
                     queryset=Hint.objects.annotate(
@@ -106,7 +106,7 @@ class CategoryViewset(AdminCreateModelViewSet):
                 ),
                 "hint_set__uses",
             )
-            .select_related("first_blood")
+                .select_related("first_blood")
         )
         if self.request.user.is_staff:
             categories = Category.objects
@@ -117,6 +117,9 @@ class CategoryViewset(AdminCreateModelViewSet):
 
     def list(self, request, *args, **kwargs):
         cache = caches["default"]
+        if config.get("enable_caching") and config.get("start_time") + 15 > time.time() and "preevent_cache" in cache:
+            return FormattedResponse(cache.get("preevent_cache"))
+
         categories = cache.get(get_cache_key(request.user))
         if categories is None or not config.get("enable_caching"):
             queryset = self.filter_queryset(self.get_queryset())
@@ -162,27 +165,27 @@ class ScoresViewset(ModelViewSet):
         if user:
             user = get_object_or_404(get_user_model(), id=user)
             user.leaderboard_points = (
-                Score.objects.filter(user=user, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
+                    Score.objects.filter(user=user, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
             )
             user.points = Score.objects.filter(user=user).aggregate(Sum("points"))["points__sum"] or 0
             user.last_score = (
                 Score.objects.filter(user=user, leaderboard=True, tiebreaker=True)
-                .order_by("timestamp")
-                .first()
-                .timestamp
+                    .order_by("timestamp")
+                    .first()
+                    .timestamp
             )
             user.save()
         if team:
             team = get_object_or_404(Team, id=team)
             team.leaderboard_points = (
-                Score.objects.filter(team=team, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
+                    Score.objects.filter(team=team, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
             )
             team.points = Score.objects.filter(team=team).aggregate(Sum("points"))["points__sum"] or 0
             team.last_score = (
                 Score.objects.filter(team=team, leaderboard=True, tiebreaker=True)
-                .order_by("timestamp")
-                .first()
-                .timestamp
+                    .order_by("timestamp")
+                    .first()
+                    .timestamp
             )
             team.save()
 
@@ -256,7 +259,7 @@ class FlagSubmitView(APIView):
 
     def post(self, request):
         if not config.get("enable_flag_submission") or (
-            not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")
+                not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")
         ):
             return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
 
@@ -339,7 +342,7 @@ class FlagCheckView(APIView):
 
     def post(self, request):
         if not config.get("enable_flag_submission") or (
-            not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")
+                not config.get("enable_flag_submission_after_competition") and time.time() > config.get("end_time")
         ):
             return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
         team = Team.objects.get(id=request.user.team.id)
