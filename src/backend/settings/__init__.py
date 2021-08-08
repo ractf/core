@@ -280,6 +280,7 @@ REST_FRAMEWORK = {
     },
     "DEFAULT_PAGINATION_CLASS": "backend.pagination.FormattedPagination",
     "PAGE_SIZE": 100,
+    "NUM_PROXIES": os.getenv("NUM_PROXIES", 0),
 }
 
 MAIL_SOCK_URL = "http+unix://%2Ftmp%2Fmailusv.sock/send"
