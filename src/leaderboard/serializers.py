@@ -6,8 +6,21 @@ from team.models import Team
 
 
 class CTFTimeSerializer(serializers.BaseSerializer):
+    position: int = 0
+
     def to_representation(self, instance):
-        return {"team": instance.name, "score": instance.leaderboard_points}
+        # TODO: Use SerializerFields for team, score and position.
+        return {"team": instance.name, "score": instance.leaderboard_points, "pos": self.get_position(instance)}
+
+    def get_position(self, _) -> int:
+        """
+        Return an incrementing field representing leaderboard positions.
+
+        This takes an extra argument, representing the model instance,
+        for use when it it converted to a SerializerMethodField.
+        """
+        self.position += 1
+        return self.position
 
 
 class LeaderboardTeamScoreSerializer(serializers.ModelSerializer):
