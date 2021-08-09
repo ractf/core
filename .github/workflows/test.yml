@@ -54,3 +54,6 @@ jobs:
       with:
         name: coverage.xml
         path: ./coverage.xml
+
+    - name: Run Linting
+      run: make lint
