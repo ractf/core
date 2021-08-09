@@ -41,7 +41,7 @@
 </div>
 
 <div align="center">
-  <sub>The CTF framework that <strong>won't</strong> fall over half way through an event. Built with ❤︎ by
+  <sub>The CTF framework that <strong>will</strong> fall over half way through an event. Built with ❤︎ by
   the <a href="https://twitter.com/RACTF_UK">RACTF</a> team and 
   <a href="https://github.com/ractf/core/graphs/contributors">
     contributors
