@@ -33,7 +33,6 @@ def should_hide_scoreboard():
 class CTFTimeListView(APIView):
     renderer_classes = (
         JSONRenderer,
-        BrowsableAPIRenderer,
     )
 
     def get(self, request, *args, **kwargs):
