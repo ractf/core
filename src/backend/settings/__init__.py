@@ -73,6 +73,7 @@ DEFAULT_CONFIG = {
     "enable_prelogin": True,
     "enable_maintenance_mode": False,
     "enable_registration": True,
+    "enable_preevent_cache": True,
     "enable_scoreboard": True,
     "enable_scoring": True,
     "enable_solve_broadcast": True,

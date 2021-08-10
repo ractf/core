@@ -1,5 +1,8 @@
+import time
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.core.cache import caches
 from django.urls import reverse
 from rest_framework.status import (
     HTTP_200_OK,
@@ -291,6 +294,25 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
         cached_response = self.client.get(reverse("categories-list"))
         config.set("enable_caching", False)
         self.assertEqual(uncached_response.data, cached_response.data)
+
+    def test_category_list_content_preevent_cached(self):
+        self.client.force_authenticate(self.user)
+        config.set("enable_preevent_cache", True)
+        config.set("start_time", time.time() - 5)
+        caches["default"].set("preevent_cache", {"key": "value"})
+        cached_response = self.client.get(reverse("categories-list"))
+        config.set("enable_preevent_cache", False)
+        self.assertEqual(cached_response.data["d"], {"key": "value"})
+
+    def test_category_list_content_preevent_cached_admin(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(self.user)
+        config.set("enable_preevent_cache", True)
+        caches["default"].set("preevent_cache", {"key": "value"})
+        cached_response = self.client.get(reverse("categories-list"))
+        config.set("enable_preevent_cache", False)
+        self.assertNotEqual(cached_response.data["d"], {"key": "value"})
 
 
 class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
