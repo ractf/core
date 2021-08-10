@@ -10,8 +10,8 @@ application = ProtocolTypeRouter(
         "http": AuthMiddlewareStack(
             URLRouter(
                 [
-                    path("ws/metrics", consumers.PrometheusConsumer.as_asgi()),
-                    path("api/v2/ws/metrics", consumers.PrometheusConsumer.as_asgi()),
+                    path("ws/metrics/", consumers.PrometheusConsumer.as_asgi()),
+                    path("api/v2/ws/metrics/", consumers.PrometheusConsumer.as_asgi()),
                 ],
             ),
         ),
