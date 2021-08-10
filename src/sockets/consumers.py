@@ -1,6 +1,8 @@
 import json
 
+import prometheus_client
 from asgiref.sync import sync_to_async
+from channels.generic.http import AsyncHttpConsumer
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 
 from authentication.models import Token
@@ -35,3 +37,17 @@ class EventConsumer(AsyncJsonWebsocketConsumer):
             team = await sync_to_async(self.get_team)(data["token"])
             if team is not None:
                 await self.channel_layer.group_add(f"team.{team.id}", self.channel_name)
+
+
+class PrometheusConsumer(AsyncHttpConsumer):
+    """Returns metrics for Prometheus via HTTP."""
+
+    async def handle(self, body: str) -> None:
+        """Export metrics in Prometheus format."""
+
+        latest = prometheus_client.generate_latest(prometheus_client.REGISTRY)
+        await self.send_response(
+            200,
+            latest,
+            headers=[(b'Content-Type', prometheus_client.CONTENT_TYPE_LATEST.encode())],
+        )
