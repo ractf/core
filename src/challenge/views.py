@@ -117,6 +117,14 @@ class CategoryViewset(AdminCreateModelViewSet):
 
     def list(self, request, *args, **kwargs):
         cache = caches["default"]
+        if (
+            config.get("enable_preevent_cache")
+            and config.get("start_time") + 15 > time.time()
+            and "preevent_cache" in cache
+            and not request.user.is_staff
+        ):
+            return FormattedResponse(cache.get("preevent_cache"))
+
         categories = cache.get(get_cache_key(request.user))
         if categories is None or not config.get("enable_caching"):
             queryset = self.filter_queryset(self.get_queryset())
@@ -300,13 +308,13 @@ class FlagSubmitView(APIView):
             solve = challenge.points_plugin.score(user, team, flag, solve_set)
             if challenge.first_blood is None:
                 challenge.first_blood = user
-                challenge.save()
+                challenge.save(update_fields=["first_blood"])
                 hook = config.get("firstblood_webhook")
                 if hook and hook != "":
                     challenge_clean = challenge.name.replace("`", "").replace("@", "@\u200b")
                     team_clean = team.name.replace("`", "").replace("@", "@\u200b")
                     if "discord.com" in hook and not hook.endswith("/slack"):
-                        hook = hook + "/slack"
+                        hook += "/slack"
                     challenge_clean = challenge_clean.replace("@", "@\u200b")
                     team_clean = team_clean.replace("@", "@\u200b")
                     body = {

@@ -101,5 +101,7 @@ def on_announcement_create(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Challenge)
-def on_challenge_edit(sender, instance, **kwargs):
+def on_challenge_edit(sender, instance, update_fields, **kwargs):
+    if update_fields is not None and "first_blood" in update_fields:
+        return
     broadcast({"type": "send_json", "event_code": 6, "challenge_id": instance.id})

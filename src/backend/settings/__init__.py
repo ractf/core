@@ -73,6 +73,7 @@ DEFAULT_CONFIG = {
     "enable_prelogin": True,
     "enable_maintenance_mode": False,
     "enable_registration": True,
+    "enable_preevent_cache": True,
     "enable_scoreboard": True,
     "enable_scoring": True,
     "enable_solve_broadcast": True,
@@ -280,6 +281,7 @@ REST_FRAMEWORK = {
     },
     "DEFAULT_PAGINATION_CLASS": "backend.pagination.FormattedPagination",
     "PAGE_SIZE": 100,
+    "NUM_PROXIES": os.getenv("NUM_PROXIES", 0),
 }
 
 MAIL_SOCK_URL = "http+unix://%2Ftmp%2Fmailusv.sock/send"

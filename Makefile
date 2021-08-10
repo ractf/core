@@ -37,7 +37,7 @@ dev-test: dev-server
 	docker-compose exec backend pytest --cov=src src
 
 fake-data:
-	python -m scripts/fake generate $(ARGS)
+	python -m scripts.fake generate $(ARGS)
 
 fake-bulk-data:
 	python -m scripts.fake generate --teams 10000 --users 2 --categories 10 --challenges 100 --solves 1000000
