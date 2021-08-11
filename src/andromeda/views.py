@@ -1,11 +1,13 @@
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
 from andromeda import client
 from andromeda.serializers import JobSubmitSerializer
 from backend.response import FormattedResponse
 from challenge.models import Challenge
+from config import config
 
 
 class GetInstanceView(APIView):
@@ -13,6 +15,8 @@ class GetInstanceView(APIView):
     throttle_scope = "challenge_instance_get"
 
     def get(self, request, job_id):
+        if not config.get("enable_challenge_server"):
+            return FormattedResponse(m="challenge_server_disabled", status=HTTP_400_BAD_REQUEST)
         return FormattedResponse(client.get_instance(request.user.id, job_id))
 
 
@@ -21,6 +25,8 @@ class ResetInstanceView(APIView):
     throttle_scope = "challenge_instance_reset"
 
     def get(self, request, job_id):
+        if not config.get("enable_challenge_server"):
+            return FormattedResponse(m="challenge_server_disabled", status=HTTP_400_BAD_REQUEST)
         return FormattedResponse(client.request_reset(request.user.id, job_id))
 
 
