@@ -64,6 +64,7 @@ DEFAULT_CONFIG = {
     "token_provider": "basic_auth",
     "enable_bot_users": True,
     "enable_caching": True,
+    "enable_challenge_server": True,
     "enable_ctftime": True,
     "enable_flag_submission": True,
     "enable_flag_submission_after_competition": True,
