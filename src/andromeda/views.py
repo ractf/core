@@ -1,6 +1,6 @@
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.status import HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
 
 from andromeda import client
@@ -16,7 +16,7 @@ class GetInstanceView(APIView):
 
     def get(self, request, job_id):
         if not config.get("enable_challenge_server"):
-            return FormattedResponse(m="challenge_server_disabled", status=HTTP_400_BAD_REQUEST)
+            return FormattedResponse(m="challenge_server_disabled", status=HTTP_403_FORBIDDEN)
         return FormattedResponse(client.get_instance(request.user.id, job_id))
 
 
@@ -26,7 +26,7 @@ class ResetInstanceView(APIView):
 
     def get(self, request, job_id):
         if not config.get("enable_challenge_server"):
-            return FormattedResponse(m="challenge_server_disabled", status=HTTP_400_BAD_REQUEST)
+            return FormattedResponse(m="challenge_server_disabled", status=HTTP_403_FORBIDDEN)
         return FormattedResponse(client.request_reset(request.user.id, job_id))
 
 
