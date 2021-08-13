@@ -17,7 +17,7 @@ class GetInstanceView(APIView):
     def get(self, request, job_id):
         if not config.get("enable_challenge_server"):
             return FormattedResponse(m="challenge_server_disabled", status=HTTP_403_FORBIDDEN)
-        return FormattedResponse(client.get_instance(request.user.id, job_id))
+        return FormattedResponse(client.get_instance(request.user.team.id, job_id))
 
 
 class ResetInstanceView(APIView):
@@ -27,7 +27,7 @@ class ResetInstanceView(APIView):
     def get(self, request, job_id):
         if not config.get("enable_challenge_server"):
             return FormattedResponse(m="challenge_server_disabled", status=HTTP_403_FORBIDDEN)
-        return FormattedResponse(client.request_reset(request.user.id, job_id))
+        return FormattedResponse(client.request_reset(request.user.team.id, job_id))
 
 
 class ListJobsView(APIView):
