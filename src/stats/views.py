@@ -63,6 +63,8 @@ def full(request):
         challenge_data[challenge] = {}
         challenge_data[challenge]["correct"] = correct_solve_counts.get(challenge, 0)
     for challenge in incorrect_solve_counts:
+        if challenge not in challenge_data:
+            challenge_data[challenge] = {}
         challenge_data[challenge]["incorrect"] = incorrect_solve_counts.get(challenge, 0)
 
     point_distribution = {}
