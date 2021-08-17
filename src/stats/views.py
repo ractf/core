@@ -14,7 +14,7 @@ from challenge.models import Score
 from challenge.sql import get_incorrect_solve_counts, get_solve_counts
 from config import config
 from member.models import UserIP
-from stats.signals import correct_solve_count, member_count, solve_count, team_count
+from stats.signals import member_count, team_count
 from team.models import Team
 
 
@@ -96,10 +96,14 @@ def version(request):
 class PrometheusMetricsView(APIView):
     permission_classes = [IsAdminUser]
 
-    def get(self, request, format=None):
+    def populate_metrics(self) -> None:
+        """Populate Prometheus metrics from the cache or the database."""
+
         member_count.set(cache.get("member_count"))
         team_count.set(cache.get("team_count"))
-        solve_count.set(cache.get("solve_count"))
-        correct_solve_count.set(cache.get("correct_solve_count"))
 
+    def get(self, request, format=None):
+        """Repoulate Prometheus metrics from cache and export statistics."""
+
+        self.populate_metrics()
         return ExportToDjangoView(request)
