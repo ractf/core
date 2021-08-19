@@ -1,7 +1,27 @@
 version: "3"
 
-services:
+x-gunicorn-master: &x-gunicorn-master
+  build: .
+  entrypoint: 
+  volumes:
+    - .:/app
+  environment:
+    - DOMAIN=localhost
+    - FRONTEND_URL=http://localhost:8000/
+    - SECRET_KEY=CorrectHorseBatteryStaple
+    - DJANGO_SETTINGS_MODULE=backend.settings.local
+    - ANDROMEDA_IP=andromeda
+    - ANDROMEDA_URL=http://andromeda:6000
+    - REDIS_PORT=6379
+    - REDIS_HOST=redis
+    - REDIS_CONFIG_DB=3
+    - REDIS_CACHE_DB=10
+    - SQL_PORT=5432
+    - SQL_HOST=database
+    - SQL_USER=postgres
+    - SQL_DATABASE=postgres
 
+services:
   redis:
     image: docker.io/redis:5
 
@@ -27,41 +47,19 @@ services:
     command:
       caddy run --config /etc/caddy/Caddyfile.development --adapter caddyfile
 
-  backend: &backend
-    build: .
+  backend:
+    <<: *x-gunicorn-master
     entrypoint: /app/entrypoints/backend.sh
-    command: python src/manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app
-    environment:
-      - DOMAIN=localhost
-      - FRONTEND_URL=http://localhost:8000/
-      - SECRET_KEY=CorrectHorseBatteryStaple
-      - DJANGO_SETTINGS_MODULE=backend.settings.local
-
-      - ANDROMEDA_IP=andromeda
-      - ANDROMEDA_URL=http://andromeda:6000
-
-      - REDIS_PORT=6379
-      - REDIS_HOST=redis
-      - REDIS_CONFIG_DB=3
-      - REDIS_CACHE_DB=10
-
-      - SQL_PORT=5432
-      - SQL_HOST=database
-      - SQL_USER=postgres
-      - SQL_DATABASE=postgres
-
+    command: gunicorn backend.wsgi:application
     depends_on:
       - database
 
   sockets:
-    <<: *backend
+    <<: *x-gunicorn-master
     entrypoint: /app/entrypoints/sockets.sh
-    command: gunicorn -w 12 -b 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker backend.asgi:application
+    command: gunicorn backend.asgi:application
     depends_on:
       - backend
-    working_dir: /app/src/
 
   watchtower:
     image: docker.io/containrrr/watchtower
