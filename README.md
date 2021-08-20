@@ -84,3 +84,5 @@ If you need support, check out our [Discord](https://discord.gg/FfW2xXR), or if 
 ## License
 
 [AGPLv3](https://tldrlegal.com/license/gnu-affero-general-public-license-v3-(agpl-3.0))
+
+Thanks to the Milner for his continued war on software.

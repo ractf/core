@@ -108,6 +108,13 @@ INSTALLED_APPS = [
     "team.apps.TeamConfig",
     "sockets.apps.SocketsConfig",
     "stats.apps.StatsConfig",
+    "health_check",
+    "health_check.db",
+    "health_check.cache",
+    "health_check.storage",
+    "health_check.contrib.migrations",
+    "health_check.contrib.psutil",
+    "health_check.contrib.redis",
     "rest_framework",
     "rest_framework.authtoken",
     "django_zxcvbn_password_validator",
@@ -326,6 +333,7 @@ CACHES = {
         },
     }
 }
+REDIS_URL = f"redis://{os.getenv('REDIS_HOST')}:{os.getenv('REDIS_PORT')}"
 
 CONFIG = {
     "BACKEND": "config.backends.CachedBackend",

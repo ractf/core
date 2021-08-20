@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 x-gunicorn-master: &x-gunicorn-master
   build: .
@@ -20,6 +20,11 @@ x-gunicorn-master: &x-gunicorn-master
     - SQL_HOST=database
     - SQL_USER=postgres
     - SQL_DATABASE=postgres
+  depends_on:
+    database:
+      condition: service_healthy
+    redis:
+      condition: service_started
 
 services:
   redis:
@@ -30,6 +35,11 @@ services:
     environment:
       - POSTGRES_EXTENSIONS=citext
       - POSTGRES_HOST_AUTH_METHOD=trust
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 1s
+      timeout: 30s
+      retries: 30
 
   shell:
     image: index.docker.io/ractf/shell:latest
@@ -53,13 +63,19 @@ services:
     command: gunicorn backend.wsgi:application
     depends_on:
       - database
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail http://localhost:8000/api/v2/healthcheck/?format=json"]
+      interval: 10s
+      timeout: 50s
+      retries: 5
 
   sockets:
     <<: *x-gunicorn-master
     entrypoint: /app/entrypoints/sockets.sh
     command: gunicorn backend.asgi:application
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
   watchtower:
     image: docker.io/containrrr/watchtower

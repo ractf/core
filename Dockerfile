@@ -1,9 +1,9 @@
 FROM docker.io/library/python:3.9-slim
 
-ARG BUILD_DEPS="build-essential curl"
+ARG BUILD_DEPS="build-essential"
 
 RUN set -ex \
-  && apt-get update && apt-get -y --no-install-recommends install $BUILD_DEPS libpq-dev netcat make git \
+  && apt-get update && apt-get -y --no-install-recommends install $BUILD_DEPS libpq-dev make git curl \
   && rm -rf /var/lib/apt/lists/* \
   && curl -sSL "https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py" | python \
   && . $HOME/.poetry/env \
