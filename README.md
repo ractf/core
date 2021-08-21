@@ -9,7 +9,7 @@
   <strong>A robust CTF platform</strong>
 </div>
 <div align="center">
-  A <strong>Really Awesome</strong> framework for hosting Cyber-Security Capture the Flag events
+  A <strong>Really Awesome</strong> framework for hosting Cyber-Security Capture the Flag events. Now in German!
 </div>
 
 <div align="center">
