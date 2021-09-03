@@ -2,7 +2,7 @@
 
 from rest_framework.request import Request
 
-from member.models import Member
+from teams.models import Member
 
 
 class AuthenticatedRequest(Request):

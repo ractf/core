@@ -10,7 +10,7 @@ from rest_framework.exceptions import ValidationError
 
 from config import config
 from core.providers import Provider
-from member.models import Member
+from teams.models import Member
 
 
 class RegistrationProvider(Provider, abc.ABC):  # pragma: no cover

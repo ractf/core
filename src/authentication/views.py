@@ -35,7 +35,7 @@ from core.permissions import IsBot, IsSudo
 from core.response import FormattedResponse
 from core.types import AuthenticatedRequest
 from core.viewsets import AdminListModelViewSet
-from member.models import Member
+from teams.models import Member
 from plugins import providers
 from teams.models import Team
 

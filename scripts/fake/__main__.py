@@ -6,7 +6,7 @@ from django import db
 from faker import Faker
 
 from challenges.models import Category, Challenge, Score, Solve
-from member.models import Member
+from teams.models import Member
 from scripts.fake.config import (
     CATEGORIES,
     CHALLENGES,

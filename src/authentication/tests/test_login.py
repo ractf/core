@@ -11,7 +11,7 @@ from authentication import views
 from authentication.models import BackupCode, Token, TOTPDevice
 from authentication.tests import utils
 from config import config
-from member.models import Member
+from teams.models import Member
 
 
 class LogoutTestCase(APITestCase):

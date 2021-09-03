@@ -22,7 +22,7 @@ class StatsConfig(AppConfig):
 
         signals = import_module("stats.signals", "stats")
 
-        Team, Solve, Member = team.models.Team, challenge.models.Solve, member.models.Member
+        Team, Solve, Member = team.models.Team, challenge.models.Solve, teams.models.Member
 
         signals.team_count.set(Team.objects.count())
         signals.solve_count.set(Solve.objects.count())

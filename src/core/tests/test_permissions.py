@@ -13,7 +13,7 @@ from core.permissions import (
     IsSudo,
     ReadOnlyBot,
 )
-from member.models import Member
+from teams.models import Member
 
 
 class PermissionTestMixin:

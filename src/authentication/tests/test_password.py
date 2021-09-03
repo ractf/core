@@ -10,7 +10,7 @@ from authentication import views
 from authentication.models import PasswordResetToken
 from authentication.tests import utils
 from config import config
-from member.models import Member
+from teams.models import Member
 
 
 class RequestPasswordResetTestCase(APITestCase):

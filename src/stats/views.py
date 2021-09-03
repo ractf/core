@@ -15,7 +15,7 @@ from rest_framework.views import APIView
 
 from config import config
 from core.response import FormattedResponse
-from member.models import UserIP
+from teams.models import UserIP
 from stats.signals import correct_solve_count, member_count, solve_count, team_count
 from teams.models import Team
 

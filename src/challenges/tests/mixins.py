@@ -5,7 +5,7 @@ from typing import Optional, Union
 from challenges.models import Category, Challenge
 
 from hint.models import Hint
-from member.models import Member
+from teams.models import Member
 from teams.models import Team
 
 

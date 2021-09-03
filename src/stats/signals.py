@@ -13,7 +13,7 @@ from core.signals import (
     websocket_connect,
     websocket_disconnect,
 )
-from member.models import Member
+from teams.models import Member
 from teams.models import Team
 
 member_count = Gauge("member_count", "The number of members currently registered")

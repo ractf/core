@@ -27,7 +27,6 @@ from django_prometheus.models import ExportModelOperationsMixin
 from challenges.logic import evaluate_rpn, get_file_path
 from config import config
 from core import plugins
-from member.models import Member
 
 USING_POSTGRES = settings.DATABASES.get("default", {}).get("ENGINE", "").endswith("postgresql")
 
@@ -60,7 +59,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     score = models.IntegerField()
     unlock_requirements = models.CharField(max_length=255, null=True, blank=True)
     first_blood = models.ForeignKey(
-        "member.Member",
+        "teams.Member",
         related_name="first_bloods",
         on_delete=SET_NULL,
         null=True,
@@ -99,7 +98,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         """Return the points plugin responsible for granting points from this challenge."""
         return plugins.plugins["points"][self.points_type](self)
 
-    def is_unlocked_by(self, user: Union[Member, AnonymousUser, None], solves=None) -> bool:
+    def is_unlocked_by(self, user: Union["teams.models.Member", AnonymousUser, None], solves=None) -> bool:
         """Check if the provided user has unlocked this challenge."""
         if user is None or not user.is_authenticated or not user.team:
             return False
@@ -175,7 +174,7 @@ class ChallengeVote(ExportModelOperationsMixin("challenge_vote"), models.Model):
     """Represents a user's vote on a Challenge."""
 
     challenge = models.ForeignKey("challenge.Challenge", on_delete=CASCADE, related_name="votes")
-    user = models.ForeignKey("member.Member", on_delete=CASCADE)
+    user = models.ForeignKey("teams.Member", on_delete=CASCADE)
     positive = models.BooleanField()
 
 
@@ -183,7 +182,7 @@ class ChallengeFeedback(ExportModelOperationsMixin("challenge_feedback"), models
     """Represents a user's feedback on a Challenge."""
 
     challenge = models.ForeignKey("challenge.Challenge", on_delete=CASCADE)
-    user = models.ForeignKey("member.Member", on_delete=CASCADE)
+    user = models.ForeignKey("teams.Member", on_delete=CASCADE)
     feedback = models.TextField()
 
 
@@ -191,7 +190,7 @@ class Score(ExportModelOperationsMixin("score"), models.Model):
     """Represents a score contributing to a team and/or user's points."""
 
     team = models.ForeignKey("team.Team", related_name="scores", on_delete=CASCADE, null=True)
-    user = models.ForeignKey("member.Member", related_name="scores", on_delete=SET_NULL, null=True)
+    user = models.ForeignKey("teams.Member", related_name="scores", on_delete=SET_NULL, null=True)
     reason = models.CharField(max_length=64)
     points = models.IntegerField()
     penalty = models.IntegerField(default=0)
@@ -206,7 +205,7 @@ class Solve(ExportModelOperationsMixin("solve"), models.Model):
 
     team = models.ForeignKey("team.Team", related_name="solves", on_delete=CASCADE, null=True)
     challenge = models.ForeignKey("challenge.Challenge", related_name="solves", on_delete=CASCADE)
-    solved_by = models.ForeignKey("member.Member", related_name="solves", on_delete=SET_NULL, null=True)
+    solved_by = models.ForeignKey("teams.Member", related_name="solves", on_delete=SET_NULL, null=True)
     first_blood = models.BooleanField(default=False)
     correct = models.BooleanField(default=True)
     timestamp = models.DateTimeField(default=timezone.now)

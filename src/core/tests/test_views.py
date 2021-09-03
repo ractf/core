@@ -7,7 +7,7 @@ from django.urls import reverse
 from rest_framework.status import HTTP_404_NOT_FOUND
 from rest_framework.test import APITestCase
 
-from member.models import Member
+from teams.models import Member
 
 
 class CatchAllTestCase(APITestCase):
