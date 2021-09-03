@@ -1,10 +1,10 @@
 """Tests for core's plugins and plugin system."""
 
-from challenges.models import Category, Challenge, Score, Solve
-from challenges.tests.mixins import ChallengeSetupMixin
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 
+from challenges.models import Category, Challenge, Score, Solve
+from challenges.tests.mixins import ChallengeSetupMixin
 from config import config
 from core import plugins
 from core.flag.hashed import HashedFlagPlugin

@@ -1,7 +1,6 @@
 """Unit tests for the teams app."""
 import random
 
-from challenges.models import Category, Challenge, Score, Solve
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework.status import (
@@ -13,9 +12,10 @@ from rest_framework.status import (
     HTTP_404_NOT_FOUND,
 )
 from rest_framework.test import APITestCase
-from teams.models import Team
 
+from challenges.models import Category, Challenge, Score, Solve
 from config import config
+from teams.models import Team
 
 
 class TeamSetupMixin:

@@ -3,7 +3,7 @@
 from django.apps import AppConfig
 
 
-class TeamConfig(AppConfig):
-    """App config for the team app."""
+class TeamsConfig(AppConfig):
+    """App config for the teams app."""
 
-    name = "team"
+    name = "teams"

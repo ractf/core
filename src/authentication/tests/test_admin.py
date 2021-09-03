@@ -7,8 +7,7 @@ from rest_framework.request import Request
 from rest_framework.test import APITestCase
 
 from authentication import views
-from teams.models import Member
-from teams.models import Team
+from teams.models import Member, Team
 
 
 class SudoTestCase(APITestCase):

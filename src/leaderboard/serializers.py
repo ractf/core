@@ -1,9 +1,9 @@
 """Serializers for the leaderboard app."""
 
-from challenges.models import Score
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
+from challenges.models import Score
 from teams.models import Team
 
 

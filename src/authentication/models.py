@@ -15,10 +15,10 @@ class Token(ExportModelOperationsMixin("token"), models.Model):
     """A Token used for users to authenticate with RACTF."""
 
     key = models.CharField(max_length=40, primary_key=True)
-    user = models.ForeignKey("member.Member", related_name="tokens", on_delete=models.CASCADE)
+    user = models.ForeignKey("teams.Member", related_name="tokens", on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     owner = models.ForeignKey(
-        "member.Member",
+        "teams.Member",
         related_name="owned_tokens",
         on_delete=models.CASCADE,
         blank=True,
@@ -53,7 +53,7 @@ class InviteCode(ExportModelOperationsMixin("invite_code"), models.Model):
 class PasswordResetToken(ExportModelOperationsMixin("password_reset_token"), models.Model):
     """Auto-expiring tokens used by users to reset their passwords."""
 
-    user = models.ForeignKey("member.Member", on_delete=models.CASCADE)
+    user = models.ForeignKey("teams.Member", on_delete=models.CASCADE)
     token = models.CharField(max_length=255)
     issued = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(default=utils.one_day_hence)
@@ -62,7 +62,7 @@ class PasswordResetToken(ExportModelOperationsMixin("password_reset_token"), mod
 class BackupCode(ExportModelOperationsMixin("backup_code"), models.Model):
     """Backup codes for users to authenticate after they have lost a 2FA provider."""
 
-    user = models.ForeignKey("member.Member", related_name="backup_codes", on_delete=models.CASCADE)
+    user = models.ForeignKey("teams.Member", related_name="backup_codes", on_delete=models.CASCADE)
     code = models.CharField(max_length=8, default=utils.random_backup_code)
 
     class Meta:
@@ -82,7 +82,7 @@ class TOTPDevice(ExportModelOperationsMixin("totp_device"), models.Model):
     """TOTP Devices used by users as an extra factor of authentication."""
 
     user = models.OneToOneField(
-        "member.Member",
+        "teams.Member",
         related_name="totp_device",
         on_delete=models.CASCADE,
         null=True,

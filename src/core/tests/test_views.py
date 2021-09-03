@@ -2,11 +2,11 @@
 
 import hashlib
 
-from challenges.models import Category, Challenge
 from django.urls import reverse
 from rest_framework.status import HTTP_404_NOT_FOUND
 from rest_framework.test import APITestCase
 
+from challenges.models import Category, Challenge
 from teams.models import Member
 
 

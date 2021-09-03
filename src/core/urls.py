@@ -23,7 +23,7 @@ from core.views import CatchAllView
 urlpatterns = [
     path("announcements/", include("sockets.urls")),
     path("auth/", include("authentication.urls")),
-    path("challenges/", include("challenge.urls")),
+    path("challenges/", include("challenges.urls")),
     path("challengeserver/", include("andromeda.urls")),
     path("config/", include("config.urls")),
     path("hints/", include("hint.urls")),

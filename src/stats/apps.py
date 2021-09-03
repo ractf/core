@@ -4,10 +4,6 @@ from importlib import import_module
 
 from django.apps import AppConfig
 
-import challenge
-import member
-import team
-
 
 class StatsConfig(AppConfig):
     """App config for the stats app."""
@@ -22,7 +18,11 @@ class StatsConfig(AppConfig):
 
         signals = import_module("stats.signals", "stats")
 
-        Team, Solve, Member = team.models.Team, challenge.models.Solve, teams.models.Member
+        challenges, teams = (
+            import_module("challenges.models", "challenges"),
+            import_module("teams.models", "teams"),
+        )
+        Team, Solve, Member = teams.Team, challenges.Solve, teams.Member
 
         signals.team_count.set(Team.objects.count())
         signals.solve_count.set(Solve.objects.count())

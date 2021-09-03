@@ -1,12 +1,12 @@
 """Serializers for team related api endpoints."""
 
-from challenges.serializers import SolveSerializer
 from rest_framework import serializers
 
+from challenges.serializers import SolveSerializer
 from core.mixins import IncorrectSolvesMixin
 from core.signals import team_create
-from teams.serializers.member import MinimalMemberSerializer
 from teams.models import Team
+from teams.serializers.member import MinimalMemberSerializer
 
 
 class SelfTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):

@@ -10,8 +10,7 @@ from authentication import views
 from authentication.models import InviteCode, TOTPDevice
 from authentication.tests import utils
 from config import config
-from teams.models import Member
-from teams.models import Team
+from teams.models import Member, Team
 
 
 class RegisterTestCase(APITestCase):

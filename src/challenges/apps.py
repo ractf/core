@@ -5,11 +5,11 @@ from importlib import import_module
 from django.apps import AppConfig
 
 
-class ChallengeConfig(AppConfig):
-    """The app config for the challenge app."""
+class ChallengesConfig(AppConfig):
+    """The app config for the challenges app."""
 
-    name = "challenge"
+    name = "challenges"
 
     def ready(self):
         """Import challenge signals when the app is ready."""
-        import_module("challenge.signals", "challenge")
+        import_module("challenges.signals", "challenges")

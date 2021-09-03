@@ -1,9 +1,9 @@
 """Command to remove all scores from the database."""
 
-from challenges.models import Challenge, Score, Solve
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 
+from challenges.models import Challenge, Score, Solve
 from teams.models import Team
 
 

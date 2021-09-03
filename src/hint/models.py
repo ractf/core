@@ -20,7 +20,7 @@ class HintUse(ExportModelOperationsMixin("hint_use"), models.Model):
 
     hint = models.ForeignKey("hint.Hint", related_name="uses", on_delete=CASCADE)
     team = models.ForeignKey("team.Team", related_name="hints_used", on_delete=CASCADE, null=True)
-    user = models.ForeignKey("member.Member", related_name="hints_used", on_delete=SET_NULL, null=True)
+    user = models.ForeignKey("teams.Member", related_name="hints_used", on_delete=SET_NULL, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
     challenge = models.ForeignKey("challenge.Challenge", related_name="hints_used", on_delete=CASCADE)
 

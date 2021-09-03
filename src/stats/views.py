@@ -3,8 +3,6 @@
 import os
 from datetime import datetime, timezone
 
-from challenges.models import Score
-from challenges.sql import get_incorrect_solve_counts, get_solve_counts
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db.models import Sum
@@ -13,11 +11,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
+from challenges.models import Score
+from challenges.sql import get_incorrect_solve_counts, get_solve_counts
 from config import config
 from core.response import FormattedResponse
-from teams.models import UserIP
 from stats.signals import correct_solve_count, member_count, solve_count, team_count
-from teams.models import Team
+from teams.models import Team, UserIP
 
 
 @api_view(["GET"])

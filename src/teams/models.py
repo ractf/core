@@ -4,7 +4,6 @@ import secrets
 import time
 from enum import IntEnum
 
-from challenges.models import Challenge, Solve
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import CICharField
@@ -15,6 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
 
 from authentication.models import Token, TOTPDevice
+from challenges.models import Challenge, Solve
 from config import config
 from core.validators import printable_name
 
@@ -41,7 +41,7 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
     name = CICharField(max_length=36, unique=True, validators=[printable_name])
     is_visible = models.BooleanField(default=True)
     password = models.CharField(max_length=64)
-    owner = models.ForeignKey("member.Member", on_delete=models.CASCADE, related_name="owned_team")
+    owner = models.ForeignKey("teams.Member", on_delete=models.CASCADE, related_name="owned_team")
     description = models.TextField(blank=True, max_length=400)
     points = models.IntegerField(default=0)
     leaderboard_points = models.IntegerField(default=0)
@@ -153,7 +153,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
 class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):
     """Represents the ip and useragent a given user accessed the api from."""
 
-    user = models.ForeignKey("member.Member", on_delete=SET_NULL, null=True)
+    user = models.ForeignKey("teams.Member", on_delete=SET_NULL, null=True)
     ip = models.CharField(max_length=255)
     seen = models.IntegerField(default=1)
     last_seen = models.DateTimeField(default=timezone.now)

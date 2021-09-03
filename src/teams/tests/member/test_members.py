@@ -14,8 +14,7 @@ from rest_framework.status import (
 from rest_framework.test import APITestCase
 
 from core.tests.utils import patch_config
-from teams.models import UserIP
-from teams.models import Team
+from teams.models import Team, UserIP
 
 
 class MemberTestCase(APITestCase):

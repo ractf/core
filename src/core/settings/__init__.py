@@ -14,7 +14,7 @@ CORS_ALLOW_HEADERS = [*default_headers, "x-exporting", "exporting"]
 DOMAIN = os.getenv("DOMAIN")
 DEBUG = bool(os.getenv("DEBUG"))
 FRONTEND_URL = os.getenv("FRONTEND_URL")
-AUTH_USER_MODEL = "member.Member"
+AUTH_USER_MODEL = "teams.Member"
 
 BASE_DIR = str(Path(__file__).parent.parent.parent.absolute())
 SECRET_KEY = os.getenv("SECRET_KEY")
@@ -93,13 +93,13 @@ DEFAULT_CONFIG = {
 INSTALLED_APPS = [
     "core.apps.CoreConfig",
     "authentication.apps.AuthConfig",
-    "challenges.apps.ChallengeConfig",
+    "challenges.apps.ChallengesConfig",
     "andromeda.apps.AndromedaConfig",
     "config.apps.ConfigConfig",
     "hint.apps.HintConfig",
     "leaderboard.apps.LeaderboardConfig",
     "pages.apps.PagesConfig",
-    "teams.apps.TeamConfig",
+    "teams.apps.TeamsConfig",
     "sockets.apps.SocketsConfig",
     "stats.apps.StatsConfig",
     "rest_framework",
@@ -274,7 +274,7 @@ REST_FRAMEWORK = {
         "polaris_view_hosts": "100/minute",
         "polaris_view_instances": "100/minute",
     },
-    "DEFAULT_PAGINATION_CLASS": "core.pagination.RewriteURLPagination",
+    "DEFAULT_PAGINATION_CLASS": "core.pagination.FormattedPagination",
     "PAGE_SIZE": 100,
     "NUM_PROXIES": int(os.getenv("NUM_PROXIES", 0)),
 }

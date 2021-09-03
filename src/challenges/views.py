@@ -23,12 +23,30 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from challenges.models import Category, Challenge, Tag, File, Solve, Score, ChallengeFeedback, ChallengeVote
+from challenges.models import (
+    Category,
+    Challenge,
+    ChallengeFeedback,
+    ChallengeVote,
+    File,
+    Score,
+    Solve,
+    Tag,
+)
 from challenges.permissions import CompetitionOpen
-from challenges.serializers import FastCategorySerializer, FastAdminCategorySerializer, CreateCategorySerializer, \
-    FastChallengeSerializer, FastAdminChallengeSerializer, CreateChallengeSerializer, AdminScoreSerializer, \
-    ChallengeFeedbackSerializer, FileSerializer, TagSerializer
-from challenges.sql import get_solve_counts, get_positive_votes, get_negative_votes
+from challenges.serializers import (
+    AdminScoreSerializer,
+    ChallengeFeedbackSerializer,
+    CreateCategorySerializer,
+    CreateChallengeSerializer,
+    FastAdminCategorySerializer,
+    FastAdminChallengeSerializer,
+    FastCategorySerializer,
+    FastChallengeSerializer,
+    FileSerializer,
+    TagSerializer,
+)
+from challenges.sql import get_negative_votes, get_positive_votes, get_solve_counts
 from config import config
 from core.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
 from core.response import FormattedResponse

@@ -1,11 +1,11 @@
 """Signal handlers and prometheus gauges for the stats app."""
 
-from challenges.models import Solve
 from django.core.cache import cache
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from prometheus_client import Gauge
 
+from challenges.models import Solve
 from core.signals import (
     flag_score,
     register,
@@ -13,8 +13,7 @@ from core.signals import (
     websocket_connect,
     websocket_disconnect,
 )
-from teams.models import Member
-from teams.models import Team
+from teams.models import Member, Team
 
 member_count = Gauge("member_count", "The number of members currently registered")
 team_count = Gauge("team_count", "The number of teams currently registered")

@@ -2,8 +2,6 @@
 
 import time
 
-from challenges.models import Solve
-from challenges.tests.mixins import ChallengeSetupMixin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import caches
@@ -17,6 +15,8 @@ from rest_framework.status import (
 )
 from rest_framework.test import APITestCase
 
+from challenges.models import Solve
+from challenges.tests.mixins import ChallengeSetupMixin
 from config import config
 from hint.models import HintUse
 
@@ -226,7 +226,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.assertFalse(self.challenge2.is_solved_by(user4))
 
     def test_challenge_solve_non_tiebreak(self):
-        """"Test solving a challenge that is not a tiebreaker does not update last_score."""
+        """ "Test solving a challenge that is not a tiebreaker does not update last_score."""
         self.challenge2.tiebreaker = False
         self.challenge2.save()
         last_score_before = self.user.last_score

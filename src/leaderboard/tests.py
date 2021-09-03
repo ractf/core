@@ -1,11 +1,11 @@
 """Tests for the leaderboard app."""
 
-from challenges.models import Category, Challenge, Score, Solve
 from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK
 from rest_framework.test import APITestCase
 
+from challenges.models import Category, Challenge, Score, Solve
 from config import config
 from leaderboard.views import CTFTimeListView, GraphView, TeamListView, UserListView
 from teams.models import Team

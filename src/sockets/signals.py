@@ -1,11 +1,11 @@
 """Signal handlers for the sockets app."""
 
 from asgiref.sync import async_to_sync
-from challenges.models import Challenge
 from channels.layers import get_channel_layer
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from challenges.models import Challenge
 from config import config
 from core.signals import flag_reject, flag_score, team_join, use_hint
 from sockets.models import Announcement
