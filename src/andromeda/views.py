@@ -3,11 +3,13 @@
 from challenge.models import Challenge
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.status import HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
 
 from andromeda import client
 from andromeda.serializers import JobSubmitRawSerializer, JobSubmitSerializer
 from core.response import FormattedResponse
+from config import config
 
 
 class GetInstanceView(APIView):
@@ -18,7 +20,9 @@ class GetInstanceView(APIView):
 
     def get(self, request, job_id):
         """Given a job id, return an instance of the relevant challenge for this user."""
-        return FormattedResponse(client.get_instance(request.user.pk, job_id))
+        if not config.get("enable_challenge_server"):
+            return FormattedResponse(m="challenge_server_disabled", status=HTTP_403_FORBIDDEN)
+        return FormattedResponse(client.get_instance(request.user.team.pk, job_id))
 
 
 class ResetInstanceView(APIView):
@@ -29,7 +33,9 @@ class ResetInstanceView(APIView):
 
     def get(self, request, job_id):
         """Given a job id, return a new instance of the relevant challenge for this user."""
-        return FormattedResponse(client.request_reset(request.user.pk, job_id))
+        if not config.get("enable_challenge_server"):
+            return FormattedResponse(m="challenge_server_disabled", status=HTTP_403_FORBIDDEN)
+        return FormattedResponse(client.request_reset(request.user.team.pl, job_id))
 
 
 class ListJobsView(APIView):

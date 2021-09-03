@@ -32,7 +32,7 @@ class MapFlagPlugin(FlagPlugin):
 
         if not self.challenge.flag_metadata.get("radius", ""):
             issues.append("property 'radius' must be set!")
-        elif not self.challenge.flag_metadata.get("radius", "").replace(".", "").isnumeric():
+        elif not type(self.challenge.flag_metadata.get("radius", "")) in [int, float]:
             issues.append("property 'radius' must be numeric!")
 
         if not self.challenge.flag_metadata.get("location", []):

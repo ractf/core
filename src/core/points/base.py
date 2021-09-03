@@ -41,7 +41,15 @@ class PointsPlugin(Plugin, abc.ABC):
         deducted = min(points, deducted)
 
         scored = config.get("end_time") >= time.time() and config.get("enable_scoring")
-        score = Score(team=team, reason="challenge", points=points, penalty=deducted, leaderboard=scored, user=user)
+        score = Score(
+            team=team,
+            reason="challenge",
+            points=points,
+            penalty=deducted,
+            leaderboard=scored,
+            user=user,
+            tiebreaker=challenge.tiebreaker,
+        )
         score.save()
 
         solve = Solve(
@@ -59,8 +67,9 @@ class PointsPlugin(Plugin, abc.ABC):
         if scored:
             user.leaderboard_points += points - deducted
             team.leaderboard_points += points - deducted
-            user.last_score = timezone.now()
-            team.last_score = timezone.now()
+            if score.tiebreaker:
+                user.last_score = timezone.now()
+                team.last_score = timezone.now()
 
         return solve
 

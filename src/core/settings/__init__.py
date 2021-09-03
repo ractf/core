@@ -64,6 +64,7 @@ DEFAULT_CONFIG = {
     "token_provider": "basic_auth",
     "enable_bot_users": True,
     "enable_caching": True,
+    "enable_challenge_server": True,
     "enable_ctftime": True,
     "enable_flag_submission": True,
     "enable_flag_submission_after_competition": True,
@@ -73,6 +74,7 @@ DEFAULT_CONFIG = {
     "enable_prelogin": True,
     "enable_maintenance_mode": False,
     "enable_registration": True,
+    "enable_preevent_cache": True,
     "enable_scoreboard": True,
     "enable_scoring": True,
     "enable_solve_broadcast": True,
@@ -83,7 +85,9 @@ DEFAULT_CONFIG = {
     "invite_required": False,
     "hide_scoreboard_at": -1,
     "setup_wizard_complete": False,
-    "sensitive_fields": ["sensitive_fields", "enable_force_admin_2fa"],
+    "sensitive_fields": ["sensitive_fields", "enable_force_admin_2fa", "firstblood_webhook"],
+    "firstblood_webhook": "",
+    "event_name": "RACTF",
 }
 
 INSTALLED_APPS = [
@@ -125,6 +129,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
+    "clacks.middleware.ClacksMiddleware",
     "querycount.middleware.QueryCountMiddleware",
 ]
 if DEBUG:
@@ -272,6 +277,7 @@ REST_FRAMEWORK = {
     },
     "DEFAULT_PAGINATION_CLASS": "core.pagination.RewriteURLPagination",
     "PAGE_SIZE": 100,
+    "NUM_PROXIES": int(os.getenv("NUM_PROXIES", 0)),
 }
 
 MAIL_SOCK_URL = "http+unix://%2Ftmp%2Fmailusv.sock/send"
@@ -324,7 +330,7 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "simple": {"format": "%(levelname)s %(message)s"},
+        "simple": {"format": "%(asctime)s %(levelname)s %(message)s"},
     },
     "handlers": {
         "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple"},

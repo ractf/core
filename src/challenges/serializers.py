@@ -1,6 +1,8 @@
 """Serializers for the challenge app."""
 
 import serpy
+from rest_framework import serializers
+
 from challenge.models import (
     Category,
     Challenge,
@@ -11,8 +13,6 @@ from challenge.models import (
     Tag,
 )
 from challenge.sql import get_negative_votes, get_positive_votes, get_solve_counts
-from rest_framework import serializers
-
 from hint.serializers import FastHintSerializer
 
 
@@ -130,14 +130,16 @@ class FastLockedChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
 
     id = serpy.IntField()
     unlock_requirements = serpy.StrField()
-    challenge_metadata = serpy.DictSerializer()
+    challenge_metadata = serpy.Field()
     challenge_type = serpy.StrField()
     release_time = DateTimeField()
     unlock_time_surpassed = serpy.MethodField()
 
     def serialize(self, instance):
         """Serialize the challenge."""
-        return self._serialize(instance, self._compiled_fields)
+        serialized = self._serialize(instance, self._compiled_fields)
+        serialized["challenge_metadata"].pop("cserv_name", None)
+        return serialized
 
 
 class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
@@ -147,6 +149,7 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     name = serpy.StrField()
     description = serpy.StrField()
     challenge_type = serpy.StrField()
+    challenge_metadata = serpy.Field()
     flag_type = serpy.StrField()
     author = serpy.StrField()
     score = serpy.IntField()
@@ -158,10 +161,12 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     first_blood = ForeignAttributeField(attr_name="username")
     solve_count = serpy.MethodField()
     hidden = serpy.BoolField()
+    maintenance = serpy.BoolField()
     votes = serpy.MethodField()
     tags = FastNestedTagSerializer(many=True)
     unlock_time_surpassed = serpy.MethodField()
     post_score_explanation = serpy.StrField()
+    tiebreaker = serpy.BoolField()
 
     def __init__(self, *args, **kwargs) -> None:
         """Add the 'context' attribute to the serializer."""
@@ -243,8 +248,9 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     name = serpy.StrField()
     description = serpy.StrField()
     challenge_type = serpy.StrField()
-    challenge_metadata = serpy.DictSerializer()
+    challenge_metadata = serpy.Field()
     flag_type = serpy.StrField()
+    flag_metadata = serpy.Field()
     author = serpy.StrField()
     score = serpy.IntField()
     unlock_requirements = serpy.StrField()
@@ -255,10 +261,12 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     first_blood = ForeignAttributeField(attr_name="username")
     solve_count = serpy.MethodField()
     hidden = serpy.BoolField()
+    maintenance = serpy.BoolField()
     votes = serpy.MethodField()
     tags = FastNestedTagSerializer(many=True)
     unlock_time_surpassed = serpy.MethodField()
     post_score_explanation = serpy.StrField()
+    tiebreaker = serpy.BoolField()
 
     def __init__(self, *args, **kwargs):
         """Construct the serializer and setup the context."""
@@ -303,9 +311,11 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
             "unlock_requirements",
             "flag_metadata",
             "hidden",
+            "maintenance",
             "release_time",
             "post_score_explanation",
             "tags",
+            "tiebreaker",
         ]
         read_only_fields = ["id"]
 

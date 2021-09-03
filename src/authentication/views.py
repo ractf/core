@@ -26,6 +26,19 @@ from core.permissions import IsBot, IsSudo
 from core.response import FormattedResponse
 from core.types import AuthenticatedRequest
 from core.viewsets import AdminListModelViewSet
+from authentication.serializers import (
+    ChangePasswordSerializer,
+    CreateBotSerializer,
+    EmailSerializer,
+    EmailVerificationSerializer,
+    GenerateInvitesSerializer,
+    InviteCodeSerializer,
+    RegistrationSerializer,
+)
+from backend.viewsets import AdminListModelViewSet
+from config import config
+from plugins import providers
+from team.models import Team
 
 INVITE_CHARACTERS = string.ascii_letters + string.digits
 
@@ -121,8 +134,8 @@ class RemoveTwoFactorView(APIView):
             request.user.totp_device.delete()
             request.user.save()
             # TODO: Move this signal to be a post_delete on the TOTPDevice model.
-            signals.remove_2fa.send(sender=RemoveTwoFactorView, user=request.user)
-            send_email(request.user.email, "RACTF - 2FA Has Been Disabled", "2fa_removed")
+            remove_2fa.send(sender=self.__class__, user=request.user)
+            send_email(request.user.email, f"{config.get('event_name')} - 2FA Has Been Disabled", "2fa_removed")
             return FormattedResponse()
         return FormattedResponse(status=status.HTTP_401_UNAUTHORIZED, m="code_incorrect")
 
@@ -202,7 +215,7 @@ class RequestPasswordResetView(APIView):
         if settings.MAIL["SEND"]:
             send_email(
                 email,
-                "RACTF - Reset Your Password",
+                f"{config.get('event_name')} - Reset Your Password",
                 "password_reset",
                 url=settings.FRONTEND_URL + f"password_reset?id={user_id}&secret={token}",
             )
@@ -285,7 +298,7 @@ class ResendEmailView(GenericAPIView):
         user = serializer.validated_data["user"]
         send_email(
             user.email,
-            "RACTF - Verify your email",
+            f"{config.get('event_name')} - Verify your email",
             "verify",
             url=settings.FRONTEND_URL + f"verify?id={user.pk}&secret={user.email_token}",
         )

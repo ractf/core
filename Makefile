@@ -6,6 +6,9 @@ DJANGO_SETTINGS_MODULE?=core.settings.lint
 migrate:
 	python src/manage.py migrate
 
+migrations:
+	python src/manage.py makemigrations
+
 test: migrate
 	pytest --testmon || \
 	if [ $$? = 5 ]; \
@@ -45,7 +48,7 @@ dev-server-down:
 	docker-compose down
 
 fake-data:
-	python -m scripts/fake generate $(ARGS)
+	python -m scripts.fake generate $(ARGS)
 
 fake-bulk-data:
 	python -m scripts.fake generate --teams 10000 --users 2 --categories 10 --challenges 100 --solves 1000000
@@ -55,3 +58,6 @@ clean-db:
 
 clean-test:
 	rm -rf /tmp/ractf-linting.cache /tmp/ractf-linting.db .testmondata
+
+clean-dev-server:
+	docker-compose rm -sf

@@ -3,8 +3,8 @@
 
 {% block body %}
     {% call m.center() %}
-        Thank you for signing up to RACTF.<br>
-        Before you can login, you need to verify your account!
+        Thank you for signing up to {{ event_name }}.<br>
+        Before you can start capturing flags, you need to verify your account!
     {% endcall %}
     {{ m.space(24) }}
     {% call m.center(24) -%}

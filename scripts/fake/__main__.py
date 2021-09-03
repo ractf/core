@@ -90,7 +90,7 @@ try:
 
         with TimedLog(f"Creating {USERS * TEAMS} users in memory..."):
             users_to_create = [
-                Member(username=fake.unique.user_name(), email=fake.unique.email()) for _ in range(USERS * TEAMS)
+                Member(username=fake.unique.user_name(), email=fake.unique.email(), email_verified=True) for _ in range(USERS * TEAMS)
             ]
 
         with TimedLog("Inserting to database..."):

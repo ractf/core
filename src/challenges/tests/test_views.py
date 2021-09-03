@@ -2,8 +2,11 @@
 
 from challenge.models import Solve
 from challenge.tests.mixins import ChallengeSetupMixin
+import time
+
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.core.cache import caches
 from django.urls import reverse
 from rest_framework.status import (
     HTTP_200_OK,
@@ -222,6 +225,14 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         user4.save()
         self.assertFalse(self.challenge2.is_solved_by(user4))
 
+    def test_challenge_solve_non_tiebreak(self):
+        """"Test solving a challenge that is not a tiebreaker does not update last_score."""
+        self.challenge2.tiebreaker = False
+        self.challenge2.save()
+        last_score_before = self.user.last_score
+        self.solve_challenge()
+        self.assertEqual(last_score_before, self.user.last_score)
+
 
 class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
     """Tests for the /challenge/categories/ endpoints."""
@@ -326,6 +337,27 @@ class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
         cached_response = self.client.get(reverse("categories-list"))
         config.set("enable_caching", False)
         self.assertEqual(uncached_response.data, cached_response.data)
+
+    def test_category_list_content_preevent_cached(self):
+        """Test the preevent cache is served to users."""
+        self.client.force_authenticate(self.user)
+        config.set("enable_preevent_cache", True)
+        config.set("start_time", time.time() - 5)
+        caches["default"].set("preevent_cache", {"key": "value"})
+        cached_response = self.client.get(reverse("categories-list"))
+        config.set("enable_preevent_cache", False)
+        self.assertEqual(cached_response.data["d"], {"key": "value"})
+
+    def test_category_list_content_preevent_cached_admin(self):
+        """Test the preevent cache is not served to admins."""
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(self.user)
+        config.set("enable_preevent_cache", True)
+        caches["default"].set("preevent_cache", {"key": "value"})
+        cached_response = self.client.get(reverse("categories-list"))
+        config.set("enable_preevent_cache", False)
+        self.assertNotEqual(cached_response.data["d"], {"key": "value"})
 
 
 class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
@@ -463,6 +495,25 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_create_challenge_metadata_saves(self):
+        """Test challenge_metadata is saved."""
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(self.user)
+        metadata = {
+            "a": "b",
+            "c": "d",
+        }
+        self.client.patch(
+            reverse("challenges-detail", kwargs={"pk": self.challenge1.pk}),
+            data={
+                "challenge_metadata": metadata,
+            },
+            format="json",
+        )
+        response = self.client.get(reverse("challenges-detail", kwargs={"pk": self.challenge1.pk}))
+        self.assertEquals(response.data["challenge_metadata"], metadata)
 
 
 class FlagCheckViewTestCase(ChallengeSetupMixin, APITestCase):

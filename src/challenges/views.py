@@ -2,8 +2,30 @@
 
 import hashlib
 import time
+from contextlib import suppress
 from typing import Union
 
+import requests
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core.cache import caches
+from django.db import models, transaction
+from django.db.models import Case, Prefetch, Sum, Value, When
+from django.utils import timezone
+from rest_framework import permissions
+from rest_framework.generics import get_object_or_404
+from rest_framework.parsers import MultiPartParser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
+
+from backend.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
+from backend.response import FormattedResponse
+from backend.signals import flag_reject, flag_score, flag_submit
+from backend.viewsets import AdminCreateModelViewSet
 from challenge.models import (
     Category,
     Challenge,
@@ -123,6 +145,14 @@ class CategoryViewset(AdminCreateModelViewSet):
     def list(self, request, *args, **kwargs):
         """Return the list of challenges, this will be cached if caching is enabled."""
         cache = caches["default"]
+        if (
+            config.get("enable_preevent_cache")
+            and config.get("start_time") + 15 > time.time()
+            and "preevent_cache" in cache
+            and not request.user.is_staff
+        ):
+            return FormattedResponse(cache.get("preevent_cache"))
+
         categories = cache.get(get_cache_key(request.user))
         if categories is None or not config.get("enable_caching"):
             queryset = self.filter_queryset(self.get_queryset())
@@ -209,7 +239,28 @@ class ChallengeViewset(AdminCreateModelViewSet):
             solve = challenge.points_plugin.score(user, team, flag, solve_set)
             if challenge.first_blood is None:
                 challenge.first_blood = user
-                challenge.save()
+                challenge.save(update_fields=["first_blood"])
+                hook = config.get("firstblood_webhook")
+                if hook and hook != "":
+                    challenge_clean = challenge.name.replace("`", "").replace("@", "@\u200b")
+                    team_clean = team.name.replace("`", "").replace("@", "@\u200b")
+                    if "discord.com" in hook and not hook.endswith("/slack"):
+                        hook += "/slack"
+                    challenge_clean = challenge_clean.replace("@", "@\u200b")
+                    team_clean = team_clean.replace("@", "@\u200b")
+                    body = {
+                        "username": "First Bloods",
+                        "attachments": [
+                            {
+                                "title": f":drop_of_blood: First Blood on `{challenge_clean}`!",
+                                "text": f"By team `{team_clean}`",
+                                "color": "#ff0000",
+                            }
+                        ],
+                    }
+
+                    with suppress(requests.exceptions.RequestException):
+                        requests.post(hook, json=body)
 
             user.save()
             team.save()
@@ -236,7 +287,12 @@ class ScoresViewset(ModelViewSet):
                 Score.objects.filter(user=user, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
             )
             user.points = Score.objects.filter(user=user).aggregate(Sum("points"))["points__sum"] or 0
-            user.last_score = Score.objects.filter(user=user, leaderboard=True).order_by("timestamp").first().timestamp
+            user.last_score = (
+                Score.objects.filter(user=user, leaderboard=True, tiebreaker=True)
+                .order_by("timestamp")
+                .first()
+                .timestamp
+            )
             user.save()
         if team:
             team = get_object_or_404(Team, id=team)
@@ -244,7 +300,12 @@ class ScoresViewset(ModelViewSet):
                 Score.objects.filter(team=team, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
             )
             team.points = Score.objects.filter(team=team).aggregate(Sum("points"))["points__sum"] or 0
-            team.last_score = Score.objects.filter(team=team, leaderboard=True).order_by("timestamp").first().timestamp
+            team.last_score = (
+                Score.objects.filter(team=team, leaderboard=True, tiebreaker=True)
+                .order_by("timestamp")
+                .first()
+                .timestamp
+            )
             team.save()
 
     def create(self, req, *args, **kwargs):

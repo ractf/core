@@ -32,8 +32,10 @@ def broadcast(data):
 @receiver(flag_score)
 def on_flag_score(user, team, challenge, flag, solve, **kwargs):
     """Broadcast a flag being scored."""
-    if not config.get("enable_solve_broadcast"):
-        return
+    # TODO: Frontend depends on this being sent
+    # is there a way to either fix frontend or send this with less detail if solve broacast is off?
+    # if not config.get("enable_solve_broadcast"):
+    #     return
     broadcast(
         {
             "type": "send_json",
@@ -113,6 +115,8 @@ def on_announcement_create(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Challenge)
-def on_challenge_edit(sender, instance, **kwargs):
+def on_challenge_edit(sender, instance, update_fields, **kwargs):
     """Broadcast a challenge modification."""
-    broadcast({"type": "send_json", "event_code": 6, "challenge_id": instance.pk})
+    if update_fields is not None and "first_blood" in update_fields:
+        return
+    broadcast({"type": "send_json", "event_code": 6, "challenge_id": instance.id})
