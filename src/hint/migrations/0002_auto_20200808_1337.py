@@ -12,14 +12,14 @@ class Migration(migrations.Migration):
     dependencies = [
         ('hint', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('challenge', '0002_auto_20200808_1337'),
-        ('team', '0001_initial'),
+        ('challenges', '0002_auto_20200808_1337'),
+        ('teams', '0001_initial'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='hintuse',
-            name='team',
+            name='teams',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='hints_used', to='team.Team'),
         ),
         migrations.AddField(
@@ -29,11 +29,11 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='hint',
-            name='challenge',
+            name='challenges',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='hint_set', to='challenge.Challenge'),
         ),
         migrations.AlterUniqueTogether(
             name='hintuse',
-            unique_together={('hint', 'team')},
+            unique_together={('hint', 'teams')},
         ),
     ]

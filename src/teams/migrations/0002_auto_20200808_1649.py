@@ -9,12 +9,12 @@ import core.validators
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("team", "0001_initial"),
+        ('teams', "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="team",
+            model_name='teams',
             name="name",
             field=django.contrib.postgres.fields.citext.CICharField(max_length=36, unique=True, validators=[core.validators.printable_name]),
         ),

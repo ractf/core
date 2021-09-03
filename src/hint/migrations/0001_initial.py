@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('challenge', '0001_initial'),
+        ('challenges', '0001_initial'),
     ]
 
     operations = [
@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('timestamp', models.DateTimeField(default=django.utils.timezone.now)),
-                ('challenge', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='hints_used', to='challenge.Challenge')),
+                ('challenges', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='hints_used', to='challenge.Challenge')),
                 ('hint', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='uses', to='hint.Hint')),
             ],
         ),

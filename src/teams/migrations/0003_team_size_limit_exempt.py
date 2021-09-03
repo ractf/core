@@ -6,12 +6,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('team', '0002_auto_20200808_1649'),
+        ('teams', '0002_auto_20200808_1649'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='team',
+            model_name='teams',
             name='size_limit_exempt',
             field=models.BooleanField(default=False),
         ),

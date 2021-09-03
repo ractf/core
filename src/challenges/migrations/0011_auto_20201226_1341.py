@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('challenge', '0010_auto_20201225_2135'),
+        ('challenges', '0010_auto_20201225_2135'),
     ]
 
     operations = [
@@ -16,12 +16,12 @@ class Migration(migrations.Migration):
             field=models.JSONField(default=dict),
         ),
         migrations.AlterField(
-            model_name='challenge',
+            model_name='challenges',
             name='challenge_metadata',
             field=models.JSONField(),
         ),
         migrations.AlterField(
-            model_name='challenge',
+            model_name='challenges',
             name='flag_metadata',
             field=models.JSONField(),
         ),

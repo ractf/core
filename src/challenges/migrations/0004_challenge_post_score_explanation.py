@@ -6,12 +6,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('challenge', '0003_challengevote'),
+        ('challenges', '0003_challengevote'),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='challenge',
+            model_name='challenges',
             name='post_score_explanation',
             field=models.TextField(blank=True),
         ),

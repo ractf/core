@@ -16,7 +16,7 @@ def migrate_unlocks(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('challenge', '0013_auto_20210130_0114'),
+        ('challenges', '0013_auto_20210130_0114'),
     ]
 
     operations = [

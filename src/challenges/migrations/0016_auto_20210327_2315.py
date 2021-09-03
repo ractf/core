@@ -6,12 +6,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("challenge", "0015_auto_20210131_1809"),
+        ('challenges', "0015_auto_20210131_1809"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="challenge",
+            model_name='challenges',
             name="unlock_requirements",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),

@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('challenge', '0005_challengefeedback'),
+        ('challenges', '0005_challengefeedback'),
     ]
 
     operations = [
@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('text', models.CharField(max_length=255)),
                 ('type', models.CharField(max_length=255)),
                 ('post_competition', models.BooleanField(default=False)),
-                ('challenge', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='challenge.Challenge')),
+                ('challenges', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='challenge.Challenge')),
             ],
         ),
     ]

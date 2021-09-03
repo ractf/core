@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('challenge', '0011_auto_20201226_1341'),
+        ("challenges", "0011_auto_20201226_1341"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='file',
-            name='size',
+            model_name="file",
+            name="size",
             field=models.PositiveBigIntegerField(),
         ),
     ]
