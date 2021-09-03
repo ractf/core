@@ -1,10 +1,10 @@
 """API endpoints for managing teams."""
 
-from challenge.models import Solve
+from challenges.models import Solve
 from django.http import Http404
 from rest_framework import filters, status
 from rest_framework.decorators import action
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet

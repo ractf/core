@@ -57,5 +57,5 @@ class PrometheusConsumer(AsyncHttpConsumer):
         await self.send_response(
             200,
             latest,
-            headers=[(b'Content-Type', prometheus_client.CONTENT_TYPE_LATEST.encode())],
+            headers=[(b"Content-Type", prometheus_client.CONTENT_TYPE_LATEST.encode())],
         )

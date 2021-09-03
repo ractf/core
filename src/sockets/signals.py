@@ -1,7 +1,7 @@
 """Signal handlers for the sockets app."""
 
 from asgiref.sync import async_to_sync
-from challenge.models import Challenge
+from challenges.models import Challenge
 from channels.layers import get_channel_layer
 from django.db.models.signals import post_save
 from django.dispatch import receiver

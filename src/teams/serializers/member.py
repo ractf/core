@@ -2,7 +2,7 @@
 
 import secrets
 
-from challenge.serializers import SolveSerializer
+from challenges.serializers import SolveSerializer
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -126,7 +126,7 @@ class MinimalMemberSerializer(serializers.ModelSerializer):
 class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     """Serializer used for serializing the current user."""
 
-    from team.serializers import MinimalTeamSerializer
+    from teams.serializers import MinimalTeamSerializer
 
     solves = SolveSerializer(many=True, read_only=True)
     team = MinimalTeamSerializer(read_only=True)

@@ -3,7 +3,7 @@
 import abc
 import time
 
-from challenge.models import Score, Solve
+from challenges.models import Score, Solve
 from django.db.models import F, Sum
 from django.utils import timezone
 

@@ -2,7 +2,7 @@
 
 from typing import Optional
 
-from challenge import models
+from challenges import models
 
 
 def get_file_path(file: "models.File", file_name: str) -> str:

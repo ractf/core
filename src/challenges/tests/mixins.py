@@ -2,11 +2,11 @@
 
 from typing import Optional, Union
 
-from challenge.models import Category, Challenge
-from member.models import Member
-from team.models import Team
+from challenges.models import Category, Challenge
 
 from hint.models import Hint
+from member.models import Member
+from teams.models import Team
 
 
 class ChallengeSetupMixin:

@@ -6,7 +6,6 @@ from django.urls import path, re_path
 
 from sockets import consumers
 
-
 application = ProtocolTypeRouter(
     {
         "http": AuthMiddlewareStack(
@@ -24,6 +23,6 @@ application = ProtocolTypeRouter(
                     re_path(r"^api/v2/ws/$", consumers.EventConsumer.as_asgi()),
                 ]
             )
-        )
+        ),
     }
 )

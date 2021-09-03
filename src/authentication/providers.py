@@ -6,11 +6,11 @@ import abc
 
 from django.core.validators import EmailValidator
 from django.db.models import Q
-from member.models import Member
 from rest_framework.exceptions import ValidationError
 
 from config import config
 from core.providers import Provider
+from member.models import Member
 
 
 class RegistrationProvider(Provider, abc.ABC):  # pragma: no cover

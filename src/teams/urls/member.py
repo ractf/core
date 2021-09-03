@@ -3,7 +3,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from member import views
+from teams import views
 
 router = DefaultRouter()
 router.register(r"", views.MemberViewSet, basename="member")

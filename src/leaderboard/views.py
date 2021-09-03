@@ -2,7 +2,7 @@
 
 import time
 
-from challenge.models import Score
+from challenges.models import Score
 from django.contrib.auth import get_user_model
 from django.core.cache import caches
 from rest_framework.generics import ListAPIView
@@ -10,7 +10,6 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
-from team.models import Team
 
 from config import config
 from core.response import FormattedResponse
@@ -22,6 +21,7 @@ from leaderboard.serializers import (
     TeamPointsSerializer,
     UserPointsSerializer,
 )
+from teams.models import Team
 
 
 def should_hide_scoreboard():
@@ -36,9 +36,7 @@ def should_hide_scoreboard():
 class CTFTimeListView(APIView):
     """CTFTime scoreboard integration."""
 
-    renderer_classes = (
-        JSONRenderer,
-    )
+    renderer_classes = (JSONRenderer,)
 
     def get(self, request, *args, **kwargs):
         """Get the scoreboard in a CTFTime compatible format."""

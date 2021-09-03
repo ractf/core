@@ -13,52 +13,6 @@ from django.db import models, transaction
 from django.db.models import Case, Prefetch, Sum, Value, When
 from django.utils import timezone
 from rest_framework import permissions
-from rest_framework.generics import get_object_or_404
-from rest_framework.parsers import MultiPartParser
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
-from rest_framework.request import Request
-from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
-from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
-
-from backend.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
-from backend.response import FormattedResponse
-from backend.signals import flag_reject, flag_score, flag_submit
-from backend.viewsets import AdminCreateModelViewSet
-from challenge.models import (
-    Category,
-    Challenge,
-    ChallengeFeedback,
-    ChallengeVote,
-    File,
-    Score,
-    Solve,
-    Tag,
-)
-from challenge.permissions import CompetitionOpen
-from challenge.serializers import (
-    AdminScoreSerializer,
-    ChallengeFeedbackSerializer,
-    CreateCategorySerializer,
-    CreateChallengeSerializer,
-    FastAdminCategorySerializer,
-    FastAdminChallengeSerializer,
-    FastCategorySerializer,
-    FastChallengeSerializer,
-    FileSerializer,
-    TagSerializer,
-    get_negative_votes,
-    get_positive_votes,
-    get_solve_counts,
-)
-from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.core.cache import caches
-from django.db import models, transaction
-from django.db.models import Case, Prefetch, Sum, Value, When
-from django.utils import timezone
-from rest_framework import permissions
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.parsers import MultiPartParser
@@ -68,15 +22,21 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_403_FORBIDDEN
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from team.models import Team
-from team.permissions import HasTeam
 
+from challenges.models import Category, Challenge, Tag, File, Solve, Score, ChallengeFeedback, ChallengeVote
+from challenges.permissions import CompetitionOpen
+from challenges.serializers import FastCategorySerializer, FastAdminCategorySerializer, CreateCategorySerializer, \
+    FastChallengeSerializer, FastAdminChallengeSerializer, CreateChallengeSerializer, AdminScoreSerializer, \
+    ChallengeFeedbackSerializer, FileSerializer, TagSerializer
+from challenges.sql import get_solve_counts, get_positive_votes, get_negative_votes
 from config import config
 from core.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
 from core.response import FormattedResponse
 from core.signals import flag_reject, flag_score, flag_submit
 from core.viewsets import AdminCreateModelViewSet
 from hint.models import Hint, HintUse
+from teams.models import Team
+from teams.permissions import HasTeam
 
 
 def get_cache_key(user):

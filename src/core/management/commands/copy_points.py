@@ -2,7 +2,7 @@
 
 import time
 
-from challenge.models import Score
+from challenges.models import Score
 from django.core.management import BaseCommand
 
 from config import config

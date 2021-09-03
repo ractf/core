@@ -1,10 +1,9 @@
 """Tests for core's plugins and plugin system."""
 
-from challenge.models import Category, Challenge, Score, Solve
-from challenge.tests.mixins import ChallengeSetupMixin
+from challenges.models import Category, Challenge, Score, Solve
+from challenges.tests.mixins import ChallengeSetupMixin
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
-from team.models import Team
 
 from config import config
 from core import plugins
@@ -14,6 +13,7 @@ from core.flag.plaintext import PlaintextFlagPlugin
 from core.flag.regex import RegexFlagPlugin
 from core.points.basic import BasicPointsPlugin
 from core.points.decay import DecayPointsPlugin
+from teams.models import Team
 
 
 class HashedFlagPluginTestCase(APITestCase):

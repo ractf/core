@@ -2,8 +2,8 @@
 
 from unittest import TestCase
 
-from challenge.sql import get_negative_votes, get_positive_votes
-from challenge.views import get_cache_key
+from challenges.sql import get_negative_votes, get_positive_votes
+from challenges.views import get_cache_key
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
 

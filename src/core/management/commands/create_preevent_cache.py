@@ -1,5 +1,8 @@
 import time
 
+from challenges.models import Category, Challenge, File, Tag
+from challenges.serializers import FastCategorySerializer
+from challenges.sql import get_negative_votes, get_positive_votes, get_solve_counts
 from django.core.cache import caches
 from django.core.management import BaseCommand
 from django.db import models
@@ -8,10 +11,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework.request import Request
 
-from challenge import serializers
-from challenge.models import Category, Challenge, File, Tag
-from challenge.serializers import FastCategorySerializer
-from challenge.sql import get_negative_votes, get_positive_votes, get_solve_counts
+from challenges import serializers
 from config import config
 from hint.models import Hint
 

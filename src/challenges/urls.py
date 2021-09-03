@@ -3,7 +3,7 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from challenge import views
+from challenges import views
 
 router = DefaultRouter()
 router.register(r"categories", views.CategoryViewset, basename="categories")

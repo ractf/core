@@ -4,7 +4,7 @@ import secrets
 import time
 from enum import IntEnum
 
-from challenge.models import Challenge, Solve
+from challenges.models import Challenge, Solve
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import CICharField

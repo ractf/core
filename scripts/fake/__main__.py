@@ -5,7 +5,7 @@ import random
 from django import db
 from faker import Faker
 
-from challenge.models import Category, Challenge, Score, Solve
+from challenges.models import Category, Challenge, Score, Solve
 from member.models import Member
 from scripts.fake.config import (
     CATEGORIES,
@@ -17,7 +17,7 @@ from scripts.fake.config import (
     arguments,
 )
 from scripts.fake.utils import TimedLog, random_rpn_op
-from team.models import Team
+from teams.models import Team
 
 
 if not arguments.get("--force") and Member.objects.count() > 0:

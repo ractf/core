@@ -1,6 +1,6 @@
 """Decay points plugin."""
 
-from challenge.models import Score
+from challenges.models import Score
 from django.contrib.auth import get_user_model
 from django.db.models import F
 

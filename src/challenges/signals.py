@@ -1,12 +1,11 @@
 """Signal receivers for the challenge app."""
 
-from challenge.models import Challenge
+from challenges.models import Category, Challenge, File, Tag
+from challenges.views import get_cache_key
 from django.core.cache import caches
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
-from challenge.models import Category, Challenge, File, Tag
-from challenge.views import get_cache_key
 from hint.models import Hint, HintUse
 
 

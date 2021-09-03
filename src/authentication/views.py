@@ -4,28 +4,21 @@ import random
 import secrets
 import string
 
+from backend.viewsets import AdminListModelViewSet
 from django.conf import settings
 from django.core.validators import EmailValidator
 from django.db import transaction
 from django.db.models import QuerySet
 from django_filters.rest_framework import DjangoFilterBackend
-from member.models import Member
 from rest_framework import permissions, status
 from rest_framework.generics import CreateAPIView, GenericAPIView, get_object_or_404
 from rest_framework.request import Request
 from rest_framework.views import APIView
-from team.models import Team
 
 from authentication import serializers
 from authentication.mixins import HidePasswordMixin
 from authentication.models import BackupCode, InviteCode, PasswordResetToken, TOTPDevice
 from authentication.permissions import HasTwoFactor, VerifyingTwoFactor
-from core import providers, signals
-from core.mail import send_email
-from core.permissions import IsBot, IsSudo
-from core.response import FormattedResponse
-from core.types import AuthenticatedRequest
-from core.viewsets import AdminListModelViewSet
 from authentication.serializers import (
     ChangePasswordSerializer,
     CreateBotSerializer,
@@ -35,10 +28,16 @@ from authentication.serializers import (
     InviteCodeSerializer,
     RegistrationSerializer,
 )
-from backend.viewsets import AdminListModelViewSet
 from config import config
+from core import providers, signals
+from core.mail import send_email
+from core.permissions import IsBot, IsSudo
+from core.response import FormattedResponse
+from core.types import AuthenticatedRequest
+from core.viewsets import AdminListModelViewSet
+from member.models import Member
 from plugins import providers
-from team.models import Team
+from teams.models import Team
 
 INVITE_CHARACTERS = string.ascii_letters + string.digits
 

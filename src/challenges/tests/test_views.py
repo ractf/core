@@ -1,9 +1,9 @@
 """Unit tests for the challenge api endpoints."""
 
-from challenge.models import Solve
-from challenge.tests.mixins import ChallengeSetupMixin
 import time
 
+from challenges.models import Solve
+from challenges.tests.mixins import ChallengeSetupMixin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import caches

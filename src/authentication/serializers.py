@@ -14,7 +14,6 @@ from rest_framework.status import (
     HTTP_401_UNAUTHORIZED,
     HTTP_403_FORBIDDEN,
 )
-from team.models import Team
 
 from authentication.models import InviteCode, PasswordResetToken
 from config import config
@@ -22,6 +21,7 @@ from core import providers
 from core.exceptions import FormattedException
 from core.mail import send_email
 from core.signals import register
+from teams.models import Team
 
 
 class LoginSerializer(serializers.Serializer):
