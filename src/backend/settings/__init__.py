@@ -296,6 +296,7 @@ else:
     ANDROMEDA_URL = os.getenv("ANDROMEDA_URL")
     ANDROMEDA_API_KEY = os.getenv("ANDROMEDA_API_KEY")
     ANDROMEDA_SERVER_IP = os.getenv("ANDROMEDA_IP")  # shown to participants
+    ANDROMEDA_TIMEOUT = float(os.getenv("ANDROMEDA_TIMEOUT", 5))
 
 INSTALLED_PLUGINS = [
     "plugins.flag.hashed",
