@@ -81,6 +81,7 @@ class AdminTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
             "incorrect_solves",
             "size_limit_exempt",
             "points",
+            "leaderboard_points",
         ]
 
 
