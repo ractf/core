@@ -5,7 +5,7 @@ import string
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import EmailValidator
-from django.db import transaction
+from django.db import transaction, IntegrityError
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
 from django_filters.rest_framework import DjangoFilterBackend
@@ -361,7 +361,11 @@ class CreateBotView(APIView):
             is_bot=True,
             email=serializer.data["username"] + "@bot.ractf",
         )
-        bot.save()
+
+        try:
+            bot.save()
+        except IntegrityError:
+            return FormattedResponse(m="username_already_exists", status=HTTP_400_BAD_REQUEST)
         return FormattedResponse(d={"token": bot.issue_token()}, status=HTTP_201_CREATED)
 
 

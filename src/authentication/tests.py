@@ -918,3 +918,25 @@ class CreateBotUserTestCase(APITestCase):
             },
         )
         self.assertTrue("token" in response.data["d"])
+
+    def test_duplicate_username(self):
+        self.client.force_authenticate(self.user)
+        self.client.post(
+            reverse("create-bot"),
+            data={
+                "username": "bottest",
+                "is_visible": False,
+                "is_staff": True,
+                "is_superuser": True,
+            },
+        )
+        response = self.client.post(
+            reverse("create-bot"),
+            data={
+                "username": "bottest",
+                "is_visible": False,
+                "is_staff": True,
+                "is_superuser": True,
+            },
+        )
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
