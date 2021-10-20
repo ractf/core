@@ -3,7 +3,7 @@ from django.core.management import BaseCommand
 
 
 class Command(BaseCommand):
-    help = "Removes all scores from the database"
+    help = "Removes a user from their team, deleting it if they are the team's owner."
 
     def add_arguments(self, parser):
         parser.add_argument("user_id", type=int)
