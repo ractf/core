@@ -16,7 +16,7 @@ test: migrate
 	fi
 
 coverage: migrate
-	pytest --cov=. --cov-report=xml -Werror src && \
+	pytest --cov=. --cov-report=xml src && \
 	coverage html
 	which xdg-open && \
 	xdg-open htmlcov/index.html || true
