@@ -452,7 +452,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
             format="json",
         )
         response = self.client.get(reverse("challenges-detail", kwargs={"pk": self.challenge1.pk}))
-        self.assertEquals(response.data["challenge_metadata"], metadata)
+        self.assertEqual(response.data["challenge_metadata"], metadata)
 
 
 class FlagCheckViewTestCase(ChallengeSetupMixin, APITestCase):
