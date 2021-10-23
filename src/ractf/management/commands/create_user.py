@@ -42,6 +42,6 @@ class Command(BaseCommand):
             raise CommandError("Username already in use")
 
         if member.is_bot:
-            member.issue_token()
+            print(member.issue_token())
         else:
             member.set_password(options["password"])
