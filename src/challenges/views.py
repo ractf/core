@@ -53,7 +53,7 @@ from core.response import FormattedResponse
 from core.signals import flag_reject, flag_score, flag_submit
 from core.viewsets import AdminCreateModelViewSet
 from hint.models import Hint, HintUse
-from teams.models import Team
+from teams.models import Team, Member
 from teams.permissions import HasTeam
 
 
@@ -180,7 +180,7 @@ class ChallengeViewset(AdminCreateModelViewSet):
         # This is done in an atomic block to avoid a user racing this endpoint to score the same flag multiple times.
         with transaction.atomic():
             team = Team.objects.select_for_update().get(id=request.user.team.pk)
-            user = get_user_model().objects.select_for_update().get(id=request.user.pk)
+            user = Member.objects.select_for_update().get(id=request.user.pk)
             flag = request.data.get("flag")
             if not flag:
                 return FormattedResponse(status=HTTP_400_BAD_REQUEST, m="No flag provided")
@@ -260,7 +260,7 @@ class ScoresViewset(ModelViewSet):
     def recalculate_scores(self, user, team):
         """Recalculate the scores of a given user and/or team."""
         if user:
-            user = get_object_or_404(get_user_model(), id=user)
+            user = get_object_or_404(Member, id=user)
             user.leaderboard_points = (
                 Score.objects.filter(user=user, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
             )
@@ -391,7 +391,7 @@ class FlagCheckView(APIView):
         ):
             return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
         team = Team.objects.get(id=request.user.team.pk)
-        user = get_user_model().objects.get(id=request.user.pk)
+        user = Member.objects.get(id=request.user.pk)
         flag = request.data.get("flag")
         challenge_id = request.data.get("challenge")
         if not flag or not challenge_id:

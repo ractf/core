@@ -2,10 +2,9 @@
 
 import time
 
-from django.contrib.auth import get_user_model
 from django.core.cache import caches
 from rest_framework.generics import ListAPIView
-from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -21,7 +20,7 @@ from leaderboard.serializers import (
     TeamPointsSerializer,
     UserPointsSerializer,
 )
-from teams.models import Team
+from teams.models import Team, Member
 
 
 def should_hide_scoreboard():
@@ -64,7 +63,7 @@ class GraphView(APIView):
         graph_members = config.get("graph_members")
         top_teams = Team.objects.visible().ranked()[:graph_members]
         top_users = (
-            get_user_model()
+            Member
             .objects.filter(is_visible=True)
             .order_by("-leaderboard_points", "last_score")[:graph_members]
         )
@@ -94,7 +93,7 @@ class UserListView(ListAPIView):
     """API endpoint to display the user scoreboard."""
 
     throttle_scope = "leaderboard"
-    queryset = get_user_model().objects.filter(is_visible=True).order_by("-leaderboard_points", "last_score")
+    queryset = Member.objects.filter(is_visible=True).order_by("-leaderboard_points", "last_score")
     serializer_class = UserPointsSerializer
 
     def list(self, request, *args, **kwargs):

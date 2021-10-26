@@ -13,7 +13,7 @@ from core.flag.plaintext import PlaintextFlagPlugin
 from core.flag.regex import RegexFlagPlugin
 from core.points.basic import BasicPointsPlugin
 from core.points.decay import DecayPointsPlugin
-from teams.models import Team
+from teams.models import Team, Member
 
 
 class HashedFlagPluginTestCase(APITestCase):
@@ -269,10 +269,11 @@ class DecayPointsPluginTestCase(ChallengeSetupMixin, APITestCase):
         self.user3.save()
         self.plugin.recalculate(
             teams=Team.objects.filter(solves__challenge=self.challenge2),
-            users=get_user_model().objects.filter(solves__challenge=self.challenge2),
+            users=Member.objects.filter(solves__challenge=self.challenge2),
             solves=Solve.objects.filter(challenge=self.challenge2),
         )
-        self.assertTrue(get_user_model().objects.get(id=self.user.pk).points < points)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.points < points)
 
     def test_score(self):
         """The score function correctly sets user and team points."""

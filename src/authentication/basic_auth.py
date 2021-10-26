@@ -7,6 +7,7 @@ from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED
 from authentication.providers import LoginProvider, RegistrationProvider, TokenProvider
 from core.exceptions import FormattedException
 from core.signals import login, login_reject
+from teams.models import Member
 
 
 class BasicAuthRegistrationProvider(RegistrationProvider):
@@ -27,7 +28,7 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
 
     def register_user(self, username, email, password, **_):
         """Register the provided account details once they have been validated."""
-        user = get_user_model()(username=username, email=email)
+        user = Member(username=username, email=email)
 
         try:
             password_validation.validate_password(password, user)

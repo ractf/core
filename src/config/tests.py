@@ -11,6 +11,7 @@ from rest_framework.status import (
 from rest_framework.test import APITestCase
 
 from config import config
+from teams.models import Member
 
 
 class ConfigTestCase(APITestCase):
@@ -18,11 +19,11 @@ class ConfigTestCase(APITestCase):
 
     def setUp(self):
         """Set up some users for use in tests."""
-        user = get_user_model()(username="config-test", email="config-test@example.org")
+        user = Member(username="config-test", email="config-test@example.org")
         user.is_staff = True
         user.save()
         self.staff_user = user
-        user2 = get_user_model()(username="config-test2", email="config-test2@example.org")
+        user2 = Member(username="config-test2", email="config-test2@example.org")
         user2.save()
         self.user = user2
 

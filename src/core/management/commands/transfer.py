@@ -3,7 +3,7 @@
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 
-from teams.models import Team
+from teams.models import Team, Member
 
 
 class Command(BaseCommand):
@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Switch the owner of a team."""
-        user = get_user_model().objects.get(pk=options["user_id"])
+        user = Member.objects.get(pk=options["user_id"])
         team = Team.objects.get(pk=options["team_id"])
         team.owner = user
         team.save()

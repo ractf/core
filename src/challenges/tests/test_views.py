@@ -19,6 +19,7 @@ from challenges.models import Solve
 from challenges.tests.mixins import ChallengeSetupMixin
 from config import config
 from hint.models import HintUse
+from teams.models import Member
 
 
 class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
@@ -115,11 +116,12 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         """Test that a challenge can be unlocked."""
         self.solve_challenge()
         self.challenge1.unlock_requirements = str(self.challenge2.pk)
-        self.assertTrue(self.challenge1.is_unlocked_by(get_user_model().objects.get(id=self.user.pk)))
+        self.user.refresh_from_db()
+        self.assertTrue(self.challenge1.is_unlocked_by(self.user))
 
     def test_challenge_unlocks_no_team(self):
         """Test that challenges are locked until you have a team."""
-        user4 = get_user_model()(username="challenge-test-4", email="challenge-test-4@example.org")
+        user4 = Member(username="challenge-test-4", email="challenge-test-4@example.org")
         user4.save()
         self.assertFalse(self.challenge1.is_unlocked_by(user4))
 
@@ -221,7 +223,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
 
     def test_challenge_solved_no_team(self):
         """Test is_solved returns False early for users with no team."""
-        user4 = get_user_model()(username="challenge-test-4", email="challenge-test-4@example.org")
+        user4 = Member(username="challenge-test-4", email="challenge-test-4@example.org")
         user4.save()
         self.assertFalse(self.challenge2.is_solved_by(user4))
 

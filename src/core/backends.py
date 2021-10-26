@@ -1,9 +1,10 @@
 """Authentication backends define by RACTF core."""
 
-from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 
-UserModel = get_user_model()
+from teams.models import Member
+
+UserModel = Member
 
 
 class EmailOrUsernameBackend(ModelBackend):

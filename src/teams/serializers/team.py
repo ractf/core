@@ -6,7 +6,7 @@ from challenges.serializers import SolveSerializer
 from core.mixins import IncorrectSolvesMixin
 from core.signals import team_create
 from teams.models import Team
-from teams.serializers.member import MinimalMemberSerializer
+from teams.serializers import MinimalMemberSerializer
 
 
 class SelfTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):

@@ -5,7 +5,7 @@ import time
 from smtplib import SMTPException
 
 from django.conf import settings
-from django.contrib.auth import get_user_model, password_validation
+from django.contrib.auth import password_validation
 from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
@@ -21,7 +21,7 @@ from core import providers
 from core.exceptions import FormattedException
 from core.mail import send_email
 from core.signals import register
-from teams.models import Team
+from teams.models import Team, Member
 
 
 class LoginSerializer(serializers.Serializer):
@@ -73,7 +73,7 @@ class RegistrationSerializer(serializers.Serializer):
         """Create a user, given all the relevant form fields."""
         user = providers.get_provider("registration").register_user(**validated_data, context=self.context)
 
-        if not get_user_model().objects.all().exists():
+        if not Member.objects.all().exists():
             user.is_staff = True
             user.is_superuser = True
 
@@ -147,7 +147,7 @@ class PasswordResetSerializer(serializers.Serializer):
         uid = data.get("uid")
         token = data.get("token")
         password = data.get("password")
-        user = get_object_or_404(get_user_model(), pk=uid)
+        user = get_object_or_404(Member, pk=uid)
         reset_token = get_object_or_404(PasswordResetToken, token=token, user_id=uid, expires__gt=timezone.now())
         password_validation.validate_password(password, reset_token)
         data["user"] = user
@@ -165,7 +165,7 @@ class EmailVerificationSerializer(serializers.Serializer):
         """Validate the user ID and token, raising an error if the user is already verified."""
         uid = int(data.get("uid"))
         token = data.get("token")
-        user = get_object_or_404(get_user_model(), id=uid, email_token=token)
+        user = get_object_or_404(Member, id=uid, email_token=token)
         if user.email_verified:
             raise serializers.ValidationError("email is already verified")
         data["user"] = user
@@ -179,7 +179,7 @@ class ResendEmailSerializer(serializers.Serializer):
 
     def validate(self, data):
         """Validate the provided email, ensuring that it links to a real user."""
-        user = get_object_or_404(get_user_model(), email=data.get("email"))
+        user = get_object_or_404(Member, email=data.get("email"))
         if user.email_verified:
             raise serializers.ValidationError("email is already verified")
         data["user"] = user

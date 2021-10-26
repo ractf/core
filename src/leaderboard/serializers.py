@@ -1,10 +1,9 @@
 """Serializers for the leaderboard app."""
 
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from challenges.models import Score
-from teams.models import Team
+from teams.models import Team, Member
 
 
 class CTFTimeSerializer(serializers.BaseSerializer):
@@ -63,7 +62,7 @@ class UserPointsSerializer(serializers.ModelSerializer):
     class Meta:
         """The fields to serialize."""
 
-        model = get_user_model()
+        model = Member
         fields = ["username", "id", "leaderboard_points"]
 
 

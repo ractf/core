@@ -380,9 +380,10 @@ class RegenerateBackupCodesTestCase(APITestCase):
 
     def test_regenerate_backup_codes_no_2fa(self):
         """Backup codes should not be able to be generated if 2fa is disabled."""
-        user = Member.objects.get(id=self.user.pk)
+        self.user.refresh_from_db()
+        user = self.user
         user.totp_device.delete()
         user.save()
-        self.client.force_authenticate(user=Member.objects.get(id=self.user.pk))
+        self.client.force_authenticate(user=user)
         response = self.client.post(reverse("regenerate-backup-codes"))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

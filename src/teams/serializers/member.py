@@ -2,13 +2,13 @@
 
 import secrets
 
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from challenges.serializers import SolveSerializer
 from config import config
 from core.mixins import IncorrectSolvesMixin
-from teams.models import UserIP
+from teams.models import UserIP, Member
+from teams.serializers import MinimalTeamSerializer
 
 
 class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
@@ -21,7 +21,7 @@ class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     class Meta:
         """The fields of the member to serialize."""
 
-        model = get_user_model()
+        model = Member
         fields = [
             "id",
             "username",
@@ -53,7 +53,7 @@ class ListMemberSerializer(serializers.ModelSerializer):
     class Meta:
         """The fields of the member to serialize."""
 
-        model = get_user_model()
+        model = Member
         fields = ["id", "username", "team", "team_name"]
 
 
@@ -67,7 +67,7 @@ class AdminMemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     class Meta:
         """The fields of the member to serialize."""
 
-        model = get_user_model()
+        model = Member
         fields = [
             "id",
             "username",
@@ -93,40 +93,8 @@ class AdminMemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
         ]
 
 
-class MinimalMemberSerializer(serializers.ModelSerializer):
-    """Serializer for members that includes minimal detail."""
-
-    team_name = serializers.ReadOnlyField(source="team.name")
-
-    class Meta:
-        """The fields to serialize."""
-
-        model = get_user_model()
-        fields = [
-            "id",
-            "username",
-            "is_staff",
-            "bio",
-            "discord",
-            "discordid",
-            "twitter",
-            "reddit",
-            "team",
-            "points",
-            "is_visible",
-            "is_active",
-            "team_name",
-            "leaderboard_points",
-            "state_actor",
-            "date_joined",
-            "is_verified",
-        ]
-
-
 class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     """Serializer used for serializing the current user."""
-
-    from teams.serializers.team import MinimalTeamSerializer
 
     solves = SolveSerializer(many=True, read_only=True)
     team = MinimalTeamSerializer(read_only=True)
@@ -138,7 +106,7 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     class Meta:
         """The fields to serialize, and which fields should be read only."""
 
-        model = get_user_model()
+        model = Member
         fields = [
             "id",
             "username",

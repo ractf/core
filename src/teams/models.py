@@ -61,7 +61,7 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
         self.leaderboard_points = 0
         for user_unsafe in self.members.all():
             with transaction.atomic():
-                user = get_user_model().objects.select_for_update().get(id=user_unsafe.pk)
+                user = Member.objects.select_for_update().get(id=user_unsafe.pk)
                 user.recalculate_score()
                 self.points += user.points
                 self.leaderboard_points += user.leaderboard_points

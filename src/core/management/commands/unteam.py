@@ -3,6 +3,8 @@
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 
+from teams.models import Member
+
 
 class Command(BaseCommand):
     """Command to forcefully remove a user from a team."""
@@ -15,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Remove a user from a team."""
-        user = get_user_model().objects.get(pk=options["user_id"])
+        user = Member.objects.get(pk=options["user_id"])
         print("Choices:", user.team.members)
         if user.team.owner == user:
             x = input("This will delete the team, are you sure?")

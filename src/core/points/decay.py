@@ -6,6 +6,7 @@ from django.db.models import F
 import teams
 from challenges.models import Score
 from core.points.base import PointsPlugin
+from teams.models import Member
 
 
 class DecayPointsPlugin(PointsPlugin):
@@ -37,4 +38,4 @@ class DecayPointsPlugin(PointsPlugin):
         scores = Score.objects.filter(solve__in=solves)
         scores.update(points=points)
         teams.models.Team.objects.filter(solves__challenge=challenge).update(points=F("points") - delta)
-        get_user_model().objects.filter(solves__challenge=challenge).update(points=F("points") - delta)
+        Member.objects.filter(solves__challenge=challenge).update(points=F("points") - delta)

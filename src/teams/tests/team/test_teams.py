@@ -15,7 +15,7 @@ from rest_framework.test import APITestCase
 
 from challenges.models import Category, Challenge, Score, Solve
 from config import config
-from teams.models import Team
+from teams.models import Team, Member
 
 
 class TeamSetupMixin:
@@ -23,13 +23,13 @@ class TeamSetupMixin:
 
     def setUp(self):
         """Create some users and teams for testing."""
-        self.user = get_user_model()(username="team-test", email="team-test@example.org", is_visible=True)
+        self.user = Member(username="team-test", email="team-test@example.org", is_visible=True)
         self.user.save()
         self.team = Team(name="team-test", password="abc", description="", owner=self.user, is_visible=True)
         self.team.save()
         self.user.team = self.team
         self.user.save()
-        self.admin_user = get_user_model()(
+        self.admin_user = Member(
             username="team-test-admin", email="team-test-admin@example.org", is_visible=True
         )
         self.admin_user.is_staff = True
@@ -138,7 +138,7 @@ class TeamSelfTestCase(TeamSetupMixin, APITestCase):
         """Leaving as non-owner should leave the team without deletion."""
         # We create new regular user, and authenticate the request as a normal
         # member of the team (a non-owner).
-        new_user = get_user_model()(
+        new_user = Member(
             username="team-test-2",
             email="team-test-2@example.org",
             is_visible=True,
@@ -204,7 +204,7 @@ class JoinTeamTestCase(TeamSetupMixin, APITestCase):
 
     def test_join_team_full(self):
         """A user without a team should not be able to join a full team."""
-        user2 = get_user_model()(username="team-test2", email="team-test2@example.org", is_visible=True)
+        user2 = Member(username="team-test2", email="team-test2@example.org", is_visible=True)
         user2.save()
         self.client.force_authenticate(self.admin_user)
         config.set("team_size", 1)
@@ -320,9 +320,9 @@ class RecalculateTeamViewTestCase(APITestCase):
 
     def setUp(self):
         """Create users and teams for testing."""
-        user = get_user_model()(username="recalculate-test", email="recalculate-test@example.org")
+        user = Member(username="recalculate-test", email="recalculate-test@example.org")
         user.save()
-        admin_user = get_user_model()(
+        admin_user = Member(
             username="recalculate-test-admin",
             email="recalculate-test-admin@example.org",
         )
@@ -363,7 +363,8 @@ class RecalculateTeamViewTestCase(APITestCase):
         Score(team=self.team, user=self.user, reason="test", points=100, leaderboard=False).save()
         self.client.force_authenticate(self.admin_user)
         self.client.post(reverse("team-recalculate-score", kwargs={"pk": self.team.pk}))
-        self.assertEqual(Team.objects.get(id=self.team.pk).points, total + 100)
+        self.team.refresh_from_db()
+        self.assertEqual(self.team.points, total + 100)
 
     def test_recalculate_leaderboard(self):
         """Score objects where leaderboard=False should not be included in leaderboard_points."""
@@ -375,7 +376,8 @@ class RecalculateTeamViewTestCase(APITestCase):
         Score(team=self.team, user=self.user, reason="test", points=100, leaderboard=False).save()
         self.client.force_authenticate(self.admin_user)
         self.client.post(reverse("team-recalculate-score", kwargs={"pk": self.team.pk}))
-        self.assertEqual(Team.objects.get(id=self.team.pk).leaderboard_points, total)
+        self.team.refresh_from_db()
+        self.assertEqual(self.team.leaderboard_points, total)
 
 
 class RecalculateAllViewTestCase(APITestCase):
@@ -383,9 +385,9 @@ class RecalculateAllViewTestCase(APITestCase):
 
     def setUp(self):
         """Create users and teams for testing."""
-        user = get_user_model()(username="recalculate-test", email="recalculate-test@example.org")
+        user = Member(username="recalculate-test", email="recalculate-test@example.org")
         user.save()
-        admin_user = get_user_model()(
+        admin_user = Member(
             username="recalculate-test-admin",
             email="recalculate-test-admin@example.org",
         )
@@ -426,8 +428,10 @@ class RecalculateAllViewTestCase(APITestCase):
         Score(team=self.team, user=self.user, reason="test", points=100, leaderboard=False).save()
         self.client.force_authenticate(self.admin_user)
         self.client.post(reverse("team-recalculate-all-scores"))
-        self.assertEqual(Team.objects.get(id=self.team.pk).points, total + 100)
-        self.assertEqual(get_user_model().objects.get(id=self.user.pk).points, total + 100)
+        self.team.refresh_from_db()
+        self.user.refresh_from_db()
+        self.assertEqual(self.team.points, total + 100)
+        self.assertEqual(self.user.points, total + 100)
 
     def test_recalculate_leaderboard(self):
         """Score objects where leaderboard=False should not be included in leaderboard_points."""
@@ -439,5 +443,7 @@ class RecalculateAllViewTestCase(APITestCase):
         Score(team=self.team, user=self.user, reason="test", points=100, leaderboard=False).save()
         self.client.force_authenticate(self.admin_user)
         self.client.post(reverse("team-recalculate-all-scores"))
-        self.assertEqual(Team.objects.get(id=self.team.pk).leaderboard_points, total)
-        self.assertEqual(get_user_model().objects.get(id=self.user.pk).leaderboard_points, total)
+        self.team.refresh_from_db()
+        self.user.refresh_from_db()
+        self.assertEqual(self.team.leaderboard_points, total)
+        self.assertEqual(self.user.leaderboard_points, total)

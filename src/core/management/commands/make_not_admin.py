@@ -3,6 +3,8 @@
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 
+from teams.models import Member
+
 
 class Command(BaseCommand):
     """Command to forcefully remove make a user not admin."""
@@ -15,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Make a user not admin."""
-        user = get_user_model().objects.get(pk=options["user_id"])
+        user = Member.objects.get(pk=options["user_id"])
         user.is_staff = False
         user.is_superuser = False
         user.save()

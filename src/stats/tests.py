@@ -7,7 +7,7 @@ from rest_framework.test import APITestCase
 
 from challenges.models import Category, Challenge, Solve
 from config import config
-from teams.models import Team
+from teams.models import Team, Member
 
 
 class CountdownTestCase(APITestCase):
@@ -20,7 +20,7 @@ class CountdownTestCase(APITestCase):
 
     def test_authed(self) -> None:
         """Test an authenticated user can GET the view."""
-        user = get_user_model()(username="countdown-test", email="countdown-test@example.org")
+        user = Member(username="countdown-test", email="countdown-test@example.org")
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("countdown"))
@@ -37,7 +37,7 @@ class StatsTestCase(APITestCase):
 
     def test_authed(self):
         """Test an authenticated user can GET the view."""
-        user = get_user_model()(username="stats-test", email="stats-test@example.org")
+        user = Member(username="stats-test", email="stats-test@example.org")
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("stats"))
@@ -45,7 +45,7 @@ class StatsTestCase(APITestCase):
 
     def test_team_average(self):
         """Test the average team member calculation works."""
-        user = get_user_model()(username="stats-test", email="stats-test@example.org")
+        user = Member(username="stats-test", email="stats-test@example.org")
         user.save()
 
         team = Team(name="stats-test", password="stats-test", owner=user)
@@ -65,7 +65,7 @@ class FullStatsTestCase(APITestCase):
 
     def test_authed_non_privileged(self):
         """Test an authenticated, but unprivileged, user cannot access the endpoint."""
-        user = get_user_model()(username="stats-test", email="stats-test@example.org")
+        user = Member(username="stats-test", email="stats-test@example.org")
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("full"))
@@ -73,7 +73,7 @@ class FullStatsTestCase(APITestCase):
 
     def test_authed_privileged(self):
         """Test an authenticated and privileged user can access the endpoint."""
-        user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
+        user = Member(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("full"))
@@ -81,7 +81,7 @@ class FullStatsTestCase(APITestCase):
 
     def test_team_point_distribution(self):
         """Test the team point distribution is correctly calculated."""
-        user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
+        user = Member(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
         user.save()
 
         team = Team(name="stats-test", password="stats-test", owner=user)
@@ -101,7 +101,7 @@ class FullStatsTestCase(APITestCase):
 
     def test_challenge_data(self):
         """Test the solve statistics are correctly calculated."""
-        user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
+        user = Member(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
         user.save()
 
         category = Category.objects.create(
@@ -140,7 +140,7 @@ class CommitTestCase(APITestCase):
 
     def test_authed(self):
         """Test an authenticated but unprivileged user cannot get the commit hash."""
-        user = get_user_model()(username="commit-test", email="commit-test@example.org")
+        user = Member(username="commit-test", email="commit-test@example.org")
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("version"))
@@ -148,7 +148,7 @@ class CommitTestCase(APITestCase):
 
     def test_authed_admin(self):
         """Test a staff user can get the commit hash."""
-        user = get_user_model()(username="commit-test2", email="commit-test2@example.org", is_staff=True)
+        user = Member(username="commit-test2", email="commit-test2@example.org", is_staff=True)
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("version"))
@@ -165,7 +165,7 @@ class PrometheusTestCase(APITestCase):
 
     def test_authed(self):
         """Test an authenticated user cannot access the endpoint."""
-        user = get_user_model()(username="prometheus-test", email="prometheus-test@example.org")
+        user = Member(username="prometheus-test", email="prometheus-test@example.org")
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("prometheus"))
@@ -173,7 +173,7 @@ class PrometheusTestCase(APITestCase):
 
     def test_authed_admin(self):
         """Test an authenticated admin user can access the endpoint."""
-        user = get_user_model()(
+        user = Member(
             username="prometheus-test-admin",
             email="prometheus-test-admin@example.org",
             is_staff=True,

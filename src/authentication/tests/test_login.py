@@ -340,10 +340,12 @@ class TFATestCase(APITestCase):
         """Removing 2fa with a valid 2fa code should return 200."""
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse("add-2fa"))
-        totp_device = Member.objects.get(id=self.user.pk).totp_device
+        self.user.refresh_from_db()
+        totp_device = self.user.totp_device
         totp_device.verified = True
         totp_device.save()
-        self.client.force_authenticate(user=Member.objects.get(id=self.user.pk))
+        self.user.refresh_from_db()
+        self.client.force_authenticate(user=self.user)
         response = self.client.post(reverse("remove-2fa"), data={"otp": pyotp.TOTP(totp_device.totp_secret).now()})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -351,10 +353,12 @@ class TFATestCase(APITestCase):
         """Removing 2fa with an invalid 2fa code should return 401."""
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse("add-2fa"))
-        totp_device = Member.objects.get(id=self.user.pk).totp_device
+        self.user.refresh_from_db()
+        totp_device = self.user.totp_device
         totp_device.verified = True
         totp_device.save()
-        self.client.force_authenticate(user=Member.objects.get(id=self.user.pk))
+        self.user.refresh_from_db()
+        self.client.force_authenticate(user=self.user)
         response = self.client.post(reverse("remove-2fa"), data={"otp": "invalid_otp"})
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
@@ -362,18 +366,21 @@ class TFATestCase(APITestCase):
         """Removing 2fa with a valid 2fa code should disable 2fa on the user."""
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse("add-2fa"))
-        totp_device = Member.objects.get(id=self.user.pk).totp_device
+        self.user.refresh_from_db()
+        totp_device = self.user.totp_device
         totp_device.verified = True
         totp_device.save()
-        self.client.force_authenticate(user=Member.objects.get(id=self.user.pk))
+        self.user.refresh_from_db()
+        self.client.force_authenticate(user=self.user)
         self.client.post(reverse("remove-2fa"), data={"otp": pyotp.TOTP(totp_device.totp_secret).now()})
-        self.assertFalse(Member.objects.get(id=self.user.pk).has_2fa())
+        self.user.refresh_from_db()
+        self.assertFalse(self.user.has_2fa())
 
     def test_remove_2fa_no_2fa(self):
         """Removing 2fa without active 2fa should return 403."""
         self.client.force_authenticate(user=self.user)
         self.client.post(reverse("add-2fa"))
-        user = Member.objects.get(id=self.user.pk)
+        self.user.refresh_from_db()
         user.totp_device = None
         user.save()
         response = self.client.post(reverse("remove-2fa"))

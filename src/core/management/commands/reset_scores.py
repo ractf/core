@@ -1,10 +1,9 @@
 """Command to remove all scores from the database."""
 
-from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 
 from challenges.models import Challenge, Score, Solve
-from teams.models import Team
+from teams.models import Team, Member
 
 
 class Command(BaseCommand):
@@ -25,7 +24,7 @@ class Command(BaseCommand):
             team.points = 0
             team.leaderboard_points = 0
             team.save()
-        for user in get_user_model().objects.all():
+        for user in Member.objects.all():
             user.points = 0
             user.leaderboard_points = 0
             user.save()
