@@ -11,7 +11,6 @@ from . import *
 SEND_MAIL = True
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
-ALLOWED_HOSTS.extend(("ractf.co.uk", "api-elite.ractf.co.uk"))
 
 LOGGING = {
     "version": 1,
