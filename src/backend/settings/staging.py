@@ -15,15 +15,6 @@ sentry_sdk.init(
 
 SEND_MAIL = True
 
-TEMPLATES.insert(
-    0,
-    {
-        "BACKEND": "django.template.backends.jinja2.Jinja2",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],
-        "APP_DIRS": True,
-    },
-)
-
 MAIL = {
     "SEND_ADDRESS": "no-reply@ractf.co.uk",
     "SEND_NAME": "RACTF",
