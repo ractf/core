@@ -33,15 +33,6 @@ LOGGING = {
     },
 }
 
-TEMPLATES.insert(
-    0,
-    {
-        "BACKEND": "django.template.backends.jinja2.Jinja2",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],
-        "APP_DIRS": True,
-    },
-)
-
 MAIL = {
     "SEND_ADDRESS": os.getenv("EMAIL_ADDRESS"),
     "SEND_NAME": os.getenv("EMAIL_NAME"),
