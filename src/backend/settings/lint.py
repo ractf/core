@@ -2,7 +2,7 @@ from . import *
 
 SECRET_KEY = "CorrectHorseBatteryStaple"
 
-MAIL["SEND"] = False
+EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
 FRONTEND_URL = "http://example.com/"
 DOMAIN = "example.com"

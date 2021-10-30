@@ -1,4 +1,4 @@
 from . import *
 
 DOMAIN = "localhost"
-MAIL["SEND"] = False
+EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
