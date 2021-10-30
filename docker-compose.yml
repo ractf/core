@@ -10,7 +10,7 @@ x-gunicorn-master: &x-gunicorn-master
     - DOMAIN=localhost
     - FRONTEND_URL=http://localhost:8000/
     - SECRET_KEY=CorrectHorseBatteryStaple
-    - DJANGO_SETTINGS_MODULE=backend.settings.production
+    - DJANGO_SETTINGS_MODULE=backend.settings.local
     - ANDROMEDA_IP=andromeda
     - ANDROMEDA_URL=http://andromeda:6000
     - REDIS_PORT=6379
