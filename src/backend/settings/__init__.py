@@ -101,6 +101,7 @@ INSTALLED_APPS = [
     "hint.apps.HintConfig",
     "leaderboard.apps.LeaderboardConfig",
     "member.apps.MemberConfig",
+    "mail.apps.MailConfig",
     "pages.apps.PagesConfig",
     "plugins.apps.PluginsConfig",
     "ractf.apps.RactfConfig",
