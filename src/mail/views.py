@@ -1,12 +1,10 @@
 from django.shortcuts import render
+from django.core import mail
 
 
 def list(request):
-    # This is bad, but Django doesn't create `outbox` until an email is sent
     try:
-        from django.core.mail import outbox
-
-        emails = outbox
-    except ImportError:
+        emails = mail.outbox
+    except AttributeError:
         emails = []
     return render(request, "mail_list.html", context={"emails": emails})
