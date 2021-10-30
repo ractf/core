@@ -349,8 +349,17 @@ LOGGING = {
 
 REQUIRED_SETTINGS = ["FRONTEND_URL", "DOMAIN"]
 
-DEFAULT_FROM_EMAIL = os.getenv("EMAIL_ADDRESS", "noreply@ractf.co.uk")
-SERVER_EMAIL = os.getenv("EMAIL_ADDRESS", "noreply@ractf.co.uk")
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "noreply@ractf.co.uk")
+EMAIL_NAME = os.getenv("EMAIL_NAME", "RACTF")
+FROM_EMAIL = f"{EMAIL_NAME} <{EMAIL_ADDRESS}>"
+DEFAULT_FROM_EMAIL = FROM_EMAIL
+SERVER_EMAIL = FROM_EMAIL
+EMAIL_HOST = os.getenv("EMAIL_SERVER")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_HOST_USER = os.getenv("EMAIL_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS")
+EMAIL_USE_SSL = os.getenv("EMAIL_SSL")
+EMAIL_USE_TLS = os.getenv("EMAIL_TLS")
 
 EMAIL_BACKEND = {
     "SMTP": "django.core.mail.backends.smtp.EmailBackend",
