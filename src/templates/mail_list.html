@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dev Mail</title>
+</head>
+<body>
+    {% if emails %}
+    {% for email in emails %}
+    <h1>{{ email.subject }}</h1>
+    <p>From: {{ email.from_email }}</p>
+    <p>To: {{ email.to }}</p>
+    <p>{{ email.body }}</p>
+
+    <hr>
+    {% endfor %}
+    {% else %}
+    <p>No emails have been sent</p>
+    {% endif %}
+</body>
+</html>
