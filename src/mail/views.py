@@ -3,8 +3,4 @@ from django.core import mail
 
 
 def list(request):
-    try:
-        emails = mail.outbox
-    except AttributeError:
-        emails = []
-    return render(request, "mail_list.html", context={"emails": emails})
+    return render(request, "mail_list.html", context={"emails": getattr(mail, 'outbox', [])})
