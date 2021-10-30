@@ -26,13 +26,6 @@ ALLOWED_HOSTS = [
 if DOMAIN:
     ALLOWED_HOSTS.append(DOMAIN)
 
-MAIL = {
-    "SEND_ADDRESS": "no-reply@ractf.co.uk",
-    "SEND_NAME": "RACTF",
-    "SEND": True,
-    "SEND_MODE": "SES",
-}
-
 EXPERIMENT_OVERRIDES = {}
 
 MAX_UPLOAD_SIZE = 10_000_000_000  # 10gb
@@ -101,7 +94,6 @@ INSTALLED_APPS = [
     "hint.apps.HintConfig",
     "leaderboard.apps.LeaderboardConfig",
     "member.apps.MemberConfig",
-    "mail.apps.MailConfig",
     "pages.apps.PagesConfig",
     "plugins.apps.PluginsConfig",
     "ractf.apps.RactfConfig",
@@ -291,9 +283,6 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 100,
     "NUM_PROXIES": int(os.getenv("NUM_PROXIES", 0)),
 }
-
-MAIL_SOCK_URL = "http+unix://%2Ftmp%2Fmailusv.sock/send"
-SEND_MAIL = False
 
 if os.getenv("CHALLENGE_SERVER_TYPE") == "POLARIS":
     POLARIS_URL = os.getenv("POLARIS_URL")
