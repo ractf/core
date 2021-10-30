@@ -23,7 +23,6 @@ x-gunicorn-master: &x-gunicorn-master
     - SQL_DATABASE=postgres
     - EMAIL_PROVIDER=DISABLED
 
-
 services:
   redis:
     image: docker.io/redis:5
