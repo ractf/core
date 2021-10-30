@@ -1,3 +1,5 @@
+from django.shortcuts import render
+from django.core import mail
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
@@ -15,3 +17,6 @@ class SelfCheckView(APIView):
             issues += challenge.self_check()
 
         return FormattedResponse(issues)
+
+def mail_list(request):
+    return render(request, "mail_list.html", context={"emails": getattr(mail, 'outbox', [])})

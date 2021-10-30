@@ -36,9 +36,6 @@ urlpatterns = [
     path("experiments/", include("experiments.urls")),
 ]
 
-if settings.EMAIL_BACKEND == "anymail.backends.test.EmailBackend":
-    urlpatterns += [path("mail/", include("mail.urls"))]
-
 urlpatterns = [
     path("api/v2/", include(urlpatterns)),
     *urlpatterns,
