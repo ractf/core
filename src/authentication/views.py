@@ -206,7 +206,7 @@ class RequestPasswordResetView(APIView):
             token = ""
             email = "noreply@ractf.co.uk"
 
-        if settings.MAIL["SEND"]:
+        if settings.EMAIL_ENABLED:
             send_email(
                 email,
                 f"{config.get('event_name')} - Reset Your Password",

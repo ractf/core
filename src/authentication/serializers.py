@@ -74,7 +74,7 @@ class RegistrationSerializer(serializers.Serializer):
             else:
                 raise FormattedException(m="invalid_invite", status=HTTP_403_FORBIDDEN)
 
-        if not settings.MAIL["SEND"]:
+        if not settings.EMAIL_ENABLED:
             user.email_verified = True
             user.is_visible = True
         else:
@@ -120,7 +120,7 @@ class RegistrationSerializer(serializers.Serializer):
 
         register.send(sender=self.__class__, user=user)
 
-        if not settings.MAIL["SEND"]:
+        if not settings.EMAIL_ENABLED:
             return {"token": user.issue_token(), "email": user.email}
         else:
             return {}

@@ -374,7 +374,9 @@ EMAIL_BACKEND = {
     "SENDINBLUE": "anymail.backends.sendinblue.EmailBackend",
     "SPARKPOST": "anymail.backends.sparkpost.EmailBackend",
     "TEST": "anymail.backends.test.EmailBackend",
-}[os.getenv("EMAIL_PROVIDER", "CONSOLE")]
+    "DISABLED": "django.core.mail.backends.dummy.EmailBackend"
+}[os.getenv("EMAIL_PROVIDER", "DISABLED")]
+EMAIL_ENABLED = bool(os.getenv("EMAIL_PROVIDER", False))
 
 ANYMAIL = {
     "AMAZON_SES_CLIENT_PARAMS": {

@@ -10,7 +10,7 @@ x-gunicorn-master: &x-gunicorn-master
     - DOMAIN=localhost
     - FRONTEND_URL=http://localhost:8000/
     - SECRET_KEY=CorrectHorseBatteryStaple
-    - DJANGO_SETTINGS_MODULE=backend.settings.local
+    - DJANGO_SETTINGS_MODULE=backend.settings.production
     - ANDROMEDA_IP=andromeda
     - ANDROMEDA_URL=http://andromeda:6000
     - REDIS_PORT=6379
@@ -21,6 +21,16 @@ x-gunicorn-master: &x-gunicorn-master
     - SQL_HOST=database
     - SQL_USER=postgres
     - SQL_DATABASE=postgres
+    - EMAIL_PROVIDER=AWS
+    - EMAIL_ADDRESS=noreply@ractf.co.uk
+    - "EMAIL_NAME=2021 - RACTF"
+    - AWS_FILES_BUCKET_NAME=files-2021.ractf.co.uk
+    - AWS_FILES_BUCKET_DOMAIN=files-2021.ractf.co.uk
+    - USE_AWS_S3_FILE_STORAGE=true
+    - AWS_DEFAULT_REGION=eu-west-2
+    - AWS_ACCESS_KEY_ID=XXX
+    - AWS_SECRET_ACCESS_KEY=XXX
+
 
 services:
   redis:
