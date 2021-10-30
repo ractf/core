@@ -7,6 +7,8 @@ MAIL["SEND"] = False
 FRONTEND_URL = "http://example.com/"
 DOMAIN = "example.com"
 
+EMAIL_BACKEND = "anymail.backends.test.EmailBackend"
+
 for scope in REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"]:
     REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"][scope] = "9999999/minute"
 

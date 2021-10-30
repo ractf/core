@@ -117,6 +117,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "cachalot",
     "django_prometheus",
+    "anymail",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -358,3 +359,39 @@ LOGGING = {
 }
 
 REQUIRED_SETTINGS = ["FRONTEND_URL", "DOMAIN"]
+
+DEFAULT_FROM_EMAIL = os.getenv("EMAIL_ADDRESS", "noreply@ractf.co.uk")
+SERVER_EMAIL = os.getenv("EMAIL_ADDRESS", "noreply@ractf.co.uk")
+
+EMAIL_BACKEND = {
+    "SMTP": "django.core.mail.backends.smtp.EmailBackend",
+    "AWS": "anymail.backends.amazon_ses.EmailBackend",
+    "MAILGUN": "anymail.backends.mailgun.EmailBackend",
+    "SENDGRID": "anymail.backends.sendgrid.EmailBackend",
+    "CONSOLE": "anymail.backends.console.EmailBackend",
+    "MAILJET": "anymail.backends.mailjet.EmailBackend",
+    "MANDRILL": "anymail.backends.mandrill.EmailBackend",
+    "POSTAL": "anymail.backends.postal.EmailBackend",
+    "POSTMARK": "anymail.backends.postmark.EmailBackend",
+    "SENDINBLUE": "anymail.backends.sendinblue.EmailBackend",
+    "SPARKPOST": "anymail.backends.sparkpost.EmailBackend",
+    "TEST": "anymail.backends.test.EmailBackend",
+}[os.getenv("EMAIL_PROVIDER", "CONSOLE")]
+
+ANYMAIL = {
+    "AMAZON_SES_CLIENT_PARAMS": {
+        "aws_access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
+        "aws_secret_access_key": os.getenv("AWS_SECRET_KEY"),
+        "region_name": os.getenv("AWS_DEFAULT_REGION"),
+    },
+    "MAILGUN_API_KEY": os.getenv("MAILGUN_API_KEY"),
+    "MAILGUN_API_URL": os.getenv("MAILGUN_API_URL", "https://api.mailgun.net/v3"),
+    "SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY"),
+    "MAILJET_API_KEY": os.getenv("MAILJET_API_KEY"),
+    "MAILJET_SECRET_KEY": os.getenv("MAILJET_SECRET_KEY"),
+    "MANDRILL_API_KEY": os.getenv("MANDRILL_API_KEY"),
+    "POSTAL_API_URL": os.getenv("POSTAL_API_URL"),
+    "POSTMARK_SERVER_TOKEN": os.getenv("POSTMARK_SERVER_TOKEN"),
+    "SENDINBLUE_API_KEY": os.getenv("SENDINBLUE_API_KEY"),
+    "SPARKPOST_API_KEY": os.getenv("SPARKPOST_API_KEY"),
+}

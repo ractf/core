@@ -432,6 +432,8 @@ optional = false
 python-versions = ">=3.5"
 
 [package.dependencies]
+boto3 = {version = "*", optional = true, markers = "extra == \"amazon_ses\""}
+cryptography = {version = "*", optional = true, markers = "extra == \"postal\""}
 django = ">=2.0"
 requests = ">=2.4.3"
 
@@ -1655,7 +1657,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "904c3d027505c4ca3dbee09c7dd38e13647dd2559bbd42f04985b78f9e313dac"
+content-hash = "c7eaf846a0991ea2b56afe3294c145eb58b9a11d410c1a30f66a3a34d5a3a84c"
 
 [metadata.files]
 aioredis = [

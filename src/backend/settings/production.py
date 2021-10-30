@@ -8,8 +8,6 @@ from sentry_sdk.integrations.redis import RedisIntegration
 
 from . import *
 
-SEND_MAIL = True
-
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
 LOGGING = {
@@ -31,18 +29,6 @@ LOGGING = {
             "propagate": False,
         },
     },
-}
-
-MAIL = {
-    "SEND_ADDRESS": os.getenv("EMAIL_ADDRESS"),
-    "SEND_NAME": os.getenv("EMAIL_NAME"),
-    "SEND": True,
-    "SEND_MODE": os.getenv("EMAIL_PROVIDER"),
-    "SEND_SERVER": os.getenv("EMAIL_SERVER"),
-    "SEND_USERNAME": os.getenv("EMAIL_USER"),
-    "SEND_PASSWORD": os.getenv("EMAIL_PASS"),
-    "SMTP_USE_SSL": os.getenv("EMAIL_SSL"),
-    "SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY"),
 }
 
 DEFAULT_SENTRY_DSN = "https://1fb04d3b9f8b4343bccea1c9f5b6d08b@o104250.ingest.sentry.io/5374671"
