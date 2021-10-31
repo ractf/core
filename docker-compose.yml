@@ -21,7 +21,7 @@ x-gunicorn-master: &x-gunicorn-master
     - SQL_HOST=database
     - SQL_USER=postgres
     - SQL_DATABASE=postgres
-    - EMAIL_PROVIDER=DISABLED
+    - EMAIL_PROVIDER=CONSOLE
 
 services:
   redis:
