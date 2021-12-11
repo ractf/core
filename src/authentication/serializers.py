@@ -120,7 +120,7 @@ class RegistrationSerializer(serializers.Serializer):
 
         register.send(sender=self.__class__, user=user)
 
-        if not settings.EMAIL_ENABLED:
+        if user.can_login():
             return {"token": user.issue_token(), "email": user.email}
         else:
             return {}
