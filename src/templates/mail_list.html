@@ -7,17 +7,15 @@
     <title>Dev Mail</title>
 </head>
 <body>
-    {% if emails %}
     {% for email in emails %}
-    <h1>{{ email.subject }}</h1>
-    <p>From: {{ email.from_email }}</p>
-    <p>To: {{ email.to }}</p>
-    <p>{{ email.body }}</p>
+      <h1>{{ email.subject }}</h1>
+      <p>From: {{ email.from_email }}</p>
+      <p>To: {{ email.to }}</p>
+      <p>{{ email.body }}</p>
 
-    <hr>
+      <hr>
+    {% empty %}
+      <p>No emails have been sent</p>
     {% endfor %}
-    {% else %}
-    <p>No emails have been sent</p>
-    {% endif %}
 </body>
 </html>
