@@ -220,7 +220,7 @@ class DesudoTestCase(APITestCase):
         response = DesudoView().post(request)
         self.assertTrue("token" in response.data["d"])
 
-    def test_desudo(self):
+    def test_desudo_staff(self):
         user2 = get_user_model()(username="sudotest2", email="sudotest2@example.com")
         user2.is_staff = True
         user2.save()
