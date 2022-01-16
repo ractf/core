@@ -1,6 +1,9 @@
 import hashlib
 
 from django.urls import reverse
+from django.test import TestCase
+from django.core import mail
+from django.urls.exceptions import NoReverseMatch
 from rest_framework.test import APITestCase
 
 from challenge.models import Category, Challenge
@@ -87,3 +90,37 @@ class BadFlagConfigTestCase(APITestCase):
 
         response = self.client.get(reverse("self-check"))
         self.assertEqual(len(response.data["d"]), 14)
+
+class DevMailEndpointTestCase(TestCase):
+    def test_endpoint_absent(self):
+        with self.settings(
+            EMAIL_BACKEND="django.core.mail.backends.console.EmailBackend"
+        ):
+            self.assertRaises(NoReverseMatch, reverse, viewname="mail-list")
+
+    def test_endpoint_without_mail(self):
+        with self.settings(
+            EMAIL_BACKEND="anymail.backends.test.EmailBackend"
+        ):
+            response = self.client.get(reverse("mail-list"))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, "<p>No emails have been sent</p>", html=True)
+
+    def test_endpoint_with_mail(self):
+        with self.settings(
+            EMAIL_BACKEND="anymail.backends.test.EmailBackend"
+        ):
+            mail.send_mail(
+                "This is the subject",
+                "This is the body",
+                "noreply@ractf.co.uk",
+                ["example@ractf.co.uk"],
+                fail_silently=False,
+            )
+            response = self.client.get(reverse("mail-list"))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, """
+            <h1>This is the subject</h1>
+            <p>From: noreply@ractf.co.uk</p>
+            <p>To: ['example@ractf.co.uk']</p>
+            <p>This is the body</p>""", html=True)
