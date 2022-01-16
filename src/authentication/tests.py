@@ -697,8 +697,19 @@ class DoPasswordResetTestCase(APITestCase):
             "token": "testtoken",
             "password": "uO7*$E@0ngqL",
         }
-        response = self.client.post(reverse("do-password-reset"), data)
-        self.assertTrue("token" in response.data["d"])
+
+        try:
+            old_prelogin = config.get("enable_prelogin")
+            old_login = config.get("enable_login")
+
+            config.set("enable_prelogin", True)
+            config.set("enable_login", True)
+
+            response = self.client.post(reverse("do-password-reset"), data)
+            self.assertTrue("token" in response.data["d"])
+        finally:
+            config.set("enable_prelogin", old_prelogin)
+            config.set("enable_login", old_login)
 
     def test_password_reset_bad_token(self):
         data = {
