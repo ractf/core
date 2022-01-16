@@ -3,7 +3,6 @@ import hashlib
 from django.urls import reverse
 from django.test import TestCase
 from django.core import mail
-from django.urls.exceptions import NoReverseMatch
 from rest_framework.test import APITestCase
 
 from challenge.models import Category, Challenge
@@ -96,7 +95,8 @@ class DevMailEndpointTestCase(TestCase):
         with self.settings(
             EMAIL_BACKEND="django.core.mail.backends.console.EmailBackend"
         ):
-            self.assertRaises(NoReverseMatch, reverse, viewname="mail-list")
+            response = self.client.get(reverse("mail-list"))
+            self.assertEqual(response.status_code, 404)
 
     def test_endpoint_without_mail(self):
         with self.settings(
