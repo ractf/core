@@ -13,23 +13,6 @@ sentry_sdk.init(
     send_default_pii=True,
 )
 
-SEND_MAIL = True
-
-TEMPLATES.insert(
-    0,
-    {
-        "BACKEND": "django.template.backends.jinja2.Jinja2",
-        "DIRS": [os.path.join(BASE_DIR, "templates")],
-        "APP_DIRS": True,
-    },
-)
-
-MAIL = {
-    "SEND_ADDRESS": "no-reply@ractf.co.uk",
-    "SEND_NAME": "RACTF",
-    "SEND": True,
-}
-
 FRONTEND_URL = "https://staging.ractf.co.uk/"
 ALLOWED_HOSTS.extend(("staging.ractf.co.uk", "api-elite.ractf.co.uk"))
 
