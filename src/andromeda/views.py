@@ -7,16 +7,19 @@ from andromeda import client
 from andromeda.serializers import JobSubmitSerializer
 from backend.response import FormattedResponse
 from challenge.models import Challenge
+from challenge.permissions import CompetitionOpen
 from config import config
 
 
 class GetInstanceView(APIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, CompetitionOpen)
     throttle_scope = "challenge_instance_get"
 
     def get(self, request, job_id):
         if not config.get("enable_challenge_server"):
             return FormattedResponse(m="challenge_server_disabled", status=HTTP_403_FORBIDDEN)
+        if not request.user.team:
+            return FormattedResponse(m="challenge_server_team_required", status=HTTP_403_FORBIDDEN)
         return FormattedResponse(client.get_instance(request.user.team.id, job_id))
 
 
