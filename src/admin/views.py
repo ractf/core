@@ -21,8 +21,6 @@ class SelfCheckView(APIView):
         return FormattedResponse(issues)
 
 def mail_list(request):
-
-
     if settings.EMAIL_BACKEND == "anymail.backends.test.EmailBackend":
         return render(request, "mail_list.html", context={"emails": getattr(mail, 'outbox', [])})
     else:
