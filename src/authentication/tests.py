@@ -220,6 +220,17 @@ class DesudoTestCase(APITestCase):
         response = DesudoView().post(request)
         self.assertTrue("token" in response.data["d"])
 
+    def test_desudo(self):
+        user2 = get_user_model()(username="sudotest2", email="sudotest2@example.com")
+        user2.is_staff = True
+        user2.save()
+
+        request = Request(HttpRequest())
+        request.sudo_from = user2
+
+        response = DesudoView().post(request)
+        self.assertTrue("token" in response.data["d"])
+
 
 class GenerateInvitesTestCase(APITestCase):
     def test_response_length(self):
