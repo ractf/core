@@ -1,8 +1,9 @@
-from django.template.loader import render_to_string
-from django.core.mail import EmailMultiAlternatives
+from os import path
+
 from anymail.message import attach_inline_image_file
 from django.conf import settings
-from os import path
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
 
 
 def send_email(send_to: str, subject_line: str, template_name: str, **template_details) -> None:

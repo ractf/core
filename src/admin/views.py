@@ -1,5 +1,5 @@
-from django.shortcuts import render
 from django.core import mail
+from django.shortcuts import render
 from rest_framework.permissions import IsAdminUser
 from rest_framework.views import APIView
 
