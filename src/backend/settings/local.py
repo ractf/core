@@ -1,4 +1,4 @@
 from . import *
 
 DOMAIN = "localhost"
-MAIL["SEND"] = False
+EMAIL_BACKEND = "anymail.backends.test.EmailBackend"

@@ -5,7 +5,7 @@ import string
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.validators import EmailValidator
-from django.db import transaction, IntegrityError
+from django.db import IntegrityError, transaction
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
 from django_filters.rest_framework import DjangoFilterBackend
@@ -206,7 +206,7 @@ class RequestPasswordResetView(APIView):
             token = ""
             email = "noreply@ractf.co.uk"
 
-        if settings.MAIL["SEND"]:
+        if settings.EMAIL_ENABLED:
             send_email(
                 email,
                 f"{config.get('event_name')} - Reset Your Password",

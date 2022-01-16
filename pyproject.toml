@@ -17,7 +17,6 @@ gunicorn = "^20.0.4"
 boto3 = "^1.14.33"
 psycopg2-binary = "^2.8.5"
 django-filter = "^2.3.0"
-sendgrid = "^6.4.7"
 newrelic = "^5.22.1"
 django-prometheus = "^2.1.0"
 django-cachalot = "^2.3.5"
@@ -31,6 +30,7 @@ Twisted = "20.3.0"
 channels-redis = "^3.2.0"
 django-clacks = "^0.2.0"
 requests = "^2.26.0"
+django-anymail = {extras = ["amazon_ses", "mailgun", "sendgrid", "console", "mailjet", "mandrill", "postal", "postmark", "sendinblue", "sparkpost"], version = "^8.4"}
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.19.0"

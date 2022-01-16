@@ -59,7 +59,8 @@ class RegisterTestCase(APITestCase):
 
     def test_register_with_mail(self):
         with self.settings(
-            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND": True, "SEND_MODE": "SES"}
+            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND_MODE": "SES"},
+            EMAIL_ENABLED=True
         ):
             data = {
                 "username": "user1",
