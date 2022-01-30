@@ -14,7 +14,7 @@
       <p>{{ email.body }}</p>
 
       <hr>
-    {% else %}
+    {% empty %}
       <p>No emails have been sent</p>
     {% endfor %}
 </body>

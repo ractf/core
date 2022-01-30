@@ -1,7 +1,5 @@
 import hashlib
 
-from django.urls import reverse
-from django.test import TestCase
 from django.core import mail
 from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_200_OK
 from rest_framework.test import APITestCase
