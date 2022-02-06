@@ -76,6 +76,17 @@
 
 Check out the [Installer](https://github.com/ractf/install/). Want a more custom deployment? Check out our [installation docs](https://docs.ractf.co.uk/installer).
 
+## Development
+
+The backend is a Django project, and you can spin it up easily with our
+``docker-compose`` setup using ``docker-compose build`` and ``docker-compose up
+[-d]``. Other ``docker-compose`` commands will also work as expected. Our tests
+can be run in Docker by using ``make dev-test``, or by manually running
+``pytest src`` in the container, for example using ``docker-compose exec
+backend pytest src``.
+
+
+
 ## Getting Support
 
 If you need support, check out our [Discord](https://discord.gg/FfW2xXR), or if you've found a bug with the framework, open an issue.
