@@ -306,6 +306,14 @@ class FlagSubmitView(APIView):
                 return FormattedResponse(d={"correct": False}, m="incorrect_flag")
 
             solve = challenge.points_plugin.score(user, team, flag, solve_set)
+
+            if challenge.points_plugin.recalculate_type != "none":
+                challenge.points_plugin.recalculate(
+                    teams=Team.objects.filter(solves__challenge=challenge),
+                    users=get_user_model().objects.filter(solves__challenge=challenge),
+                    solves=solve_set,
+                )
+
             if challenge.first_blood is None:
                 challenge.first_blood = user
                 challenge.save(update_fields=["first_blood"])
@@ -366,6 +374,7 @@ class FlagCheckView(APIView):
             return FormattedResponse(d={"correct": False}, m="incorrect_flag")
 
         ret = {"correct": True}
+
         if challenge.post_score_explanation:
             ret["explanation"] = challenge.post_score_explanation
         return FormattedResponse(d=ret, m="correct_flag")
