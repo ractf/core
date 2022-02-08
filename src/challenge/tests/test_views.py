@@ -199,6 +199,32 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.solve_challenge()
         self.assertEqual(last_score_before, self.user.last_score)
 
+    def test_challenge_solve_decay(self):
+        self.challenge2.points_type = "decay"
+        self.challenge2.flag_metadata["decay_constant"] = 0.5
+        self.challenge2.flag_metadata["min_points"] = 50
+        self.challenge2.save()
+
+        self.client.force_authenticate(self.user)
+        data = {
+            "flag": "ractf{a}",
+            "challenge": self.challenge2.id,
+        }
+        self.client.post(reverse("submit-flag"), data)
+
+        self.user.refresh_from_db()
+        points = self.user.points
+
+        self.client.force_authenticate(self.user3)
+        data = {
+            "flag": "ractf{a}",
+            "challenge": self.challenge2.id,
+        }
+        self.client.post(reverse("submit-flag"), data).json()
+
+        self.user.refresh_from_db()
+        self.assertLess(self.user.points, points)
+
 
 class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
     def test_category_list_unauthenticated_permission(self):
