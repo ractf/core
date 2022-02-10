@@ -1,4 +1,5 @@
 import abc
+import re
 
 from django.contrib.auth import get_user_model
 from django.core.validators import EmailValidator
@@ -20,13 +21,14 @@ class RegistrationProvider(Provider, abc.ABC):  # pragma: no cover
         pass
 
     def validate_email(self, email):
-        allow_domain = config.get("email_allow")
-        if allow_domain:
-            email_validator = EmailValidator(allow_domain)
-        else:
-            email_validator = EmailValidator()
-        if email_validator(email):
+        if config.get("email_regex") and not re.compile(config.get("email_regex")).match(email):
             raise ValidationError("invalid_email")
+
+        if config.get("email_domain") and not email.endswith(config.get("email_domain")):
+            raise ValidationError("invalid_email")
+
+        email_validator = EmailValidator()
+        email_validator(email)
 
     def check_email_or_username_in_use(self, email=None, username=None):
         if get_user_model().objects.filter(username=username) or get_user_model().objects.filter(email=email):
