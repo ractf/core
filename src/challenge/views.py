@@ -52,6 +52,7 @@ from challenge.serializers import (
 )
 from config import config
 from hint.models import Hint, HintUse
+from sockets.signals import broadcast
 from team.models import Team
 from team.permissions import HasTeam
 
@@ -313,6 +314,12 @@ class FlagSubmitView(APIView):
                     users=get_user_model().objects.filter(solves__challenge=challenge),
                     solves=solve_set,
                 )
+                broadcast({
+                    "type": "send_json",
+                    "event_code": 7,
+                    "challenge_id": challenge.id,
+                    "challenge_score": solve.score.points,
+                })
 
             if challenge.first_blood is None:
                 challenge.first_blood = user
