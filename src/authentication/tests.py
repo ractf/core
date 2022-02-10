@@ -175,6 +175,66 @@ class RegisterTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_201_CREATED)
         self.assertEqual(get_user_model().objects.get(username="user10").team.name, "user10")
 
+    def test_register_with_mail_passing_regex(self):
+        with self.settings(
+            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND_MODE": "SES"},
+            EMAIL_ENABLED=True
+        ):
+            config.set("email_regex", ".*@(live\\.)?example\\.ac\\.uk$")
+            data = {
+                "username": "user1",
+                "password": "uO7*$E@0ngqL",
+                "email": "user@example.ac.uk",
+            }
+            response = self.client.post(reverse("register"), data)
+            config.set("email_regex", None)
+            self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+    def test_register_with_mail_failing_regex(self):
+        with self.settings(
+            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND_MODE": "SES"},
+            EMAIL_ENABLED=True
+        ):
+            config.set("email_regex", ".*@(live\\.)?example\\.org$")
+            data = {
+                "username": "user1",
+                "password": "uO7*$E@0ngqL",
+                "email": "user@example.ac.uk",
+            }
+            response = self.client.post(reverse("register"), data)
+            config.set("email_regex", None)
+            self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_register_with_mail_passing_domain(self):
+        with self.settings(
+            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND_MODE": "SES"},
+            EMAIL_ENABLED=True
+        ):
+            config.set("email_domain", "example.ac.uk")
+            data = {
+                "username": "user1",
+                "password": "uO7*$E@0ngqL",
+                "email": "user@example.ac.uk",
+            }
+            response = self.client.post(reverse("register"), data)
+            config.set("email_domain", None)
+            self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+    def test_register_with_mail_failing_domain(self):
+        with self.settings(
+            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND_MODE": "SES"},
+            EMAIL_ENABLED=True
+        ):
+            config.set("email_domain", "example.org")
+            data = {
+                "username": "user1",
+                "password": "uO7*$E@0ngqL",
+                "email": "user@example.ac.uk",
+            }
+            response = self.client.post(reverse("register"), data)
+            config.set("email_domain", None)
+            self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
+
 
 class EmailResendTestCase(APITestCase):
     def test_email_resend(self):
