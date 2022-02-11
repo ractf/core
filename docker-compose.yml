@@ -36,7 +36,7 @@ services:
       - POSTGRES_EXTENSIONS=citext
       - POSTGRES_HOST_AUTH_METHOD=trust
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 1s
       timeout: 30s
       retries: 30
