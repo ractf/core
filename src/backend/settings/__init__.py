@@ -26,13 +26,6 @@ ALLOWED_HOSTS = [
 if DOMAIN:
     ALLOWED_HOSTS.append(DOMAIN)
 
-MAIL = {
-    "SEND_ADDRESS": "no-reply@ractf.co.uk",
-    "SEND_NAME": "RACTF",
-    "SEND": True,
-    "SEND_MODE": "SES",
-}
-
 EXPERIMENT_OVERRIDES = {}
 
 MAX_UPLOAD_SIZE = 10_000_000_000  # 10gb
@@ -123,6 +116,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "cachalot",
     "django_prometheus",
+    "anymail",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -160,6 +154,11 @@ TEMPLATE_DIRS = [
 ]
 
 TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.jinja2.Jinja2",  # TODO: This is terrible
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+    },
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [os.path.join(BASE_DIR, "templates")],
@@ -292,9 +291,6 @@ REST_FRAMEWORK = {
     "NUM_PROXIES": int(os.getenv("NUM_PROXIES", 0)),
 }
 
-MAIL_SOCK_URL = "http+unix://%2Ftmp%2Fmailusv.sock/send"
-SEND_MAIL = False
-
 if os.getenv("CHALLENGE_SERVER_TYPE") == "POLARIS":
     POLARIS_URL = os.getenv("POLARIS_URL")
     POLARIS_USERNAME = os.getenv("POLARIS_USERNAME")
@@ -303,6 +299,7 @@ else:
     ANDROMEDA_URL = os.getenv("ANDROMEDA_URL")
     ANDROMEDA_API_KEY = os.getenv("ANDROMEDA_API_KEY")
     ANDROMEDA_SERVER_IP = os.getenv("ANDROMEDA_IP")  # shown to participants
+    ANDROMEDA_TIMEOUT = float(os.getenv("ANDROMEDA_TIMEOUT", 5))
 
 INSTALLED_PLUGINS = [
     "plugins.flag.hashed",
@@ -359,3 +356,50 @@ LOGGING = {
 }
 
 REQUIRED_SETTINGS = ["FRONTEND_URL", "DOMAIN"]
+
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS", "ctf@example.com")
+EMAIL_NAME = os.getenv("EMAIL_NAME", "RACTF")
+FROM_EMAIL = f"{EMAIL_NAME} <{EMAIL_ADDRESS}>"
+DEFAULT_FROM_EMAIL = FROM_EMAIL
+SERVER_EMAIL = FROM_EMAIL
+EMAIL_HOST = os.getenv("EMAIL_SERVER")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_HOST_USER = os.getenv("EMAIL_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASS")
+EMAIL_USE_SSL = os.getenv("EMAIL_SSL")
+EMAIL_USE_TLS = os.getenv("EMAIL_TLS")
+
+EMAIL_BACKEND = {
+    "SMTP": "django.core.mail.backends.smtp.EmailBackend",
+    "AWS": "anymail.backends.amazon_ses.EmailBackend",
+    "MAILGUN": "anymail.backends.mailgun.EmailBackend",
+    "SENDGRID": "anymail.backends.sendgrid.EmailBackend",
+    "CONSOLE": "anymail.backends.console.EmailBackend",
+    "MAILJET": "anymail.backends.mailjet.EmailBackend",
+    "MANDRILL": "anymail.backends.mandrill.EmailBackend",
+    "POSTAL": "anymail.backends.postal.EmailBackend",
+    "POSTMARK": "anymail.backends.postmark.EmailBackend",
+    "SENDINBLUE": "anymail.backends.sendinblue.EmailBackend",
+    "SPARKPOST": "anymail.backends.sparkpost.EmailBackend",
+    "TEST": "anymail.backends.test.EmailBackend",
+    "DISABLED": "django.core.mail.backends.dummy.EmailBackend"
+}[os.getenv("EMAIL_PROVIDER", "DISABLED")]
+EMAIL_ENABLED = bool(os.getenv("EMAIL_PROVIDER", False))
+
+ANYMAIL = {
+    "AMAZON_SES_CLIENT_PARAMS": {
+        "aws_access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
+        "aws_secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
+        "region_name": os.getenv("AWS_DEFAULT_REGION"),
+    },
+    "MAILGUN_API_KEY": os.getenv("MAILGUN_API_KEY"),
+    "MAILGUN_API_URL": os.getenv("MAILGUN_API_URL", "https://api.mailgun.net/v3"),
+    "SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY"),
+    "MAILJET_API_KEY": os.getenv("MAILJET_API_KEY"),
+    "MAILJET_SECRET_KEY": os.getenv("MAILJET_SECRET_KEY"),
+    "MANDRILL_API_KEY": os.getenv("MANDRILL_API_KEY"),
+    "POSTAL_API_URL": os.getenv("POSTAL_API_URL"),
+    "POSTMARK_SERVER_TOKEN": os.getenv("POSTMARK_SERVER_TOKEN"),
+    "SENDINBLUE_API_KEY": os.getenv("SENDINBLUE_API_KEY"),
+    "SPARKPOST_API_KEY": os.getenv("SPARKPOST_API_KEY"),
+}

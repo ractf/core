@@ -2,6 +2,7 @@ import secrets
 import time
 from smtplib import SMTPException
 
+from anymail.exceptions import AnymailAPIError
 from django.conf import settings
 from django.contrib.auth import get_user_model, password_validation
 from django.utils import timezone
@@ -74,7 +75,7 @@ class RegistrationSerializer(serializers.Serializer):
             else:
                 raise FormattedException(m="invalid_invite", status=HTTP_403_FORBIDDEN)
 
-        if not settings.MAIL["SEND"]:
+        if not settings.EMAIL_ENABLED:
             user.email_verified = True
             user.is_visible = True
         else:
@@ -87,7 +88,7 @@ class RegistrationSerializer(serializers.Serializer):
                     url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token),
                     event_name=config.get("event_name"),
                 )
-            except SMTPException:  # pragma: no cover - prod error handling
+            except (SMTPException, AnymailAPIError):  # pragma: no cover - prod error handling
                 # Whilst the API can resend verification emails,
                 # the frontend doesnt have that implemented, in
                 # addition to that, if smtp fails that early they are
@@ -120,7 +121,7 @@ class RegistrationSerializer(serializers.Serializer):
 
         register.send(sender=self.__class__, user=user)
 
-        if not settings.MAIL["SEND"]:
+        if not settings.EMAIL_ENABLED and user.can_login():
             return {"token": user.issue_token(), "email": user.email}
         else:
             return {}

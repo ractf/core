@@ -7,7 +7,7 @@ from config import config
 
 
 class Command(BaseCommand):
-    help = "Removes all scores from the database"
+    help = "Make all points appear on the leaderboard"
 
     def handle(self, *args, **options):
         if time.time() > config.get("end_time"):

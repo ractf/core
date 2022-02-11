@@ -59,7 +59,8 @@ class RegisterTestCase(APITestCase):
 
     def test_register_with_mail(self):
         with self.settings(
-            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND": True, "SEND_MODE": "SES"}
+            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND_MODE": "SES"},
+            EMAIL_ENABLED=True
         ):
             data = {
                 "username": "user1",
@@ -174,6 +175,66 @@ class RegisterTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_201_CREATED)
         self.assertEqual(get_user_model().objects.get(username="user10").team.name, "user10")
 
+    def test_register_with_mail_passing_regex(self):
+        with self.settings(
+            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND_MODE": "SES"},
+            EMAIL_ENABLED=True
+        ):
+            config.set("email_regex", ".*@(live\\.)?example\\.ac\\.uk$")
+            data = {
+                "username": "user1",
+                "password": "uO7*$E@0ngqL",
+                "email": "user@example.ac.uk",
+            }
+            response = self.client.post(reverse("register"), data)
+            config.set("email_regex", None)
+            self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+    def test_register_with_mail_failing_regex(self):
+        with self.settings(
+            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND_MODE": "SES"},
+            EMAIL_ENABLED=True
+        ):
+            config.set("email_regex", ".*@(live\\.)?example\\.org$")
+            data = {
+                "username": "user1",
+                "password": "uO7*$E@0ngqL",
+                "email": "user@example.ac.uk",
+            }
+            response = self.client.post(reverse("register"), data)
+            config.set("email_regex", None)
+            self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_register_with_mail_passing_domain(self):
+        with self.settings(
+            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND_MODE": "SES"},
+            EMAIL_ENABLED=True
+        ):
+            config.set("email_domain", "example.ac.uk")
+            data = {
+                "username": "user1",
+                "password": "uO7*$E@0ngqL",
+                "email": "user@example.ac.uk",
+            }
+            response = self.client.post(reverse("register"), data)
+            config.set("email_domain", None)
+            self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+    def test_register_with_mail_failing_domain(self):
+        with self.settings(
+            MAIL={"SEND_ADDRESS": "no-reply@ractf.co.uk", "SEND_NAME": "RACTF", "SEND_MODE": "SES"},
+            EMAIL_ENABLED=True
+        ):
+            config.set("email_domain", "example.org")
+            data = {
+                "username": "user1",
+                "password": "uO7*$E@0ngqL",
+                "email": "user@example.ac.uk",
+            }
+            response = self.client.post(reverse("register"), data)
+            config.set("email_domain", None)
+            self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
+
 
 class EmailResendTestCase(APITestCase):
     def test_email_resend(self):
@@ -211,6 +272,17 @@ class SudoTestCase(APITestCase):
 class DesudoTestCase(APITestCase):
     def test_desudo(self):
         user2 = get_user_model()(username="sudotest2", email="sudotest2@example.com")
+        user2.save()
+
+        request = Request(HttpRequest())
+        request.sudo_from = user2
+
+        response = DesudoView().post(request)
+        self.assertTrue("token" in response.data["d"])
+
+    def test_desudo_staff(self):
+        user2 = get_user_model()(username="sudotest2", email="sudotest2@example.com")
+        user2.is_staff = True
         user2.save()
 
         request = Request(HttpRequest())
@@ -685,8 +757,19 @@ class DoPasswordResetTestCase(APITestCase):
             "token": "testtoken",
             "password": "uO7*$E@0ngqL",
         }
-        response = self.client.post(reverse("do-password-reset"), data)
-        self.assertTrue("token" in response.data["d"])
+
+        try:
+            old_prelogin = config.get("enable_prelogin")
+            old_login = config.get("enable_login")
+
+            config.set("enable_prelogin", True)
+            config.set("enable_login", True)
+
+            response = self.client.post(reverse("do-password-reset"), data)
+            self.assertTrue("token" in response.data["d"])
+        finally:
+            config.set("enable_prelogin", old_prelogin)
+            config.set("enable_login", old_login)
 
     def test_password_reset_bad_token(self):
         data = {
@@ -918,3 +1001,25 @@ class CreateBotUserTestCase(APITestCase):
             },
         )
         self.assertTrue("token" in response.data["d"])
+
+    def test_duplicate_username(self):
+        self.client.force_authenticate(self.user)
+        self.client.post(
+            reverse("create-bot"),
+            data={
+                "username": "bottest",
+                "is_visible": False,
+                "is_staff": True,
+                "is_superuser": True,
+            },
+        )
+        response = self.client.post(
+            reverse("create-bot"),
+            data={
+                "username": "bottest",
+                "is_visible": False,
+                "is_staff": True,
+                "is_superuser": True,
+            },
+        )
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)

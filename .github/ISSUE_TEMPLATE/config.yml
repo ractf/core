@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: RACTF Discord
+    url: https://discord.gg/FfW2xXR
+    about: Check out the RACTF Discord server for advice on using the platform.

@@ -452,7 +452,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
             format="json",
         )
         response = self.client.get(reverse("challenges-detail", kwargs={"pk": self.challenge1.pk}))
-        self.assertEquals(response.data["challenge_metadata"], metadata)
+        self.assertEqual(response.data["challenge_metadata"], metadata)
 
 
 class FlagCheckViewTestCase(ChallengeSetupMixin, APITestCase):
@@ -516,3 +516,20 @@ class FlagCheckViewTestCase(ChallengeSetupMixin, APITestCase):
         self.client.post(reverse("submit-flag"), data)
         response = self.client.post(reverse("check-flag"), data)
         self.assertTrue("explanation" in response.data["d"])
+
+
+class RecalculateTestCase(ChallengeSetupMixin, APITestCase):
+    def test_score_recalculate(self):
+        self.client.force_authenticate(self.user)
+        data = {
+            "flag": "ractf{a}",
+            "challenge": self.challenge2.id,
+        }
+        self.client.post(reverse("submit-flag"), data)
+        self.user.refresh_from_db()
+        old_points = self.user.points
+        self.challenge2.score = 69
+        self.challenge2.save()
+        self.user.refresh_from_db()
+        self.user = get_user_model().objects.get(id=self.user.id)
+        self.assertNotEqual(old_points, self.user.points)

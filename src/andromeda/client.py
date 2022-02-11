@@ -9,7 +9,10 @@ from backend.exceptions import FormattedException
 
 def post(path, **kwargs):
     response = requests.post(
-        f"{settings.ANDROMEDA_URL}/{path}", headers={"Authorization": settings.ANDROMEDA_API_KEY}, **kwargs
+        f"{settings.ANDROMEDA_URL}/{path}",
+        headers={"Authorization": settings.ANDROMEDA_API_KEY},
+        timeout=settings.ANDROMEDA_TIMEOUT,
+        **kwargs,
     )
     if response.status_code == HTTP_200_OK:
         return response.json()
@@ -18,7 +21,10 @@ def post(path, **kwargs):
 
 def get(path, **kwargs):
     response = requests.get(
-        f"{settings.ANDROMEDA_URL}/{path}", headers={"Authorization": settings.ANDROMEDA_API_KEY}, **kwargs
+        f"{settings.ANDROMEDA_URL}/{path}",
+        headers={"Authorization": settings.ANDROMEDA_API_KEY},
+        timeout=settings.ANDROMEDA_TIMEOUT,
+        **kwargs,
     )
     if response.status_code == HTTP_200_OK:
         return response.json()

@@ -2,7 +2,8 @@ version: "3.8"
 
 x-gunicorn-master: &x-gunicorn-master
   build: .
-  entrypoint: 
+  entrypoint:
+  privileged: true
   volumes:
     - .:/app
   environment:
@@ -20,11 +21,13 @@ x-gunicorn-master: &x-gunicorn-master
     - SQL_HOST=database
     - SQL_USER=postgres
     - SQL_DATABASE=postgres
+    - EMAIL_PROVIDER=CONSOLE
   depends_on:
     database:
       condition: service_healthy
     redis:
       condition: service_started
+
 
 services:
   redis:
@@ -42,7 +45,7 @@ services:
       retries: 30
 
   shell:
-    image: index.docker.io/ractf/shell:latest
+    image: ghcr.io/ractf/shell:latest
     ports:
       - "8000:8000"
     environment:

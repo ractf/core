@@ -4,7 +4,6 @@ from django.urls import path, re_path
 
 from sockets import consumers
 
-
 application = ProtocolTypeRouter(
     {
         "http": AuthMiddlewareStack(
