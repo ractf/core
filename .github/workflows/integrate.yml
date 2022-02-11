@@ -1,0 +1,49 @@
+name: Run Integration Tests
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Disable Container Mount
+        run: cat docker-compose.yml | tr '\n' '\r' | sed -e 's/  volumes:\r    - .:\/app//' | tr '\r' '\n' > docker-compose.yml
+
+      - name: Set Docker-Compose to Upstream
+        run: "sed -i 's/build: \\./image: ghcr.io\\/ractf\\/core:latest/' docker-compose.yml"
+
+      - name: Start Upstream Container
+        run: docker-compose up -d
+
+      - name: Wait for Upstream to Boot
+        run: sleep 10
+
+      - name: Confirm Upstream is Healthy
+        run: curl localhost:8000/api/v2/stats/stats/
+
+      - name: Shut Down Upstream
+        run: docker-compose rm -sf
+
+      - name: Swap to Current branch
+        run: "sed -i 's/image: ghcr.io\\/ractf\\/core:latest/build: \\./' docker-compose.yml"
+
+      - name: Start Current Container
+        run: docker-compose up -d
+
+      - name: Wait for Current to Boot
+        run: sleep 10
+
+      - name: Confirm Current is Healthy
+        run: curl localhost:8000/api/v2/stats/stats/
+
+      - name: Get Core Logs
+        run: docker-compose logs backend
+        if: always()
+
+      - name: Get Sockets Logs
+        run: docker-compose logs sockets
+        if: always()
