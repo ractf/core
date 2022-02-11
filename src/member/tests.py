@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
+from django.db.utils import IntegrityError
 from django.http import HttpRequest
 from rest_framework.request import Request
 from rest_framework.reverse import reverse
@@ -147,6 +148,12 @@ class MemberViewSetTestCase(APITestCase):
             data={"username": "test"},
         )
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_disallows_differently_cased_but_same_username(self):
+        """A differently-cased but otherwise same username should not be allowed registration."""
+
+        self.user.username = self.admin_user.username.upper()
+        self.assertRaises(IntegrityError, self.user.save)
 
     def test_patch_member_admin(self):
         self.client.force_authenticate(self.admin_user)

@@ -1,6 +1,6 @@
-from django.contrib.postgres.fields import CICharField
 from django.db import models
 from django.db.models import CASCADE, Prefetch
+from django.db.models.functions import Lower
 from django.utils import timezone
 from django_prometheus.models import ExportModelOperationsMixin
 
@@ -32,7 +32,7 @@ class TeamQuerySet(models.QuerySet):
 class Team(ExportModelOperationsMixin("team"), models.Model):
     """Represents a team of one or more Members."""
 
-    name = CICharField(max_length=36, unique=True, validators=[printable_name])
+    name = models.CharField(max_length=36, unique=True, validators=[printable_name])
     is_visible = models.BooleanField(default=True)
     password = models.CharField(max_length=64)
     owner = models.ForeignKey(Member, on_delete=CASCADE, related_name="owned_team")
@@ -43,3 +43,11 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
     size_limit_exempt = models.BooleanField(default=False)
 
     objects = TeamQuerySet.as_manager()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                Lower('name'),
+                name='team_team_username_uniq_idx',
+            ),
+        ]

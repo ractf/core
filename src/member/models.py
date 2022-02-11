@@ -4,9 +4,9 @@ from enum import IntEnum
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
-from django.contrib.postgres.fields import CICharField
 from django.db import models
 from django.db.models import SET_NULL
+from django.db.models.functions import Lower
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import ExportModelOperationsMixin
@@ -24,7 +24,7 @@ class TOTPStatus(IntEnum):
 class Member(ExportModelOperationsMixin("member"), AbstractUser):
     username_validator = printable_name
 
-    username = CICharField(
+    username = models.CharField(
         _("username"),
         max_length=36,
         unique=True,
@@ -48,6 +48,14 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
     points = models.IntegerField(default=0)
     leaderboard_points = models.IntegerField(default=0)
     last_score = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                Lower('username'),
+                name='member_member_username_uniq_idx',
+            ),
+        ]
 
     def __str__(self):
         return self.username
