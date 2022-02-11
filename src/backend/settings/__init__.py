@@ -128,7 +128,6 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
-    "clacks.middleware.ClacksMiddleware",
     "querycount.middleware.QueryCountMiddleware",
 ]
 if DEBUG:
