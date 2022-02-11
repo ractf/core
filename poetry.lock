@@ -445,6 +445,17 @@ python-versions = "*"
 Django = ">=2.2,<4.1"
 
 [[package]]
+name = "django-clacks"
+version = "0.3.0"
+description = "The unseen, silent tribute to those we have lost."
+category = "main"
+optional = false
+python-versions = ">=3.8,<4.0"
+
+[package.dependencies]
+Django = "*"
+
+[[package]]
 name = "django-cors-headers"
 version = "3.11.0"
 description = "django-cors-headers is a Django application for handling the server headers required for Cross-Origin Resource Sharing (CORS)."
@@ -1648,7 +1659,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "ef708553e6690f79d443a727692f05b551a818a593578a1a9098917e9b1e2770"
+content-hash = "3fe7393c33613effbe9249ed99652c52ff47dc24503b8af1de745585f3a765ea"
 
 [metadata.files]
 aioredis = [
@@ -1907,6 +1918,10 @@ django-anymail = [
 django-cachalot = [
     {file = "django-cachalot-2.5.0.tar.gz", hash = "sha256:1682d902842998236f8579541db491bb82f68510587f74e417455667f564c891"},
     {file = "django_cachalot-2.5.0-py3-none-any.whl", hash = "sha256:0fb35d1dba1efb6198c1fdbb6786a4d1bf7e99965ac24a78dab2bc76f67bc6fd"},
+]
+django-clacks = [
+    {file = "django-clacks-0.3.0.tar.gz", hash = "sha256:24dffb99cc2226a1f0bed8793913111094c3b2880932ed35bfcd313faf346b8b"},
+    {file = "django_clacks-0.3.0-py3-none-any.whl", hash = "sha256:cd2e386829d97fb34f292fb1ab0f9646db553508a17a2c6e88294dad8e1f7a2a"},
 ]
 django-cors-headers = [
     {file = "django-cors-headers-3.11.0.tar.gz", hash = "sha256:eb98389bf7a2afc5d374806af4a9149697e3a6955b5a2dc2bf049f7d33647456"},
