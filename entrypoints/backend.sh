@@ -8,22 +8,9 @@ else
   rm $prometheus_multiproc_dir/* -rf
 fi
 
-echo "Waiting for postgres... "
-while ! nc -z $SQL_HOST $SQL_PORT
-do
-  sleep 0.69
-done
-echo "Done."
-
 echo "Running migrations..."
 /app/src/manage.py migrate
 echo "Done."
-
-if [ "$LOAD_FIXTURES" ]
-then
-  /app/src/manage.py flush --no-input
-  /app/src/manage.py loaddata test_fixtures
-fi
 
 export GUNICORN_CMD_ARGS="--chdir=/app/src/ --reload --workers=4 --bind=0.0.0.0:8000 --worker-class=gthread"
 if [ -f /etc/newrelic.ini ]

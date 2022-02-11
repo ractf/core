@@ -20,6 +20,7 @@ from django.urls import include, path
 from backend.views import CatchAllView
 
 urlpatterns = [
+    path("healthcheck/", include("health_check.urls")),
     path("admin/", include("admin.urls")),
     path("announcements/", include("announcements.urls")),
     path("auth/", include("authentication.urls")),
