@@ -17,7 +17,7 @@ jobs:
         run: "sed -i 's/build: \\./image: ghcr.io\\/ractf\\/core:latest/' docker-compose.yml"
 
       - name: Start Upstream Container
-        run: docker-compose up -d
+        run: make dev-server
 
       - name: Wait for Upstream to Boot
         run: sleep 10
@@ -34,14 +34,20 @@ jobs:
       - name: Swap to Current branch
         run: "sed -i 's/image: ghcr.io\\/ractf\\/core:latest/build: \\./' docker-compose.yml"
 
+      - name: Confirm Current Docker Compose
+        run: cat docker-compose.yml
+
       - name: Start Current Container
-        run: docker-compose up -d
+        run: make dev-server
 
       - name: Wait for Current to Boot
         run: sleep 10
 
       - name: Confirm Current is Healthy
         run: curl -v --fail localhost:8000/api/v2/stats/stats/
+
+      - name: Clean Up Docker Compose
+        run: make clean-dev-server
 
       - name: Get Core Logs
         run: docker-compose logs backend
