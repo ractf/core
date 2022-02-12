@@ -23,7 +23,7 @@ jobs:
         run: sleep 10
 
       - name: Generate Test Fixtures
-        run: docker-compose exec backend make fake-data ARGS="--teams 10 --users 2 --categories 10 --challenges 100 --solves 1000"
+        run: docker-compose exec -w /app backend make fake-data ARGS="--teams 10 --users 2 --categories 10 --challenges 100 --solves 1000"
 
       - name: Confirm Upstream is Healthy
         run: curl --fail localhost:8000/api/v2/stats/stats/
