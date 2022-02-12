@@ -23,9 +23,7 @@ jobs:
         run: sleep 10
 
       - name: Generate Test Fixtures
-        run: docker-compose exec -w /app backend make fake-bulk-data
-        env:
-          COMPOSE_INTERACTIVE_NO_CLI: "1"
+        run: docker exec -w /app --tty $(docker-compose ps -q backend) make fake-bulk-data
 
       - name: Confirm Upstream is Healthy
         run: curl --fail localhost:8000/api/v2/stats/stats/
