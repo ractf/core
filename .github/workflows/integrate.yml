@@ -11,7 +11,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Disable Container Mount
-        run: "cat docker-compose.yml | tr '\\n' '\\r' | sed -e 's/  volumes:\\r    - .:\\/app//' | tr '\\r' '\\n' | tee docker-compose.yml.new && mv docker-compose.yml{.new,}"
+        run: "cat docker-compose.yml | tr '\\n' '\\r' | sed -e 's/  volumes:\\r    - .:\\/app/working_dir:\\/app\\src\\///' | tr '\\r' '\\n' | tee docker-compose.yml.new && mv docker-compose.yml{.new,}"
 
       - name: Set Docker-Compose to Upstream
         run: "sed -i 's/build: \\./image: ghcr.io\\/ractf\\/core:latest/' docker-compose.yml"
