@@ -3,7 +3,7 @@ name: Run Integration Tests
 on: push
 
 jobs:
-  test:
+  integrate:
     runs-on: ubuntu-latest
 
     steps:
