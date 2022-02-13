@@ -1,0 +1,58 @@
+name: Run Integration Tests
+
+on: push
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Disable Container Mount
+        run: "cat docker-compose.yml | tr '\\n' '\\r' | sed -e 's/  volumes:\\r    - .:\\/app/  working_dir: \\/app\\/src\\//' | tr '\\r' '\\n' | tee docker-compose.yml.new && mv docker-compose.yml{.new,}"
+
+      - name: Set Docker-Compose to Upstream
+        run: "sed -i 's/build: \\./image: ghcr.io\\/ractf\\/core:latest/' docker-compose.yml"
+
+      - name: Start Upstream Container
+        run: make dev-server
+
+      - name: Wait for Upstream to Boot
+        run: sleep 10
+
+      - name: Generate Test Fixtures
+        run: docker exec -w /app --tty $(docker-compose ps -q backend) make fake-data ARGS="--teams 10 --users 2 --categories 10 --challenges 100 --solves 1000"
+
+      - name: Confirm Upstream is Healthy
+        run: curl -v --fail localhost:8000/api/v2/stats/stats/
+
+      - name: Shut Down Upstream
+        run: docker-compose rm -sf
+
+      - name: Swap to Current branch
+        run: "sed -i 's/image: ghcr.io\\/ractf\\/core:latest/build: \\./' docker-compose.yml"
+
+      - name: Confirm Current Docker Compose
+        run: cat docker-compose.yml
+
+      - name: Start Current Container
+        run: make dev-server
+
+      - name: Wait for Current to Boot
+        run: sleep 10
+
+      - name: Confirm Current is Healthy
+        run: curl -v --fail localhost:8000/api/v2/stats/stats/
+
+      - name: Clean Up Docker Compose
+        run: make clean-dev-server
+
+      - name: Get Core Logs
+        run: docker-compose logs backend
+        if: always()
+
+      - name: Get Sockets Logs
+        run: docker-compose logs sockets
+        if: always()
