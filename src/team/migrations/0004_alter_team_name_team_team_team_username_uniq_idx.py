@@ -5,6 +5,15 @@ from django.db import migrations, models
 import django.db.models.functions.text
 
 
+def truncate_usernames(apps, schema_editor):
+    Team = apps.get_model('team', 'team')
+    db_alias = schema_editor.connection.alias
+    for team in Team.objects.using(db_alias).all():
+        if len(team.name) > 36:
+            team.name = team.name[:36]
+            team.save()
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -12,6 +21,12 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunPython(
+            truncate_usernames,
+            # Marked as elidable since when we squash we will have the 36 characters
+            # in by default
+            elidable=True,
+        ),
         migrations.AlterField(
             model_name='team',
             name='name',
