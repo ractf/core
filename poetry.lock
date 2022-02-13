@@ -408,7 +408,7 @@ python-versions = "*"
 
 [[package]]
 name = "django"
-version = "3.2.5"
+version = "3.2.12"
 description = "A high-level Python Web framework that encourages rapid development and clean, pragmatic design."
 category = "main"
 optional = false
@@ -1629,7 +1629,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "90488a54155348ca9f2b330deb585e46fcd0cde220274a71f4d8966a3f0689a4"
+content-hash = "85c70e3537ad9bd4c5e7509f0e18aacfe92f14bd266df124cf83ff22e23aa6ba"
 
 [metadata.files]
 aioredis = [
@@ -1872,8 +1872,8 @@ distlib = [
     {file = "distlib-0.3.2.zip", hash = "sha256:106fef6dc37dd8c0e2c0a60d3fca3e77460a48907f335fa28420463a6f799736"},
 ]
 django = [
-    {file = "Django-3.2.5-py3-none-any.whl", hash = "sha256:c58b5f19c5ae0afe6d75cbdd7df561e6eb929339985dbbda2565e1cabb19a62e"},
-    {file = "Django-3.2.5.tar.gz", hash = "sha256:3da05fea54fdec2315b54a563d5b59f3b4e2b1e69c3a5841dda35019c01855cd"},
+    {file = "Django-3.2.12-py3-none-any.whl", hash = "sha256:9b06c289f9ba3a8abea16c9c9505f25107809fb933676f6c891ded270039d965"},
+    {file = "Django-3.2.12.tar.gz", hash = "sha256:9772e6935703e59e993960832d66a614cf0233a1c5123bc6224ecc6ad69e41e2"},
 ]
 django-anymail = [
     {file = "django-anymail-8.4.tar.gz", hash = "sha256:671a338de43b8e414d48c6d16aac1df54d2f24f916e1073f9f60aef5acffaf89"},
@@ -2279,6 +2279,8 @@ psycopg2-binary = [
     {file = "psycopg2_binary-2.9.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:661509f51531ec125e52357a489ea3806640d0ca37d9dada461ffc69ee1e7b6e"},
     {file = "psycopg2_binary-2.9.1-cp310-cp310-manylinux_2_24_aarch64.whl", hash = "sha256:d92272c7c16e105788efe2cfa5d680f07e34e0c29b03c1908f8636f55d5f915a"},
     {file = "psycopg2_binary-2.9.1-cp310-cp310-manylinux_2_24_ppc64le.whl", hash = "sha256:736b8797b58febabb85494142c627bd182b50d2a7ec65322983e71065ad3034c"},
+    {file = "psycopg2_binary-2.9.1-cp310-cp310-win32.whl", hash = "sha256:ebccf1123e7ef66efc615a68295bf6fdba875a75d5bba10a05073202598085fc"},
+    {file = "psycopg2_binary-2.9.1-cp310-cp310-win_amd64.whl", hash = "sha256:1f6ca4a9068f5c5c57e744b4baa79f40e83e3746875cac3c45467b16326bab45"},
     {file = "psycopg2_binary-2.9.1-cp36-cp36m-macosx_10_14_x86_64.macosx_10_9_intel.macosx_10_9_x86_64.macosx_10_10_intel.macosx_10_10_x86_64.whl", hash = "sha256:c250a7ec489b652c892e4f0a5d122cc14c3780f9f643e1a326754aedf82d9a76"},
     {file = "psycopg2_binary-2.9.1-cp36-cp36m-manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:aef9aee84ec78af51107181d02fe8773b100b01c5dfde351184ad9223eab3698"},
     {file = "psycopg2_binary-2.9.1-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:123c3fb684e9abfc47218d3784c7b4c47c8587951ea4dd5bc38b6636ac57f616"},
