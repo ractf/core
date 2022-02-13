@@ -606,14 +606,14 @@ zxcvbn = "*"
 
 [[package]]
 name = "djangorestframework"
-version = "3.11.1"
+version = "3.12.0"
 description = "Web APIs for Django, made easy."
 category = "main"
 optional = false
 python-versions = ">=3.5"
 
 [package.dependencies]
-django = ">=1.11"
+django = ">=2.2"
 
 [[package]]
 name = "djangorestframework-stubs"
@@ -1633,7 +1633,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "0867a3e9898ea58ea43d670ef4f47bcb859b729b6a5d6f44088fa0114a4d9fb0"
+content-hash = "87eeec9815f6923bd55e3a7ca061ef99494e6078a520c32bdc907a6ea8fb677d"
 
 [metadata.files]
 aioredis = [
@@ -1934,8 +1934,8 @@ django-zxcvbn-password-validator = [
     {file = "django_zxcvbn_password_validator-1.3.2-py3-none-any.whl", hash = "sha256:d063d9c563e5d6a165b9d7641305e062110da85706fb7189d7ce17b50b5ebfb8"},
 ]
 djangorestframework = [
-    {file = "djangorestframework-3.11.1-py3-none-any.whl", hash = "sha256:8b1ac62c581dbc5799b03e535854b92fc4053ecfe74bad3f9c05782063d4196b"},
-    {file = "djangorestframework-3.11.1.tar.gz", hash = "sha256:6dd02d5a4bd2516fb93f80360673bf540c3b6641fec8766b1da2870a5aa00b32"},
+    {file = "djangorestframework-3.12.0-py3-none-any.whl", hash = "sha256:7fb1c91a8f9aa5ccb39d1568925a6433659dacfc1af7ac757b293d6451ddb9e1"},
+    {file = "djangorestframework-3.12.0.tar.gz", hash = "sha256:9d5b07a2dd29b4fb18da2e6a888051f34b286b3bfc1c3fe885a17e16e389c569"},
 ]
 djangorestframework-stubs = [
     {file = "djangorestframework-stubs-1.4.0.tar.gz", hash = "sha256:037f0582b1e6c79366b6a839da861474d59210c4bfa1d36291545cb6ede6a0da"},
