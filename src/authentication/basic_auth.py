@@ -17,6 +17,8 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
 
         self.validate_email(data["email"])
         self.check_email_or_username_in_use(email=data["email"], username=data["username"])
+        if len(data["username"]) > 36:
+            raise ValidationError("username_too_long")
 
         return {key: data[key] for key in self.required_fields}
 

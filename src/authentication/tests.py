@@ -235,6 +235,15 @@ class RegisterTestCase(APITestCase):
             config.set("email_domain", None)
             self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
+    def test_register_long_username(self):
+        data = {
+            "username": "a" * 37,
+            "password": "uO7*$E@0ngqL",
+            "email": "user11@example.org",
+        }
+        response = self.client.post(reverse("register"), data)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
+
 
 class EmailResendTestCase(APITestCase):
     def test_email_resend(self):

@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db.utils import IntegrityError
 from django.urls import reverse
 from rest_framework.status import (
     HTTP_200_OK,
@@ -154,7 +155,15 @@ class CreateTeamTestCase(TeamSetupMixin, APITestCase):
 
     def test_create_duplicate_team(self):
         self.client.force_authenticate(self.admin_user)
-        response = self.client.post(reverse("team-create"), data={"name": "team-test", "password": "test"})
+        response = self.client.post(reverse("team-create"), data={"name": self.team.name, "password": "test"})
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_disallows_create_team_with_differently_cased_but_same_name(self):
+        """A differently-cased but otherwise same name should not be allowed creation."""
+
+        self.client.force_authenticate(self.admin_user)
+        payload = {"name": self.team.name.upper(), "password": "test"}
+        response = self.client.post(reverse("team-create"), data=payload)
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
 

@@ -1,5 +1,8 @@
+from django.db.utils import IntegrityError
 from rest_framework import serializers
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from backend.exceptions import FormattedException
 from backend.mixins import IncorrectSolvesMixin
 from backend.signals import team_create
 from challenge.serializers import SolveSerializer
@@ -100,8 +103,17 @@ class CreateTeamSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         name = validated_data["name"]
         password = validated_data["password"]
-        team = Team.objects.create(name=name, password=password, owner=self.context["request"].user)
-        self.context["request"].user.team = team
-        self.context["request"].user.save()
-        team_create.send(sender=self.__class__, team=team)
-        return team
+        try:
+            team = Team.objects.create(
+                name=name,
+                password=password,
+                owner=self.context["request"].user,
+            )
+            self.context["request"].user.team = team
+            self.context["request"].user.save()
+            team_create.send(sender=self.__class__, team=team)
+            return team
+        except IntegrityError:
+            # Team creation with a name that differs only in casing
+            # causes the database to raise here.
+            raise FormattedException(m="team_name_in_use", status=HTTP_400_BAD_REQUEST)
