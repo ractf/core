@@ -13,7 +13,7 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
 
     def validate(self, data):
         if not all(key in data for key in self.required_fields):
-            raise ValidationError("A required field was not found.")
+            raise ValidationError("missing_field")
 
         self.validate_email(data["email"])
         if len(data["username"]) > 36:
