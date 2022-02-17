@@ -16,7 +16,6 @@ class BasicAuthRegistrationProvider(RegistrationProvider):
             raise ValidationError("A required field was not found.")
 
         self.validate_email(data["email"])
-        self.check_email_or_username_in_use(email=data["email"], username=data["username"])
         if len(data["username"]) > 36:
             raise ValidationError("username_too_long")
 

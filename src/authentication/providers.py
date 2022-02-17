@@ -30,10 +30,6 @@ class RegistrationProvider(Provider, abc.ABC):  # pragma: no cover
         email_validator = EmailValidator()
         email_validator(email)
 
-    def check_email_or_username_in_use(self, email=None, username=None):
-        if get_user_model().objects.filter(username__iexact=username) or get_user_model().objects.filter(email=email):
-            raise ValidationError("email_or_username_in_use")
-
 
 class LoginProvider(Provider, abc.ABC):  # pragma: no cover
     type = "login"
