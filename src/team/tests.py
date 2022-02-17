@@ -166,6 +166,14 @@ class CreateTeamTestCase(TeamSetupMixin, APITestCase):
         response = self.client.post(reverse("team-create"), data=payload)
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
+    def test_disallows_create_team_with_long_name(self):
+        """A team name longer than 36 characters should not be allowed."""
+
+        self.client.force_authenticate(self.admin_user)
+        payload = {"name": "a" * 37, "password": "test"}
+        response = self.client.post(reverse("team-create"), data=payload)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
+
 
 class JoinTeamTestCase(TeamSetupMixin, APITestCase):
     def test_join_team(self):
