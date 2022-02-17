@@ -87,6 +87,14 @@ class RegistrationView(CreateAPIView):
     def dispatch(self, *args, **kwargs):
         return super(RegistrationView, self).dispatch(*args, **kwargs)
 
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except IntegrityError:
+            # If we need granularity to see whether email or username is in used here,
+            # check the constraint name that is returned.
+            return FormattedResponse(m="email_or_username_in_use", status=HTTP_400_BAD_REQUEST)
+
 
 class LogoutView(APIView):
     permission_classes = (permissions.IsAuthenticated & ~IsBot,)

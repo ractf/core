@@ -101,20 +101,18 @@ class CreateTeamSerializer(serializers.ModelSerializer):
         fields = ["id", "is_visible", "name", "owner", "password"]
         read_only_fields = ["id", "is_visible", "owner"]
 
-    def validate(self, attrs):
-        if Team.objects.filter(name__iexact=self.initial_data["name"]):
-            raise ValidationError("team_name_in_use")
-        return super(CreateTeamSerializer, self).validate(attrs)
-
     def create(self, validated_data):
-        name = validated_data["name"]
-        password = validated_data["password"]
-        team = Team.objects.create(
-            name=name,
-            password=password,
-            owner=self.context["request"].user,
-        )
-        self.context["request"].user.team = team
-        self.context["request"].user.save()
-        team_create.send(sender=self.__class__, team=team)
-        return team
+        try:
+            name = validated_data["name"]
+            password = validated_data["password"]
+            team = Team.objects.create(
+                name=name,
+                password=password,
+                owner=self.context["request"].user,
+            )
+            self.context["request"].user.team = team
+            self.context["request"].user.save()
+            team_create.send(sender=self.__class__, team=team)
+            return team
+        except IntegrityError:
+            raise ValidationError("team_name_in_use")
