@@ -23,7 +23,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
 ]
-if DOMAIN:
+if DOMAIN:  # pragma: no cover
     ALLOWED_HOSTS.append(DOMAIN)
 
 EXPERIMENT_OVERRIDES = {}
@@ -31,7 +31,7 @@ EXPERIMENT_OVERRIDES = {}
 MAX_UPLOAD_SIZE = 10_000_000_000  # 10gb
 USE_AWS_S3_FILE_STORAGE = os.getenv("USE_AWS_S3_FILE_STORAGE")
 
-if USE_AWS_S3_FILE_STORAGE:
+if USE_AWS_S3_FILE_STORAGE:  # pragma: no cover
     AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_FILES_BUCKET_NAME")
     AWS_DEFAULT_ACL = None
     AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_FILES_BUCKET_DOMAIN", AWS_STORAGE_BUCKET_NAME)
@@ -131,10 +131,10 @@ MIDDLEWARE = [
     "clacks.middleware.ClacksMiddleware",
     "querycount.middleware.QueryCountMiddleware",
 ]
-if DEBUG:
+if DEBUG:  # pragma: no cover
     MIDDLEWARE.insert(0, "better_exceptions.integrations.django.BetterExceptionsMiddleware")
 
-if os.getenv("ENABLE_SILK"):
+if os.getenv("ENABLE_SILK"):  # pragma: no cover
     INSTALLED_APPS.insert(len(INSTALLED_APPS) - 6, "silk")
     MIDDLEWARE.insert(len(MIDDLEWARE) - 2, "silk.middleware.SilkyMiddleware")
     SILKY_PYTHON_PROFILER = True

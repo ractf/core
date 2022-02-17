@@ -1,8 +1,10 @@
 import time
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import caches
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from rest_framework.status import (
     HTTP_200_OK,
@@ -10,23 +12,17 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED,
     HTTP_403_FORBIDDEN,
+    HTTP_204_NO_CONTENT,
 )
 from rest_framework.test import APITestCase
 
-from challenge.models import Solve
+from challenge.models import Solve, ChallengeVote, ChallengeFeedback, Tag
 from challenge.tests.mixins import ChallengeSetupMixin
 from config import config
 from hint.models import HintUse
 
 
 class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
-    def solve_challenge(self):
-        self.client.force_authenticate(user=self.user)
-        data = {
-            "flag": "ractf{a}",
-            "challenge": self.challenge2.id,
-        }
-        return self.client.post(reverse("submit-flag"), data)
 
     def test_challenge_solve(self):
         response = self.solve_challenge()
@@ -404,7 +400,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
                 "challenge_type": "test",
                 "challenge_metadata": {},
                 "flag_type": "plaintext",
-                "author": "dave",
+                "author": "ractf",
                 "score": 1000,
                 "unlock_requirements": "",
                 "flag_metadata": {},
@@ -427,7 +423,7 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
                 "challenge_type": "test",
                 "challenge_metadata": {},
                 "flag_type": "plaintext",
-                "author": "dave",
+                "author": "ractf",
                 "score": 1000,
                 "unlock_requirements": "a",
                 "flag_metadata": {},
@@ -453,6 +449,30 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         )
         response = self.client.get(reverse("challenges-detail", kwargs={"pk": self.challenge1.pk}))
         self.assertEqual(response.data["challenge_metadata"], metadata)
+
+    def test_create_challenge_with_tags(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(self.user)
+        self.client.post(
+            reverse("challenges-list"),
+            data={
+                "name": "test5",
+                "category": self.category.id,
+                "description": "abc",
+                "challenge_type": "test",
+                "challenge_metadata": {},
+                "flag_type": "plaintext",
+                "author": "ractf",
+                "score": 1000,
+                "unlock_requirements": "",
+                "flag_metadata": {},
+                "tags": [{"text": "abc", "type": "abc"}, {"text": "123", "type": "123"}],
+            },
+            format="json",
+        )
+
+        self.assertEqual(len(Tag.objects.filter(challenge__name="test5")), 2)
 
 
 class FlagCheckViewTestCase(ChallengeSetupMixin, APITestCase):
@@ -533,3 +553,138 @@ class RecalculateTestCase(ChallengeSetupMixin, APITestCase):
         self.user.refresh_from_db()
         self.user = get_user_model().objects.get(id=self.user.id)
         self.assertNotEqual(old_points, self.user.points)
+
+
+class FileTestCase(ChallengeSetupMixin, APITestCase):
+
+    def setUp(self) -> None:
+        super(FileTestCase, self).setUp()
+        self.file = SimpleUploadedFile("flag.txt", b"ractf{flag}")
+
+    def test_upload_file(self):
+        body = {"upload": self.file, "challenge": self.challenge1.id}
+        self.client.force_authenticate(self.admin_user)
+        response = self.client.post(reverse("files-list"), body)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
+    def test_upload_file_ignores_name(self):
+        body = {"upload": self.file, "challenge": self.challenge1.id, "name": "notflag.txt"}
+        self.client.force_authenticate(self.admin_user)
+        response = self.client.post(reverse("files-list"), body)
+        self.assertEqual(response.json()["d"]["name"], "flag.txt")
+
+    def test_upload_file_ignores_size(self):
+        body = {"upload": self.file, "challenge": self.challenge1.id, "size": 50}
+        self.client.force_authenticate(self.admin_user)
+        response = self.client.post(reverse("files-list"), body)
+        self.assertEqual(response.json()["d"]["size"], 11)
+
+    def test_upload_file_max_size(self):
+        body = {"upload": self.file, "challenge": self.challenge1.id}
+        self.client.force_authenticate(self.admin_user)
+        settings.MAX_UPLOAD_SIZE = 10
+        response = self.client.post(reverse("files-list"), body)
+        settings.MAX_UPLOAD_SIZE = 1_000_000_000
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_upload_url(self):
+        body = {"challenge": self.challenge1.id, "url": "https://ractf.co.uk/index.html", "name": "index.html",
+                "size": 50, "md5": "abc"}
+        self.client.force_authenticate(self.admin_user)
+        response = self.client.post(reverse("files-list"), body)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
+    def test_upload_none(self):
+        body = {"challenge": self.challenge1.id, "name": "index.html", "size": 50, "md5": "abc"}
+        self.client.force_authenticate(self.admin_user)
+        response = self.client.post(reverse("files-list"), body)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
+
+    def test_upload_file_delete(self):
+        body = {"upload": self.file, "challenge": self.challenge1.id}
+        self.client.force_authenticate(self.admin_user)
+        response = self.client.post(reverse("files-list"), body)
+        pk = response.json()["d"]["id"]
+        response = self.client.delete(reverse("files-detail", kwargs={"pk": pk}))
+        self.assertEqual(response.status_code, HTTP_204_NO_CONTENT)
+
+    def test_url_file_delete(self):
+        body = {"challenge": self.challenge1.id, "url": "https://ractf.co.uk/index.html", "name": "index.html",
+                "size": 50, "md5": "abc"}
+        self.client.force_authenticate(self.admin_user)
+        response = self.client.post(reverse("files-list"), body)
+        pk = response.json()["d"]["id"]
+        response = self.client.delete(reverse("files-detail", kwargs={"pk": pk}))
+        self.assertEqual(response.status_code, HTTP_204_NO_CONTENT)
+
+
+class ChallengeVoteTestCase(ChallengeSetupMixin, APITestCase):
+
+    def test_vote(self):
+        self.solve_challenge()
+        self.client.force_authenticate(self.user)
+        data = {"challenge": self.challenge2.id, "positive": True}
+        response = self.client.post(reverse("vote"), data)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
+    def test_vote_unsolved(self):
+        self.client.force_authenticate(self.user)
+        data = {"challenge": self.challenge2.id, "positive": True}
+        response = self.client.post(reverse("vote"), data)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_vote_again_updates(self):
+        self.solve_challenge()
+        self.client.force_authenticate(self.user)
+        data = {"challenge": self.challenge2.id, "positive": True}
+        self.client.post(reverse("vote"), data)
+        data = {"challenge": self.challenge2.id, "positive": False}
+        self.client.post(reverse("vote"), data)
+        votes = ChallengeVote.objects.filter(user=self.user, challenge=self.challenge2)
+        self.assertEqual(votes[0].positive, False)
+
+    def test_vote_again_deletes(self):
+        self.solve_challenge()
+        self.client.force_authenticate(self.user)
+        data = {"challenge": self.challenge2.id, "positive": True}
+        self.client.post(reverse("vote"), data)
+        data = {"challenge": self.challenge2.id, "positive": False}
+        self.client.post(reverse("vote"), data)
+        votes = ChallengeVote.objects.filter(user=self.user, challenge=self.challenge2)
+        self.assertEqual(len(votes), 1)
+
+
+class ChallengeFeedbackTestCase(ChallengeSetupMixin, APITestCase):
+
+    def test_feedback(self):
+        self.solve_challenge()
+        self.client.force_authenticate(self.user)
+        data = {"challenge": self.challenge2.id, "feedback": "abc"}
+        response = self.client.post(reverse("submit-feedback"), data)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
+    def test_feedback_unsolved(self):
+        self.client.force_authenticate(self.user)
+        data = {"challenge": self.challenge2.id, "feedback": "abc"}
+        response = self.client.post(reverse("submit-feedback"), data)
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_feedback_again_updates(self):
+        self.solve_challenge()
+        self.client.force_authenticate(self.user)
+        data = {"challenge": self.challenge2.id, "feedback": "abc"}
+        self.client.post(reverse("submit-feedback"), data)
+        data = {"challenge": self.challenge2.id, "feedback": "123"}
+        self.client.post(reverse("submit-feedback"), data)
+        votes = ChallengeFeedback.objects.filter(user=self.user, challenge=self.challenge2)
+        self.assertEqual(votes[0].feedback, "123")
+
+    def test_feedback_again_deletes(self):
+        self.solve_challenge()
+        self.client.force_authenticate(self.user)
+        data = {"challenge": self.challenge2.id, "feedback": "abc"}
+        self.client.post(reverse("submit-feedback"), data)
+        data = {"challenge": self.challenge2.id, "feedback": "123"}
+        self.client.post(reverse("submit-feedback"), data)
+        votes = ChallengeFeedback.objects.filter(user=self.user, challenge=self.challenge2)
+        self.assertEqual(len(votes), 1)
