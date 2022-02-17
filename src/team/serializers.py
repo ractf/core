@@ -1,5 +1,6 @@
 from django.db.utils import IntegrityError
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from backend.exceptions import FormattedException
@@ -100,20 +101,20 @@ class CreateTeamSerializer(serializers.ModelSerializer):
         fields = ["id", "is_visible", "name", "owner", "password"]
         read_only_fields = ["id", "is_visible", "owner"]
 
+    def validate(self, attrs):
+        if Team.objects.filter(name__iexact=self.initial_data["name"]):
+            raise ValidationError("team_name_in_use")
+        return super(CreateTeamSerializer, self).validate(attrs)
+
     def create(self, validated_data):
         name = validated_data["name"]
         password = validated_data["password"]
-        try:
-            team = Team.objects.create(
-                name=name,
-                password=password,
-                owner=self.context["request"].user,
-            )
-            self.context["request"].user.team = team
-            self.context["request"].user.save()
-            team_create.send(sender=self.__class__, team=team)
-            return team
-        except IntegrityError:
-            # Team creation with a name that differs only in casing
-            # causes the database to raise here.
-            raise FormattedException(m="team_name_in_use", status=HTTP_400_BAD_REQUEST)
+        team = Team.objects.create(
+            name=name,
+            password=password,
+            owner=self.context["request"].user,
+        )
+        self.context["request"].user.team = team
+        self.context["request"].user.save()
+        team_create.send(sender=self.__class__, team=team)
+        return team

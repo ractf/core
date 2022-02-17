@@ -244,6 +244,23 @@ class RegisterTestCase(APITestCase):
         response = self.client.post(reverse("register"), data)
         self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
 
+    def test_register_duplicate_username_different_casing(self):
+        """A differently-cased but otherwise same name should not be allowed."""
+
+        data = {
+            "username": "user12",
+            "password": "uO7*$E@0ngqL",
+            "email": "user12@example.org",
+        }
+        self.client.post(reverse("register"), data)
+        data = {
+            "username": "USER12",
+            "password": "uO7*$E@0ngqL",
+            "email": "user12@example.org",
+        }
+        response = self.client.post(reverse("register"), data)
+        self.assertEqual(response.status_code, HTTP_400_BAD_REQUEST)
+
 
 class EmailResendTestCase(APITestCase):
     def test_email_resend(self):
