@@ -375,7 +375,7 @@ EMAIL_BACKEND = {
     "TEST": "anymail.backends.test.EmailBackend",
     "DISABLED": "django.core.mail.backends.dummy.EmailBackend"
 }[os.getenv("EMAIL_PROVIDER", "DISABLED")]
-EMAIL_ENABLED = bool(os.getenv("EMAIL_PROVIDER", False))
+EMAIL_ENABLED = EMAIL_BACKEND != "DISABLED"
 
 ANYMAIL = {
     "AMAZON_SES_CLIENT_PARAMS": {
