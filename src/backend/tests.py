@@ -1,9 +1,12 @@
+from unittest import TestCase
+
 from django.core.exceptions import ValidationError
 from django.http import HttpRequest
 from rest_framework.request import Request
 from rest_framework.status import HTTP_404_NOT_FOUND
 from rest_framework.test import APITestCase
 
+from backend.pagination import prepend_api_prefix
 from backend.permissions import ReadOnlyBot
 from backend.validators import printable_name
 from member.models import Member
@@ -35,3 +38,9 @@ class ValidatorTestCase(APITestCase):
 
     def test_printable_name(self):
         self.assertIsNone(printable_name("abc"))
+
+
+class APIPrefixTestCase(TestCase):
+    def test_prepend_api_prefix(self):
+        prepended = prepend_api_prefix("https://api.ractf.co.uk/challenges/")
+        self.assertEqual(prepended, "https://api.ractf.co.uk/api/v2/challenges/?")
