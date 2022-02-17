@@ -85,8 +85,6 @@ can be run in Docker by using ``make dev-test``, or by manually running
 ``pytest src`` in the container, for example using ``docker-compose exec
 backend pytest src``.
 
-
-
 ## Getting Support
 
 If you need support, check out our [Discord](https://discord.gg/FfW2xXR), or if you've found a bug with the framework, open an issue.
