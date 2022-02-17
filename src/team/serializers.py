@@ -104,8 +104,6 @@ class CreateTeamSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if Team.objects.filter(name__iexact=self.initial_data["name"]):
             raise ValidationError("team_name_in_use")
-        if len(self.initial_data["name"]) > 36:
-            raise ValidationError("team_name_too_long")
         return super(CreateTeamSerializer, self).validate(attrs)
 
     def create(self, validated_data):
