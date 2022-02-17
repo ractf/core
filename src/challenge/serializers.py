@@ -145,7 +145,7 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     votes = serpy.MethodField()
     tags = FastNestedTagSerializer(many=True)
     unlock_time_surpassed = serpy.MethodField()
-    post_score_explanation = serpy.StrField()
+    post_score_explanation = serpy.MethodField()
     tiebreaker = serpy.BoolField()
 
     def __init__(self, *args, **kwargs) -> None:
@@ -283,6 +283,7 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         tags = validated_data.pop("tags", None)
+        # FIXME: this is a list of strings somehow
         if tags:
             Tag.objects.filter(challenge=instance).delete()
             for tag_data in tags:

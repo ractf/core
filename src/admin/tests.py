@@ -24,7 +24,7 @@ class MissingPointsTestCase(APITestCase):
             challenge_metadata={},
             flag_type="plaintext",
             flag_metadata={"flag": "ractf{a}"},
-            author="dave",
+            author="ractf",
             score=0,
         )
 
@@ -80,7 +80,7 @@ class BadFlagConfigTestCase(APITestCase):
             challenge_metadata={},
             flag_type=typ,
             flag_metadata=metadata,
-            author="dave",
+            author="ractf",
             score=1,
         )
 

@@ -26,7 +26,7 @@ class HashedFlagPluginTestCase(APITestCase):
             challenge_metadata={},
             flag_type="plaintext",
             flag_metadata={"flag": "9340563721a110d2c9175507f8947f111568cf21ef2aff545e3f93238f63ff32"},
-            author="dave",
+            author="ractf",
             score=1000,
         )
         challenge.save()
@@ -52,7 +52,7 @@ class LenientFlagPluginTestCase(APITestCase):
             challenge_metadata={},
             flag_type="plaintext",
             flag_metadata={"flag": "ractf{a}", "exclude_passes": []},
-            author="dave",
+            author="ractf",
             score=1000,
         )
         challenge.save()
@@ -114,7 +114,7 @@ class PlaintextFlagPluginTestCase(APITestCase):
             challenge_metadata={},
             flag_type="plaintext",
             flag_metadata={"flag": "ractf{a}"},
-            author="dave",
+            author="ractf",
             score=1000,
         )
         challenge.save()
@@ -140,7 +140,7 @@ class RegexFlagPluginTestCase(APITestCase):
             challenge_metadata={},
             flag_type="plaintext",
             flag_metadata={"flag": ".*ractf{a}.*"},
-            author="dave",
+            author="ractf",
             score=1000,
         )
         challenge.save()
@@ -169,7 +169,7 @@ class BasicPointsPluginTestCase(APITestCase):
             challenge_metadata={},
             flag_type="plaintext",
             flag_metadata={"flag": "ractf{a}"},
-            author="dave",
+            author="ractf",
             score=1000,
         )
         challenge.save()

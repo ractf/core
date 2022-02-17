@@ -105,8 +105,6 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
         requirements = self.unlock_requirements
         state = []
-        if not requirements:
-            return True
         for i in requirements.split():
             if i.isdigit():
                 state.append(int(i) in solves)
