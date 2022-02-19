@@ -3,6 +3,7 @@ from . import *
 SECRET_KEY = "CorrectHorseBatteryStaple"
 
 EMAIL_BACKEND = "anymail.backends.test.EmailBackend"
+EMAIL_ENABLED = False
 
 FRONTEND_URL = "http://example.com/"
 DOMAIN = "example.com"
