@@ -23,9 +23,17 @@ def challenge_cache_invalidate(sender, instance, **kwargs):
 def challenge_recalculate(sender, instance, **kwargs):
     with transaction.atomic():
         correct_solves = instance.solves.filter(correct=True)
-        Score.objects.filter(id__in=correct_solves.values_list("score", flat=True)).update(points=instance.score)
-        for solve in correct_solves:
-            recalculate_team(solve.team)
+        if instance.points_plugin.recalculate_type == "none":
+            instance.current_score = instance.score
+            Score.objects.filter(id__in=correct_solves.values_list("score", flat=True)).update(points=instance.score)
+            for solve in correct_solves:
+                recalculate_team(solve.team)
+        else:
+            instance.current_score = instance.points_plugin.recalculate(None, None, correct_solves)
+            Score.objects.filter(id__in=correct_solves.values_list("score", flat=True))\
+                .update(points=instance.current_score)
+            for solve in correct_solves:
+                recalculate_team(solve.team)
 
 
 @receiver([post_save, post_delete], sender=HintUse)

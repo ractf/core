@@ -216,14 +216,29 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         points = self.user.points
 
         self.client.force_authenticate(self.user3)
-        data = {
-            "flag": "ractf{a}",
-            "challenge": self.challenge2.id,
-        }
         self.client.post(reverse("submit-flag"), data).json()
 
         self.user.refresh_from_db()
         self.assertLess(self.user.points, points)
+
+    def test_challenge_solve_decay_current_score(self):
+        self.challenge2.points_type = "decay"
+        self.challenge2.flag_metadata["decay_constant"] = 0.5
+        self.challenge2.flag_metadata["min_points"] = 50
+        self.challenge2.save()
+
+        self.client.force_authenticate(self.user)
+        data = {
+            "flag": "ractf{a}",
+            "challenge": self.challenge2.id,
+        }
+        self.client.post(reverse("submit-flag"), data)
+
+        self.client.force_authenticate(self.user3)
+        self.client.post(reverse("submit-flag"), data).json()
+
+        self.challenge2.refresh_from_db()
+        self.assertLess(self.challenge2.current_score, self.challenge2.score)
 
 
 class CategoryViewsetTestCase(ChallengeSetupMixin, APITestCase):
@@ -482,6 +497,47 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.client.force_authenticate(self.user)
         self.client.post(
             reverse("challenges-list"),
+            data={
+                "name": "test5",
+                "category": self.category.id,
+                "description": "abc",
+                "challenge_type": "test",
+                "challenge_metadata": {},
+                "flag_type": "plaintext",
+                "author": "ractf",
+                "score": 1000,
+                "unlock_requirements": "",
+                "flag_metadata": {},
+                "tags": [{"text": "abc", "type": "abc"}, {"text": "123", "type": "123"}],
+            },
+            format="json",
+        )
+
+        self.assertEqual(len(Tag.objects.filter(challenge__name="test5")), 2)
+
+    def test_update_challenge_with_tags(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(self.user)
+        response = self.client.post(
+            reverse("challenges-list"),
+            data={
+                "name": "test5",
+                "category": self.category.id,
+                "description": "abc",
+                "challenge_type": "test",
+                "challenge_metadata": {},
+                "flag_type": "plaintext",
+                "author": "ractf",
+                "score": 1000,
+                "unlock_requirements": "",
+                "flag_metadata": {},
+                "tags": [],
+            },
+            format="json",
+        )
+        self.client.patch(
+            reverse("challenges-detail", kwargs={"pk": response.json()["d"]["id"]}),
             data={
                 "name": "test5",
                 "category": self.category.id,

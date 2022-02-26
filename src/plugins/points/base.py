@@ -21,8 +21,8 @@ class PointsPlugin(Plugin, abc.ABC):
     def get_points(self, team, flag, solves, *args, **kwargs):
         pass
 
-    def recalculate(self, teams, users, solves, *args, **kwargs):
-        pass
+    def recalculate(self, teams, users, solves, *args, **kwargs) -> int:
+        return self.challenge.score
 
     def score(self, user, team, flag, solves, *args, **kwargs):
         challenge = self.challenge
