@@ -18,6 +18,7 @@ class PostgreSQL:
 
     @classproperty
     def dsn(cls) -> str:
+        """Return the DSN for connecting to the configured database."""
         return f"postgres://{cls.USER}:{cls.PASSWORD}@{cls.HOST}:{cls.PORT}/template1"
 
 
