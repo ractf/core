@@ -158,7 +158,7 @@ class EmailVerificationSerializer(serializers.Serializer):
         token = data.get("token")
         user = get_object_or_404(get_user_model(), id=uid, email_token=token)
         if user.email_verified:
-            raise serializers.ValidationError("email is already verified")
+            raise serializers.ValidationError("email_is_already_verified")
         data["user"] = user
         return data
 
@@ -169,7 +169,7 @@ class EmailSerializer(serializers.Serializer):
     def validate(self, data):
         user = get_object_or_404(get_user_model(), email=data.get("email"))
         if user.email_verified:
-            raise serializers.ValidationError("email is already verified")
+            raise serializers.ValidationError("email_is_already_verified")
         data["user"] = user
         return data
 
