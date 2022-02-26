@@ -308,7 +308,7 @@ class FlagSubmitView(APIView):
 
             solve = challenge.points_plugin.score(user, team, flag, solve_set.filter(correct=True))
 
-            if challenge.points_plugin.recalculate_type != "none":
+            if challenge.needs_recalculate:
                 challenge.recalculate_score(solve_set)
                 broadcast({
                     "type": "send_json",
