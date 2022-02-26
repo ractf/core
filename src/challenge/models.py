@@ -13,7 +13,7 @@ from django.db.models import (
     Q,
     UniqueConstraint,
     Value,
-    When, F,
+    When,
 )
 from django.db.models.aggregates import Count
 from django.db.models.query import Prefetch
