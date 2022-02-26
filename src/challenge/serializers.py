@@ -147,6 +147,7 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     unlock_time_surpassed = serpy.MethodField()
     post_score_explanation = serpy.MethodField()
     tiebreaker = serpy.BoolField()
+    current_score = serpy.IntField(required=False)
 
     def __init__(self, *args, **kwargs) -> None:
         """Add the 'context' attribute to the serializer."""
@@ -229,6 +230,7 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     unlock_time_surpassed = serpy.MethodField()
     post_score_explanation = serpy.StrField()
     tiebreaker = serpy.BoolField()
+    current_score = serpy.IntField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(FastAdminChallengeSerializer, self).__init__(*args, **kwargs)
@@ -249,7 +251,7 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
 
 
 class CreateChallengeSerializer(serializers.ModelSerializer):
-    tags = serializers.ListField(write_only=True)
+    tags = serializers.ListField(child=serializers.DictField(), write_only=True)
 
     class Meta:
         model = Challenge
@@ -283,7 +285,6 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         tags = validated_data.pop("tags", None)
-        # FIXME: this is a list of strings somehow
         if tags:
             Tag.objects.filter(challenge=instance).delete()
             for tag_data in tags:

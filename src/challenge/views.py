@@ -306,14 +306,10 @@ class FlagSubmitView(APIView):
                 challenge.points_plugin.register_incorrect_attempt(user, team, flag, solve_set)
                 return FormattedResponse(d={"correct": False}, m="incorrect_flag")
 
-            solve = challenge.points_plugin.score(user, team, flag, solve_set)
+            solve = challenge.points_plugin.score(user, team, flag, solve_set.filter(correct=True))
 
             if challenge.points_plugin.recalculate_type != "none":
-                challenge.points_plugin.recalculate(
-                    teams=Team.objects.filter(solves__challenge=challenge),
-                    users=get_user_model().objects.filter(solves__challenge=challenge),
-                    solves=solve_set,
-                )
+                challenge.recalculate_score(solve_set)
                 broadcast({
                     "type": "send_json",
                     "event_code": 7,

@@ -13,7 +13,7 @@ from django.db.models import (
     Q,
     UniqueConstraint,
     Value,
-    When,
+    When, F,
 )
 from django.db.models.aggregates import Count
 from django.db.models.query import Prefetch
@@ -62,6 +62,10 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     points_type = models.CharField(max_length=64, default="basic")
     release_time = models.DateTimeField(default=timezone.now)
     tiebreaker = models.BooleanField(default=True, help_text="Should the challenge be able to break ties?")
+    current_score = models.IntegerField(
+        null=True,
+        help_text="The dynamically updated score for this challenge, null if the challenge is statically scored."
+    )
 
     def self_check(self):
         """Check the challenge doesn't have any configuration issues."""
@@ -184,6 +188,21 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             "hint_set__uses",
         )
         return x
+
+    @property
+    def needs_recalculate(self):
+        return self.points_plugin.recalculate_type != "none"
+
+    def recalculate_score(self, solve_set):
+        from team.models import Team
+
+        new_score = self.points_plugin.recalculate(
+            teams=Team.objects.filter(solves__challenge=self),
+            users=get_user_model().objects.filter(solves__challenge=self),
+            solves=solve_set.filter(correct=True),
+        )
+        self.current_score = new_score
+        self.save(update_fields=["current_score"])
 
 
 class ChallengeVote(ExportModelOperationsMixin("challenge_vote"), models.Model):
