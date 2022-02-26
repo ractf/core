@@ -343,9 +343,9 @@ LOGGING = {
         "django.request": {
             "handlers": ["console"],
             "propagate": False,
-            "level": "DEBUG",
+            "level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"),
         },
-        "core.handlers": {"level": "DEBUG", "handlers": ["console"]},
+        "core.handlers": {"level": os.getenv("DJANGO_LOG_LEVEL", "DEBUG"), "handlers": ["console"]},
     },
 }
 
