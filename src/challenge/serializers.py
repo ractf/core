@@ -131,6 +131,7 @@ class FastChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     challenge_type = serpy.StrField()
     challenge_metadata = serpy.Field()
     flag_type = serpy.StrField()
+    points_type = serpy.StrField()
     author = serpy.StrField()
     score = serpy.IntField()
     unlock_requirements = serpy.StrField()
@@ -214,6 +215,7 @@ class FastAdminChallengeSerializer(ChallengeSerializerMixin, serpy.Serializer):
     challenge_metadata = serpy.Field()
     flag_type = serpy.StrField()
     flag_metadata = serpy.Field()
+    points_type = serpy.StrField()
     author = serpy.StrField()
     score = serpy.IntField()
     unlock_requirements = serpy.StrField()
@@ -263,6 +265,7 @@ class CreateChallengeSerializer(serializers.ModelSerializer):
             "challenge_type",
             "challenge_metadata",
             "flag_type",
+            "points_type",
             "author",
             "score",
             "unlock_requirements",
