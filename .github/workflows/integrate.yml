@@ -46,9 +46,6 @@ jobs:
       - name: Confirm Current is Healthy
         run: curl -v --fail localhost:8000/api/v2/stats/stats/
 
-      - name: Clean Up Docker Compose
-        run: make clean-dev-server
-
       - name: Get Core Logs
         run: docker-compose logs backend
         if: always()
@@ -56,3 +53,6 @@ jobs:
       - name: Get Sockets Logs
         run: docker-compose logs sockets
         if: always()
+
+      - name: Clean Up Docker Compose
+        run: make clean-dev-server
