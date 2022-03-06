@@ -11,8 +11,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument("username", type=str)
 
-        parser.add_argument("--email", nargs=1, const="", type=str)
-        parser.add_argument("--password", nargs=1, const="", type=str)
+        parser.add_argument("--email", type=str)
+        parser.add_argument("--password", type=str)
 
         parser.add_argument("--bot", action="store_true", help="Mark the user as a bot")
         parser.add_argument("--visible", action="store_true", help="Make the user visible")
