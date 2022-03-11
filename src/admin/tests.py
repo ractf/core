@@ -88,7 +88,7 @@ class BadFlagConfigTestCase(APITestCase):
         self.client.force_authenticate(user=self.user)
 
         response = self.client.get(reverse("self-check"))
-        self.assertEqual(len(response.data["d"]), 14)
+        self.assertEqual(len(response.data["d"]), 17)
 
 class DevMailEndpointTestCase(TestCase):
     def test_endpoint_absent(self):

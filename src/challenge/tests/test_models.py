@@ -21,8 +21,8 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
             score=1000,
         )
         challenge.save()
-        check = challenge.self_check()
-        self.assertEqual(check[0]["issue"], "missing_flag_type")
+        checks = challenge.self_check()
+        self.assertIn("missing_flag_type", [check["issue"] for check in checks])
 
     def test_invalid_flag_data_type(self):
         challenge = Challenge(
@@ -37,8 +37,72 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
             score=1000,
         )
         challenge.save()
-        check = challenge.self_check()
-        self.assertEqual(check[0]["issue"], "invalid_flag_data_type")
+        checks = challenge.self_check()
+        self.assertIn("invalid_flag_data_type", [check["issue"] for check in checks])
+
+    def test_not_lenient_or_freeform(self):
+        challenge = Challenge(
+            name="test5",
+            category=self.category,
+            description="a",
+            challenge_type="basic",
+            challenge_metadata={},
+            flag_type="plaintext",
+            flag_metadata={"flag": "ractf{a}", "exclude_passes": []},
+            author="",
+            score=1000,
+        )
+        challenge.save()
+        checks = challenge.self_check()
+        self.assertNotIn("lenient_freeform_mismatch", [check["issue"] for check in checks])
+
+    def test_lenient_without_freeform(self):
+        challenge = Challenge(
+            name="test5",
+            category=self.category,
+            description="a",
+            challenge_type="basic",
+            challenge_metadata={},
+            flag_type="lenient",
+            flag_metadata={"flag": "ractf{a}", "exclude_passes": []},
+            author="",
+            score=1000,
+        )
+        challenge.save()
+        checks = challenge.self_check()
+        self.assertIn("lenient_freeform_mismatch", [check["issue"] for check in checks])
+
+    def test_freeform_without_lenient(self):
+        challenge = Challenge(
+            name="test5",
+            category=self.category,
+            description="a",
+            challenge_type="freeform",
+            challenge_metadata={},
+            flag_type="plaintext",
+            flag_metadata={"flag": "ractf{a}", "exclude_passes": []},
+            author="",
+            score=1000,
+        )
+        challenge.save()
+        checks = challenge.self_check()
+        self.assertIn("lenient_freeform_mismatch", [check["issue"] for check in checks])
+
+    def test_correct_freeform(self):
+        challenge = Challenge(
+            name="test5",
+            category=self.category,
+            description="a",
+            challenge_type="freeform",
+            challenge_metadata={},
+            flag_type="lenient",
+            flag_metadata={"flag": "ractf{a}", "exclude_passes": []},
+            author="",
+            score=1000,
+        )
+        challenge.save()
+        checks = challenge.self_check()
+        self.assertNotIn("lenient_freeform_mismatch", [check["issue"] for check in checks])
 
     def test_is_unlocked_null_user(self):
         self.assertEqual(self.challenge2.is_unlocked(None), False)

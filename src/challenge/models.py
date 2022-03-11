@@ -72,17 +72,20 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         issues = []
 
         if not self.score:
-            issues.append({"issue": "missing_points", "challenge": self.id})
+            issues.append({"issue": "missing_points", "challenge": self.pk})
 
         if not self.flag_type:
-            issues.append({"issue": "missing_flag_type", "challenge": self.id})
+            issues.append({"issue": "missing_flag_type", "challenge": self.pk})
         elif type(self.flag_metadata) != dict:
-            issues.append({"issue": "invalid_flag_data_type", "challenge": self.id})
+            issues.append({"issue": "invalid_flag_data_type", "challenge": self.pk})
         else:
             issues += [
-                {"issue": "invalid_flag_data", "extra": issue, "challenge": self.id}
+                {"issue": "invalid_flag_data", "extra": issue, "challenge": self.pk}
                 for issue in self.flag_plugin.self_check()
             ]
+
+        if (self.flag_type == "lenient") ^ (self.challenge_type == "freeform"):
+            issues.append({"issue": "lenient_freeform_mismatch", "challenge": self.pk})
 
         return issues
 
