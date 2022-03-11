@@ -40,7 +40,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         checks = challenge.self_check()
         self.assertIn("invalid_flag_data_type", [check["issue"] for check in checks])
 
-    def test_not_leiant_or_freeform(self):
+    def test_not_lenient_or_freeform(self):
         challenge = Challenge(
             name="test5",
             category=self.category,
