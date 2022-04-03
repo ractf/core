@@ -44,3 +44,17 @@ class AndromedaTestCase(TeamSetupMixin, APITestCase):
             with self.assertRaises(ConnectionError):
                 self.client.force_authenticate(user=self.user)
                 self.client.get(reverse("get-instance", args=["1"]))
+
+
+class PolarisTestCase(TeamSetupMixin, APITestCase):
+    def test_get_instance(self):
+        # This is a bad test but we need a stub service
+        with self.settings(
+            CHALLENGE_SERVER_ENABLED=True,
+            POLARIS_URL="http://polaris",
+            POLARIS_USERNAME="polaris",
+            POLARIS_PASSWORD="polaris",
+        ):
+            with self.assertRaises(ConnectionError):
+                self.client.force_authenticate(user=self.user)
+                self.client.get(reverse("get-instance", args=["1"]))
