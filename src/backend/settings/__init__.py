@@ -282,7 +282,7 @@ REST_FRAMEWORK = {
     "NUM_PROXIES": int(os.getenv("NUM_PROXIES", 0)),
 }
 
-if os.getenv("CHALLENGE_SERVER_TYPE") == "POLARIS":
+if os.getenv("CHALLENGE_SERVER_TYPE") == "POLARIS": # pragma: no cover
     CHALLENGE_SERVER_ENABLED = True
     POLARIS_URL = os.getenv("POLARIS_URL")
     POLARIS_USERNAME = os.getenv("POLARIS_USERNAME")
