@@ -1,3 +1,4 @@
+from django.conf import settings
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.status import HTTP_403_FORBIDDEN
@@ -8,7 +9,6 @@ from andromeda.serializers import JobSubmitSerializer
 from backend.response import FormattedResponse
 from challenge.models import Challenge
 from challenge.permissions import CompetitionOpen
-from config import config
 
 
 class GetInstanceView(APIView):
@@ -16,7 +16,7 @@ class GetInstanceView(APIView):
     throttle_scope = "challenge_instance_get"
 
     def get(self, request, job_id):
-        if not config.get("enable_challenge_server"):
+        if not settings.CHALLENGE_SERVER_ENABLED:
             return FormattedResponse(m="challenge_server_disabled", status=HTTP_403_FORBIDDEN)
         if not request.user.team:
             return FormattedResponse(m="challenge_server_team_required", status=HTTP_403_FORBIDDEN)
@@ -28,7 +28,7 @@ class ResetInstanceView(APIView):
     throttle_scope = "challenge_instance_reset"
 
     def get(self, request, job_id):
-        if not config.get("enable_challenge_server"):
+        if not settings.CHALLENGE_SERVER_ENABLED:
             return FormattedResponse(m="challenge_server_disabled", status=HTTP_403_FORBIDDEN)
         return FormattedResponse(client.request_reset(request.user.team.id, job_id))
 
