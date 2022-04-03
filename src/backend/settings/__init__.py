@@ -57,7 +57,6 @@ DEFAULT_CONFIG = {
     "token_provider": "basic_auth",
     "enable_bot_users": True,
     "enable_caching": True,
-    "enable_challenge_server": True,
     "enable_ctftime": True,
     "enable_flag_submission": True,
     "enable_flag_submission_after_competition": True,
@@ -284,14 +283,18 @@ REST_FRAMEWORK = {
 }
 
 if os.getenv("CHALLENGE_SERVER_TYPE") == "POLARIS":
+    CHALLENGE_SERVER_ENABLED = True
     POLARIS_URL = os.getenv("POLARIS_URL")
     POLARIS_USERNAME = os.getenv("POLARIS_USERNAME")
     POLARIS_PASSWORD = os.getenv("POLARIS_PASSWORD")
-else:
+elif os.getenv("ANDROMEDA_URL") or os.getenv("CHALLENGE_SERVER_TYPE") == "ANDROMEDA": # Backwards compatability with old Docker Compose files
+    CHALLENGE_SERVER_ENABLED = True
     ANDROMEDA_URL = os.getenv("ANDROMEDA_URL")
     ANDROMEDA_API_KEY = os.getenv("ANDROMEDA_API_KEY")
     ANDROMEDA_SERVER_IP = os.getenv("ANDROMEDA_IP")  # shown to participants
     ANDROMEDA_TIMEOUT = float(os.getenv("ANDROMEDA_TIMEOUT", 5))
+else:
+    CHALLENGE_SERVER_ENABLED = False
 
 INSTALLED_PLUGINS = [
     "plugins.flag.hashed",
