@@ -81,7 +81,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
 
 class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=SET_NULL, null=True)
-    ip = models.CharField(max_length=255)
+    ip = models.GenericIPAddressField()
     seen = models.IntegerField(default=1)
     last_seen = models.DateTimeField(default=timezone.now)
     user_agent = models.CharField(max_length=255)
@@ -90,7 +90,7 @@ class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):
     def hook(request):
         if not request.user.is_authenticated:
             return
-        ip = request.headers.get("x-forwarded-for", "0.0.0.0")
+        ip = request.headers.get("x-forwarded-for", request.META.get("REMOTE_ADDR", "0.0.0.0")).split(",")[0]
         user_agent = request.headers.get("user-agent", "???")[:255]
         qs = UserIP.objects.filter(user=request.user, ip=ip)
         if qs.exists():
