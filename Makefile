@@ -60,3 +60,6 @@ dev-sql:
 
 dev-fake-bulk-data:
 	docker-compose exec backend python -m scripts.fake generate --teams 10000 --users 2 --categories 10 --challenges 100 --solves 10000
+
+dev-shell:
+	docker-compose exec backend ./src/manage.py shell
