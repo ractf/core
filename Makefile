@@ -51,3 +51,12 @@ clean-test:
 clean-dev-server:
 	docker-compose rm -sfv
 	docker volume rm -f core_postgres
+
+dev-logs:
+	docker-compose logs -f backend
+
+dev-sql:
+	docker-compose exec database psql -U postgres postgres
+
+dev-fake-bulk-data:
+	docker-compose exec backend python -m scripts.fake generate --teams 10000 --users 2 --categories 10 --challenges 100 --solves 10000
