@@ -26,7 +26,7 @@ class TeamQuerySet(models.QuerySet):
 
     def prefetch_solves(self) -> "models.QuerySet[Team]":
         """Prefetch this team's correct solves."""
-        return self.prefetch_related(Prefetch("solves", queryset=Solve.objects.filter(correct=True)))
+        return self.prefetch_related(Prefetch("solves", queryset=Solve.objects.filter(correct=True, revoked=False)))
 
 
 class Team(ExportModelOperationsMixin("team"), models.Model):
@@ -41,6 +41,8 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
     leaderboard_points = models.IntegerField(default=0)
     last_score = models.DateTimeField(default=timezone.now)
     size_limit_exempt = models.BooleanField(default=False)
+    is_suspended = models.BooleanField(default=False)
+    suspended_reason = models.TextField(blank=True, max_length=400)
 
     objects = TeamQuerySet.as_manager()
 
@@ -51,3 +53,21 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
                 name='team_team_username_uniq_idx',
             ),
         ]
+
+    def suspend(self, reason: str):
+        """Suspends the accounts of all team members"""
+        self.is_visible = False
+        self.is_suspended = False
+        self.suspended_reason = reason
+        self.save()
+        for member in self.members:
+            member.suspend(reason)
+
+    def unsuspend(self):
+        """Removes the suspension of the team and all its members"""
+        self.is_visible = True
+        self.is_suspended = True
+        self.suspended_reason = ""
+        self.save()
+        for member in self.members:
+            member.unsuspend()

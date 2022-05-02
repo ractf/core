@@ -1,12 +1,16 @@
 from django.contrib.auth import get_user_model
 from rest_framework import filters
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.decorators import action
+from rest_framework.generics import RetrieveUpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.request import Request
+from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST, HTTP_200_OK
 from rest_framework.viewsets import ModelViewSet
 
 from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
+from backend.response import FormattedResponse
 from backend.viewsets import AdminListModelViewSet
-from member.models import UserIP
+from member.models import UserIP, Member
 from member.serializers import (
     AdminMemberSerializer,
     ListMemberSerializer,
@@ -74,6 +78,23 @@ class MemberViewSet(AdminListModelViewSet):
         if self.request.user.is_staff and not self.request.user.should_deny_admin():
             return get_user_model().objects.order_by("id").prefetch_related("team")
         return get_user_model().objects.filter(is_visible=True).order_by("id").prefetch_related("team")
+
+    @action(detail=True, methods=["post"])
+    def suspend(self, request: Request, pk=None):
+        member = get_object_or_404(Member, pk=pk)
+        if member.is_staff:
+            return FormattedResponse(status=HTTP_403_FORBIDDEN, m="cannot_suspend_staff")
+        reason = request.data["reason"]
+        if not isinstance(reason, str):
+            return FormattedResponse(status=HTTP_400_BAD_REQUEST)
+        member.suspend(reason)
+        return FormattedResponse(status=HTTP_200_OK, m="user_suspended")
+
+    @action(detail=True, methods=["post"])
+    def unsuspend(self, request: Request, pk=None):
+        member = get_object_or_404(Member, pk=pk)
+        member.unsuspend()
+        return FormattedResponse(status=HTTP_200_OK, m="user_unsuspended")
 
 
 class UserIPViewSet(ModelViewSet):

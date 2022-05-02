@@ -48,6 +48,7 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
     points = models.IntegerField(default=0)
     leaderboard_points = models.IntegerField(default=0)
     last_score = models.DateTimeField(default=timezone.now)
+    suspended_reason = models.TextField(blank=True, max_length=400)
 
     class Meta:
         constraints = [
@@ -77,6 +78,20 @@ class Member(ExportModelOperationsMixin("member"), AbstractUser):
 
     def should_deny_admin(self):
         return config.get("enable_force_admin_2fa") and not self.has_2fa()
+
+    def suspend(self, reason: str):
+        """Prevents a user from logging in and sets the reason for suspending the account"""
+        self.is_active = False
+        self.is_visible = False
+        self.suspended_reason = reason
+        self.save()
+
+    def unsuspend(self):
+        """Allows a user to login again and removes the suspension reason"""
+        self.is_active = True
+        self.is_visible = True
+        self.suspended_reason = ""
+        self.save()
 
 
 class UserIP(ExportModelOperationsMixin("user_ip"), models.Model):

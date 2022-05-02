@@ -265,6 +265,7 @@ REST_FRAMEWORK = {
         "announcement": "100/minute",
         "tag": "100/minute",
         "pages": "100/minute",
+        "solve": "100/minute",
         "andromeda_view_jobs": "100/minute",
         "andromeda_manage_jobs": "100/minute",
         "andromeda_view_sysinfo": "100/minute",

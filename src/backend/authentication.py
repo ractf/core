@@ -21,5 +21,7 @@ class RactfTokenAuthentication(authentication.TokenAuthentication):
             return None
         if not config.get("enable_bot_users") and user.is_bot:
             return None
+        if not user.is_active:
+            return None
 
         return user, token
