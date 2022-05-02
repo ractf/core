@@ -1,19 +1,19 @@
 {% extends "bases/base.html" %}
-{% import "bases/macros.html" as m %}
+{% load template_extras %}
 
 {% block body %}
-    {% call m.center() %}
+    {% filter center %}
         Thank you for signing up to {{ event_name }}.<br>
         Before you can start capturing flags, you need to verify your account!
-    {% endcall %}
-    {{ m.space(24) }}
-    {% call m.center(24) -%}
-        {{ m.button("VERIFY MY ACCOUNT", url) }}
-    {%- endcall %}
-    {{ m.space(16) }}
-    {% call m.center(16) -%}
+    {% endfilter %}
+    {% include "components/space.html" with heights=24 %}
+    {% filter center:24 %}
+    {% include "components/button.html" with text="VERIFY MY ACCOUNT" url=url %}
+    {% endfilter %}
+    {% include "components/space.html" with height=16 %}
+    {% filter center:16 %}
         <i style="font-size:80%;">
             Button not working? Navigate to <a style="color:#e53935;text-decoration:none;" href="{{ url }}">{{ url }}</a> in a browser.
         </i>
-    {%- endcall %}
+    {% endfilter %}
 {% endblock %}

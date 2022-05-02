@@ -1,10 +1,10 @@
 {% extends "bases/base.html" %}
-{% import "bases/macros.html" as m %}
+{% load template_extras %}
 
 {% block body %}
-    {% call m.center() %}
+	{% filter center %}
     	2FA has been disabled on your account.<br>
 	If this was you, you can safely ignore this email.<br><br>
 	If this wasn't you, request a password reset or raise a support ticket.<br>
-    {% endcall %}
+    {% endfilter %}
 {% endblock %}
