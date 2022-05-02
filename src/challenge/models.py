@@ -109,7 +109,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         if user.team is None:
             return False
         if solves is None:
-            solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
+            solves = list(user.team.solves.filter(correct=True, revoked=False).values_list("challenge", flat=True))
         requirements = self.unlock_requirements
         state = []
         for i in requirements.split():
@@ -133,7 +133,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         if user.team is None:
             return False
         if solves is None:
-            solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
+            solves = list(user.team.solves.filter(correct=True, revoked=False).values_list("challenge", flat=True))
         return self.id in solves
 
     def get_solve_count(self, solve_counter):
@@ -145,7 +145,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             return Challenge.objects.none()
         if user.team is not None:
             challenges = Challenge.objects.annotate(
-                solve_count=Count("solves", filter=Q(solves__correct=True)),
+                solve_count=Count("solves", filter=Q(solves__correct=True, solves__revoked=False)),
                 unlock_time_surpassed=Case(
                     When(release_time__lte=timezone.now(), then=Value(True)),
                     default=Value(False),
@@ -202,7 +202,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
         new_score = self.points_plugin.recalculate(
             teams=Team.objects.filter(solves__challenge=self),
             users=get_user_model().objects.filter(solves__challenge=self),
-            solves=solve_set.filter(correct=True),
+            solves=solve_set.filter(correct=True, revoked=False),
         )
         self.current_score = new_score
         self.save(update_fields=["current_score"])
@@ -246,6 +246,7 @@ class Solve(ExportModelOperationsMixin("solve"), models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     flag = models.TextField()
     score = models.ForeignKey(Score, related_name="solve", on_delete=CASCADE, null=True)
+    revoked = models.BooleanField(default=False)
 
     class Meta:
         constraints = [

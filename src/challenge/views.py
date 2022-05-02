@@ -48,7 +48,7 @@ from challenge.serializers import (
     TagSerializer,
     get_negative_votes,
     get_positive_votes,
-    get_solve_counts,
+    get_solve_counts, AdminSolveSerializer,
 )
 from config import config
 from hint.models import Hint, HintUse
@@ -230,7 +230,7 @@ class ChallengeFeedbackView(APIView):
         challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
         solve_set = Solve.objects.filter(challenge=challenge)
 
-        if not solve_set.filter(team=request.user.team, correct=True).exists():
+        if not solve_set.filter(team=request.user.team, correct=True, revoked=False).exists():
             return FormattedResponse(m="challenge_not_solved", status=HTTP_403_FORBIDDEN)
 
         current_feedback = ChallengeFeedback.objects.filter(user=request.user, challenge=challenge)
@@ -248,7 +248,7 @@ class ChallengeVoteView(APIView):
         challenge = get_object_or_404(Challenge, id=request.data.get("challenge"))
         solve_set = Solve.objects.filter(challenge=challenge)
 
-        if not solve_set.filter(team=request.user.team, correct=True).exists():
+        if not solve_set.filter(team=request.user.team, correct=True, revoked=False).exists():
             return FormattedResponse(m="challenge_not_solved", status=HTTP_403_FORBIDDEN)
 
         current_vote = ChallengeVote.objects.filter(user=request.user, challenge=challenge)
@@ -306,7 +306,7 @@ class FlagSubmitView(APIView):
                 challenge.points_plugin.register_incorrect_attempt(user, team, flag, solve_set)
                 return FormattedResponse(d={"correct": False}, m="incorrect_flag")
 
-            solve = challenge.points_plugin.score(user, team, flag, solve_set.filter(correct=True))
+            solve = challenge.points_plugin.score(user, team, flag, solve_set.filter(correct=True, revoked=False))
 
             if challenge.needs_recalculate:
                 challenge.recalculate_score(solve_set)
@@ -370,7 +370,7 @@ class FlagCheckView(APIView):
 
         challenge = get_object_or_404(Challenge.objects.select_for_update(), id=challenge_id)
         solve_set = Solve.objects.filter(challenge=challenge)
-        if not solve_set.filter(team=team, correct=True).exists():
+        if not solve_set.filter(team=team, correct=True, revoked=False).exists():
             return FormattedResponse(m="havent_solved_challenge", status=HTTP_403_FORBIDDEN)
 
         if not challenge.flag_plugin.check(flag, user=user, team=team):
@@ -439,4 +439,12 @@ class TagViewSet(ModelViewSet):
     permission_classes = (IsAdminUser,)
     throttle_scope = "tag"
     serializer_class = TagSerializer
+    pagination_class = None
+
+
+class SolveViewSet(ModelViewSet):
+    queryset = Solve.objects.all()
+    permission_classes = (IsAdminUser,)
+    throttle_scope = "solve"
+    serializer_class = AdminSolveSerializer
     pagination_class = None

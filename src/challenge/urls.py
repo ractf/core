@@ -8,6 +8,7 @@ router.register(r"categories", views.CategoryViewset, basename="categories")
 router.register(r"files", views.FileViewSet, basename="files")
 router.register(r"tags", views.TagViewSet, basename="tags")
 router.register(r"scores", views.ScoresViewset, basename="scores")
+router.register(r"solves", views.SolveViewSet, basename="solves")
 router.register(r"", views.ChallengeViewset, basename="challenges")
 
 urlpatterns = [

@@ -1,16 +1,18 @@
 from django.db.models import Count
 from django.http import Http404
 from rest_framework import filters
+from rest_framework.decorators import action
 from rest_framework.generics import (
     CreateAPIView,
     RetrieveUpdateAPIView,
     get_object_or_404,
 )
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_403_FORBIDDEN,
-    HTTP_404_NOT_FOUND,
+    HTTP_404_NOT_FOUND, HTTP_200_OK,
 )
 from rest_framework.views import APIView
 
@@ -97,6 +99,31 @@ class TeamViewSet(AdminListModelViewSet):
             )
         return qs.annotate(members_count=Count("members"))
 
+    @action(detail=True, methods=["post"])
+    def suspend(self, request: Request, pk=None):
+        team = get_object_or_404(Team, pk=pk)
+        reason = request.data["reason"]
+        if not isinstance(reason, str):
+            return FormattedResponse(status=HTTP_400_BAD_REQUEST)
+        team.suspend(reason)
+        return FormattedResponse(status=HTTP_200_OK, m="team_suspended")
+
+    @action(detail=True, methods=["post"])
+    def nuke(self, request: Request, pk=None):
+        team = get_object_or_404(Team, pk=pk)
+        if not team.is_suspended:
+            return FormattedResponse(status=HTTP_403_FORBIDDEN, m="cannot_nuke_without_suspend")
+        Solve.objects.filter(team=team).update(revoked=True)
+        return FormattedResponse(status=HTTP_200_OK, m="team_nuked")
+
+    @action(detail=True, methods=["post"])
+    def unsuspend(self, request: Request, pk=None):
+        team = get_object_or_404(Team, pk=pk)
+        if not team.is_suspended:
+            return FormattedResponse(status=HTTP_403_FORBIDDEN, m="cannot_unsuspend_without_suspend")
+        team.unsuspend()
+        return FormattedResponse(status=HTTP_200_OK, m="team_unsuspended")
+
 
 class CreateTeamView(CreateAPIView):
     serializer_class = CreateTeamSerializer
@@ -124,7 +151,7 @@ class JoinTeamView(APIView):
         team_join_attempt.send(sender=self.__class__, user=request.user, name=name)
         if name and password:
             try:
-                team = get_object_or_404(Team, name=name)
+                team = get_object_or_404(Team, name=name, is_suspended=False)
                 if team.password != password:
                     team_join_reject.send(sender=self.__class__, user=request.user, name=name)
                     raise FormattedException(m="invalid_team_password", status=HTTP_403_FORBIDDEN)

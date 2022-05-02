@@ -28,7 +28,7 @@ def setup_context(context):
             context.update(
                 {
                     "solves": list(
-                        context["request"].user.team.solves.filter(correct=True).values_list("challenge", flat=True)
+                        context["request"].user.team.solves.filter(correct=True, revoked=False).values_list("challenge", flat=True)
                     ),
                 }
             )
@@ -363,3 +363,20 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = ["id", "challenge", "text", "type", "post_competition"]
+
+
+class AdminSolveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Solve
+        fields = [
+            "id",
+            "team",
+            "challenge",
+            "solved_by",
+            "first_blood",
+            "correct",
+            "timestamp",
+            "flag",
+            "score",
+            "revoked"
+        ]

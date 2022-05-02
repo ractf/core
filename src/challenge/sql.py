@@ -10,7 +10,7 @@ def get_solve_counts():
     if solve_counts is not None and config.get("enable_caching"):
         return solve_counts
     with connection.cursor() as cursor:
-        cursor.execute("SELECT challenge_id, COUNT(*) FROM challenge_solve WHERE correct=true GROUP BY challenge_id;")
+        cursor.execute("SELECT challenge_id, COUNT(*) FROM challenge_solve WHERE correct=true AND revoked=false GROUP BY challenge_id;")
         solve_counts = {i[0]: i[1] for i in cursor.fetchall()}
     cache.set("solve_counts", solve_counts, 15)
     return solve_counts
@@ -22,7 +22,7 @@ def get_incorrect_solve_counts():
     if solve_counts is not None and config.get("enable_caching"):
         return solve_counts
     with connection.cursor() as cursor:
-        cursor.execute("SELECT challenge_id, COUNT(*) FROM challenge_solve WHERE correct=false GROUP BY challenge_id;")
+        cursor.execute("SELECT challenge_id, COUNT(*) FROM challenge_solve WHERE correct=false AND revoked=false GROUP BY challenge_id;")
         solve_counts = {i[0]: i[1] for i in cursor.fetchall()}
     cache.set("incorrect_solve_counts", solve_counts, 15)
     return solve_counts

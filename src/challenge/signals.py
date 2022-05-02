@@ -22,7 +22,7 @@ def challenge_cache_invalidate(sender, instance, **kwargs):
 @receiver([post_save], sender=Challenge)
 def challenge_recalculate(sender, instance, **kwargs):
     with transaction.atomic():
-        correct_solves = instance.solves.filter(correct=True)
+        correct_solves = instance.solves.filter(correct=True, revoked=False)
         if instance.current_score is None:
             Score.objects.filter(id__in=correct_solves.values_list("score", flat=True)).update(points=instance.score)
             for solve in correct_solves:
