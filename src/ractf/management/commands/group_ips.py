@@ -1,8 +1,8 @@
-from pprint import pprint
+from json import dumps
+
 from django.core.management import BaseCommand
 
 from member.models import UserIP
-from json import dumps
 
 
 class Command(BaseCommand):
@@ -46,4 +46,4 @@ class Command(BaseCommand):
         if options["json"]:
             self.stdout.write(dumps(grouped))
         else:
-            pprint(grouped)
+            self.stdout.write(str(grouped))
