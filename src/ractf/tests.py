@@ -1,8 +1,11 @@
 from io import StringIO
-from django.test import TestCase
-from django.core.management import call_command
-from member.models import UserIP
+
 from django.contrib.auth import get_user_model
+from django.core.management import call_command
+from django.test import TestCase
+
+from member.models import UserIP
+
 
 class GroupIpsTest(TestCase):
     def setUp(self):
@@ -22,10 +25,22 @@ class GroupIpsTest(TestCase):
 
     def test_group_ips(self):
         out = StringIO()
-        call_command("group_ips", '--json', stdout=out)
+        call_command("group_ips", stdout=out)
         self.assertIn('1.1.1.1', out.getvalue())
 
     def test_group_ips_multiple(self):
+        out = StringIO()
+        call_command("group_ips", '--multiple', stdout=out)
+        self.assertIn('1.1.1.1', out.getvalue())
+        self.assertNotIn('2.2.2.2', out.getvalue())
+
+
+    def test_group_ips_json(self):
+        out = StringIO()
+        call_command("group_ips", '--json', stdout=out)
+        self.assertIn('1.1.1.1', out.getvalue())
+
+    def test_group_ips_multiple_json(self):
         out = StringIO()
         call_command("group_ips", '--json', '--multiple', stdout=out)
         self.assertIn('1.1.1.1', out.getvalue())
