@@ -10,19 +10,21 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--multiple',
-            action='store_true',
-            help='Show only IP addresses with multiple users',
+            "--multiple",
+            action="store_true",
+            help="Show only IP addresses with multiple users",
         )
 
         parser.add_argument(
-            '--json',
-            action='store_true',
-            help='Output JSON',
+            "--json",
+            action="store_true",
+            help="Output JSON",
         )
 
     def handle(self, *args, **options) -> None:
-        self.stderr.write(self.style.WARNING("Due to use of CGNAT, source IP addresses may be unreliable. Proceed with caution."))
+        self.stderr.write(
+            self.style.WARNING("Due to use of CGNAT, source IP addresses may be unreliable. Proceed with caution.")
+        )
 
         ips = UserIP.objects.all()
 
