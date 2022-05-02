@@ -335,17 +335,23 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "simple": {"format": "%(asctime)s %(levelname)s %(message)s"},
+        "json": {"()": "pythonjsonlogger.jsonlogger.JsonFormatter"},
     },
     "handlers": {
-        "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "simple"},
+        "console": {"level": "DEBUG", "class": "logging.StreamHandler", "formatter": "json"},
     },
     "loggers": {
         "django.request": {
             "handlers": ["console"],
             "propagate": False,
             "level": "DEBUG",
+            "filters": ["parse_request_log"],
         },
         "core.handlers": {"level": "DEBUG", "handlers": ["console"]},
+        "core": {"level": "DEBUG", "handlers": ["console"]},
+    },
+    "filters": {
+        "parse_request_log": {"()": "backend.logging.ParseRequestLog"},
     },
 }
 
