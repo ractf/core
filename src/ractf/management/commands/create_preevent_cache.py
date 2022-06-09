@@ -1,3 +1,4 @@
+import os
 import time
 
 from django.core.cache import caches
@@ -8,6 +9,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 from rest_framework.request import Request
 
+from admin.models import AuditLogEntry
 from challenge import serializers
 from challenge.models import Category, Challenge, File, Tag
 from challenge.serializers import FastCategorySerializer
@@ -71,6 +73,7 @@ class Command(BaseCommand):
     help = "Creates a cache to lessen the impact of the first 15 seconds of request spam"
 
     def handle(self, *args, **options):
+        AuditLogEntry.create_management_entry("create_preevent_cache")
         categories = get_queryset()
         solve_counts = get_solve_counts()
         positive_votes = get_positive_votes()

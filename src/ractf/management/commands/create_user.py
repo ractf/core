@@ -1,7 +1,10 @@
+import os
+
 from django.core.management import BaseCommand
 from django.core.management.base import CommandError, CommandParser
 from django.db import IntegrityError
 
+from admin.models import AuditLogEntry
 from member.models import Member
 
 
@@ -40,6 +43,16 @@ class Command(BaseCommand):
             member.save()
         except IntegrityError:
             raise CommandError("Username already in use")
+
+        AuditLogEntry.create_management_entry("create_user", extra={
+            "username": options["username"],
+            "email_verified": True,
+            "is_visible": options["visible"],
+            "is_staff": options["staff"],
+            "is_superuser": options["superuser"],
+            "is_bot": options["bot"],
+            "email": options["email"],
+        })
 
         if member.is_bot:
             print(member.issue_token())

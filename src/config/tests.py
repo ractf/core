@@ -7,6 +7,7 @@ from rest_framework.status import (
 )
 from rest_framework.test import APITestCase
 
+from admin.models import AuditLogEntry
 from config import config
 from member.models import Member
 
@@ -88,3 +89,31 @@ class ConfigTestCase(APITestCase):
         config.set("testlist", ["test"])
         self.client.patch(reverse("config-pk", kwargs={"name": "testlist"}), data={"value": "test"}, format="json")
         self.assertEqual(config.get("testlist"), ["test", "test"])
+
+    def test_update_post_creates_audit_log(self):
+        self.client.force_authenticate(self.staff_user)
+        self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json")
+        self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test2"}, format="json")
+        entry = AuditLogEntry.objects.latest("pk")
+        self.assertEqual(entry.action, "set_config")
+
+    def test_update_post_creates_audit_log_with_correct_extra(self):
+        self.client.force_authenticate(self.staff_user)
+        self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json")
+        self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test2"}, format="json")
+        entry = AuditLogEntry.objects.latest("pk")
+        self.assertEqual(entry.extra, {"old_value": "test", "new_value": "test2"})
+
+    def test_update_patch_creates_audit_log(self):
+        self.client.force_authenticate(self.staff_user)
+        self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json")
+        self.client.patch(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test2"}, format="json")
+        entry = AuditLogEntry.objects.latest("pk")
+        self.assertEqual(entry.action, "set_config")
+
+    def test_update_patch_creates_audit_log_with_correct_extra(self):
+        self.client.force_authenticate(self.staff_user)
+        self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json")
+        self.client.patch(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test2"}, format="json")
+        entry = AuditLogEntry.objects.latest("pk")
+        self.assertEqual(entry.extra, {"old_value": "test", "new_value": "test2"})
