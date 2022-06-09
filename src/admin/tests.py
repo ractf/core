@@ -3,6 +3,7 @@ import hashlib
 from django.urls import reverse
 from django.test import TestCase
 from django.core import mail
+from rest_framework.status import HTTP_403_FORBIDDEN, HTTP_200_OK
 from rest_framework.test import APITestCase
 
 from challenge.models import Category, Challenge
@@ -90,6 +91,7 @@ class BadFlagConfigTestCase(APITestCase):
         response = self.client.get(reverse("self-check"))
         self.assertEqual(len(response.data["d"]), 17)
 
+
 class DevMailEndpointTestCase(TestCase):
     def test_endpoint_absent(self):
         with self.settings(
@@ -124,3 +126,22 @@ class DevMailEndpointTestCase(TestCase):
             <p>From: noreply@ractf.co.uk</p>
             <p>To: ['example@ractf.co.uk']</p>
             <p>This is the body</p>""", html=True)
+
+
+class AuditLogViewTestCase(APITestCase):
+    def setUp(self) -> None:
+        self.user = Member(username="audit_log_test", email="audit_log_test@bot.ractf")
+        self.user.save()
+        self.admin_user = Member(username="audit_log_test_admin", email="audit_log_test_admin@bot.ractf",
+                                 is_staff=True, is_superuser=True)
+        self.admin_user.save()
+
+    def test_audit_log_not_admin(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(reverse("audit-log"))
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
+    def test_audit_log_admin(self):
+        self.client.force_authenticate(user=self.admin_user)
+        response = self.client.get(reverse("audit-log"))
+        self.assertEqual(response.status_code, HTTP_200_OK)
