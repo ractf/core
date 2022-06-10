@@ -1,7 +1,8 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 
-UserModel = get_user_model()
+from member.models import Member
+
+UserModel = Member
 
 
 class EmailOrUsernameBackend(ModelBackend):

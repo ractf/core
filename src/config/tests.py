@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
 from rest_framework.status import (
     HTTP_200_OK,
@@ -9,15 +8,16 @@ from rest_framework.status import (
 from rest_framework.test import APITestCase
 
 from config import config
+from member.models import Member
 
 
 class ConfigTestCase(APITestCase):
     def setUp(self):
-        user = get_user_model()(username="config-test", email="config-test@example.org")
+        user = Member(username="config-test", email="config-test@example.org")
         user.is_staff = True
         user.save()
         self.staff_user = user
-        user2 = get_user_model()(username="config-test2", email="config-test2@example.org")
+        user2 = Member(username="config-test2", email="config-test2@example.org")
         user2.save()
         self.user = user2
 

@@ -1,10 +1,10 @@
-from django.contrib.auth import get_user_model
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 from rest_framework.test import APITestCase
 
 from challenge.models import Category, Challenge, Solve
 from config import config
+from member.models import Member
 from team.models import Team
 
 
@@ -14,7 +14,7 @@ class CountdownTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed(self):
-        user = get_user_model()(username="countdown-test", email="countdown-test@example.org")
+        user = Member(username="countdown-test", email="countdown-test@example.org")
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("countdown"))
@@ -27,14 +27,14 @@ class StatsTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed(self):
-        user = get_user_model()(username="stats-test", email="stats-test@example.org")
+        user = Member(username="stats-test", email="stats-test@example.org")
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("stats"))
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_team_average(self):
-        user = get_user_model()(username="stats-test", email="stats-test@example.org")
+        user = Member(username="stats-test", email="stats-test@example.org")
         user.save()
 
         team = Team(name="stats-test", password="stats-test", owner=user)
@@ -50,21 +50,21 @@ class FullStatsTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_authed_non_privileged(self):
-        user = get_user_model()(username="stats-test", email="stats-test@example.org")
+        user = Member(username="stats-test", email="stats-test@example.org")
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("full"))
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_authed(self):
-        user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
+        user = Member(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("full"))
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_team_point_distribution(self):
-        user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
+        user = Member(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
         user.save()
 
         team = Team(name="stats-test", password="stats-test", owner=user)
@@ -83,7 +83,7 @@ class FullStatsTestCase(APITestCase):
         self.assertEqual(response.data["d"]["team_point_distribution"][5], 1)
 
     def test_challenge_data(self):
-        user = get_user_model()(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
+        user = Member(username="stats-test", email="stats-test@example.org", is_superuser=True, is_staff=True)
         user.save()
 
         category = Category.objects.create(
@@ -118,7 +118,7 @@ class CommitTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_authed(self):
-        user = get_user_model()(username="commit-test", email="commit-test@example.org")
+        user = Member(username="commit-test", email="commit-test@example.org")
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("version"))
@@ -131,14 +131,14 @@ class PrometheusTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_401_UNAUTHORIZED)
 
     def test_authed(self):
-        user = get_user_model()(username="prometheus-test", email="prometheus-test@example.org")
+        user = Member(username="prometheus-test", email="prometheus-test@example.org")
         user.save()
         self.client.force_authenticate(user)
         response = self.client.get(reverse("prometheus"))
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_authed_admin(self):
-        user = get_user_model()(
+        user = Member(
             username="prometheus-test-admin",
             email="prometheus-test-admin@example.org",
             is_staff=True,

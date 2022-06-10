@@ -1,7 +1,6 @@
 import time
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.postgres.indexes import BrinIndex
 from django.db import models
 from django.db.models import (
@@ -24,6 +23,7 @@ from django.utils.functional import cached_property
 from django_prometheus.models import ExportModelOperationsMixin
 
 from config import config
+from member.models import Member
 from plugins import plugins
 
 USING_POSTGRES = settings.DATABASES.get("default", {}).get("ENGINE", "").endswith("postgresql")
@@ -53,7 +53,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
     score = models.IntegerField()
     unlock_requirements = models.CharField(max_length=255, null=True, blank=True)
     first_blood = models.ForeignKey(
-        get_user_model(),
+        Member,
         related_name="first_bloods",
         on_delete=SET_NULL,
         null=True,
@@ -201,7 +201,7 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
 
         new_score = self.points_plugin.recalculate(
             teams=Team.objects.filter(solves__challenge=self),
-            users=get_user_model().objects.filter(solves__challenge=self),
+            users=Member.objects.filter(solves__challenge=self),
             solves=solve_set.filter(correct=True),
         )
         self.current_score = new_score
@@ -210,13 +210,13 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
 
 class ChallengeVote(ExportModelOperationsMixin("challenge_vote"), models.Model):
     challenge = models.ForeignKey(Challenge, on_delete=CASCADE, related_name="votes")
-    user = models.ForeignKey(get_user_model(), on_delete=CASCADE)
+    user = models.ForeignKey(Member, on_delete=CASCADE)
     positive = models.BooleanField()
 
 
 class ChallengeFeedback(ExportModelOperationsMixin("challenge_feedback"), models.Model):
     challenge = models.ForeignKey(Challenge, on_delete=CASCADE)
-    user = models.ForeignKey(get_user_model(), on_delete=CASCADE)
+    user = models.ForeignKey(Member, on_delete=CASCADE)
     feedback = models.TextField()
 
 
@@ -227,7 +227,7 @@ def on_challenge_update(sender, instance, created, **kwargs):
 
 class Score(ExportModelOperationsMixin("score"), models.Model):
     team = models.ForeignKey("team.Team", related_name="scores", on_delete=CASCADE, null=True)
-    user = models.ForeignKey(get_user_model(), related_name="scores", on_delete=SET_NULL, null=True)
+    user = models.ForeignKey(Member, related_name="scores", on_delete=SET_NULL, null=True)
     reason = models.CharField(max_length=64)
     points = models.IntegerField()
     penalty = models.IntegerField(default=0)
@@ -240,7 +240,7 @@ class Score(ExportModelOperationsMixin("score"), models.Model):
 class Solve(ExportModelOperationsMixin("solve"), models.Model):
     team = models.ForeignKey("team.Team", related_name="solves", on_delete=CASCADE, null=True)
     challenge = models.ForeignKey(Challenge, related_name="solves", on_delete=CASCADE)
-    solved_by = models.ForeignKey(get_user_model(), related_name="solves", on_delete=SET_NULL, null=True)
+    solved_by = models.ForeignKey(Member, related_name="solves", on_delete=SET_NULL, null=True)
     first_blood = models.BooleanField(default=False)
     correct = models.BooleanField(default=True)
     timestamp = models.DateTimeField(default=timezone.now)

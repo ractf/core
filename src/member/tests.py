@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.db.utils import IntegrityError
 from django.http import HttpRequest
@@ -13,18 +12,18 @@ from rest_framework.status import (
 from rest_framework.test import APITestCase
 
 from config import config
-from member.models import UserIP
+from member.models import UserIP, Member
 from team.models import Team
 
 
 class MemberTestCase(APITestCase):
     def setUp(self):
-        user = get_user_model()(username="test-self", email="test-self@example.org")
+        user = Member(username="test-self", email="test-self@example.org")
         user.save()
         self.user = user
 
     def test_str(self):
-        user = get_user_model()(username="test-str", email="test-str@example.org")
+        user = Member(username="test-str", email="test-str@example.org")
         self.assertEqual(str(user), user.username)
 
     def test_self_status(self):
@@ -42,7 +41,7 @@ class MemberTestCase(APITestCase):
             reverse("member-self"), data={"email": "test-self2@example.org", "username": "test-self"}
         )
         self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(get_user_model().objects.get(id=self.user.id).email, "test-self2@example.org")
+        self.assertEqual(Member.objects.get(id=self.user.id).email, "test-self2@example.org")
 
     def test_self_change_email_invalid(self):
         self.client.force_authenticate(self.user)
@@ -53,7 +52,7 @@ class MemberTestCase(APITestCase):
         ev_token = self.user.email_token
         self.client.force_authenticate(self.user)
         self.client.put(reverse("member-self"), data={"email": "test-self3@example.org"})
-        user = get_user_model().objects.get(id=self.user.id)
+        user = Member.objects.get(id=self.user.id)
         self.assertNotEqual(ev_token, user.email_token)
 
     def test_self_get_email(self):
@@ -77,21 +76,21 @@ class MemberTestCase(APITestCase):
         config.set("enable_teams", False)
         self.client.put(reverse("member-self"), data={"username": "test-self2", "email": "test-self@example.org"})
         config.set("enable_teams", True)
-        self.assertEqual(get_user_model().objects.get(id=self.user.id).username, "test-self2")
+        self.assertEqual(Member.objects.get(id=self.user.id).username, "test-self2")
 
 
 class MemberViewSetTestCase(APITestCase):
     def setUp(self):
-        user = get_user_model()(username="test-member", email="test-member@example.org")
+        user = Member(username="test-member", email="test-member@example.org")
         user.save()
         self.user = user
-        user = get_user_model()(username="test-admin", email="test-admin@example.org")
+        user = Member(username="test-admin", email="test-admin@example.org")
         user.is_staff = True
         user.save()
         self.admin_user = user
 
     def test_visible_admin(self):
-        user = get_user_model()(username="test-member-invisible", email="test-member-invisible@example.org")
+        user = Member(username="test-member-invisible", email="test-member-invisible@example.org")
         user.is_visible = False
         user.save()
         self.client.force_authenticate(self.admin_user)
@@ -99,7 +98,7 @@ class MemberViewSetTestCase(APITestCase):
         self.assertEqual(len(response.data["d"]["results"]), 3)
 
     def test_visible_not_admin(self):
-        user = get_user_model()(username="test-member-invisible", email="test-member-invisible@example.org")
+        user = Member(username="test-member-invisible", email="test-member-invisible@example.org")
         user.is_visible = False
         user.save()
         self.client.force_authenticate(self.user)
@@ -107,7 +106,7 @@ class MemberViewSetTestCase(APITestCase):
         self.assertEqual(len(response.data["d"]["results"]), 0)
 
     def test_visible_detail_admin(self):
-        user = get_user_model()(username="test-member-invisible", email="test-member-invisible@example.org")
+        user = Member(username="test-member-invisible", email="test-member-invisible@example.org")
         user.is_visible = False
         user.save()
         self.client.force_authenticate(self.admin_user)
@@ -115,7 +114,7 @@ class MemberViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
 
     def test_visible_detail_not_admin(self):
-        user = get_user_model()(username="test-member-invisible", email="test-member-invisible@example.org")
+        user = Member(username="test-member-invisible", email="test-member-invisible@example.org")
         user.is_visible = False
         user.save()
         self.client.force_authenticate(self.user)
@@ -172,7 +171,7 @@ class UserIPTest(APITestCase):
 
     def test_first_sight(self):
         request = Request(HttpRequest())
-        user = get_user_model()(username="test-userip", email="test-userip@example.org")
+        user = Member(username="test-userip", email="test-userip@example.org")
         user.save()
         request.user = user
         request.META["x-forward-for"] = "1.1.1.1"
@@ -182,7 +181,7 @@ class UserIPTest(APITestCase):
 
     def test_second_sight(self):
         request = Request(HttpRequest())
-        user = get_user_model()(username="test-userip2", email="test-userip2@example.org")
+        user = Member(username="test-userip2", email="test-userip2@example.org")
         user.save()
         request.user = user
         request.META["x-forward-for"] = "1.1.1.1"
