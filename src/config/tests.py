@@ -102,7 +102,7 @@ class ConfigTestCase(APITestCase):
         self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json")
         self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test2"}, format="json")
         entry = AuditLogEntry.objects.latest("pk")
-        self.assertEqual(entry.extra, {"old_value": "test", "new_value": "test2"})
+        self.assertEqual(entry.extra, {"old_value": "test", "new_value": "test2", "key": "test"})
 
     def test_update_patch_creates_audit_log(self):
         self.client.force_authenticate(self.staff_user)
@@ -116,4 +116,4 @@ class ConfigTestCase(APITestCase):
         self.client.post(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test"}, format="json")
         self.client.patch(reverse("config-pk", kwargs={"name": "test"}), data={"value": "test2"}, format="json")
         entry = AuditLogEntry.objects.latest("pk")
-        self.assertEqual(entry.extra, {"old_value": "test", "new_value": "test2"})
+        self.assertEqual(entry.extra, {"old_value": "test", "new_value": "test2", "key": "test"})
