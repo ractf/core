@@ -39,7 +39,7 @@ class ChallengeSetupMixin:
             flag_metadata={"flag": "ractf{a}"},
             author="ractf",
             score=1000,
-            unlock_requirements=str(self.challenge2.id),
+            unlock_requirements=str(self.challenge2.pk),
         )
         self.challenge3 = Challenge.objects.create(
             name="test3",
@@ -100,6 +100,6 @@ class ChallengeSetupMixin:
         self.client.force_authenticate(user=user)
         data = {
             "flag": challenge.flag_metadata["flag"],
-            "challenge": challenge.id,
+            "challenge": challenge.pk,
         }
         return self.client.post(reverse("submit-flag"), data)

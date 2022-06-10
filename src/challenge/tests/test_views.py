@@ -33,7 +33,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.client.force_authenticate(user=self.user)
         data = {
             "flag": "ractf{b}",
-            "challenge": self.challenge2.id,
+            "challenge": self.challenge2.pk,
         }
         response = self.client.post(reverse("submit-flag"), data)
         self.assertEqual(response.status_code, HTTP_200_OK)
@@ -44,7 +44,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.client.force_authenticate(user=self.user2)
         data = {
             "flag": "ractf{a}",
-            "challenge": self.challenge2.id,
+            "challenge": self.challenge2.pk,
         }
         response = self.client.post(reverse("submit-flag"), data)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
@@ -53,7 +53,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.client.force_authenticate(user=self.user)
         data = {
             "flag": "ractf{a}",
-            "challenge": self.challenge3.id,
+            "challenge": self.challenge3.pk,
         }
         response = self.client.post(reverse("submit-flag"), data)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
@@ -64,7 +64,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.challenge2.save()
         data = {
             "flag": "ractf{a}",
-            "challenge": self.challenge2.id,
+            "challenge": self.challenge2.pk,
         }
         response = self.client.post(reverse("submit-flag"), data)
         self.challenge2.challenge_metadata = {}
@@ -77,7 +77,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.challenge2.save()
         data = {
             "flag": "ractf{a}",
-            "challenge": self.challenge2.id,
+            "challenge": self.challenge2.pk,
         }
         response = self.client.post(reverse("submit-flag"), data)
         self.challenge2.challenge_metadata = {}
@@ -90,15 +90,15 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.challenge2.save()
         data = {
             "flag": "ractf{a}",
-            "challenge": self.challenge2.id,
+            "challenge": self.challenge2.pk,
         }
         response = self.client.post(reverse("submit-flag"), data)
         self.assertTrue("explanation" in response.data["d"])
 
     def test_challenge_unlocks(self):
         self.solve_challenge()
-        self.challenge1.unlock_requirements = str(self.challenge2.id)
-        self.assertTrue(self.challenge1.is_unlocked(Member.objects.get(id=self.user.id)))
+        self.challenge1.unlock_requirements = str(self.challenge2.pk)
+        self.assertTrue(self.challenge1.is_unlocked(Member.objects.get(id=self.user.pk)))
 
     def test_challenge_unlocks_no_team(self):
         user4 = Member(username="challenge-test-4", email="challenge-test-4@example.org")
@@ -159,13 +159,13 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.client.force_authenticate(user=self.user)
         data = {
             "flag": "ractf{a}",
-            "challenge": self.challenge2.id,
+            "challenge": self.challenge2.pk,
         }
         self.client.post(reverse("submit-flag"), data)
         self.client.force_authenticate(user=self.user2)
         data = {
             "flag": "ractf{a}",
-            "challenge": self.challenge2.id,
+            "challenge": self.challenge2.pk,
         }
         response = self.client.post(reverse("submit-flag"), data)
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
@@ -175,7 +175,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.client.force_authenticate(user=self.user3)
         data = {
             "flag": "ractf{a}",
-            "challenge": self.challenge2.id,
+            "challenge": self.challenge2.pk,
         }
         response = self.client.post(reverse("submit-flag"), data)
         self.assertEqual(response.status_code, HTTP_200_OK)
@@ -208,7 +208,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.client.force_authenticate(self.user)
         data = {
             "flag": "ractf{a}",
-            "challenge": self.challenge2.id,
+            "challenge": self.challenge2.pk,
         }
         self.client.post(reverse("submit-flag"), data)
 
@@ -230,7 +230,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.client.force_authenticate(self.user)
         data = {
             "flag": "ractf{a}",
-            "challenge": self.challenge2.id,
+            "challenge": self.challenge2.pk,
         }
         self.client.post(reverse("submit-flag"), data)
 
@@ -397,28 +397,28 @@ class ChallengeViewsetTestCase(ChallengeSetupMixin, APITestCase):
         self.user.is_staff = False
         self.user.save()
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse("challenges-detail", kwargs={"pk": self.challenge1.id}))
+        response = self.client.get(reverse("challenges-detail", kwargs={"pk": self.challenge1.pk}))
         self.assertFalse("description" in response.data)
 
     def test_single_challenge_admin_redacting(self):
         self.user.is_staff = True
         self.user.save()
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse("challenges-detail", kwargs={"pk": self.challenge1.id}))
+        response = self.client.get(reverse("challenges-detail", kwargs={"pk": self.challenge1.pk}))
         self.assertTrue("description" in response.data)
 
     def test_admin_unlocking(self):
         self.user.is_staff = True
         self.user.save()
         self.client.force_authenticate(self.user)
-        response = self.client.get(reverse("challenges-detail", kwargs={"pk": self.challenge1.id}))
+        response = self.client.get(reverse("challenges-detail", kwargs={"pk": self.challenge1.pk}))
         self.assertFalse(response.data["unlocked"])
 
     def test_user_post_detail(self):
         self.user.is_staff = False
         self.user.save()
         self.client.force_authenticate(self.user)
-        response = self.client.post(reverse("challenges-detail", kwargs={"pk": self.challenge1.id}))
+        response = self.client.post(reverse("challenges-detail", kwargs={"pk": self.challenge1.pk}))
         self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
 
     def test_user_post_list(self):
