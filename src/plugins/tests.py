@@ -228,7 +228,7 @@ class DecayPointsPluginTestCase(ChallengeSetupMixin, APITestCase):
             users=Member.objects.filter(solves__challenge=self.challenge2),
             solves=Solve.objects.filter(challenge=self.challenge2),
         )
-        self.assertTrue(Member.objects.get(id=self.user.id).points < points)
+        self.assertTrue(Member.objects.get(id=self.user.pk).points < points)
 
     def test_score(self):
         config.set("enable_scoring", True)

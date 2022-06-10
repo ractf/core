@@ -86,7 +86,7 @@ class RegistrationSerializer(serializers.Serializer):
                     user.email,
                     f"{config.get('event_name')} - Verify your email",
                     "verify",
-                    url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token),
+                    url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.pk, user.email_token),
                     event_name=config.get("event_name"),
                 )
             except (SMTPException, AnymailAPIError):  # pragma: no cover - prod error handling

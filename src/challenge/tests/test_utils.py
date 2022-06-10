@@ -37,5 +37,5 @@ class FileTestCase(ChallengeSetupMixin, APITestCase):
     def test_get_filename(self):
         md5 = "12345678901234567890123456789012"
         file = File(challenge=self.challenge1, md5=md5)
-        self.assertEqual(get_file_name(file, "filename"), f"{self.challenge1.id}/{md5}/filename")
+        self.assertEqual(get_file_name(file, "filename"), f"{self.challenge1.pk}/{md5}/filename")
 

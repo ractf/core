@@ -291,7 +291,7 @@ class SudoTestCase(APITestCase):
         user2.save()
 
         self.client.force_authenticate(user)
-        req = self.client.post(reverse("sudo"), {"id": user2.id})
+        req = self.client.post(reverse("sudo"), {"id": user2.pk})
         self.assertEqual(req.status_code, HTTP_200_OK)
 
 
@@ -324,7 +324,7 @@ class GenerateInvitesTestCase(APITestCase):
         user.save()
         self.client.force_authenticate(user=user)
         team = Team.objects.create(owner=user, name=user.username, password="123123")
-        response = self.client.post(reverse("generate-invites"), {"amount": 15, "auto_team": team.id, "max_uses": 1})
+        response = self.client.post(reverse("generate-invites"), {"amount": 15, "auto_team": team.pk, "max_uses": 1})
         self.assertEqual(len(response.data["d"]["invite_codes"]), 15)
 
     def test_invites_viewset(self):
@@ -425,7 +425,7 @@ class InviteRequiredRegistrationTestCase(APITestCase):
             "invite": "test4",
         }
         self.client.post(reverse("register"), data)
-        self.assertEqual(Member.objects.get(username="user12").team.id, self.team.id)
+        self.assertEqual(Member.objects.get(username="user12").team.pk, self.team.id)
 
 
 class LogoutTestCase(APITestCase):

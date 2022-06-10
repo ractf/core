@@ -134,10 +134,10 @@ class Challenge(ExportModelOperationsMixin("challenge"), models.Model):
             return False
         if solves is None:
             solves = list(user.team.solves.filter(correct=True).values_list("challenge", flat=True))
-        return self.id in solves
+        return self.pk in solves
 
     def get_solve_count(self, solve_counter):
-        return solve_counter.get(self.id, 0)
+        return solve_counter.get(self.pk, 0)
 
     @classmethod
     def get_unlocked_annotated_queryset(cls, user):

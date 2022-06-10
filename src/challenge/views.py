@@ -61,7 +61,7 @@ def get_cache_key(user):
     if user.team is None:
         return str(caches["default"].get("challenge_mod_index", 0)) + "categoryvs_no_team"
     else:
-        return str(caches["default"].get("challenge_mod_index", 0)) + "categoryvs_team_" + str(user.team.id)
+        return str(caches["default"].get("challenge_mod_index", 0)) + "categoryvs_team_" + str(user.team.pk)
 
 
 class CategoryViewset(AdminCreateModelViewSet):
@@ -270,8 +270,8 @@ class FlagSubmitView(APIView):
             return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
 
         with transaction.atomic():
-            team = Team.objects.select_for_update().get(id=request.user.team.id)
-            user = Member.objects.select_for_update().get(id=request.user.id)
+            team = Team.objects.select_for_update().get(id=request.user.team.pk)
+            user = Member.objects.select_for_update().get(id=request.user.pk)
             flag = request.data.get("flag")
             challenge_id = request.data.get("challenge")
             if not flag or not challenge_id:
