@@ -242,6 +242,39 @@ class DecayPointsPluginTestCase(ChallengeSetupMixin, APITestCase):
         self.assertEqual(self.team.points, 1000)
         self.assertEqual(self.team.leaderboard_points, 0)
 
+    def test_recalculate_with_incorrect_solves(self):
+        points = self.plugin.get_points(None, None, 0)
+        score = Score(team=self.team, reason="test", points=points)
+        score.save()
+        solve = Solve(team=self.team, solved_by=self.user, challenge=self.challenge2, score=score, flag="")
+        solve.save()
+        self.team.points += points
+        self.team.leaderboard_points += points
+        self.user.points += points
+        self.user.leaderboard_points += points
+        self.team.save()
+        self.user.save()
+        score = Score(team=self.team2, reason="test", points=points)
+        score.save()
+        solve = Solve(team=self.team2, solved_by=self.user3, challenge=self.challenge2, score=score, flag="")
+        solve.save()
+        self.team2.points += points
+        self.team2.leaderboard_points += points
+        self.user3.points += points
+        self.user3.leaderboard_points += points
+        self.team2.save()
+        self.user3.save()
+        solve = Solve(team=self.admin_team, solved_by=self.admin_user, challenge=self.challenge2, flag="",
+                      correct=False)
+        solve.save()
+
+        self.plugin.recalculate(
+            teams=Team.objects.filter(solves__challenge=self.challenge2),
+            users=get_user_model().objects.filter(solves__challenge=self.challenge2),
+            solves=Solve.objects.filter(challenge=self.challenge2),
+        )
+        self.assertEqual(get_user_model().objects.get(id=self.admin_user.id).points, 0)
+
 
 class PluginLoaderTestCase(APITestCase):
     def test_plugin_loader(self):
