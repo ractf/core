@@ -127,6 +127,26 @@ class PlaintextFlagPluginTestCase(APITestCase):
     def test_invalid_flag(self):
         self.assertFalse(self.plugin.check("ractf{b}"))
 
+    def test_self_check_valid_flag(self):
+        self.challenge.flag_metadata["flag"] = "ractf{a}"
+        PlaintextFlagPlugin(self.challenge)
+        self.assertEqual(len(self.plugin.self_check()), 0)
+
+    def test_self_check_no_flag(self):
+        self.challenge.flag_metadata["flag"] = ""
+        PlaintextFlagPlugin(self.challenge)
+        self.assertEqual(len(self.plugin.self_check()), 1)
+
+    def test_self_check_no_flag_prefix(self):
+        self.challenge.flag_metadata["flag"] = "a}"
+        PlaintextFlagPlugin(self.challenge)
+        self.assertEqual(len(self.plugin.self_check()), 1)
+
+    def test_self_check_no_flag_suffix(self):
+        self.challenge.flag_metadata["flag"] = "ractf{a"
+        PlaintextFlagPlugin(self.challenge)
+        self.assertEqual(len(self.plugin.self_check()), 1)
+
 
 class RegexFlagPluginTestCase(APITestCase):
     def setUp(self):
