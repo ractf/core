@@ -1,5 +1,3 @@
-import os
-
 from django.core.management import BaseCommand
 from django.core.management.base import CommandError, CommandParser
 from django.db import IntegrityError
