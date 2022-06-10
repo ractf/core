@@ -1,4 +1,3 @@
-import os
 import time
 
 from django.core.cache import caches
