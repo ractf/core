@@ -1,7 +1,6 @@
 import time
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import caches
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -20,6 +19,7 @@ from challenge.models import Solve, ChallengeVote, ChallengeFeedback, Tag
 from challenge.tests.mixins import ChallengeSetupMixin
 from config import config
 from hint.models import HintUse
+from member.models import Member
 
 
 class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
@@ -98,10 +98,10 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
     def test_challenge_unlocks(self):
         self.solve_challenge()
         self.challenge1.unlock_requirements = str(self.challenge2.id)
-        self.assertTrue(self.challenge1.is_unlocked(get_user_model().objects.get(id=self.user.id)))
+        self.assertTrue(self.challenge1.is_unlocked(Member.objects.get(id=self.user.id)))
 
     def test_challenge_unlocks_no_team(self):
-        user4 = get_user_model()(username="challenge-test-4", email="challenge-test-4@example.org")
+        user4 = Member(username="challenge-test-4", email="challenge-test-4@example.org")
         user4.save()
         self.assertFalse(self.challenge1.is_unlocked(user4))
 
@@ -188,7 +188,7 @@ class ChallengeTestCase(ChallengeSetupMixin, APITestCase):
         self.assertFalse(self.challenge2.is_unlocked(AnonymousUser()))
 
     def test_challenge_solved_no_team(self):
-        user4 = get_user_model()(username="challenge-test-4", email="challenge-test-4@example.org")
+        user4 = Member(username="challenge-test-4", email="challenge-test-4@example.org")
         user4.save()
         self.assertFalse(self.challenge2.is_solved(user4))
 
@@ -633,7 +633,7 @@ class RecalculateTestCase(ChallengeSetupMixin, APITestCase):
         self.challenge2.score = 69
         self.challenge2.save()
         self.user.refresh_from_db()
-        self.user = get_user_model().objects.get(id=self.user.id)
+        self.user = Member.objects.get(id=self.user.id)
         self.assertNotEqual(old_points, self.user.points)
 
 

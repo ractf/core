@@ -1,7 +1,6 @@
 import abc
 import re
 
-from django.contrib.auth import get_user_model
 from django.core.validators import EmailValidator
 from rest_framework.exceptions import ValidationError
 

@@ -5,7 +5,6 @@ from typing import Union
 
 import requests
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.core.cache import caches
 from django.db import models, transaction
 from django.db.models import Case, Prefetch, Sum, Value, When
@@ -52,6 +51,7 @@ from challenge.serializers import (
 )
 from config import config
 from hint.models import Hint, HintUse
+from member.models import Member
 from sockets.signals import broadcast
 from team.models import Team
 from team.permissions import HasTeam
@@ -169,7 +169,7 @@ class ScoresViewset(ModelViewSet):
 
     def recalculate_scores(self, user, team):
         if user:
-            user = get_object_or_404(get_user_model(), id=user)
+            user = get_object_or_404(Member, id=user)
             user.leaderboard_points = (
                 Score.objects.filter(user=user, leaderboard=True).aggregate(Sum("points"))["points__sum"] or 0
             )
@@ -271,7 +271,7 @@ class FlagSubmitView(APIView):
 
         with transaction.atomic():
             team = Team.objects.select_for_update().get(id=request.user.team.id)
-            user = get_user_model().objects.select_for_update().get(id=request.user.id)
+            user = Member.objects.select_for_update().get(id=request.user.id)
             flag = request.data.get("flag")
             challenge_id = request.data.get("challenge")
             if not flag or not challenge_id:
@@ -362,7 +362,7 @@ class FlagCheckView(APIView):
         ):
             return FormattedResponse(m="flag_submission_disabled", status=HTTP_403_FORBIDDEN)
         team = Team.objects.get(id=request.user.team.id)
-        user = get_user_model().objects.get(id=request.user.id)
+        user = Member.objects.get(id=request.user.id)
         flag = request.data.get("flag")
         challenge_id = request.data.get("challenge")
         if not flag or not challenge_id:

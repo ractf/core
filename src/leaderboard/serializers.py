@@ -1,7 +1,7 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from challenge.models import Score
+from member.models import Member
 from team.models import Team
 
 
@@ -42,7 +42,7 @@ class TeamPointsSerializer(serializers.ModelSerializer):
 
 class UserPointsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = get_user_model()
+        model = Member
         fields = ["username", "id", "leaderboard_points"]
 
 

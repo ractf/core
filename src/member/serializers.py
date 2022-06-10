@@ -1,12 +1,11 @@
 import secrets
 
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from backend.mixins import IncorrectSolvesMixin
 from challenge.serializers import SolveSerializer
 from config import config
-from member.models import UserIP
+from member.models import UserIP, Member
 
 
 class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
@@ -15,7 +14,7 @@ class MemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     incorrect_solves = serializers.SerializerMethodField()
 
     class Meta:
-        model = get_user_model()
+        model = Member
         fields = [
             "id",
             "username",
@@ -43,7 +42,7 @@ class ListMemberSerializer(serializers.ModelSerializer):
     team_name = serializers.ReadOnlyField(source="team.name")
 
     class Meta:
-        model = get_user_model()
+        model = Member
         fields = ["id", "username", "team", "team_name"]
 
 
@@ -53,7 +52,7 @@ class AdminMemberSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     incorrect_solves = serializers.SerializerMethodField()
 
     class Meta:
-        model = get_user_model()
+        model = Member
         fields = [
             "id",
             "username",
@@ -83,7 +82,7 @@ class MinimalMemberSerializer(serializers.ModelSerializer):
     team_name = serializers.ReadOnlyField(source="team.name")
 
     class Meta:
-        model = get_user_model()
+        model = Member
         fields = [
             "id",
             "username",
@@ -116,7 +115,7 @@ class SelfSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
     has_2fa = serializers.BooleanField()
 
     class Meta:
-        model = get_user_model()
+        model = Member
         fields = [
             "id",
             "username",
