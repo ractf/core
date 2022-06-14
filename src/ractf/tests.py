@@ -1,21 +1,20 @@
 from io import StringIO
 
-from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import TestCase
 
-from member.models import UserIP
+from member.models import UserIP, Member
 
 
 class GroupIpsTest(TestCase):
     def setUp(self):
-        one = get_user_model()(username="one", email="one@one.one")
+        one = Member(username="one", email="one@one.one")
         one.save()
 
-        two = get_user_model()(username="two", email="two@two.two")
+        two = Member(username="two", email="two@two.two")
         two.save()
 
-        three = get_user_model()(username="three", email="three@three.three")
+        three = Member(username="three", email="three@three.three")
         three.save()
 
         UserIP.objects.create(user=one, ip="1.1.1.1", user_agent="Django Tests")

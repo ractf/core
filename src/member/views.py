@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from rest_framework import filters
 from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -6,7 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
 from backend.viewsets import AdminListModelViewSet
-from member.models import UserIP
+from member.models import UserIP, Member
 from member.serializers import (
     AdminMemberSerializer,
     ListMemberSerializer,
@@ -24,7 +23,7 @@ class SelfView(RetrieveUpdateAPIView):
     def get_object(self):
         UserIP.hook(self.request)
         return (
-            get_user_model()
+            Member
             .objects.prefetch_related(
                 "team",
                 "team__solves",
@@ -40,7 +39,7 @@ class SelfView(RetrieveUpdateAPIView):
                 "solves__score__team",
             )
             .distinct()
-            .get(id=self.request.user.id)
+            .get(id=self.request.user.pk)
         )
 
 
@@ -57,7 +56,7 @@ class MemberViewSet(AdminListModelViewSet):
 
     def get_queryset(self):
         if self.action != "list":
-            return get_user_model().objects.prefetch_related(
+            return Member.objects.prefetch_related(
                 "team",
                 "team__solves",
                 "team__solves__score",
@@ -72,8 +71,8 @@ class MemberViewSet(AdminListModelViewSet):
                 "solves__score__team",
             )
         if self.request.user.is_staff and not self.request.user.should_deny_admin():
-            return get_user_model().objects.order_by("id").prefetch_related("team")
-        return get_user_model().objects.filter(is_visible=True).order_by("id").prefetch_related("team")
+            return Member.objects.order_by("id").prefetch_related("team")
+        return Member.objects.filter(is_visible=True).order_by("id").prefetch_related("team")
 
 
 class UserIPViewSet(ModelViewSet):

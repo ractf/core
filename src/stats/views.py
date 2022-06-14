@@ -1,7 +1,6 @@
 import os
 from datetime import datetime, timezone
 
-from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db.models import Sum
 from django_prometheus.exports import ExportToDjangoView
@@ -13,7 +12,7 @@ from backend.response import FormattedResponse
 from challenge.models import Score
 from challenge.sql import get_incorrect_solve_counts, get_solve_counts
 from config import config
-from member.models import UserIP
+from member.models import UserIP, Member
 from stats.signals import member_count, team_count
 from team.models import Team
 
@@ -32,7 +31,7 @@ def countdown(request):
 
 @api_view(["GET"])
 def stats(request):
-    users = get_user_model().objects.count()
+    users = Member.objects.count()
     teams = Team.objects.count()
     if users > 0 and teams > 0:
         average = users / teams
@@ -76,8 +75,8 @@ def full(request):
     return FormattedResponse(
         {
             "users": {
-                "all": get_user_model().objects.count(),
-                "confirmed": get_user_model().objects.filter(email_verified=True).count(),
+                "all": Member.objects.count(),
+                "confirmed": Member.objects.filter(email_verified=True).count(),
             },
             "teams": Team.objects.count(),
             "ips": UserIP.objects.count(),

@@ -52,7 +52,7 @@ class SelfView(RetrieveUpdateAPIView):
                 "solves__score",
                 "solves__solved_by",
             )
-            .get(id=self.request.user.team.id)
+            .get(id=self.request.user.team.pk)
         )
 
 

@@ -1,7 +1,7 @@
-from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 
 from challenge.models import Challenge, Score, Solve
+from member.models import Member
 from team.models import Team
 
 
@@ -15,7 +15,7 @@ class Command(BaseCommand):
             team.points = 0
             team.leaderboard_points = 0
             team.save()
-        for user in get_user_model().objects.all():
+        for user in Member.objects.all():
             user.points = 0
             user.leaderboard_points = 0
             user.save()
