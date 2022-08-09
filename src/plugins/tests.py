@@ -290,10 +290,10 @@ class DecayPointsPluginTestCase(ChallengeSetupMixin, APITestCase):
 
         self.plugin.recalculate(
             teams=Team.objects.filter(solves__challenge=self.challenge2),
-            users=get_user_model().objects.filter(solves__challenge=self.challenge2),
+            users=Member.objects.filter(solves__challenge=self.challenge2),
             solves=Solve.objects.filter(challenge=self.challenge2),
         )
-        self.assertEqual(get_user_model().objects.get(id=self.admin_user.id).points, 0)
+        self.assertEqual(Member.objects.get(id=self.admin_user.id).points, 0)
 
 
 class PluginLoaderTestCase(APITestCase):
