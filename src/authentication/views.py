@@ -3,7 +3,6 @@ import secrets
 import string
 
 from django.conf import settings
-from django.contrib.auth import get_user_model
 from django.core.validators import EmailValidator
 from django.db import IntegrityError, transaction
 from django.utils.decorators import method_decorator
@@ -46,6 +45,7 @@ from backend.signals import (
 )
 from backend.viewsets import AdminListModelViewSet
 from config import config
+from member.models import Member
 from plugins import providers
 from team.models import Team
 
@@ -78,7 +78,7 @@ class LoginView(APIView):
 
 
 class RegistrationView(CreateAPIView):
-    model = get_user_model()
+    model = Member
     permission_classes = (~permissions.IsAuthenticated,)
     serializer_class = RegistrationSerializer
     throttle_scope = "register"
@@ -202,13 +202,13 @@ class RequestPasswordResetView(APIView):
         email_validator(email)
         # prevent timing attack - is this necessary?
         try:
-            user = get_user_model().objects.get(email=email, email_verified=True)
+            user = Member.objects.get(email=email, email_verified=True)
             token = PasswordResetToken(user=user, token=secrets.token_hex())
             token.save()
-            uid = user.id
+            uid = user.pk
             token = token.token
             password_reset_start.send(sender=self.__class__, user=user)
-        except get_user_model().DoesNotExist:
+        except Member.DoesNotExist:
             password_reset_start_reject.send(sender=self.__class__, email=email)
             uid = -1
             token = ""
@@ -295,7 +295,7 @@ class ResendEmailView(GenericAPIView):
             user.email,
             f"{config.get('event_name')} - Verify your email",
             "verify",
-            url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.id, user.email_token),
+            url=settings.FRONTEND_URL + "verify?id={}&secret={}".format(user.pk, user.email_token),
         )
         return FormattedResponse("email_resent")
 
@@ -360,7 +360,7 @@ class CreateBotView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        bot = get_user_model()(
+        bot = Member(
             username=serializer.data["username"],
             email_verified=True,
             is_visible=serializer.data["is_visible"],
@@ -382,7 +382,7 @@ class SudoView(APIView):
 
     def post(self, request):
         id = request.data["id"]
-        user = get_object_or_404(get_user_model(), id=id)
+        user = get_object_or_404(Member, id=id)
         return FormattedResponse(d={"token": user.issue_token(owner=request.user)})
 
 

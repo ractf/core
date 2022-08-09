@@ -100,8 +100,8 @@ class ChallengeSerializerMixin:
 
     def get_votes(self, instance):
         return {
-            "positive": self.context["votes_positive_counter"].get(instance.id, 0),
-            "negative": self.context["votes_negative_counter"].get(instance.id, 0),
+            "positive": self.context["votes_positive_counter"].get(instance.pk, 0),
+            "negative": self.context["votes_negative_counter"].get(instance.pk, 0),
         }
 
     def get_post_score_explanation(self, instance):

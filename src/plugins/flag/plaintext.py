@@ -13,7 +13,7 @@ class PlaintextFlagPlugin(FlagPlugin):
             return ["property 'flag' must be set!"]
 
         set_flag = self.challenge.flag_metadata["flag"]
-        if not set_flag.startswith(config.get("flag_prefix")):
+        if not set_flag.startswith(config.get("flag_prefix")) or not set_flag.endswith("}"):
             return ["flag does not conform to event flag format!"]
 
         return []

@@ -1,10 +1,10 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import CASCADE, SET_NULL
 from django.utils import timezone
 from django_prometheus.models import ExportModelOperationsMixin
 
 from challenge.models import Challenge
+from member.models import Member
 from team.models import Team
 
 
@@ -18,7 +18,7 @@ class Hint(ExportModelOperationsMixin("hint"), models.Model):
 class HintUse(ExportModelOperationsMixin("hint_use"), models.Model):
     hint = models.ForeignKey(Hint, related_name="uses", on_delete=CASCADE)
     team = models.ForeignKey(Team, related_name="hints_used", on_delete=CASCADE, null=True)
-    user = models.ForeignKey(get_user_model(), related_name="hints_used", on_delete=SET_NULL, null=True)
+    user = models.ForeignKey(Member, related_name="hints_used", on_delete=SET_NULL, null=True)
     timestamp = models.DateTimeField(default=timezone.now)
     challenge = models.ForeignKey(Challenge, related_name="hints_used", on_delete=CASCADE)
 

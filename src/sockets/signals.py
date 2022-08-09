@@ -11,7 +11,7 @@ from config import config
 
 
 def get_team_channel(user):
-    return f"team.{user.team.id}"
+    return f"team.{user.team.pk}"
 
 
 def send(user, data):
@@ -30,12 +30,12 @@ def on_flag_score(user, team, challenge, flag, solve, **kwargs):
         {
             "type": "send_json",
             "event_code": 1,
-            "user": user.id,
+            "user": user.pk,
             "username": user.username,
-            "challenge_id": challenge.id,
+            "challenge_id": challenge.pk,
             "challenge_name": challenge.name,
             "challenge_score": solve.score.points,
-            "team": team.id,
+            "team": team.pk,
             "team_name": team.name,
         }
     )
@@ -48,11 +48,11 @@ def on_flag_reject(user, team, challenge, flag, **kwargs):
         {
             "type": "send_json",
             "event_code": 2,
-            "user": user.id,
+            "user": user.pk,
             "username": user.username,
-            "challenge_id": challenge.id,
+            "challenge_id": challenge.pk,
             "challenge_name": challenge.name,
-            "team": team.id,
+            "team": team.pk,
             "team_name": team.name,
         },
     )
@@ -65,9 +65,9 @@ def on_use_hint(user, team, hint, **kwargs):
         {
             "type": "send_json",
             "event_code": 3,
-            "user": user.id,
+            "user": user.pk,
             "username": user.username,
-            "team": team.id,
+            "team": team.pk,
             "team_name": team.name,
             "hint_name": hint.name,
             "hint_penalty": hint.penalty,
@@ -84,9 +84,9 @@ def on_team_join(user, team, **kwargs):
         {
             "type": "send_json",
             "event_code": 4,
-            "user": user.id,
+            "user": user.pk,
             "username": user.username,
-            "team": team.id,
+            "team": team.pk,
             "team_name": team.name,
         },
     )
@@ -104,4 +104,4 @@ def on_announcement_create(sender, instance, **kwargs):
 def on_challenge_edit(sender, instance, update_fields, **kwargs):
     if update_fields is not None and "first_blood" in update_fields:
         return
-    broadcast({"type": "send_json", "event_code": 6, "challenge_id": instance.id})
+    broadcast({"type": "send_json", "event_code": 6, "challenge_id": instance.pk})
