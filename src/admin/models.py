@@ -15,7 +15,11 @@ class AuditLogEntry(models.Model):
 
     @classmethod
     def create_management_entry(cls, command: str, extra=None):
-        AuditLogEntry.objects.create(user=None, username=f"System ({os.getlogin()})",
+        try:
+            user = os.getlogin()
+        except OSError:
+            user = "No TTY"
+        AuditLogEntry.objects.create(user=None, username=f"System ({user})",
                                      action=f"management_{command}", extra=extra)
 
     @classmethod
