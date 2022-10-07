@@ -1,12 +1,13 @@
 """A command-line tool for generating and inserting many rows of fake data into the database.
 
 Usage:
-    fake generate [--teams=<teams>] [--users=<users>] [--categories=<categories>] [--challenges=<challenges>] [--solves=<solves>] [--force]
+    fake generate [--teams=<teams>] [--users=<users>] [--categories=<categories>] [--challenges=<challenges>] [--solves=<solves>] [--force] [--zoom]
     fake -h | --help
 
 Options:
     --help -h                  Show this screen.
     --force                    Run even when the database is populated.
+    --zoom                     Disable Postgres logging so the script runs faster.
 
     --users=<users>            The number of users to generate per team.           [default: 2]
     --categories=<categories>  The number of categories to generate.               [default: 5]
