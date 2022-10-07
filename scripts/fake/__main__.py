@@ -51,9 +51,10 @@ try:
         db_indexes[table] = indexes
         db_constraints[table] = constraints
 
-    for table in TABLE_NAMES:
-        cursor.execute(f"ALTER TABLE {table} SET UNLOGGED")
-        db.connection.commit()
+    if arguments.get("zoom"):
+        for table in TABLE_NAMES:
+            cursor.execute(f"ALTER TABLE {table} SET UNLOGGED")
+            db.connection.commit()
 
     with TimedLog("Inserting data... ", ending="\n"):
         fake = Faker()
