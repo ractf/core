@@ -28,6 +28,7 @@ FORCE = arguments.get("--force")
 
 
 TABLE_NAMES = [
+    "admin_auditlogentry",
     "member_member_groups",
     "authentication_token",
     "member_member_user_permissions",
