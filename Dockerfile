@@ -10,7 +10,7 @@ ENV PYTHONUNBUFFERED=1 \
   PATH=/root/.local/bin:/app/src/manage.py${PATH}
 
 RUN set -ex \
-  && apt-get update && apt-get -y --no-install-recommends install $BUILD_DEPS libpq-dev netcat make git curl \
+  && apt-get update && apt-get -y --no-install-recommends install $BUILD_DEPS libpq-dev netcat-traditional make git curl \
   && rm -rf /var/lib/apt/lists/* \
   && curl -sSL https://install.python-poetry.org | python3 - \
   && poetry config virtualenvs.create false
