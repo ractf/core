@@ -29,7 +29,7 @@ sentry-sdk = "^1.14.0"
 coverage = {extras = ["toml"], version = "^5.5"}
 Twisted = "22.10.0"
 channels-redis = "^3.2.0"
-requests = "^2.26.0"
+requests = "^2.31.0"
 django-anymail = {extras = ["amazon_ses", "mailgun", "sendgrid", "console", "mailjet", "mandrill", "postal", "postmark", "sendinblue", "sparkpost"], version = "^8.5"}
 
 [tool.poetry.dev-dependencies]
