@@ -7,6 +7,11 @@ class AdminOrReadOnlyVisible(permissions.BasePermission):
             return True
         return request.user.is_authenticated and obj.is_visible and request.method in permissions.SAFE_METHODS
 
+    def has_permission(self, request, view):
+        if request.method not in permissions.SAFE_METHODS:
+            return request.user.is_staff and not request.user.should_deny_admin()
+        return request.user.is_authenticated
+
 
 class AdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):

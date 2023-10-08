@@ -162,6 +162,16 @@ class MemberViewSetTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, HTTP_200_OK)
 
+    def test_unauthenticated_post_request_is_rejected(self):
+        self.admin_user.is_visible = True
+        self.admin_user.save()
+        self.client.force_authenticate(self.user)
+        response = self.client.post(
+            reverse("member-list"),
+            data={"username": "test2"},
+        )
+        self.assertEqual(response.status_code, HTTP_403_FORBIDDEN)
+
 
 class UserIPTest(APITestCase):
     def test_not_authenticated(self):
