@@ -22,7 +22,7 @@ from backend.viewsets import AdminListModelViewSet
 from challenge.models import Solve
 from config import config
 from member.models import Member
-from team.models import Team
+from team.models import Team, LeaderboardGroup
 from team.permissions import HasTeam, IsTeamOwnerOrReadOnly, TeamsEnabled
 from team.serializers import (
     AdminTeamSerializer,
@@ -63,6 +63,7 @@ class LeaderboardGroupViewSet(AdminListModelViewSet):
     admin_serializer_class = LeaderboardGroupSerializer
     list_serializer_class = LeaderboardGroupSerializer
     list_admin_serializer_class = LeaderboardGroupSerializer
+    queryset = LeaderboardGroup.objects.all()
 
 
 class TeamViewSet(AdminListModelViewSet):

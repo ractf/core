@@ -36,9 +36,11 @@ class LeaderboardUserScoreSerializer(serializers.ModelSerializer):
 
 
 class TeamPointsSerializer(serializers.ModelSerializer):
+    leaderboard_group_name = serializers.ReadOnlyField(source="leaderboard_group.name")
+
     class Meta:
         model = Team
-        fields = ["name", "id", "leaderboard_points", "leaderboard_group"]
+        fields = ["name", "id", "leaderboard_points", "leaderboard_group_name"]
 
 
 class UserPointsSerializer(serializers.ModelSerializer):
