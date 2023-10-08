@@ -15,14 +15,14 @@ from rest_framework.status import (
 from rest_framework.views import APIView
 
 from backend.exceptions import FormattedException
-from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot
+from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot, AdminOrReadOnly
 from backend.response import FormattedResponse
 from backend.signals import team_join, team_join_attempt, team_join_reject
 from backend.viewsets import AdminListModelViewSet
 from challenge.models import Solve
 from config import config
 from member.models import Member
-from team.models import Team
+from team.models import Team, LeaderboardGroup
 from team.permissions import HasTeam, IsTeamOwnerOrReadOnly, TeamsEnabled
 from team.serializers import (
     AdminTeamSerializer,
@@ -30,6 +30,7 @@ from team.serializers import (
     ListTeamSerializer,
     SelfTeamSerializer,
     TeamSerializer,
+    LeaderboardGroupSerializer
 )
 
 
@@ -54,6 +55,15 @@ class SelfView(RetrieveUpdateAPIView):
             )
             .get(id=self.request.user.team.pk)
         )
+
+
+class LeaderboardGroupViewSet(AdminListModelViewSet):
+    permission_classes = (AdminOrReadOnly,)
+    serializer_class = LeaderboardGroupSerializer
+    admin_serializer_class = LeaderboardGroupSerializer
+    list_serializer_class = LeaderboardGroupSerializer
+    list_admin_serializer_class = LeaderboardGroupSerializer
+    queryset = LeaderboardGroup.objects.all()
 
 
 class TeamViewSet(AdminListModelViewSet):

@@ -1,6 +1,9 @@
 import time
 
 from django.core.cache import caches
+from django.db.models import Window, Q
+from django.db.models.functions import RowNumber
+
 from rest_framework.generics import ListAPIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -55,7 +58,19 @@ class GraphView(APIView):
             return FormattedResponse(cached_leaderboard)
 
         graph_members = config.get("graph_members")
-        top_teams = Team.objects.visible().ranked()[:graph_members]
+        
+        teams_with_row_numbers = Team.objects.visible().annotate(
+            row_number=Window(
+                expression=RowNumber(),
+                partition_by=['leaderboard_group'],
+                order_by=["-leaderboard_points", "last_score"]
+            )
+        )
+        top_teams = teams_with_row_numbers.filter(
+            Q(row_number__lte=graph_members) & 
+            (Q(leaderboard_group__has_own_leaderboard=True) | Q(leaderboard_group__isnull=True))
+        )
+
         top_users = (
             Member
             .objects.filter(is_visible=True)
