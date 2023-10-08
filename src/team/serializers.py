@@ -71,7 +71,7 @@ class ListTeamSerializer(serializers.ModelSerializer):
 class LeaderboardGroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = LeaderboardGroup
-        fields = ["name", "description", "is_self_assignable", "has_own_leaderboard"]
+        fields = ["id", "name", "description", "is_self_assignable", "has_own_leaderboard"]
 
 
 class AdminTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
