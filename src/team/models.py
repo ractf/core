@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import CASCADE, Prefetch
+from django.db.models import CASCADE, SET_NULL, Prefetch
 from django.db.models.functions import Lower
 from django.utils import timezone
 from django_prometheus.models import ExportModelOperationsMixin
@@ -29,6 +29,15 @@ class TeamQuerySet(models.QuerySet):
         return self.prefetch_related(Prefetch("solves", queryset=Solve.objects.filter(correct=True)))
 
 
+class LeaderboardGroup(ExportModelOperationsMixin("leaderboard_group"), models.Model):
+    """Represents a group which teams can assign themselves to."""
+
+    name = models.CharField(max_length=31, unique=True, validators=[printable_name])
+    description = models.TextField(blank=True, max_length=255)
+    is_self_assignable = models.BooleanField(default=True)
+    has_own_leaderboard = models.BooleanField(default=True)
+
+
 class Team(ExportModelOperationsMixin("team"), models.Model):
     """Represents a team of one or more Members."""
 
@@ -41,6 +50,7 @@ class Team(ExportModelOperationsMixin("team"), models.Model):
     leaderboard_points = models.IntegerField(default=0)
     last_score = models.DateTimeField(default=timezone.now)
     size_limit_exempt = models.BooleanField(default=False)
+    leaderboard_group = models.ForeignKey(LeaderboardGroup, on_delete=SET_NULL, related_name="teams", null=True)
 
     objects = TeamQuerySet.as_manager()
 

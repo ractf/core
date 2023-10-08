@@ -8,7 +8,7 @@ from backend.mixins import IncorrectSolvesMixin
 from backend.signals import team_create
 from challenge.serializers import SolveSerializer
 from member.serializers import MinimalMemberSerializer
-from team.models import Team
+from team.models import Team, LeaderboardGroup
 
 
 class SelfTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
@@ -30,8 +30,9 @@ class SelfTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
             "incorrect_solves",
             "points",
             "leaderboard_points",
+            "leaderboard_group"
         ]
-        read_only_fields = ["id", "is_visible", "incorrect_solves"]
+        read_only_fields = ["id", "is_visible", "incorrect_solves", "leaderboard_group"]
 
 
 class TeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
@@ -52,6 +53,7 @@ class TeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
             "incorrect_solves",
             "points",
             "leaderboard_points",
+            "leaderboard_group"
         ]
 
     def get_incorrect_solves(self, instance):
@@ -63,7 +65,13 @@ class ListTeamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
-        fields = ["id", "name", "members"]
+        fields = ["id", "name", "members", "leaderboard_group"]
+
+
+class LeaderboardGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LeaderboardGroup
+        fields = ["name", "description", "is_self_assignable", "has_own_leaderboard"]
 
 
 class AdminTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
@@ -86,6 +94,7 @@ class AdminTeamSerializer(IncorrectSolvesMixin, serializers.ModelSerializer):
             "size_limit_exempt",
             "points",
             "leaderboard_points",
+            "leaderboard_group"
         ]
 
 
@@ -98,18 +107,25 @@ class MinimalTeamSerializer(serializers.ModelSerializer):
 class CreateTeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ["id", "is_visible", "name", "owner", "password"]
+        fields = ["id", "is_visible", "name", "owner", "password", "leaderboard_group"]
         read_only_fields = ["id", "is_visible", "owner"]
 
     def create(self, validated_data):
         try:
             name = validated_data["name"]
             password = validated_data["password"]
+            leaderboard_group = validated_data.get("leaderboard_group", None)
+
+            if leaderboard_group is not None and not leaderboard_group.is_self_assignable:
+                raise ValidationError("illegal_leaderboard_group")
+
             team = Team.objects.create(
                 name=name,
                 password=password,
                 owner=self.context["request"].user,
+                leaderboard_group=leaderboard_group
             )
+
             self.context["request"].user.team = team
             self.context["request"].user.save()
             team_create.send(sender=self.__class__, team=team)

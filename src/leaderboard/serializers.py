@@ -20,10 +20,11 @@ class CTFTimeSerializer(serializers.BaseSerializer):
 
 class LeaderboardTeamScoreSerializer(serializers.ModelSerializer):
     team_name = serializers.ReadOnlyField(source="team.name")
+    leaderboard_group_name = serializers.ReadOnlyField(source="team.leaderboard_group.name")
 
     class Meta:
         model = Score
-        fields = ["points", "timestamp", "team_name", "reason", "metadata"]
+        fields = ["points", "timestamp", "team_name", "reason", "metadata", "leaderboard_group_name"]
 
 
 class LeaderboardUserScoreSerializer(serializers.ModelSerializer):
@@ -37,7 +38,7 @@ class LeaderboardUserScoreSerializer(serializers.ModelSerializer):
 class TeamPointsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ["name", "id", "leaderboard_points"]
+        fields = ["name", "id", "leaderboard_points", "leaderboard_group"]
 
 
 class UserPointsSerializer(serializers.ModelSerializer):
