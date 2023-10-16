@@ -43,7 +43,7 @@ from backend.signals import (
     remove_2fa,
     verify_2fa,
 )
-from backend.viewsets import AdminListModelViewSet
+from backend.viewsets import AdminListModelViewSet, AuditLoggedViewSet
 from config import config
 from member.models import Member
 from plugins import providers
@@ -342,7 +342,7 @@ class GenerateInvitesView(APIView):
         return FormattedResponse({"invite_codes": codes})
 
 
-class InviteViewSet(AdminListModelViewSet):
+class InviteViewSet(AuditLoggedViewSet, AdminListModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
     admin_serializer_class = InviteCodeSerializer
     list_admin_serializer_class = InviteCodeSerializer

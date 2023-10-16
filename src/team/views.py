@@ -18,7 +18,7 @@ from backend.exceptions import FormattedException
 from backend.permissions import AdminOrReadOnlyVisible, ReadOnlyBot, AdminOrReadOnly
 from backend.response import FormattedResponse
 from backend.signals import team_join, team_join_attempt, team_join_reject
-from backend.viewsets import AdminListModelViewSet
+from backend.viewsets import AdminListModelViewSet, AuditLoggedViewSet
 from challenge.models import Solve
 from config import config
 from member.models import Member
@@ -57,7 +57,7 @@ class SelfView(RetrieveUpdateAPIView):
         )
 
 
-class LeaderboardGroupViewSet(AdminListModelViewSet):
+class LeaderboardGroupViewSet(AuditLoggedViewSet, AdminListModelViewSet):
     permission_classes = (AdminOrReadOnly,)
     serializer_class = LeaderboardGroupSerializer
     admin_serializer_class = LeaderboardGroupSerializer
@@ -66,7 +66,7 @@ class LeaderboardGroupViewSet(AdminListModelViewSet):
     queryset = LeaderboardGroup.objects.all()
 
 
-class TeamViewSet(AdminListModelViewSet):
+class TeamViewSet(AuditLoggedViewSet, AdminListModelViewSet):
     permission_classes = (AdminOrReadOnlyVisible,)
     throttle_scope = "team"
     serializer_class = TeamSerializer

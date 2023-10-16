@@ -22,7 +22,7 @@ from rest_framework.viewsets import ModelViewSet
 from backend.permissions import AdminOrReadOnly, IsBot, ReadOnlyBot
 from backend.response import FormattedResponse
 from backend.signals import flag_reject, flag_score, flag_submit
-from backend.viewsets import AdminCreateModelViewSet
+from backend.viewsets import AdminCreateModelViewSet, AuditLoggedViewSet
 from challenge.models import (
     Category,
     Challenge,
@@ -64,7 +64,7 @@ def get_cache_key(user):
         return str(caches["default"].get("challenge_mod_index", 0)) + "categoryvs_team_" + str(user.team.pk)
 
 
-class CategoryViewset(AdminCreateModelViewSet):
+class CategoryViewset(AuditLoggedViewSet, AdminCreateModelViewSet):
     queryset = Category.objects.all()
     permission_classes = (CompetitionOpen & AdminOrReadOnly,)
     throttle_scope = "challenges"
@@ -147,7 +147,7 @@ class CategoryViewset(AdminCreateModelViewSet):
         return FormattedResponse(categories)
 
 
-class ChallengeViewset(AdminCreateModelViewSet):
+class ChallengeViewset(AuditLoggedViewSet, AdminCreateModelViewSet):
     queryset = Challenge.objects.all()
     permission_classes = (CompetitionOpen & AdminOrReadOnly,)
     throttle_scope = "challenges"
