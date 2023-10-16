@@ -24,7 +24,7 @@ django-cachalot = "^2.5"
 django-silk = "^4.2"
 serpy = "^0.3.1"
 django-zxcvbn-password-validator = "^1.4"
-uvicorn = {extras = ["standard"], version = "^0.13.4"}
+uvicorn = {extras = ["standard"], version = "^0.23.2"}
 sentry-sdk = "^1.14.0"
 coverage = {extras = ["toml"], version = "^5.5"}
 Twisted = "22.10.0"
