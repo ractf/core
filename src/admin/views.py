@@ -34,6 +34,6 @@ class AuditLogView(APIView):
     permission_classes = [IsAdminUser]
 
     def get(self, request):
-        serializer = AuditLogSerializer(data=AuditLogEntry.objects.all(), many=True)
+        serializer = AuditLogSerializer(data=AuditLogEntry.objects.order_by("-id").all(), many=True)
         serializer.is_valid()
         return FormattedResponse(serializer.data)

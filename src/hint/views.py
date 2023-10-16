@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from backend.permissions import IsBot
 from backend.response import FormattedResponse
 from backend.signals import use_hint
-from backend.viewsets import AdminCreateModelViewSet
+from backend.viewsets import AdminCreateModelViewSet, AuditLoggedViewSet
 from challenge.permissions import CompetitionOpen
 from challenge.views import get_cache_key
 from hint.models import Hint, HintUse
@@ -21,7 +21,7 @@ from hint.serializers import (
 from team.permissions import HasTeam
 
 
-class HintViewSet(AdminCreateModelViewSet):
+class HintViewSet(AuditLoggedViewSet, AdminCreateModelViewSet):
     queryset = Hint.objects.all()
     permission_classes = (HasUsedHint,)
     throttle_scope = "hint"
