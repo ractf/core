@@ -346,6 +346,7 @@ class InviteViewSet(AuditLoggedViewSet, AdminListModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
     admin_serializer_class = InviteCodeSerializer
     list_admin_serializer_class = InviteCodeSerializer
+    serializer_class = InviteCodeSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["code", "fully_used", "auto_team"]
 
