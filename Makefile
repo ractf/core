@@ -9,7 +9,7 @@ migrations:
 	python src/manage.py makemigrations
 
 test: migrate
-	pytest --testmon src || \
+	pytest src || \
 	if [ $$? = 5 ]; \
 	  then exit 0; \
 	  else exit $$?; \
@@ -46,7 +46,7 @@ clean-db:
 	python scripts/clean_db.py
 
 clean-test:
-	rm -rf /tmp/ractf-linting.cache /tmp/ractf-linting.db .testmondata
+	rm -rf /tmp/ractf-linting.cache /tmp/ractf-linting.db
 
 clean-dev-server:
 	docker-compose rm -sfv

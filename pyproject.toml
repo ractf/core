@@ -53,9 +53,6 @@ nplusone = "^1.0.0"
 faker = "^8.6.0"
 docopt = "^0.6.2"
 
-[tool.poetry.group.dev.dependencies]
-pytest-testmon = "^2.1.0"
-
 [tool.pytest.ini_options]
 python_files = "tests.py test_*.py *_tests.py"
 
