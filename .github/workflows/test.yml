@@ -42,13 +42,6 @@ jobs:
     - name: Run Tests
       run: make coverage
 
-    - name: Upload to CodeCov
-      uses: codecov/codecov-action@v1
-      with:
-        files: ./coverage.xml
-        fail_ci_if_error: true
-        verbose: true
-
     - name: Publish Coverage XML
       uses: actions/upload-artifact@v2
       with:
