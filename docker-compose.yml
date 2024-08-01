@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 x-gunicorn-master: &x-gunicorn-master
   build: .
@@ -21,6 +21,11 @@ x-gunicorn-master: &x-gunicorn-master
     - SQL_USER=postgres
     - SQL_DATABASE=postgres
     - EMAIL_PROVIDER=CONSOLE
+  depends_on:
+    database:
+      condition: service_healthy
+    redis:
+      condition: service_started
 
 services:
   redis:
@@ -33,6 +38,11 @@ services:
       - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - 'postgres:/var/lib/postgresql/data/'
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 1s
+      timeout: 30s
+      retries: 30
 
   shell:
     image: ghcr.io/ractf/shell:latest
@@ -56,13 +66,19 @@ services:
     command: gunicorn backend.wsgi:application -b 0.0.0.0:8000
     depends_on:
       - database
+    healthcheck:
+      test: ["CMD", "curl", "--silent", "http://localhost:8000/admin/"]
+      interval: 10s
+      timeout: 50s
+      retries: 5
 
   sockets:
     <<: *x-gunicorn-master
     entrypoint: /app/entrypoints/sockets.sh
     command: gunicorn backend.asgi:application -b 0.0.0.0:8000
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 volumes:
   postgres: null
